@@ -234,32 +234,71 @@ export type Database = {
         }
         Relationships: []
       }
+      rating_history: {
+        Row: {
+          created_at: string | null
+          match_id: number
+          puuid: string
+          rating_after: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          match_id: number
+          puuid: string
+          rating_after?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          match_id?: number
+          puuid?: string
+          rating_after?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rating_history_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["match_id"]
+          },
+          {
+            foreignKeyName: "rating_history_puuid_fkey"
+            columns: ["puuid"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["puuid"]
+          },
+        ]
+      }
       ratings: {
         Row: {
           best_streak: number | null
-          current_streak: number | null
+          lose_streak: number | null
           losses: number | null
           puuid: string
           rating: number | null
           updated_at: string | null
+          win_streak: number | null
           wins: number | null
         }
         Insert: {
           best_streak?: number | null
-          current_streak?: number | null
+          lose_streak?: number | null
           losses?: number | null
           puuid: string
           rating?: number | null
           updated_at?: string | null
+          win_streak?: number | null
           wins?: number | null
         }
         Update: {
           best_streak?: number | null
-          current_streak?: number | null
+          lose_streak?: number | null
           losses?: number | null
           puuid?: string
           rating?: number | null
           updated_at?: string | null
+          win_streak?: number | null
           wins?: number | null
         }
         Relationships: [

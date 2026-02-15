@@ -15,7 +15,7 @@ export const ladderRouter = createTRPCRouter({
       const { data: ratings, error: ratingsError } = await ctx.supabase
         .from("ratings")
         .select(
-          "puuid, rating, wins, losses, best_streak, current_streak, updated_at",
+          "puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at",
         )
         .not("rating", "is", null)
         .order("rating", { ascending: false })

@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Copy,
   Download,
+  Flame,
   Loader2,
   Trophy,
 } from "lucide-react";
@@ -15,6 +16,7 @@ export const Icons = {
   Calendar,
   ChevronDown,
   Download,
+  Flame,
   Leaderboard: Trophy,
 };
 
