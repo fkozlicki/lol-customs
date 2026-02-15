@@ -40,14 +40,15 @@
   "build": {
     "appId": "com.riftrank.lcu",
     "productName": "Rift Rank LCU",
-    "icon": "assets/icon",
+    "icon": "assets/icon.ico",
     "directories": {
       "output": "release",
       "buildResources": "assets"
     },
     "files": [
       "dist/**",
-      "out/**"
+      "out/**",
+      "assets/icon.ico"
     ],
     "mac": {
       "category": "public.app-category.games",
@@ -62,6 +63,10 @@
       "defaultArch": "x64",
       "publisherName": "Filip Kozlicki",
       "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
     },
     "linux": {
       "target": [
