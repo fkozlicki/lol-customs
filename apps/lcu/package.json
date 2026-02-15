@@ -40,7 +40,7 @@
   "build": {
     "appId": "com.riftrank.lcu",
     "productName": "Rift Rank LCU",
-    "icon": "build/icon",
+    "icon": "assets/icon",
     "directories": {
       "output": "release"
     },
