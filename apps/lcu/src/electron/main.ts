@@ -1,6 +1,7 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { config } from "dotenv";
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, protocol, net } from "electron";
 
 // In dev: .env next to package.json. When packaged: .env in app userData (e.g. %APPDATA%\Custom Ladder LCU\.env).
 const envPath =
@@ -13,8 +14,15 @@ import { loadConfig, saveConfig } from "../config.js";
 import { detectLolDirectory, isLockfileInDirectory } from "../lcu.js";
 import { runSync } from "../sync.js";
 
+// Register custom scheme before app ready (required for protocol.handle).
+protocol.registerSchemesAsPrivileged([
+  { scheme: "app", privileges: { standard: true, secure: true } },
+]);
+
 const isDev =
   process.env.NODE_ENV === "development" || process.env.ELECTRON_DEV === "1";
+
+const outDir = path.join(__dirname, "..", "..", "out");
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -31,13 +39,24 @@ function createWindow(): void {
     win.loadURL("http://localhost:3001");
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, "..", "..", "out", "index.html"));
+    // Load via custom protocol so /_next/static/... resolves to out/_next/static/...
+    win.loadURL("app://./index.html");
   }
 
   win.on("closed", () => {});
 }
 
 app.whenReady().then(() => {
+  // Serve static export from out/ so CSS and JS chunks load (file:// would break /_next/... paths).
+  if (!isDev) {
+    protocol.handle("app", (request) => {
+      const url = new URL(request.url);
+      const pathname = url.pathname.replace(/^\/+/, "") || "index.html";
+      const filePath = path.join(outDir, pathname);
+      return net.fetch(pathToFileURL(filePath).href);
+    });
+  }
+
   createWindow();
 
   app.on("activate", () => {
