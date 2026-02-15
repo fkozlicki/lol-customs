@@ -1,4 +1,4 @@
-# Custom Ladder LCU
+# Rift Rank LCU
 
 Desktop app that collects custom game match data from the League of Legends client and syncs it to your Supabase backend. Built for **non-technical users**: they install, open the app, and click Sync—no config files or setup.
 
@@ -6,12 +6,12 @@ Desktop app that collects custom game match data from the League of Legends clie
 
 ## For your colleagues (end users)
 
-1. **Get the installer** from you (e.g. `Custom Ladder LCU Setup x.x.x.exe` on Windows).
+1. **Get the installer** from you (e.g. `Rift Rank LCU Setup x.x.x.exe` on Windows).
 2. **Install** the app (double‑click the installer and follow the steps).
 3. **Install League of Legends** if it’s not already on the PC, and log in at least once.
-4. **Open Custom Ladder LCU**, then:
+4. **Open Rift Rank LCU**, then:
    - If it says “League client not running”, start **League of Legends** and log in.
-   - Click **Auto-detect** (or **Choose folder** if Auto-detect doesn’t find League).
+   - Click **Select League folder** (or **Change folder** if needed).
    - Click **Sync now** to upload their custom games.
 
 No configuration, no .env files, no terminal—just install and use.
@@ -32,7 +32,7 @@ No configuration, no .env files, no terminal—just install and use.
    ```bash
    cd apps/lcu && bun run release:win
    ```
-   The `.exe` will be in **`apps/lcu/release/`**: `Custom Ladder LCU Setup x.x.x.exe`.
+   The `.exe` will be in **`apps/lcu/release/`**: `Rift Rank LCU Setup x.x.x.exe`.
 
    (Use `bun run release` to build for your current OS only, e.g. Mac → `.app`/`.dmg`.)
 
@@ -40,8 +40,8 @@ Your `.env` is **embedded into the build** (in a config file inside the app). Co
 
 ### Host on GitHub Releases and add download to the web app
 
-1. Create a new release on GitHub (e.g. tag `v0.1.0`), upload **`Custom Ladder LCU Setup x.x.x.exe`** from `apps/lcu/release/` as a release asset.
-2. Copy the asset URL (e.g. `https://github.com/owner/repo/releases/download/v0.1.0/Custom-Ladder-LCU-Setup-0.1.0.exe`).
+1. Create a new release on GitHub (e.g. tag `v0.1.0`), upload **`Rift Rank LCU Setup x.x.x.exe`** from `apps/lcu/release/` as a release asset.
+2. Copy the asset URL (e.g. `https://github.com/owner/repo/releases/download/v0.1.0/Rift-Rank-LCU-Setup-0.1.0.exe`).
 3. In **`apps/app`**, set in your env (e.g. `.env` or Vercel):  
    `NEXT_PUBLIC_LCU_DOWNLOAD_URL=<that URL>`
 4. Redeploy the web app. The dashboard sidebar will show **Download desktop app**; colleagues click it to get the Windows installer.

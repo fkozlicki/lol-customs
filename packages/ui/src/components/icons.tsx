@@ -5,8 +5,13 @@ import {
   Copy,
   Download,
   Flame,
+  Folder,
+  HelpCircle,
   Loader2,
+  Minus,
+  Square,
   Trophy,
+  X,
 } from "lucide-react";
 
 export const Icons = {
@@ -17,7 +22,12 @@ export const Icons = {
   ChevronDown,
   Download,
   Flame,
+  Folder,
+  HelpCircle,
   Leaderboard: Trophy,
+  Minus,
+  Square,
+  X,
 };
 
 export type { LucideIcon } from "lucide-react";

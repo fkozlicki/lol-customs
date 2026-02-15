@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-export const ladderRouter = createTRPCRouter({
+export const riftRankRouter = createTRPCRouter({
   leaderboard: publicProcedure
     .input(
       z

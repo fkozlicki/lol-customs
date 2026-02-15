@@ -1,5 +1,13 @@
 import { contextBridge, ipcRenderer } from "electron";
 
+// Window controls (custom title bar)
+const windowMinimize = () => ipcRenderer.send("window-minimize");
+const windowMaximizeToggle = () => ipcRenderer.send("window-maximize-toggle");
+const windowClose = () => ipcRenderer.send("window-close");
+const onWindowMaximizedChanged = (cb: (maximized: boolean) => void) => {
+  ipcRenderer.on("window-maximized-changed", (_event, maximized: boolean) => cb(maximized));
+};
+
 const syncResult = () =>
   ipcRenderer.invoke("sync") as Promise<{
     success: boolean;
@@ -40,4 +48,8 @@ contextBridge.exposeInMainWorld("lcu", {
   useDetected,
   getClientStatus: clientStatus,
   runSync: syncResult,
+  windowMinimize,
+  windowMaximizeToggle,
+  windowClose,
+  onWindowMaximizedChanged,
 });

@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { config } from "dotenv";
 import { app, BrowserWindow, dialog, ipcMain, protocol, net } from "electron";
 
-// In dev: .env next to package.json. When packaged: .env in app userData (e.g. %APPDATA%\Custom Ladder LCU\.env).
+// In dev: .env next to package.json. When packaged: .env in app userData (e.g. %APPDATA%\Rift Rank LCU\.env).
 const envPath =
   process.env.NODE_ENV === "development" || process.env.ELECTRON_DEV === "1"
     ? path.join(__dirname, "..", "..", ".env")
@@ -27,7 +27,9 @@ const outDir = path.join(__dirname, "..", "..", "out");
 function createWindow(): void {
   const win = new BrowserWindow({
     width: 520,
-    height: 420,
+    height: 620,
+    resizable: false,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -44,7 +46,31 @@ function createWindow(): void {
   }
 
   win.on("closed", () => {});
+
+  // Window controls (custom title bar)
+  win.webContents.on("did-finish-load", () => {
+    win.webContents.send("window-maximized-changed", win.isMaximized());
+  });
+  win.on("maximize", () => win.webContents.send("window-maximized-changed", true));
+  win.on("unmaximize", () => win.webContents.send("window-maximized-changed", false));
 }
+
+ipcMain.on("window-minimize", () => {
+  const w = BrowserWindow.getFocusedWindow();
+  if (w) w.minimize();
+});
+
+ipcMain.on("window-maximize-toggle", () => {
+  const w = BrowserWindow.getFocusedWindow();
+  if (!w) return;
+  if (w.isMaximized()) w.unmaximize();
+  else w.maximize();
+});
+
+ipcMain.on("window-close", () => {
+  const w = BrowserWindow.getFocusedWindow();
+  if (w) w.close();
+});
 
 app.whenReady().then(() => {
   // Serve static export from out/ so CSS and JS chunks load (file:// would break /_next/... paths).
@@ -77,8 +103,13 @@ function getEffectiveDirectory(): string | null {
 
 ipcMain.handle("get-config", () => {
   const userData = app.getPath("userData");
-  const cfg = loadConfig(userData);
+  let cfg = loadConfig(userData);
   const detected = detectLolDirectory();
+  // Auto-detect on start: if no folder saved, use detected path when available
+  if (!cfg.lolDirectory && detected) {
+    cfg.lolDirectory = detected;
+    saveConfig(userData, cfg);
+  }
   const effective = cfg.lolDirectory ?? detected;
   const available = effective ? isLockfileInDirectory(effective) : false;
   return {

@@ -21,7 +21,7 @@ import { useTRPC } from "@/trpc/react";
 const PROFILE_ICON_CDN =
   "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons";
 
-type LeaderboardRow = RouterOutputs["ladder"]["leaderboard"][number];
+type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
 
 function profileIconUrl(iconId: number | null): string | null {
   if (iconId == null) return null;
@@ -114,7 +114,7 @@ interface LeaderboardProps {
 export function Leaderboard({ limit = 50 }: LeaderboardProps) {
   const trpc = useTRPC();
   const { data: leaderboard } = useSuspenseQuery(
-    trpc.ladder.leaderboard.queryOptions({ limit }),
+    trpc.riftRank.leaderboard.queryOptions({ limit }),
   );
 
   if (!leaderboard?.length) {

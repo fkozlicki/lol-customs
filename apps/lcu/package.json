@@ -38,8 +38,9 @@
     "@v1/typescript": "workspace:*"
   },
   "build": {
-    "appId": "com.custom-ladder.lcu",
-    "productName": "Custom Ladder LCU",
+    "appId": "com.riftrank.lcu",
+    "productName": "Rift Rank LCU",
+    "icon": "build/icon",
     "directories": {
       "output": "release"
     },
@@ -57,7 +58,8 @@
       "target": [
         "nsis"
       ],
-      "defaultArch": "x64"
+      "defaultArch": "x64",
+      "publisherName": "Filip Kozlicki"
     },
     "linux": {
       "target": [

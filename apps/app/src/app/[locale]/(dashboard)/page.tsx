@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@v1/ui/card";
 import { Skeleton } from "@v1/ui/skeleton";
 import { Suspense } from "react";
-import { Leaderboard } from "@/components/home/ladder-preview";
+import { Leaderboard } from "@/components/home/leaderboard-preview";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 function LeaderboardSkeleton() {
@@ -22,7 +22,7 @@ function LeaderboardSkeleton() {
 }
 
 export default function DashboardHomePage() {
-  prefetch(trpc.ladder.leaderboard.queryOptions({ limit: 50 }));
+  prefetch(trpc.riftRank.leaderboard.queryOptions({ limit: 50 }));
 
   return (
     <HydrateClient>

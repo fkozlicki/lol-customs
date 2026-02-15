@@ -9,8 +9,11 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
-  title: "Create v1",
-  description: "Production ready Next.js app",
+  title: {
+    default: "Rift Rank",
+    template: "%s | Rift Rank",
+  },
+  description: "Custom game leaderboard and match history for League of Legends.",
 };
 
 export const viewport = {
