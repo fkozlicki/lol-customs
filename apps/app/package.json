@@ -1,0 +1,53 @@
+{
+  "name": "@v1/app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "clean": "git clean -xdf .next .turbo node_modules",
+    "lint": "biome lint",
+    "format": "biome format --write .",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^4.1.3",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-table": "^8.21.3",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "@trpc/tanstack-react-query": "catalog:",
+    "@v1/analytics": "workspace:*",
+    "@v1/api": "workspace:*",
+    "@v1/logger": "workspace:*",
+    "@v1/supabase": "workspace:*",
+    "@v1/ui": "workspace:*",
+    "date-fns": "^4.1.0",
+    "geist": "^1.5.1",
+    "jwt-decode": "^4.0.0",
+    "next": "catalog:react",
+    "next-international": "^1.2.4",
+    "next-safe-action": "^7.9.0",
+    "next-themes": "^0.4.6",
+    "nuqs": "^2.8.6",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "react-hook-form": "^7.54.2",
+    "superjson": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@sentry/nextjs": "^8",
+    "@supabase/sentry-js-integration": "^0.2.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^22",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@v1/typescript": "workspace:*",
+    "postcss": "^8.5.6",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "catalog:"
+  }
+}

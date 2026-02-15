@@ -1,0 +1,49 @@
+import { Card, CardContent, CardHeader } from "@v1/ui/card";
+import { Skeleton } from "@v1/ui/skeleton";
+import { Suspense } from "react";
+import { MatchHistoryList } from "@/components/matches/match-history-list";
+import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
+
+function MatchHistorySkeleton() {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <Skeleton className="h-6 w-32" />
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <li key={i} className="flex justify-between gap-4 py-3">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-16" />
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default async function MatchHistoryPage() {
+  const queryClient = getQueryClient();
+  await Promise.all([
+    queryClient.fetchQuery(trpc.matches.recentWithParticipants.queryOptions({ limit: 50 })),
+    queryClient.fetchQuery(trpc.datadragon.currentPatch.queryOptions()),
+    queryClient.fetchQuery(trpc.datadragon.championMap.queryOptions()),
+  ]);
+
+  return (
+    <HydrateClient>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Match history</h1>
+          <p className="text-muted-foreground text-sm">Recent custom games.</p>
+        </div>
+        <Suspense fallback={<MatchHistorySkeleton />}>
+          <MatchHistoryList limit={50} />
+        </Suspense>
+      </div>
+    </HydrateClient>
+  );
+}

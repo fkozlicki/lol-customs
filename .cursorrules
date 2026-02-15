@@ -1,0 +1,143 @@
+# Vero – Cursor Rules
+
+Use these rules so Cursor generates consistent, clean, and predictable code across the monorepo.
+
+---
+
+## Monorepo & Workspaces
+
+- **Structure**: Turborepo with `apps/*`, `packages/*`, and `tooling/*`. Package manager is **Bun**.
+- **Shared deps**: Use the root `catalog` and `catalogs.react` in `package.json` for versions. Reference as `"catalog:"` or `"catalog:react"` in workspace `package.json`.
+- **Workspace imports**: Use `@v1/api`, `@v1/ui`, `@v1/supabase`, `@v1/logger`, etc. Never use relative paths across packages.
+- **App-local imports**: In `apps/app` use the `@/` alias for `./src/*` (e.g. `@/components/...`, `@/trpc/server`, `@/utils/date`).
+
+---
+
+## Code Style & Structure
+
+- Write concise TypeScript; prefer **functional and declarative** patterns; avoid classes.
+- Prefer iteration and small modules over duplication.
+- Use descriptive names with auxiliary verbs where it helps (e.g. `isLoading`, `hasError`).
+- **File order**: exported component → subcomponents → helpers → static content → types.
+- Use the **`function`** keyword for pure functions and components.
+- Use **named exports** for components; **default export** for the main component in a file is the repo convention (e.g. `export default function UsersTable()`).
+- **Formatting**: Biome with **space** indent; organize imports (Biome assist). No trailing commas required unless Biome adds them.
+
+---
+
+## Naming Conventions
+
+- **Directories**: lowercase with dashes (e.g. `components/auth-wizard`, `room-create-sheet.tsx`).
+- **Components**: PascalCase files and components (e.g. `UsersTable`, `RoomForm`).
+- **Utils/hooks**: camelCase (e.g. `formatDateShort`, `use-mobile.ts`).
+- **tRPC routers**: camelCase router name + Procedure (e.g. `usersRouter`, `rooms.all`, `departments.get`).
+
+---
+
+## TypeScript
+
+- Use **interfaces** for object shapes (e.g. `interface RoomFormProps { ... }`).
+- Avoid enums; use **const maps** or string unions.
+- Use **functional components** with typed props.
+- For tRPC: use `RouterOutputs` and `RouterInputs` from `@v1/api` (e.g. `RouterOutputs["rooms"]["all"][number]` for a single room).
+- Prefer `satisfies` for router definitions: `export const usersRouter = { ... } satisfies TRPCRouterRecord`.
+
+---
+
+## Apps Overview
+
+- **apps/api**: Supabase project (migrations, seeds, edge functions). Not the tRPC server.
+- **apps/app**: Next.js dashboard; locale routing, tRPC, auth, dashboard vs public route groups.
+
+---
+
+## Next.js (apps/app)
+
+- **Routing**: `[locale]` with next-international (e.g. `en`, `fr`). Route groups: `(dashboard)`, `(public)`.
+- **Data in pages**: Prefer **Server Components**. Use `prefetch(trpc.router.procedure.queryOptions())` (and optionally with args), then wrap children in `<HydrateClient>` so client components can use the same data.
+- **Client data**: In client components use `useTRPC()` and `useSuspenseQuery(trpc.router.procedure.queryOptions())`. Keep **Suspense** boundaries with a domain-specific fallback (e.g. `<TableSkeleton />`, `<RoomsListSkeleton />`).
+- **Params**: In Next 15+, params are a Promise: `const { id } = await params;`.
+- **Detail/not found**: Use `getQueryClient().fetchQuery(trpc.router.get.queryOptions({ id: +id }))` and call `notFound()` when the entity is missing.
+- **Loading**: Add `loading.tsx` per route when needed; use `Skeleton` from `@v1/ui/skeleton`.
+- **Layout**: Root layout provides `TRPCReactProvider`, `ThemeProvider`, `NuqsAdapter`, `Toaster`. Dashboard layout uses `SidebarProvider` and `DashboardSidebar`.
+
+---
+
+## tRPC (packages/api)
+
+- **Context**: `createTRPCContext` uses Supabase server client and auth (`getUser`, `getSession`). Use `ctx.supabase` and `ctx.user` / `ctx.session` in procedures.
+- **Procedures**: Prefer `protectedProcedure` for authenticated routes; use `publicProcedure` only for login/public endpoints.
+- **New router**: Create a file in `packages/api/src/router/` (e.g. `users.ts`). Export a const object with `all`, `get`, `create`, `update`, `delete` (or subset) using `protectedProcedure`/`publicProcedure`, `.input(z.object({ ... }))` for args, and `satisfies TRPCRouterRecord`. Add the router to `root.ts` and re-export types from `index.ts`.
+- **Errors**: On Supabase/validation errors throw `new TRPCError({ code: "INTERNAL_SERVER_ERROR" | "BAD_REQUEST" | "NOT_FOUND", message: error.message })`.
+- **Validation**: Use **Zod** for inputs (`z.object()`, `z.number()`, `z.string()`, etc.). Import `z` from `"zod"` in routers (trpc.ts uses `zod/v4` for error formatting only).
+
+---
+
+## Forms & Mutations (apps/app)
+
+- **Stack**: `react-hook-form` + `@hookform/resolvers/zod` + Zod schema. Use `useForm<Values>({ resolver: zodResolver(schema), defaultValues })`.
+- **Submit**: `form.handleSubmit((data) => mutate(data))`. Use tRPC mutation: `useMutation(trpc.router.create.mutationOptions({ onSuccess, onError, ... }))`.
+- **Optimistic updates**: In `onMutate` cancel queries, snapshot previous data, then `queryClient.setQueryData(trpc.router.all.queryKey(), ...)`. In `onError` restore snapshot; in `onSettled` invalidate the list query.
+- **Feedback**: Use `toast.success()` / `toast.error()` from `@v1/ui/sonner`.
+- **Sheets/Dialogs**: Prefer **nuqs** for open state (e.g. `parseAsBoolean.withDefault(false)`, `useQueryState("create-room", ...)`) so state is URL-driven.
+
+---
+
+## UI & Styling
+
+- **Components**: Use **Shadcn UI** from `@v1/ui/*` (e.g. `@v1/ui/button`, `@v1/ui/sheet`, `@v1/ui/form`, `@v1/ui/table`). Do not duplicate these in the app.
+- **Styling**: **Tailwind CSS** only. Use `cn()` from `@v1/ui/cn` for conditional classes.
+- **Icons**: Use `Icons` from `@v1/ui/icons` (e.g. `Icons.Create`, `Icons.Loader`).
+- **Theme**: Support light/dark via `next-themes`; use semantic tokens (e.g. `text-muted-foreground`) where available.
+- **Responsive**: Mobile-first; use `sm:`, `md:`, `lg:` breakpoints consistently.
+- **Empty/loading**: Reuse shared components (e.g. `NoDataBadge`, `TableSkeleton`, `Empty`) and domain-specific skeletons where they exist.
+
+---
+
+## Server Actions
+
+- Use `"use server"` at the top of the file. Export async functions that take typed arguments or `FormData`; return serializable data or a result object for the client to handle.
+
+---
+
+## Error Handling & Validation
+
+- Handle errors and edge cases early; use early returns and guard clauses.
+- **Validation**: Zod for all tRPC inputs and form schemas.
+- **Expected errors**: Model as return values (e.g. `{ success: false, error: string }`) in Server Actions.
+- **Unexpected errors**: Use error boundaries and `global-error.tsx`; log appropriately (e.g. Sentry in app).
+
+---
+
+## Performance & React
+
+- Prefer **Server Components**; add `"use client"` only when needed (hooks, event handlers, browser APIs).
+- Wrap client trees in **Suspense** with a clear fallback.
+- Use **dynamic** imports for heavy or below-the-fold UI when it helps.
+- Avoid putting data fetching or global state in client components when the same can be done in RSC + prefetch + hydration.
+
+---
+
+## Supabase
+
+- **Server (RSC, API, tRPC)**: Use `createClient` from `@v1/supabase/server`. Never use the server client in client components.
+- **Types**: Use `Database` and generated types from `@v1/supabase` (e.g. in `packages/supabase/src/types`).
+- **Migrations**: Add under `apps/api/supabase/migrations/` with timestamp prefix; keep seeds in `apps/api/supabase/seeds/`.
+
+---
+
+## Environment & Config
+
+- **App env**: Define and validate in `apps/app/src/env.mjs` with `@t3-oss/env-nextjs` and Zod. List every used variable in `runtimeEnv` and in `server`/`client` sections.
+- **Biome**: Repo uses Biome for lint and format; respect `biome.json` (e.g. organize imports, space indent). Use `biome-ignore` sparingly and only with a short reason.
+
+---
+
+## Summary Checklist for New Code
+
+1. **New tRPC router**: Add in `packages/api/src/router/`, register in `root.ts`, use `protectedProcedure`/`publicProcedure` + Zod input + `TRPCError` on failure.
+2. **New page**: Prefetch relevant queries, wrap in `HydrateClient`, use Suspense + skeleton where a client component consumes the data.
+3. **New client component**: Use `useTRPC()` and `useSuspenseQuery(trpc....queryOptions())`; keep components small and focused.
+4. **New form**: react-hook-form + zodResolver + Zod schema; tRPC mutation with optimistic updates and toast.
+5. **New UI**: Prefer `@v1/ui` components and Tailwind; use `cn()` and semantic tokens.
+6. **Imports**: `@v1/*` for packages, `@/` for app src; default export for main component.

@@ -1,0 +1,39 @@
+{
+  "name": "@v1/supabase",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@v1/logger": "workspace:*",
+    "react": "catalog:react",
+    "server-only": "^0.0.1",
+    "supabase": "catalog:"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.45.3",
+    "@v1/typescript": "workspace:*",
+    "next": "catalog:react",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "next": "catalog:next",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "exports": {
+    "./server": "./src/clients/server.ts",
+    "./client": "./src/clients/client.ts",
+    "./mutations": "./src/mutations/index.ts",
+    "./middleware": "./src/clients/middleware.ts",
+    "./queries": "./src/queries/index.ts",
+    "./types": "./src/types/index.ts"
+  }
+}

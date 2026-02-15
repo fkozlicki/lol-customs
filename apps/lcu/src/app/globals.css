@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@source "../../../../packages/ui/src/components/*.{ts,tsx}";
+
+@theme inline {
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --background: #1a1a2e;
+  --foreground: #eaeaea;
+  --card: #0f0f1a;
+  --card-foreground: #eaeaea;
+  --primary: #6366f1;
+  --primary-foreground: #fff;
+  --secondary: #374151;
+  --secondary-foreground: #eaeaea;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #374151;
+  --accent-foreground: #eaeaea;
+  --destructive: #ef4444;
+  --border: #374151;
+  --input: #374151;
+  --ring: #6366f1;
+}

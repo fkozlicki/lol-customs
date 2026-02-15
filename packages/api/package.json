@@ -1,0 +1,28 @@
+{
+  "name": "@v1/api",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.8.1",
+    "@v1/logger": "workspace:*",
+    "@v1/supabase": "workspace:*",
+    "superjson": "^2.2.6",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@v1/typescript": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

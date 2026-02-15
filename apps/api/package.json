@@ -1,0 +1,16 @@
+{
+  "name": "@v1/supapi",
+  "private": true,
+  "scripts": {
+    "dev": "supabase start",
+    "login": "supabase login",
+    "stop": "supabase stop",
+    "migrate": "supabase migration up",
+    "seed": "supabase db seed generate && supabase db seed run",
+    "reset": "supabase db reset",
+    "generate": "supabase gen types --lang=typescript --local --schema public > ../../packages/supabase/src/types/db.ts"
+  },
+  "dependencies": {
+    "supabase": "catalog:"
+  }
+}

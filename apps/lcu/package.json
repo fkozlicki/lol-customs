@@ -1,0 +1,50 @@
+{
+  "name": "@v1/lcu",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "dev": "tsc -p tsconfig.electron.json && concurrently -k \"next dev -p 3001\" \"wait-on http://localhost:3001 && cross-env ELECTRON_DEV=1 electron .\"",
+    "build": "next build && tsc -p tsconfig.electron.json && node scripts/embed-config.mjs && electron-builder",
+    "release": "bun run build",
+    "release:win": "bun run build:next && bun run build:electron && node scripts/embed-config.mjs && electron-builder --win",
+    "build:next": "next build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "clean": "git clean -xdf dist out .next .turbo node_modules release",
+    "lint": "biome lint",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.3",
+    "@v1/ui": "workspace:*",
+    "dotenv": "^16.4.5",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^22",
+    "cross-env": "^7.0.2",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "concurrently": "^9.1.0",
+    "next": "catalog:react",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "wait-on": "^8.0.1",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@v1/typescript": "workspace:*"
+  },
+  "build": {
+    "appId": "com.custom-ladder.lcu",
+    "productName": "Custom Ladder LCU",
+    "directories": { "output": "release" },
+    "files": ["dist/**", "out/**"],
+    "mac": { "category": "public.app-category.games", "target": ["dmg"] },
+    "win": { "target": ["nsis"] },
+    "linux": { "target": ["AppImage"] }
+  }
+}
