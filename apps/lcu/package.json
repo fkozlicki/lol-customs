@@ -42,7 +42,8 @@
     "productName": "Rift Rank LCU",
     "icon": "assets/icon",
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "assets"
     },
     "files": [
       "dist/**",
@@ -59,7 +60,8 @@
         "nsis"
       ],
       "defaultArch": "x64",
-      "publisherName": "Filip Kozlicki"
+      "publisherName": "Filip Kozlicki",
+      "icon": "assets/icon.ico"
     },
     "linux": {
       "target": [
