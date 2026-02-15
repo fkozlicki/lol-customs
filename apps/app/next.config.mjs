@@ -3,6 +3,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {},
   transpilePackages: ["@v1/supabase"],
   images: {
     remotePatterns: [
