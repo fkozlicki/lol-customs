@@ -5,7 +5,9 @@ const windowMinimize = () => ipcRenderer.send("window-minimize");
 const windowMaximizeToggle = () => ipcRenderer.send("window-maximize-toggle");
 const windowClose = () => ipcRenderer.send("window-close");
 const onWindowMaximizedChanged = (cb: (maximized: boolean) => void) => {
-  ipcRenderer.on("window-maximized-changed", (_event, maximized: boolean) => cb(maximized));
+  ipcRenderer.on("window-maximized-changed", (_event, maximized: boolean) =>
+    cb(maximized),
+  );
 };
 
 const syncResult = () =>
@@ -42,6 +44,18 @@ const clientStatus = () =>
     effectiveDirectory: string | null;
   }>;
 
+type VersionCheckResult =
+  | { allowed: true }
+  | { allowed: false; downloadUrl: string };
+
+function onVersionCheckResult(
+  callback: (result: VersionCheckResult) => void,
+): void {
+  ipcRenderer.on("version-check-result", (_event, result: VersionCheckResult) =>
+    callback(result),
+  );
+}
+
 contextBridge.exposeInMainWorld("lcu", {
   getConfig,
   openFolderDialog,
@@ -52,4 +66,5 @@ contextBridge.exposeInMainWorld("lcu", {
   windowMaximizeToggle,
   windowClose,
   onWindowMaximizedChanged,
+  onVersionCheckResult,
 });

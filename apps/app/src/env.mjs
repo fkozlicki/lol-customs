@@ -11,6 +11,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "production"]).default("development"),
   },
   server: {
+    LCU_MINIMUM_VERSION: z.string().optional().default("0.0.0"),
     SUPABASE_SERVICE_KEY: z.string(),
     RIOT_API_KEY: z.string(),
   },
@@ -21,6 +22,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_URL: z.string(),
   },
   runtimeEnv: {
+    LCU_MINIMUM_VERSION: process.env.LCU_MINIMUM_VERSION,
     NEXT_PUBLIC_LCU_DOWNLOAD_URL: process.env.NEXT_PUBLIC_LCU_DOWNLOAD_URL,
     NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL: process.env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,

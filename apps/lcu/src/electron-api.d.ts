@@ -1,3 +1,7 @@
+export type VersionCheckResult =
+  | { allowed: true }
+  | { allowed: false; downloadUrl: string };
+
 declare global {
   interface Window {
     lcu?: {
@@ -20,8 +24,7 @@ declare global {
       windowMaximizeToggle?: () => void;
       windowClose?: () => void;
       onWindowMaximizedChanged?: (cb: (maximized: boolean) => void) => void;
+      onVersionCheckResult?: (cb: (result: VersionCheckResult) => void) => void;
     };
   }
 }
-
-export {};

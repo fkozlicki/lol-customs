@@ -18,6 +18,8 @@
     "@supabase/supabase-js": "^2.45.3",
     "@v1/ui": "workspace:*",
     "dotenv": "^16.4.5",
+    "electron-updater": "^6.3.9",
+    "semver": "^7.6.3",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -35,6 +37,7 @@
     "wait-on": "^8.0.1",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
+    "@types/semver": "^7.5.8",
     "@v1/typescript": "workspace:*"
   },
   "build": {
@@ -49,6 +52,12 @@
       "dist/**",
       "out/**",
       "assets/icon.ico"
+    ],
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://example.com/lcu-releases"
+      }
     ],
     "mac": {
       "category": "public.app-category.games",

@@ -20,13 +20,9 @@ export function TitleBar() {
 
   return (
     <header
-      className="flex h-8 shrink-0 select-none items-center justify-between border-b border-border bg-card px-3"
+      className="flex h-8 shrink-0 select-none items-center justify-end border-b border-border bg-card px-3"
       style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
     >
-      <span className="truncate text-sm font-medium text-foreground">
-        Rift Rank LCU
-      </span>
-
       {hasWindowControls && (
         <div
           className="flex items-center"
@@ -61,4 +57,3 @@ export function TitleBar() {
     </header>
   );
 }
-

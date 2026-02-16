@@ -1,7 +1,10 @@
+import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { config } from "dotenv";
-import { app, BrowserWindow, dialog, ipcMain, protocol, net } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, net, protocol } from "electron";
+import { autoUpdater } from "electron-updater";
+import semver from "semver";
 
 // In dev: .env next to package.json. When packaged: .env in app userData (e.g. %APPDATA%\Rift Rank LCU\.env).
 const envPath =
@@ -14,6 +17,28 @@ import { loadConfig, saveConfig } from "../config.js";
 import { detectLolDirectory, isLockfileInDirectory } from "../lcu.js";
 import { runSync } from "../sync.js";
 
+interface AppConfig {
+  APP_BASE_URL: string;
+  UPDATE_FEED_URL: string;
+}
+
+function loadAppConfig(): AppConfig | null {
+  try {
+    const configPath = path.join(__dirname, "..", "app-config.json");
+    const raw = fs.readFileSync(configPath, "utf8");
+    const data = JSON.parse(raw) as AppConfig;
+    if (
+      typeof data.APP_BASE_URL === "string" &&
+      typeof data.UPDATE_FEED_URL === "string"
+    ) {
+      return data;
+    }
+  } catch {
+    // In dev or if app-config.json is missing
+  }
+  return null;
+}
+
 // Register custom scheme before app ready (required for protocol.handle).
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { standard: true, secure: true } },
@@ -24,7 +49,84 @@ const isDev =
 
 const outDir = path.join(__dirname, "..", "..", "out");
 
-function createWindow(): void {
+async function runVersionCheckAndUpdater(win: BrowserWindow): Promise<void> {
+  const currentVersion = app.getVersion();
+
+  if (isDev) {
+    win.webContents.send("version-check-result", { allowed: true });
+    return;
+  }
+
+  const appConfig = loadAppConfig();
+  if (!appConfig) {
+    win.webContents.send("version-check-result", { allowed: true });
+    return;
+  }
+
+  try {
+    const base = appConfig.APP_BASE_URL.replace(/\/$/, "");
+    const res = await fetch(`${base}/api/lcu/minimum-version`);
+    if (!res.ok) throw new Error("Version check failed");
+    const data = (await res.json()) as {
+      minimumVersion: string;
+      downloadUrl: string;
+    };
+    const minimumVersion = data.minimumVersion ?? "0.0.0";
+    const downloadUrl = data.downloadUrl ?? "";
+
+    if (
+      semver.valid(minimumVersion) &&
+      semver.lt(currentVersion, minimumVersion)
+    ) {
+      win.webContents.send("version-check-result", {
+        allowed: false,
+        downloadUrl,
+      });
+      const { response } = await dialog.showMessageBox(win, {
+        type: "info",
+        title: "Update required",
+        message:
+          "A new version of Rift Rank LCU is required. Please download the latest version.",
+        detail: downloadUrl ? `Download: ${downloadUrl}` : undefined,
+        buttons: ["Quit"],
+      });
+      if (response === 0) app.quit();
+      return;
+    }
+  } catch {
+    // Network error or invalid response: allow app to run
+  }
+
+  win.webContents.send("version-check-result", { allowed: true });
+
+  // Configure and run auto-updater
+  autoUpdater.setFeedURL({
+    provider: "generic",
+    url: appConfig.UPDATE_FEED_URL,
+  });
+  autoUpdater.checkForUpdatesAndNotify().catch((err: unknown) => {
+    console.error("Update check failed:", err);
+  });
+
+  autoUpdater.on("update-downloaded", () => {
+    dialog
+      .showMessageBox(win, {
+        type: "info",
+        title: "Update ready",
+        message:
+          "A new version has been downloaded. Restart the app to install.",
+        buttons: ["Restart", "Later"],
+      })
+      .then(({ response }) => {
+        if (response === 0) autoUpdater.quitAndInstall();
+      });
+  });
+  autoUpdater.on("error", (err: Error) => {
+    console.error("Updater error:", err);
+  });
+}
+
+function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 520,
     height: 620,
@@ -41,18 +143,23 @@ function createWindow(): void {
     win.loadURL("http://localhost:3001");
     win.webContents.openDevTools();
   } else {
-    // Load via custom protocol so /_next/static/... resolves to out/_next/static/...
     win.loadURL("app://./index.html");
   }
 
   win.on("closed", () => {});
 
-  // Window controls (custom title bar)
   win.webContents.on("did-finish-load", () => {
     win.webContents.send("window-maximized-changed", win.isMaximized());
+    runVersionCheckAndUpdater(win);
   });
-  win.on("maximize", () => win.webContents.send("window-maximized-changed", true));
-  win.on("unmaximize", () => win.webContents.send("window-maximized-changed", false));
+  win.on("maximize", () =>
+    win.webContents.send("window-maximized-changed", true),
+  );
+  win.on("unmaximize", () =>
+    win.webContents.send("window-maximized-changed", false),
+  );
+
+  return win;
 }
 
 ipcMain.on("window-minimize", () => {
@@ -86,7 +193,9 @@ app.whenReady().then(() => {
   createWindow();
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
   });
 });
 
@@ -103,7 +212,7 @@ function getEffectiveDirectory(): string | null {
 
 ipcMain.handle("get-config", () => {
   const userData = app.getPath("userData");
-  let cfg = loadConfig(userData);
+  const cfg = loadConfig(userData);
   const detected = detectLolDirectory();
   // Auto-detect on start: if no folder saved, use detected path when available
   if (!cfg.lolDirectory && detected) {
