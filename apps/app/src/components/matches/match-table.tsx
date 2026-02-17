@@ -92,8 +92,8 @@ export default function TeamTable({
               className={cn(
                 "border-none",
                 isVictorious
-                  ? "bg-blue-50 hover:bg-blue-100"
-                  : "bg-red-50 hover:bg-red-100",
+                  ? "bg-blue-50 hover:bg-blue-100 dark:bg-blue-900 dark:hover:bg-blue-800"
+                  : "bg-red-50 hover:bg-red-100 dark:bg-red-900 dark:hover:bg-red-800",
               )}
             >
               <TableCell className="p-1">
