@@ -22,7 +22,7 @@ export async function saveMatch(
   const { error: matchError } = await supabase.from("matches").upsert(matchRow);
 
   if (matchError) {
-    console.error("Match insert error:", matchError);
+    console.error("Match insert error:", matchError.message, matchError.code, matchError.details);
     return false;
   }
 
@@ -31,23 +31,28 @@ export async function saveMatch(
     .upsert(players);
 
   if (playersError) {
-    console.error("Players insert error:", playersError);
+    console.error("Players insert error:", playersError.message, playersError.code, playersError.details);
     return false;
   }
 
   const { error: teamsError } = await supabase.from("teams").upsert(teams);
 
   if (teamsError) {
-    console.error("Teams insert error:", teamsError);
+    console.error("Teams insert error:", teamsError.message, teamsError.code, teamsError.details);
     return false;
   }
 
   const { error: participantsError } = await supabase
     .from("match_participants")
-    .upsert(participants);
+    .upsert(participants, { onConflict: "match_id,puuid" });
 
   if (participantsError) {
-    console.error("Participants insert error:", participantsError);
+    console.error(
+      "Participants insert error:",
+      participantsError.message,
+      participantsError.code,
+      participantsError.details,
+    );
     return false;
   }
 
