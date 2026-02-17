@@ -5,11 +5,14 @@ import { saveMatch } from "./save-match.js";
 interface MatchSummary {
   gameId: number;
   gameType: string;
+  queueId: number;
 }
 
 interface MatchHistoryResponse {
   games: { games: MatchSummary[] };
 }
+
+const CUSTOM_GAME_QUEUE_ID = 3120;
 
 async function fetchCustomMatches(
   lolDirectory: string,
@@ -20,7 +23,7 @@ async function fetchCustomMatches(
       "/lol-match-history/v1/products/lol/current-summoner/matches",
     )
     .then((res) =>
-      res.data.games.games.filter((g) => g.gameType === "CUSTOM_GAME"),
+      res.data.games.games.filter((g) => g.queueId === CUSTOM_GAME_QUEUE_ID),
     );
 }
 
