@@ -137,7 +137,7 @@ export default function TeamTable({
                       ).toLocaleString()}
                     </span>
                     <Progress
-                      className="w-10 [&>div]:bg-red-600 rounded-none h-1.5 bg-white"
+                      className="w-10 [&>div]:bg-red-600 dark:[&>div]:bg-red-900 rounded-none h-1.5 bg-background"
                       value={damageDealtPercentage}
                     />
                   </div>
@@ -146,7 +146,7 @@ export default function TeamTable({
                       {(p.total_damage_taken ?? 0).toLocaleString()}
                     </span>
                     <Progress
-                      className="w-10 [&>div]:bg-gray-300 rounded-none h-1.5 bg-white"
+                      className="w-10 [&>div]:bg-gray-300 rounded-none h-1.5 bg-background dark:[&>div]:bg-gray-600"
                       value={damageTakenPercentage}
                     />
                   </div>
