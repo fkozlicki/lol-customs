@@ -1,6 +1,6 @@
 import { createLcuClient } from "./lcu.js";
 import type { LcuMatchDetails } from "./lcu-types.js";
-import { fetchRankForSummoner } from "./fetch-rank.js";
+import { fetchRankForParticipant } from "./fetch-rank.js";
 import { fetchTimeline } from "./fetch-timeline.js";
 import { saveMatch } from "./save-match.js";
 import { supabase } from "./supabase.js";
@@ -106,10 +106,16 @@ export async function saveSelectedMatches(
         string,
         { rank_tier: string; rank_division: string }
       >();
+      const platformId = details.platformId ?? "eun1";
       for (const identity of details.participantIdentities) {
-        const summonerId = identity.player.summonerId;
-        if (summonerId == null) continue;
-        const rank = await fetchRankForSummoner(lolDirectory, summonerId);
+        const gameName = identity.player.gameName;
+        const tagLine = identity.player.tagLine;
+        if (!gameName?.trim() || !tagLine?.trim()) continue;
+        const rank = await fetchRankForParticipant(
+          gameName,
+          tagLine,
+          platformId,
+        );
         if (rank) {
           participantRanks.set(identity.player.puuid, rank);
         }
