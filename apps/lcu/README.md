@@ -30,21 +30,40 @@ No configuration, no .env files, no terminal—just install and use.
 2. In **`apps/lcu`**, create a `.env` file (copy from `.env.example`) and set **your** Supabase URL and service key. This is only for the build; colleagues never see or edit this.
 3. Build the **Windows** installer (works from macOS, Linux, or Windows):
    ```bash
-   cd apps/lcu && bun run release:win
+   cd apps/lcu && bun run release
    ```
-   The `.exe` will be in **`apps/lcu/release/`**: `Niunio Setup x.x.x.exe`.
+   The **`.exe`** and **`latest.yml`** (for auto-updates) will be in **`apps/lcu/release/`**, e.g. `Niunio Setup 0.2.0.exe` and `latest.yml`.
 
-   (Use `bun run release` to build for your current OS only, e.g. Mac → `.app`/`.dmg`.)
+   (Use `bun run build` to build for your current OS only, e.g. Mac → `.app`/`.dmg`.)
 
 Your `.env` is **embedded into the build** (in a config file inside the app). Colleagues get an app that already points at your Supabase project—they don’t configure anything.
 
-### Host on GitHub Releases and add download to the web app
+### GitHub Releases: download link + auto-updates (no folder)
 
-1. Create a new release on GitHub (e.g. tag `v0.1.0`), upload **`Niunio Setup x.x.x.exe`** from `apps/lcu/release/` as a release asset.
-2. Copy the asset URL (e.g. `https://github.com/owner/repo/releases/download/v0.1.0/Rift-Rank-LCU-Setup-0.1.0.exe`).
-3. In **`apps/app`**, set in your env (e.g. `.env` or Vercel):  
-   `NEXT_PUBLIC_LCU_DOWNLOAD_URL=<that URL>`
-4. Redeploy the web app. The dashboard sidebar will show **Download desktop app**; colleagues click it to get the Windows installer.
+GitHub Releases don’t let you upload a folder, only individual files. You can still use them for both the download link and auto-updates by using **one release with a fixed tag** and uploading two files per version.
+
+**One-time setup**
+
+1. On GitHub, create a release with a **fixed tag** you’ll reuse (e.g. `lcu` or `desktop`). You can create it without any assets; you’ll add files in the next step.
+2. In **`apps/lcu`** `.env`, set:
+   - `APP_BASE_URL` = your web app URL (e.g. `https://yourapp.com`)
+   - `UPDATE_FEED_URL` = the **download base URL** of that release, **no trailing slash**, e.g.  
+     `https://github.com/owner/repo/releases/download/lcu`  
+     (Replace `owner/repo` and `lcu` with your repo and tag.)
+
+**For each new version (e.g. 0.2.0)**
+
+1. In `apps/lcu`, run **`bun run release`**. You get **`release/Niunio Setup 0.2.0.exe`** and **`release/latest.yml`**.
+2. Open the **same** release on GitHub (tag `lcu`).
+3. Upload **both files** as release assets:
+   - `Niunio Setup 0.2.0.exe`
+   - `latest.yml`  
+   (You can delete the previous version’s exe from the release to avoid clutter; keep one exe + one `latest.yml` so the feed always points at the current build.)
+4. In **`apps/app`**, set **`NEXT_PUBLIC_LCU_DOWNLOAD_URL`** to the **direct asset URL** of the installer, e.g.  
+   `https://github.com/owner/repo/releases/download/lcu/Niunio%20Setup%200.2.0.exe`  
+   (Optional: set **`LCU_MINIMUM_VERSION=0.2.0`** and redeploy so old clients are prompted to update.)
+
+The desktop app will request **`UPDATE_FEED_URL/latest.yml`** (e.g. `.../releases/download/lcu/latest.yml`). GitHub serves each asset by filename, so as long as `latest.yml` and the exe are on that release, auto-updates work. No folder needed—just two files per release on the same fixed-tag release.
 
 ### Security note
 
