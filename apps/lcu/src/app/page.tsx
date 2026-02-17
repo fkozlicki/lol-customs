@@ -33,21 +33,113 @@ function truncatePath(p: string, maxLen = 44): string {
   return `…${p.slice(-maxLen + 1)}`;
 }
 
-function formatGameDate(ts?: number): string {
-  if (ts == null) return "—";
-  const d = new Date(ts);
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 function formatDuration(sec?: number): string {
   if (sec == null) return "—";
   const m = Math.floor(sec / 60);
   const s = sec % 60;
   return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function formatGameDateShort(ts?: number): string {
+  if (ts == null) return "—";
+  const d = new Date(ts);
+  return d.toLocaleDateString(undefined, {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  });
+}
+
+interface GameCardProps {
+  game: GameForUi;
+  isSelected: boolean;
+  onToggle: () => void;
+}
+
+function GameCard({ game, isSelected, onToggle }: GameCardProps) {
+  const isSaved = game.isSaved;
+  return (
+    <article
+      className={cn(
+        "relative flex w-full items-stretch gap-3 overflow-hidden rounded-none border-x-0 border-b border-t-0 border-zinc-700/50 bg-zinc-900/95 px-3 py-2.5",
+        isSaved && "opacity-80",
+      )}
+    >
+      {/* Gold accent lines (top and bottom) */}
+      <div className="absolute left-0 right-0 top-0 h-px bg-linear-to-r from-transparent via-amber-500/50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-amber-500/30 to-transparent" />
+
+      {/* Left: checkbox (replaces champion area for selection) + outcome/mode */}
+      <div className="flex shrink-0 items-start gap-2 pt-0.5">
+        <div className="flex flex-col items-center gap-1">
+          <input
+            type="checkbox"
+            id={`game-${game.gameId}`}
+            checked={isSelected}
+            disabled={isSaved}
+            onChange={onToggle}
+            className="size-4 shrink-0 rounded border-amber-500/50 bg-zinc-800 text-amber-500 focus:ring-amber-500/50"
+          />
+          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-amber-500/30 bg-zinc-800">
+            <Icons.Square className="size-5 text-amber-500/50" />
+          </div>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span
+            className={cn(
+              "text-xs font-bold uppercase tracking-wide",
+              isSaved ? "text-zinc-500" : "text-cyan-400",
+            )}
+          >
+            {isSaved ? "Saved" : "Custom"}
+          </span>
+          <span className="text-[11px] text-zinc-500">Custom</span>
+        </div>
+      </div>
+
+      {/* Middle: placeholder stats row (same layout as reference) */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+        <div className="flex gap-0.5">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="size-7 shrink-0 rounded border border-amber-500/20 bg-zinc-800/80"
+            />
+          ))}
+        </div>
+        <div className="flex items-center gap-3 text-xs text-zinc-400">
+          <span>— / — / —</span>
+          <span className="flex items-center gap-0.5">
+            — <Icons.Minus className="size-3 text-zinc-500" />
+          </span>
+          <span className="flex items-center gap-0.5">
+            — <Icons.Minus className="size-3 text-zinc-500" />
+          </span>
+        </div>
+      </div>
+
+      {/* Right: rune placeholder, map, duration, date + Saved badge */}
+      <div className="flex shrink-0 items-center gap-2">
+        <div className="size-8 shrink-0 rounded border border-amber-500/20 bg-zinc-800/80" />
+        <div className="flex flex-col items-end justify-center gap-0.5">
+          <span className="text-xs text-zinc-400">Summoner&apos;s Rift</span>
+          <span className="text-[11px] text-zinc-500">
+            {formatDuration(game.duration)}
+            <span className="mx-1 text-zinc-600">·</span>
+            {formatGameDateShort(game.gameCreation)}
+          </span>
+          {isSaved && (
+            <Badge
+              variant="secondary"
+              className="mt-1 border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            >
+              Saved
+            </Badge>
+          )}
+        </div>
+      </div>
+    </article>
+  );
 }
 
 export default function Home() {
@@ -236,41 +328,14 @@ export default function Home() {
               </button>
             )}
           </div>
-          <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-border p-2">
+          <ul className="flex max-h-80 flex-col overflow-y-auto rounded-md border border-border bg-zinc-950/50">
             {games.map((game) => (
-              <li
-                key={game.gameId}
-                className={cn(
-                  "flex items-center justify-between gap-2 rounded px-2 py-1.5 text-sm",
-                  game.isSaved && "bg-muted/50",
-                )}
-              >
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`game-${game.gameId}`}
-                    checked={selectedIds.has(game.gameId)}
-                    disabled={game.isSaved}
-                    onChange={() => toggleSelection(game.gameId, game.isSaved)}
-                    className="size-4 shrink-0 rounded border-input"
-                  />
-                  <label
-                    htmlFor={game.isSaved ? undefined : `game-${game.gameId}`}
-                    className={cn(
-                      "min-w-0 flex-1 cursor-default text-left",
-                      game.isSaved && "cursor-default",
-                    )}
-                  >
-                    <span className="font-mono text-muted-foreground">
-                      #{game.gameId}
-                    </span>{" "}
-                    {formatGameDate(game.gameCreation)} ·{" "}
-                    {formatDuration(game.duration)}
-                  </label>
-                </div>
-                {game.isSaved ? (
-                  <Badge variant="secondary">Saved</Badge>
-                ) : null}
+              <li key={game.gameId}>
+                <GameCard
+                  game={game}
+                  isSelected={selectedIds.has(game.gameId)}
+                  onToggle={() => toggleSelection(game.gameId, game.isSaved)}
+                />
               </li>
             ))}
           </ul>
