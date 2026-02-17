@@ -4,6 +4,9 @@
  * 2. lol/league/v4/entries/by-puuid/{puuid} → entries (use RANKED_SOLO_5x5)
  */
 
+import fs from "node:fs";
+import path from "node:path";
+
 const RANKED_SOLO_QUEUE_TYPE = "RANKED_SOLO_5x5";
 
 type RiotRegion = "europe" | "americas" | "asia" | "sea";
@@ -28,9 +31,24 @@ interface RiotLeagueEntry {
 }
 
 function getApiKey(): string {
-  const key = process.env.RIOT_API_KEY;
+  let key = process.env.RIOT_API_KEY;
   if (!key) {
-    throw new Error("RIOT_API_KEY is not set (e.g. in .env)");
+    const configPath = path.join(__dirname, "supabase-config.json");
+    if (fs.existsSync(configPath)) {
+      try {
+        const data = JSON.parse(
+          fs.readFileSync(configPath, "utf8"),
+        ) as { RIOT_API_KEY?: string };
+        key = data.RIOT_API_KEY;
+      } catch {
+        // ignore
+      }
+    }
+  }
+  if (!key) {
+    throw new Error(
+      "RIOT_API_KEY is not set (e.g. in .env for dev, or embed-config for production).",
+    );
   }
   return key;
 }
