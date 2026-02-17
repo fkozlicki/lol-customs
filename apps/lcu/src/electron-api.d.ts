@@ -2,13 +2,41 @@ export type VersionCheckResult =
   | { allowed: true }
   | { allowed: false; downloadUrl: string };
 
-export type GameForUi = {
-  gameId: number;
-  gameCreation?: number;
-  duration?: number;
-  queueId: number;
+/** Match list item: full match data from LCU + saved flag. */
+export interface GameForUi {
+  match: {
+    gameId: number;
+    gameCreation?: number;
+    gameDuration?: number;
+    participants: Array<{
+      participantId: number;
+      championId: number;
+      spell1Id: number;
+      spell2Id: number;
+      stats: {
+        champLevel: number;
+        kills: number;
+        deaths: number;
+        assists: number;
+        goldEarned: number;
+        totalMinionsKilled?: number;
+        neutralMinionsKilled?: number;
+        win: boolean;
+        perkPrimaryStyle?: number;
+        perk0?: number;
+        item0?: number;
+        item1?: number;
+        item2?: number;
+        item3?: number;
+        item4?: number;
+        item5?: number;
+        item6?: number;
+      };
+    }>;
+    participantIdentities: Array<{ participantId: number }>;
+  };
   isSaved: boolean;
-};
+}
 
 declare global {
   interface Window {

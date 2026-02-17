@@ -6,10 +6,7 @@ import { saveMatch } from "./save-match.js";
 import { supabase } from "./supabase.js";
 
 export interface GameForUi {
-  gameId: number;
-  gameCreation?: number;
-  duration?: number;
-  queueId: number;
+  match: LcuMatchDetails;
   isSaved: boolean;
 }
 
@@ -17,23 +14,15 @@ export interface FetchGamesResult {
   games: GameForUi[];
 }
 
-interface MatchSummary {
-  gameId: number;
-  gameType: string;
-  queueId: number;
-  gameCreation?: number;
-  gameDuration?: number;
-}
-
 interface MatchHistoryResponse {
-  games: { games: MatchSummary[] };
+  games: { games: LcuMatchDetails[] };
 }
 
 const CUSTOM_GAME_QUEUE_ID = 3120;
 
 async function fetchCustomMatches(
   lolDirectory: string,
-): Promise<MatchSummary[]> {
+): Promise<LcuMatchDetails[]> {
   const client = createLcuClient(lolDirectory);
   return client
     .get<MatchHistoryResponse>(
@@ -60,15 +49,7 @@ export async function fetchGamesForUi(
   const matches = await fetchCustomMatches(lolDirectory);
   const gameIds = matches.map((m) => m.gameId);
   if (gameIds.length === 0) {
-    return {
-      games: matches.map((m) => ({
-        gameId: m.gameId,
-        gameCreation: m.gameCreation,
-        duration: m.gameDuration,
-        queueId: m.queueId,
-        isSaved: false,
-      })),
-    };
+    return { games: [] };
   }
 
   const { data: savedRows } = await supabase
@@ -80,12 +61,9 @@ export async function fetchGamesForUi(
     (savedRows ?? []).map((r) => r.match_id as number),
   );
 
-  const games: GameForUi[] = matches.map((m) => ({
-    gameId: m.gameId,
-    gameCreation: m.gameCreation,
-    duration: m.gameDuration,
-    queueId: m.queueId,
-    isSaved: savedSet.has(m.gameId),
+  const games: GameForUi[] = matches.map((match) => ({
+    match,
+    isSaved: savedSet.has(match.gameId),
   }));
 
   return { games };

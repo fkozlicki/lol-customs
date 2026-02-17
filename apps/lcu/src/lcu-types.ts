@@ -65,6 +65,15 @@ export interface LcuParticipantStats {
   perkPrimaryStyle: number;
   perkSubStyle: number;
   win: boolean;
+  /** Item slot IDs (list API includes these). */
+  item0?: number;
+  item1?: number;
+  item2?: number;
+  item3?: number;
+  item4?: number;
+  item5?: number;
+  item6?: number;
+  perk0?: number;
 }
 
 export interface LcuParticipantIdentity {
