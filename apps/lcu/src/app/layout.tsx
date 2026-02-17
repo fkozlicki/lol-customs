@@ -4,8 +4,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Rift Rank LCU",
-  description: "Sync League custom games to Rift Rank",
+  title: "Niunio",
+  description: "Sync League custom games to Niunio",
 };
 
 export default function RootLayout({

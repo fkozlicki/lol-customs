@@ -10,8 +10,8 @@ import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
   title: {
-    default: "Rift Rank",
-    template: "%s | Rift Rank",
+    default: "Niunio",
+    template: "%s | Niunio",
   },
   description: "Custom game leaderboard and match history for League of Legends.",
 };

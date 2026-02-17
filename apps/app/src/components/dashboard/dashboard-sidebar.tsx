@@ -47,7 +47,7 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
         <SidebarHeader>
           <SidebarMenuButton asChild>
             <Link href={base}>
-              <span className="font-semibold text-foreground">Rift Rank</span>
+              <span className="font-semibold text-foreground">Niunio</span>
             </Link>
           </SidebarMenuButton>
         </SidebarHeader>
@@ -96,7 +96,7 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
                   >
                     <DialogContent className="max-w-sm">
                       <DialogHeader>
-                        <DialogTitle>Download Rift Rank LCU</DialogTitle>
+                        <DialogTitle>Download Niunio</DialogTitle>
                         <DialogDescription>
                           Choose the format you prefer.
                         </DialogDescription>

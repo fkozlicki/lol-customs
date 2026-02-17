@@ -40,7 +40,7 @@ export function VersionCheckGate({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-background p-6 text-center text-foreground">
         <p className="text-lg font-medium">Update required</p>
         <p className="text-sm text-muted-foreground">
-          A new version of Rift Rank LCU is required. Please download the latest
+          A new version of Niunio is required. Please download the latest
           version.
         </p>
         {state.downloadUrl ? (

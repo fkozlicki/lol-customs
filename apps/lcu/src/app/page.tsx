@@ -351,7 +351,7 @@ export default function Home() {
   return (
     <main className="relative flex min-h-full flex-col bg-background p-5 text-foreground">
       <header className="flex items-center justify-between gap-2">
-        <h1 className="text-lg font-semibold">Rift Rank LCU</h1>
+        <h1 className="text-lg font-semibold">Niunio</h1>
         {config !== null && (
           <LolStatus hasFolder={!!path} isRunning={config.available} />
         )}
@@ -491,7 +491,7 @@ export default function Home() {
               <div className="space-y-3 text-left text-sm text-muted-foreground">
                 <p>
                   This app syncs your <strong>custom game</strong> match history
-                  from the League client to Rift Rank. It uses the same client
+                  from the League client to Niunio. It uses the same client
                   (Riot Games) that runs when you play League.
                 </p>
                 <p>

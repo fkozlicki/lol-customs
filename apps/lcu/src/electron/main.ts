@@ -6,7 +6,7 @@ import { app, BrowserWindow, dialog, ipcMain, net, protocol } from "electron";
 import { autoUpdater } from "electron-updater";
 import semver from "semver";
 
-// In dev: .env next to package.json. When packaged: .env in app userData (e.g. %APPDATA%\Rift Rank LCU\.env).
+// In dev: .env next to package.json. When packaged: .env in app userData (e.g. %APPDATA%\Niunio\.env).
 const envPath =
   process.env.NODE_ENV === "development" || process.env.ELECTRON_DEV === "1"
     ? path.join(__dirname, "..", "..", ".env")
@@ -89,7 +89,7 @@ async function runVersionCheckAndUpdater(win: BrowserWindow): Promise<void> {
         type: "info",
         title: "Update required",
         message:
-          "A new version of Rift Rank LCU is required. Please download the latest version.",
+          "A new version of Niunio is required. Please download the latest version.",
         detail: downloadUrl ? `Download: ${downloadUrl}` : undefined,
         buttons: ["Quit"],
       });
