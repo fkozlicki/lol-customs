@@ -7,7 +7,20 @@ export interface TransformResult {
   participants: Record<string, unknown>[];
 }
 
-export function transformMatch(match: LcuMatchDetails): TransformResult | null {
+export interface TransformOptions {
+  /** Game timeline JSON; use {} when missing or failed fetch. */
+  timeline?: Record<string, unknown>;
+  /** Per-participant rank (keyed by puuid). */
+  participantRanks?: Map<
+    string,
+    { rank_tier: string; rank_division: string }
+  >;
+}
+
+export function transformMatch(
+  match: LcuMatchDetails,
+  options?: TransformOptions,
+): TransformResult | null {
   if (
     match.gameType !== "CUSTOM_GAME" ||
     match.participants.length !== 10 ||
@@ -15,6 +28,10 @@ export function transformMatch(match: LcuMatchDetails): TransformResult | null {
   ) {
     return null;
   }
+
+  const timelineJson = options?.timeline && Object.keys(options.timeline).length > 0
+    ? options.timeline
+    : {};
 
   const matchRow = {
     match_id: match.gameId,
@@ -29,6 +46,7 @@ export function transformMatch(match: LcuMatchDetails): TransformResult | null {
     season_id: match.seasonId,
     end_of_game_result: match.endOfGameResult,
     raw_json: match,
+    timeline_json: timelineJson,
   };
 
   const teams = match.teams.map((team) => ({
@@ -65,9 +83,12 @@ export function transformMatch(match: LcuMatchDetails): TransformResult | null {
       last_seen_at: new Date(),
     });
 
+    const puuid = identity.player.puuid;
+    const rank = options?.participantRanks?.get(puuid);
+
     participants.push({
       match_id: match.gameId,
-      puuid: identity.player.puuid,
+      puuid,
       participant_id: participant.participantId,
       team_id: participant.teamId,
       champion_id: participant.championId,
@@ -120,6 +141,11 @@ export function transformMatch(match: LcuMatchDetails): TransformResult | null {
       role: participant.timeline.role,
 
       win: stats.win,
+
+      ...(rank && {
+        rank_tier: rank.rank_tier,
+        rank_division: rank.rank_division,
+      }),
     });
   }
 

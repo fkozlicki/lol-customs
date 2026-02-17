@@ -10,12 +10,27 @@ const onWindowMaximizedChanged = (cb: (maximized: boolean) => void) => {
   );
 };
 
-const syncResult = () =>
-  ipcRenderer.invoke("sync") as Promise<{
+type GameForUi = {
+  gameId: number;
+  gameCreation?: number;
+  duration?: number;
+  queueId: number;
+  isSaved: boolean;
+};
+
+const fetchGames = () =>
+  ipcRenderer.invoke("fetch-games") as Promise<
+    | { success: true; games: GameForUi[] }
+    | { success: false; error: string; games: [] }
+  >;
+
+const saveSelectedMatches = (gameIds: number[]) =>
+  ipcRenderer.invoke("save-selected-matches", gameIds) as Promise<{
     success: boolean;
     message: string;
     savedCount?: number;
-    skippedCount?: number;
+    errorCount?: number;
+    errors?: string[];
   }>;
 
 const getConfig = () =>
@@ -61,7 +76,8 @@ contextBridge.exposeInMainWorld("lcu", {
   openFolderDialog,
   useDetected,
   getClientStatus: clientStatus,
-  runSync: syncResult,
+  fetchGames,
+  saveSelectedMatches,
   windowMinimize,
   windowMaximizeToggle,
   windowClose,

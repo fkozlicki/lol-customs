@@ -2,6 +2,14 @@ export type VersionCheckResult =
   | { allowed: true }
   | { allowed: false; downloadUrl: string };
 
+export type GameForUi = {
+  gameId: number;
+  gameCreation?: number;
+  duration?: number;
+  queueId: number;
+  isSaved: boolean;
+};
+
 declare global {
   interface Window {
     lcu?: {
@@ -14,11 +22,16 @@ declare global {
       openFolderDialog: () => Promise<
         { success: true; path: string } | { success: false; error: string }
       >;
-      runSync: () => Promise<{
+      fetchGames: () => Promise<
+        | { success: true; games: GameForUi[] }
+        | { success: false; error: string; games: [] }
+      >;
+      saveSelectedMatches: (gameIds: number[]) => Promise<{
         success: boolean;
         message: string;
         savedCount?: number;
-        skippedCount?: number;
+        errorCount?: number;
+        errors?: string[];
       }>;
       windowMinimize?: () => void;
       windowMaximizeToggle?: () => void;

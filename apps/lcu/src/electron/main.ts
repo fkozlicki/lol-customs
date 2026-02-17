@@ -15,7 +15,10 @@ config({ path: envPath });
 
 import { loadConfig, saveConfig } from "../config.js";
 import { detectLolDirectory, isLockfileInDirectory } from "../lcu.js";
-import { runSync } from "../sync.js";
+import {
+  fetchGamesForUi,
+  saveSelectedMatches,
+} from "../sync.js";
 
 interface AppConfig {
   APP_BASE_URL: string;
@@ -293,14 +296,34 @@ ipcMain.handle("client-status", () => {
   };
 });
 
-ipcMain.handle("sync", async () => {
+ipcMain.handle("fetch-games", async () => {
+  const effective = getEffectiveDirectory();
+  if (!effective) {
+    return {
+      success: false,
+      error:
+        "League of Legends folder not set. Choose a folder or use Auto-detect.",
+      games: [],
+    };
+  }
+  try {
+    const result = await fetchGamesForUi(effective);
+    return { success: true as const, games: result.games };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { success: false as const, error: message, games: [] };
+  }
+});
+
+ipcMain.handle("save-selected-matches", async (_event, gameIds: number[]) => {
   const effective = getEffectiveDirectory();
   if (!effective) {
     return {
       success: false,
       message:
         "League of Legends folder not set. Choose a folder or use Auto-detect.",
+      savedCount: 0,
     };
   }
-  return runSync(effective);
+  return saveSelectedMatches(effective, gameIds ?? []);
 });

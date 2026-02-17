@@ -75,6 +75,8 @@ export interface LcuParticipantIdentity {
     tagLine: string;
     profileIcon: number;
     platformId: string;
+    /** Present when available from match-history API; used for ranked-overview fetch. */
+    summonerId?: number;
   };
 }
 

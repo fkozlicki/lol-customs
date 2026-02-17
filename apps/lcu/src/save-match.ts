@@ -1,10 +1,16 @@
 import type { LcuMatchDetails } from "./lcu-types.js";
 import { supabase } from "./supabase.js";
-import { transformMatch } from "./transform-match.js";
+import {
+  transformMatch,
+  type TransformOptions,
+} from "./transform-match.js";
 
 /** Returns true if match was saved, false if skipped. */
-export async function saveMatch(match: LcuMatchDetails): Promise<boolean> {
-  const transformed = transformMatch(match);
+export async function saveMatch(
+  match: LcuMatchDetails,
+  options?: TransformOptions,
+): Promise<boolean> {
+  const transformed = transformMatch(match, options);
 
   if (!transformed) {
     console.log("Skipped invalid match:", match.gameId);
