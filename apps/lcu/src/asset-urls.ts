@@ -1,17 +1,21 @@
 /**
  * URLs for League assets (Community Dragon / Data Dragon).
- * Used for match history cards: champion, spells, items.
+ * Pass latest Data Dragon version (from versions.json) so new items/spells load.
  */
 
 const CDRAGON =
   "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1";
-const DDRAGON = "https://ddragon.leagueoflegends.com/cdn/14.6.1/img";
+
+const DEFAULT_DD_VERSION = "14.6.1";
+
+function dataDragonBase(version: string): string {
+  return `https://ddragon.leagueoflegends.com/cdn/${version}/img`;
+}
 
 export function championIconUrl(championId: number): string {
   return `${CDRAGON}/champion-icons/${championId}.png`;
 }
 
-/** Data Dragon spell key by id (4=Flash, 14=Ignite, etc.). */
 const SPELL_ID_TO_KEY: Record<number, string> = {
   1: "SummonerBoost",
   3: "SummonerExhaust",
@@ -30,15 +34,14 @@ const SPELL_ID_TO_KEY: Record<number, string> = {
   55: "Summoner_UltBookSmitePlaceholder",
 };
 
-export function spellIconUrl(spellId: number): string {
-  const key = SPELL_ID_TO_KEY[spellId] ?? `SummonerFlash`;
-  return `${DDRAGON}/spell/${key}.png`;
+export function spellIconUrl(spellId: number, ddVersion = DEFAULT_DD_VERSION): string {
+  const key = SPELL_ID_TO_KEY[spellId] ?? "SummonerFlash";
+  return `${dataDragonBase(ddVersion)}/spell/${key}.png`;
 }
 
-/** Item icon by id. */
-export function itemIconUrl(itemId: number): string {
+export function itemIconUrl(itemId: number, ddVersion = DEFAULT_DD_VERSION): string {
   if (itemId === 0) return "";
-  return `${DDRAGON}/item/${itemId}.png`;
+  return `${dataDragonBase(ddVersion)}/item/${itemId}.png`;
 }
 
 /** Primary rune style icon (precision, domination, etc.) for display. */

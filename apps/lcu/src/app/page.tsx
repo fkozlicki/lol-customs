@@ -3,6 +3,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@v1/ui/alert";
 import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
+import { cn } from "@v1/ui/cn";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +12,9 @@ import {
   DialogTitle,
 } from "@v1/ui/dialog";
 import { Icons } from "@v1/ui/icons";
-import { cn } from "@v1/ui/cn";
 import { useCallback, useEffect, useState } from "react";
-import {
-  championIconUrl,
-  itemIconUrl,
-  perkStyleIconUrl,
-  spellIconUrl,
-} from "@/asset-urls";
 import { LolStatus } from "@/app/lol-status";
+import { championIconUrl, itemIconUrl, spellIconUrl } from "@/asset-urls";
 
 type GameForUi = {
   match: {
@@ -87,18 +82,20 @@ interface GameCardProps {
   game: GameForUi;
   isSelected: boolean;
   onToggle: () => void;
+  ddVersion: string;
 }
 
 const ITEM_SLOTS = [0, 1, 2, 3, 4, 5, 6] as const;
 
-function GameCard({ game, isSelected, onToggle }: GameCardProps) {
+function GameCard({ game, isSelected, onToggle, ddVersion }: GameCardProps) {
   const { match, isSaved } = game;
   const self = match.participants[0];
   if (!self) return null;
 
   const stats = self.stats;
   const kda = `${stats.kills} / ${stats.deaths} / ${stats.assists}`;
-  const cs = (stats.totalMinionsKilled ?? 0) + (stats.neutralMinionsKilled ?? 0);
+  const cs =
+    (stats.totalMinionsKilled ?? 0) + (stats.neutralMinionsKilled ?? 0);
   const gold = stats.goldEarned;
   const itemIds = ITEM_SLOTS.map((i) =>
     i === 0
@@ -152,24 +149,20 @@ function GameCard({ game, isSelected, onToggle }: GameCardProps) {
           <span
             className={cn(
               "text-xs font-bold uppercase tracking-wide",
-              isSaved
-                ? "text-zinc-500"
-                : stats.win
-                  ? "text-cyan-400"
-                  : "text-red-400",
+              stats.win ? "text-cyan-500" : "text-red-500",
             )}
           >
-            {isSaved ? "Saved" : stats.win ? "Victory" : "Defeat"}
+            {stats.win ? "Victory" : "Defeat"}
           </span>
           <span className="text-[11px] text-zinc-500">Custom</span>
           <div className="flex gap-0.5 pt-0.5">
             <img
-              src={spellIconUrl(self.spell1Id)}
+              src={spellIconUrl(self.spell1Id, ddVersion)}
               alt=""
               className="size-4 rounded border border-amber-500/20 object-cover"
             />
             <img
-              src={spellIconUrl(self.spell2Id)}
+              src={spellIconUrl(self.spell2Id, ddVersion)}
               alt=""
               className="size-4 rounded border border-amber-500/20 object-cover"
             />
@@ -189,7 +182,7 @@ function GameCard({ game, isSelected, onToggle }: GameCardProps) {
               >
                 {id ? (
                   <img
-                    src={itemIconUrl(id)}
+                    src={itemIconUrl(id, ddVersion)}
                     alt=""
                     className="size-full object-cover"
                   />
@@ -206,32 +199,21 @@ function GameCard({ game, isSelected, onToggle }: GameCardProps) {
       </div>
 
       {/* Right: rune style, map, duration, date, Saved badge */}
-      <div className="flex shrink-0 items-center gap-2">
-        {stats.perkPrimaryStyle != null ? (
-          <img
-            src={perkStyleIconUrl(stats.perkPrimaryStyle)}
-            alt=""
-            className="size-8 shrink-0 object-contain"
-          />
-        ) : (
-          <div className="size-8 shrink-0 rounded border border-amber-500/20 bg-zinc-800/80" />
+      <div className="flex flex-col items-end justify-center gap-0.5 shrink-0">
+        <span className="text-xs text-zinc-400">Summoner&apos;s Rift</span>
+        <span className="text-[11px] text-zinc-500">
+          {formatDuration(match.gameDuration)}
+          <span className="mx-1 text-zinc-600">·</span>
+          {formatGameDateShort(match.gameCreation)}
+        </span>
+        {isSaved && (
+          <Badge
+            variant="secondary"
+            className="mt-1 border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          >
+            Saved
+          </Badge>
         )}
-        <div className="flex flex-col items-end justify-center gap-0.5">
-          <span className="text-xs text-zinc-400">Summoner&apos;s Rift</span>
-          <span className="text-[11px] text-zinc-500">
-            {formatDuration(match.gameDuration)}
-            <span className="mx-1 text-zinc-600">·</span>
-            {formatGameDateShort(match.gameCreation)}
-          </span>
-          {isSaved && (
-            <Badge
-              variant="secondary"
-              className="mt-1 border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-            >
-              Saved
-            </Badge>
-          )}
-        </div>
       </div>
     </article>
   );
@@ -251,6 +233,14 @@ export default function Home() {
   const [result, setResult] = useState<ResultState>({ type: "idle" });
   const [folderError, setFolderError] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [ddVersion, setDdVersion] = useState("14.6.1");
+
+  useEffect(() => {
+    fetch("https://ddragon.leagueoflegends.com/api/versions.json")
+      .then((r) => r.json() as Promise<string[]>)
+      .then((versions) => setDdVersion(versions[0] ?? "14.6.1"))
+      .catch(() => {});
+  }, []);
 
   const refreshConfig = useCallback(() => {
     if (typeof window === "undefined" || !window.lcu) return;
@@ -311,9 +301,7 @@ export default function Home() {
 
   const selectAllUnsaved = () => {
     if (!games) return;
-    const unsaved = games
-      .filter((g) => !g.isSaved)
-      .map((g) => g.match.gameId);
+    const unsaved = games.filter((g) => !g.isSaved).map((g) => g.match.gameId);
     setSelectedIds(new Set(unsaved));
   };
 
@@ -434,6 +422,7 @@ export default function Home() {
                   onToggle={() =>
                     toggleSelection(game.match.gameId, game.isSaved)
                   }
+                  ddVersion={ddVersion}
                 />
               </li>
             ))}
@@ -513,8 +502,9 @@ export default function Home() {
                   and cannot be saved again.
                 </p>
                 <p>
-                  The status badge shows whether the client is running. Fetch and
-                  save only work when the client is open and you’re logged in.
+                  The status badge shows whether the client is running. Fetch
+                  and save only work when the client is open and you’re logged
+                  in.
                 </p>
               </div>
             </DialogDescription>
