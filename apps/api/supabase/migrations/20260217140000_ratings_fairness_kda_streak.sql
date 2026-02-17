@@ -129,7 +129,7 @@ BEGIN
       win_streak = s.win_streak,
       lose_streak = s.lose_streak,
       best_streak = s.best_streak
-    FROM compute_player_streaks(rec.puuid) AS s(win_streak int, lose_streak int, best_streak int)
+    FROM compute_player_streaks(rec.puuid) AS s(win_streak int, lose_streak int, best_streak int)(win_streak int, lose_streak int, best_streak int)
     WHERE r.puuid = rec.puuid;
   END LOOP;
 
