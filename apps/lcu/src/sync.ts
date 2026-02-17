@@ -121,12 +121,16 @@ export async function saveSelectedMatches(
         }
       }
 
-      const didSave = await saveMatch(details, {
+      const result = await saveMatch(details, {
         timeline,
         participantRanks:
           participantRanks.size > 0 ? participantRanks : undefined,
       });
-      if (didSave) saved += 1;
+      if (result.saved) {
+        saved += 1;
+      } else {
+        errors.push(`Game ${gameId}: ${result.error}`);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       errors.push(`Game ${gameId}: ${msg}`);

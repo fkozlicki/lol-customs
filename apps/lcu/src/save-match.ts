@@ -5,16 +5,21 @@ import {
   type TransformOptions,
 } from "./transform-match.js";
 
-/** Returns true if match was saved, false if skipped. */
+export type SaveMatchResult =
+  | { saved: true }
+  | { saved: false; error: string };
+
+/** Returns result with saved flag and error reason when failed. */
 export async function saveMatch(
   match: LcuMatchDetails,
   options?: TransformOptions,
-): Promise<boolean> {
+): Promise<SaveMatchResult> {
   const transformed = transformMatch(match, options);
 
   if (!transformed) {
-    console.log("Skipped invalid match:", match.gameId);
-    return false;
+    const msg = "Skipped invalid match (not custom, wrong player count, or too short).";
+    console.log(msg, match.gameId);
+    return { saved: false, error: msg };
   }
 
   const { matchRow, teams, players, participants } = transformed;
@@ -22,8 +27,9 @@ export async function saveMatch(
   const { error: matchError } = await supabase.from("matches").upsert(matchRow);
 
   if (matchError) {
-    console.error("Match insert error:", matchError.message, matchError.code, matchError.details);
-    return false;
+    const msg = formatSupabaseError("Match", matchError);
+    console.error("Match insert error:", msg);
+    return { saved: false, error: msg };
   }
 
   const { error: playersError } = await supabase
@@ -31,15 +37,17 @@ export async function saveMatch(
     .upsert(players);
 
   if (playersError) {
-    console.error("Players insert error:", playersError.message, playersError.code, playersError.details);
-    return false;
+    const msg = formatSupabaseError("Players", playersError);
+    console.error("Players insert error:", msg);
+    return { saved: false, error: msg };
   }
 
   const { error: teamsError } = await supabase.from("teams").upsert(teams);
 
   if (teamsError) {
-    console.error("Teams insert error:", teamsError.message, teamsError.code, teamsError.details);
-    return false;
+    const msg = formatSupabaseError("Teams", teamsError);
+    console.error("Teams insert error:", msg);
+    return { saved: false, error: msg };
   }
 
   const { error: participantsError } = await supabase
@@ -47,15 +55,21 @@ export async function saveMatch(
     .upsert(participants, { onConflict: "match_id,puuid" });
 
   if (participantsError) {
-    console.error(
-      "Participants insert error:",
-      participantsError.message,
-      participantsError.code,
-      participantsError.details,
-    );
-    return false;
+    const msg = formatSupabaseError("Participants", participantsError);
+    console.error("Participants insert error:", msg);
+    return { saved: false, error: msg };
   }
 
   console.log("Saved match:", match.gameId);
-  return true;
+  return { saved: true };
+}
+
+function formatSupabaseError(
+  label: string,
+  err: { message?: string; code?: string; details?: string },
+): string {
+  const parts = [err.message ?? "Unknown error"];
+  if (err.code) parts.push(`(${err.code})`);
+  if (err.details) parts.push(String(err.details));
+  return `${label}: ${parts.join(" ")}`;
 }
