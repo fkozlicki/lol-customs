@@ -21,11 +21,11 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@v1/ui/sidebar";
-import { useScopedI18n } from "@/locales/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { env } from "@/env.mjs";
+import { useScopedI18n } from "@/locales/client";
 
 interface DashboardSidebarProps {
   locale: string;

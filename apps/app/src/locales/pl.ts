@@ -30,6 +30,7 @@ export default {
         tableRating: "Punkty",
         tableWl: "W/P",
         tableWr: "WR",
+        tableKda: "KDA",
         tableStreak: "Seria",
         tableBest: "Rekord",
         rank1st: "1.",

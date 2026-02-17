@@ -114,6 +114,23 @@ function BestStreakCell({ value }: { value: number | null }) {
   );
 }
 
+function formatKda(
+  avgKills: number | null,
+  avgDeaths: number | null,
+  avgAssists: number | null,
+): string {
+  if (
+    avgKills == null &&
+    avgDeaths == null &&
+    avgAssists == null
+  )
+    return "—";
+  const k = (avgKills ?? 0).toFixed(1);
+  const d = (avgDeaths ?? 0).toFixed(1);
+  const a = (avgAssists ?? 0).toFixed(1);
+  return `${k} / ${d} / ${a}`;
+}
+
 interface LeaderboardProps {
   limit?: number;
 }
@@ -157,6 +174,9 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
             </TableHead>
             <TableHead className="w-14 px-4 py-3 text-right">
               {t("tableWr")}
+            </TableHead>
+            <TableHead className="w-28 px-4 py-3 text-right">
+              {t("tableKda")}
             </TableHead>
             <TableHead className="w-20 px-4 py-3 text-right">
               {t("tableStreak")}
@@ -245,6 +265,9 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
                 </TableCell>
                 <TableCell className="text-muted-foreground px-4 py-3 text-right tabular-nums">
                   {winrate(row.wins, row.losses)}
+                </TableCell>
+                <TableCell className="text-muted-foreground px-4 py-3 text-right tabular-nums text-xs">
+                  {formatKda(row.avg_kills, row.avg_deaths, row.avg_assists)}
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <CurrentStreakCell
