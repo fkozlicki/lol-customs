@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@v1/ui/table";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 // Community Dragon has "latest" and includes all profile icons (e.g. 7091)
@@ -46,14 +47,20 @@ function formatCurrentStreak(
   return "0";
 }
 
-function RankBadge({ rank }: { rank: number }) {
+function RankBadge({
+  rank,
+  labels,
+}: {
+  rank: number;
+  labels: { rank1st: string; rank2nd: string; rank3rd: string };
+}) {
   if (rank > 3) return <span className="tabular-nums">{rank}</span>;
   const styles = [
     "bg-amber-500/15 text-amber-700 dark:text-amber-400 dark:bg-amber-500/20 border-amber-500/30",
     "bg-zinc-400/15 text-zinc-600 dark:text-zinc-400 dark:bg-zinc-400/20 border-zinc-400/30",
     "bg-amber-700/20 text-amber-800 dark:text-amber-600 dark:bg-amber-600/25 border-amber-700/40",
   ];
-  const labels = ["1st", "2nd", "3rd"];
+  const label = [labels.rank1st, labels.rank2nd, labels.rank3rd][rank - 1];
   return (
     <Badge
       variant="outline"
@@ -62,7 +69,7 @@ function RankBadge({ rank }: { rank: number }) {
         styles[rank - 1],
       )}
     >
-      {labels[rank - 1]}
+      {label}
     </Badge>
   );
 }
@@ -112,6 +119,7 @@ interface LeaderboardProps {
 }
 
 export function Leaderboard({ limit = 50 }: LeaderboardProps) {
+  const t = useScopedI18n("dashboard.pages.leaderboard");
   const trpc = useTRPC();
   const { data: leaderboard } = useSuspenseQuery(
     trpc.riftRank.leaderboard.queryOptions({ limit }),
@@ -121,10 +129,10 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Leaderboard</CardTitle>
+          <CardTitle>{t("emptyTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">No players yet.</p>
+          <p className="text-muted-foreground text-sm">{t("noPlayersYet")}</p>
         </CardContent>
       </Card>
     );
@@ -138,12 +146,24 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
             <TableHead className="w-14 px-4 py-3">
               <Icons.Leaderboard className="size-4" />
             </TableHead>
-            <TableHead className="min-w-[200px] px-4 py-3">Player</TableHead>
-            <TableHead className="w-20 px-4 py-3 text-right">Rating</TableHead>
-            <TableHead className="w-16 px-4 py-3 text-right">W/L</TableHead>
-            <TableHead className="w-14 px-4 py-3 text-right">WR</TableHead>
-            <TableHead className="w-20 px-4 py-3 text-right">Streak</TableHead>
-            <TableHead className="w-16 px-4 py-3 text-right">Best</TableHead>
+            <TableHead className="min-w-[200px] px-4 py-3">
+              {t("tablePlayer")}
+            </TableHead>
+            <TableHead className="w-20 px-4 py-3 text-right">
+              {t("tableRating")}
+            </TableHead>
+            <TableHead className="w-16 px-4 py-3 text-right">
+              {t("tableWl")}
+            </TableHead>
+            <TableHead className="w-14 px-4 py-3 text-right">
+              {t("tableWr")}
+            </TableHead>
+            <TableHead className="w-20 px-4 py-3 text-right">
+              {t("tableStreak")}
+            </TableHead>
+            <TableHead className="w-16 px-4 py-3 text-right">
+              {t("tableBest")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -170,7 +190,14 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
               >
                 <TableCell className="px-4 py-3">
                   <div className="flex justify-start">
-                    <RankBadge rank={rank} />
+                    <RankBadge
+                      rank={rank}
+                      labels={{
+                        rank1st: t("rank1st"),
+                        rank2nd: t("rank2nd"),
+                        rank3rd: t("rank3rd"),
+                      }}
+                    />
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap px-4 py-3">

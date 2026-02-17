@@ -1,4 +1,5 @@
 import { SidebarInset } from "@v1/ui/sidebar";
+import { AppHeader } from "@/components/dashboard/app-header";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 
 interface DashboardLayoutProps {
@@ -15,6 +16,7 @@ export default async function DashboardLayout({
   return (
     <DashboardSidebar locale={locale}>
       <SidebarInset>
+        <AppHeader />
         <div className="flex-1 overflow-auto p-4 max-w-3xl mx-auto w-full">
           {children}
         </div>

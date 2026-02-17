@@ -9,7 +9,10 @@ import {
   HelpCircle,
   Loader2,
   Minus,
+  Monitor,
+  Moon,
   Square,
+  Sun,
   Trophy,
   X,
 } from "lucide-react";
@@ -26,7 +29,10 @@ export const Icons = {
   HelpCircle,
   Leaderboard: Trophy,
   Minus,
+  Monitor,
+  Moon,
   Square,
+  Sun,
   X,
 };
 

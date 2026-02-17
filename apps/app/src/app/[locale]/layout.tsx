@@ -1,5 +1,6 @@
 import "./styles.css";
 import { cn } from "@v1/ui/cn";
+import { I18nProviderClient } from "@/locales/client";
 import { Toaster } from "@v1/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -23,30 +24,36 @@ export const viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={cn(
           `${GeistSans.variable} ${GeistMono.variable}`,
           "antialiased",
         )}
       >
-        <TRPCReactProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <NuqsAdapter>{children}</NuqsAdapter>
-            <Toaster richColors={true} />
-          </ThemeProvider>
-        </TRPCReactProvider>
+        <I18nProviderClient locale={locale}>
+          <TRPCReactProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <NuqsAdapter>{children}</NuqsAdapter>
+              <Toaster richColors={true} />
+            </ThemeProvider>
+          </TRPCReactProvider>
+        </I18nProviderClient>
       </body>
     </html>
   );

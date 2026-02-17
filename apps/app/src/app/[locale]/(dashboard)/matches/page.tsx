@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@v1/ui/card";
 import { Skeleton } from "@v1/ui/skeleton";
 import { Suspense } from "react";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
+import { getScopedI18n } from "@/locales/server";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
 function MatchHistorySkeleton() {
@@ -26,6 +27,7 @@ function MatchHistorySkeleton() {
 }
 
 export default async function MatchHistoryPage() {
+  const t = await getScopedI18n("dashboard.pages.matchHistory");
   const queryClient = getQueryClient();
   await Promise.all([
     queryClient.fetchQuery(trpc.matches.recentWithParticipants.queryOptions({ limit: 50 })),
@@ -37,8 +39,8 @@ export default async function MatchHistoryPage() {
     <HydrateClient>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Match history</h1>
-          <p className="text-muted-foreground text-sm">Recent custom games.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
         <Suspense fallback={<MatchHistorySkeleton />}>
           <MatchHistoryList limit={50} />

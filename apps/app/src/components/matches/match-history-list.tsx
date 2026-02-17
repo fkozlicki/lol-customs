@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { MatchCard } from "./match-card";
 import { MatchDetail } from "./match-detail";
@@ -16,6 +17,7 @@ interface MatchHistoryListProps {
 }
 
 export function MatchHistoryList({ limit = 50 }: MatchHistoryListProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const trpc = useTRPC();
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 
@@ -37,10 +39,10 @@ export function MatchHistoryList({ limit = 50 }: MatchHistoryListProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Match history</CardTitle>
+          <CardTitle>{t("emptyTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">No matches yet.</p>
+          <p className="text-muted-foreground text-sm">{t("noMatchesYet")}</p>
         </CardContent>
       </Card>
     );

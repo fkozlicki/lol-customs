@@ -21,6 +21,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@v1/ui/sidebar";
+import { useScopedI18n } from "@/locales/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -37,40 +38,40 @@ const hasBoth = hasInstaller && hasZip;
 const hasAnyDownload = hasInstaller || hasZip;
 
 export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
+  const t = useScopedI18n("dashboard");
   const pathname = usePathname();
   const base = `/${locale}`;
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, "$1") || "/";
+  const isLeaderboardActive =
+    pathWithoutLocale === "/" || pathWithoutLocale === "";
+  const isMatchesActive = pathWithoutLocale === "/matches";
 
   return (
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <SidebarMenuButton asChild>
-            <Link href={base}>
-              <span className="font-semibold text-foreground">Niunio</span>
-            </Link>
-          </SidebarMenuButton>
+          <span className="font-semibold text-foreground">
+            {t("sidebar.appName")}
+          </span>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={pathname === base}>
+                  <SidebarMenuButton asChild isActive={isLeaderboardActive}>
                     <Link href={base}>
                       <Icons.Leaderboard className="size-4" />
-                      <span>Leaderboard</span>
+                      <span>{t("sidebar.leaderboard")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === `${base}/matches`}
-                  >
+                  <SidebarMenuButton asChild isActive={isMatchesActive}>
                     <Link href={`${base}/matches`}>
                       <Icons.Calendar className="size-4" />
-                      <span>Match history</span>
+                      <span>{t("sidebar.matchHistory")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -84,11 +85,10 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
               {hasBoth ? (
                 <>
                   <SidebarMenuButton
-                    variant="primary"
                     onClick={() => setDownloadDialogOpen(true)}
                   >
                     <Icons.Download className="size-4" />
-                    <span>Download desktop app</span>
+                    <span>{t("sidebar.downloadDesktopApp")}</span>
                   </SidebarMenuButton>
                   <Dialog
                     open={downloadDialogOpen}
@@ -96,9 +96,9 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
                   >
                     <DialogContent className="max-w-sm">
                       <DialogHeader>
-                        <DialogTitle>Download Niunio</DialogTitle>
+                        <DialogTitle>{t("download.title")}</DialogTitle>
                         <DialogDescription>
-                          Choose the format you prefer.
+                          {t("download.description")}
                         </DialogDescription>
                       </DialogHeader>
                       <div className="flex flex-col gap-2">
@@ -110,17 +110,22 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
                             onClick={() => setDownloadDialogOpen(false)}
                           >
                             <Icons.Download className="size-4" />
-                            Installer (.exe)
+                            {t("download.installerExe")}
                           </a>
                         </Button>
-                        <Button asChild variant="outline" size="lg" className="w-full">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="lg"
+                          className="w-full"
+                        >
                           <a
                             href={env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL!}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => setDownloadDialogOpen(false)}
                           >
-                            ZIP (portable)
+                            {t("download.zipPortable")}
                           </a>
                         </Button>
                       </div>
@@ -128,7 +133,7 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
                   </Dialog>
                 </>
               ) : (
-                <SidebarMenuButton asChild variant="primary">
+                <SidebarMenuButton asChild>
                   <a
                     href={
                       env.NEXT_PUBLIC_LCU_DOWNLOAD_URL ??
@@ -138,7 +143,7 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
                     rel="noopener noreferrer"
                   >
                     <Icons.Download className="size-4" />
-                    <span>Download desktop app</span>
+                    <span>{t("sidebar.downloadDesktopApp")}</span>
                   </a>
                 </SidebarMenuButton>
               )}
