@@ -11,7 +11,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "production"]).default("development"),
   },
   server: {
-    LCU_MINIMUM_VERSION: z.string().optional().default("0.0.0"),
+    LCU_MINIMUM_VERSION: z.string().optional().default("0.2.0"),
     SUPABASE_SERVICE_KEY: z.string(),
     RIOT_API_KEY: z.string(),
   },
