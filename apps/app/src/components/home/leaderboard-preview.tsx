@@ -136,7 +136,7 @@ function calculateKda(
   avgAssists: number | null,
 ): number {
   if (avgKills == null && avgDeaths == null && avgAssists == null) return 0;
-  return (avgKills ?? 0) + (avgAssists ?? 0) / (avgDeaths ?? 1);
+  return ((avgKills ?? 0) + (avgAssists ?? 0)) / (avgDeaths ?? 1);
 }
 
 interface LeaderboardProps {
