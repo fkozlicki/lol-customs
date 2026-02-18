@@ -2,7 +2,7 @@ export default {
   welcome: "Cześć {name}!",
   dashboard: {
     sidebar: {
-      appName: "Niunio",
+      appName: "Derby",
       leaderboard: "Ranking",
       matchHistory: "Historia meczów",
       downloadDesktopApp: "Pobierz aplikację desktop",

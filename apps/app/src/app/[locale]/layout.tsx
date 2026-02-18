@@ -1,20 +1,21 @@
 import "./styles.css";
 import { cn } from "@v1/ui/cn";
-import { I18nProviderClient } from "@/locales/client";
 import { Toaster } from "@v1/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { I18nProviderClient } from "@/locales/client";
 import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
   title: {
-    default: "Niunio",
-    template: "%s | Niunio",
+    default: "Derby",
+    template: "%s | Derby",
   },
-  description: "Custom game leaderboard and match history for League of Legends.",
+  description:
+    "Custom game leaderboard and match history for League of Legends.",
 };
 
 export const viewport = {
