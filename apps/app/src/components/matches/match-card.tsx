@@ -128,6 +128,11 @@ export function MatchCard({
                   <span className="truncate text-xs">
                     {playerDisplayName(p)}
                   </span>
+                  {p.is_mvp && (
+                    <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 shrink-0">
+                      MVP
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -169,6 +174,11 @@ export function MatchCard({
                   <span className="truncate text-xs">
                     {playerDisplayName(p)}
                   </span>
+                  {p.is_ace && (
+                    <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">
+                      ACE
+                    </span>
+                  )}
                 </div>
               );
             })}

@@ -69,6 +69,9 @@ export default function TeamTable({
           <TableHead className="text-center text-xs text-muted-foreground">
             CS
           </TableHead>
+          <TableHead className="text-center text-xs text-muted-foreground">
+            Score
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -159,6 +162,38 @@ export default function TeamTable({
               </TableCell>
               <TableCell className="p-1 text-center">
                 <span className="text-xs">{p.total_minions_killed ?? 0}</span>
+              </TableCell>
+              <TableCell className="p-1">
+                <div className="flex flex-col items-center gap-0.5">
+                  {/* OP-style score (0-10), computed in DB; MVP/ACE = best on winning/losing team */}
+                  {p.op_score != null ? (
+                    <span className="text-xs font-medium">{p.op_score}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
+                  )}
+                  <div className="flex gap-1">
+                    {p.is_mvp && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-semibold px-1.5 py-0 rounded",
+                          "bg-amber-500/20 text-amber-700 dark:text-amber-400",
+                        )}
+                      >
+                        MVP
+                      </span>
+                    )}
+                    {p.is_ace && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-semibold px-1.5 py-0 rounded",
+                          "bg-slate-500/20 text-slate-700 dark:text-slate-300",
+                        )}
+                      >
+                        ACE
+                      </span>
+                    )}
+                  </div>
+                </div>
               </TableCell>
             </TableRow>
           );

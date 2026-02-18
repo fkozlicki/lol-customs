@@ -52,6 +52,9 @@ export type Database = {
           wards_killed: number | null
           wards_placed: number | null
           win: boolean | null
+          op_score: number | null
+          is_mvp: boolean
+          is_ace: boolean
         }
         Insert: {
           assists?: number | null
@@ -95,6 +98,9 @@ export type Database = {
           wards_killed?: number | null
           wards_placed?: number | null
           win?: boolean | null
+          op_score?: number | null
+          is_mvp?: boolean
+          is_ace?: boolean
         }
         Update: {
           assists?: number | null
@@ -138,6 +144,9 @@ export type Database = {
           wards_killed?: number | null
           wards_placed?: number | null
           win?: boolean | null
+          op_score?: number | null
+          is_mvp?: boolean
+          is_ace?: boolean
         }
         Relationships: [
           {
