@@ -20,6 +20,8 @@ export type Database = {
           gold_earned: number | null
           gold_spent: number | null
           inhibitor_kills: number | null
+          is_ace: boolean
+          is_mvp: boolean
           kills: number | null
           lane: string | null
           largest_killing_spree: number | null
@@ -27,6 +29,7 @@ export type Database = {
           magic_damage_dealt: number | null
           match_id: number
           neutral_minions_killed: number | null
+          op_score: number | null
           participant_id: number | null
           penta_kills: number | null
           perk_primary_style: number | null
@@ -34,6 +37,8 @@ export type Database = {
           physical_damage_dealt: number | null
           puuid: string
           quadra_kills: number | null
+          rank_division: string | null
+          rank_tier: string | null
           role: string | null
           spell1_id: number | null
           spell2_id: number | null
@@ -52,9 +57,6 @@ export type Database = {
           wards_killed: number | null
           wards_placed: number | null
           win: boolean | null
-          op_score: number | null
-          is_mvp: boolean
-          is_ace: boolean
         }
         Insert: {
           assists?: number | null
@@ -66,6 +68,8 @@ export type Database = {
           gold_earned?: number | null
           gold_spent?: number | null
           inhibitor_kills?: number | null
+          is_ace?: boolean
+          is_mvp?: boolean
           kills?: number | null
           lane?: string | null
           largest_killing_spree?: number | null
@@ -73,6 +77,7 @@ export type Database = {
           magic_damage_dealt?: number | null
           match_id: number
           neutral_minions_killed?: number | null
+          op_score?: number | null
           participant_id?: number | null
           penta_kills?: number | null
           perk_primary_style?: number | null
@@ -80,6 +85,8 @@ export type Database = {
           physical_damage_dealt?: number | null
           puuid: string
           quadra_kills?: number | null
+          rank_division?: string | null
+          rank_tier?: string | null
           role?: string | null
           spell1_id?: number | null
           spell2_id?: number | null
@@ -98,9 +105,6 @@ export type Database = {
           wards_killed?: number | null
           wards_placed?: number | null
           win?: boolean | null
-          op_score?: number | null
-          is_mvp?: boolean
-          is_ace?: boolean
         }
         Update: {
           assists?: number | null
@@ -112,6 +116,8 @@ export type Database = {
           gold_earned?: number | null
           gold_spent?: number | null
           inhibitor_kills?: number | null
+          is_ace?: boolean
+          is_mvp?: boolean
           kills?: number | null
           lane?: string | null
           largest_killing_spree?: number | null
@@ -119,6 +125,7 @@ export type Database = {
           magic_damage_dealt?: number | null
           match_id?: number
           neutral_minions_killed?: number | null
+          op_score?: number | null
           participant_id?: number | null
           penta_kills?: number | null
           perk_primary_style?: number | null
@@ -126,6 +133,8 @@ export type Database = {
           physical_damage_dealt?: number | null
           puuid?: string
           quadra_kills?: number | null
+          rank_division?: string | null
+          rank_tier?: string | null
           role?: string | null
           spell1_id?: number | null
           spell2_id?: number | null
@@ -144,9 +153,6 @@ export type Database = {
           wards_killed?: number | null
           wards_placed?: number | null
           win?: boolean | null
-          op_score?: number | null
-          is_mvp?: boolean
-          is_ace?: boolean
         }
         Relationships: [
           {
@@ -180,6 +186,7 @@ export type Database = {
           queue_id: number | null
           raw_json: Json
           season_id: number | null
+          timeline_json: Json
         }
         Insert: {
           created_at?: string | null
@@ -195,6 +202,7 @@ export type Database = {
           queue_id?: number | null
           raw_json: Json
           season_id?: number | null
+          timeline_json?: Json
         }
         Update: {
           created_at?: string | null
@@ -210,6 +218,7 @@ export type Database = {
           queue_id?: number | null
           raw_json?: Json
           season_id?: number | null
+          timeline_json?: Json
         }
         Relationships: []
       }
@@ -387,7 +396,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      compute_op_scores_for_match: {
+        Args: { p_match_id: number }
+        Returns: undefined
+      }
+      compute_player_streaks: {
+        Args: { p_puuid: string }
+        Returns: {
+          best_streak: number
+          lose_streak: number
+          win_streak: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

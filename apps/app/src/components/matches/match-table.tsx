@@ -14,6 +14,29 @@ import type { ChampionMap, MatchWithParticipants } from "./match-detail";
 type Participant = MatchWithParticipants["participants"][number];
 
 const DD_CDN = "https://ddragon.leagueoflegends.com/cdn";
+const RANK_CRESTS_BASE =
+  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/";
+
+const RANK_TIERS = new Set([
+  "iron",
+  "bronze",
+  "silver",
+  "gold",
+  "platinum",
+  "emerald",
+  "diamond",
+  "master",
+  "grandmaster",
+  "challenger",
+]);
+
+function getRankIconUrl(rank_tier: string | null): string {
+  if (!rank_tier?.trim()) return `${RANK_CRESTS_BASE}unranked.svg`;
+  const tier = rank_tier.toLowerCase();
+  return RANK_TIERS.has(tier)
+    ? `${RANK_CRESTS_BASE}${tier}.svg`
+    : `${RANK_CRESTS_BASE}unranked.svg`;
+}
 
 function playerDisplayName(p: Participant): string {
   const pl = p.players as {
@@ -21,7 +44,7 @@ function playerDisplayName(p: Participant): string {
     tag_line: string | null;
   } | null;
   if (!pl?.game_name) return "—";
-  return pl.tag_line ? `${pl.game_name}#${pl.tag_line}` : pl.game_name;
+  return pl.game_name;
 }
 
 export default function TeamTable({
@@ -33,6 +56,7 @@ export default function TeamTable({
   highestDamageDealt,
   highestDamageTaken,
   totalKills,
+  duration,
 }: {
   team: Participant[];
   championMap: ChampionMap;
@@ -42,11 +66,20 @@ export default function TeamTable({
   highestDamageDealt: number;
   highestDamageTaken: number;
   totalKills: number;
+  duration: number;
 }) {
   const result = isVictorious ? "Victory" : "Defeat";
 
   return (
     <Table className="w-full">
+      <colgroup>
+        <col className="w-auto" />
+        <col className="w-[88px]" />
+        <col className="w-[118px]" />
+        <col className="w-[120px]" />
+        <col className="w-[68px]" />
+        <col className="w-[76px]" />
+      </colgroup>
       <TableHeader>
         <TableRow>
           <TableHead
@@ -56,6 +89,9 @@ export default function TeamTable({
             )}
           >
             {result} ({teamName})
+          </TableHead>
+          <TableHead className="text-center text-xs text-muted-foreground">
+            OP Score
           </TableHead>
           <TableHead className="text-center text-xs text-muted-foreground">
             KDA
@@ -68,9 +104,6 @@ export default function TeamTable({
           </TableHead>
           <TableHead className="text-center text-xs text-muted-foreground">
             CS
-          </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            Score
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -88,6 +121,10 @@ export default function TeamTable({
           );
           const kdaRatio =
             ((p.kills ?? 0) + (p.assists ?? 0)) / (p.deaths ?? 0);
+          const rankIconUrl = getRankIconUrl(p.rank_tier);
+          const csPerMin =
+            (p.total_minions_killed ?? 0 + (p.neutral_minions_killed ?? 0)) /
+            (duration / 60);
 
           return (
             <TableRow
@@ -119,6 +156,48 @@ export default function TeamTable({
                     <span className="text-muted-foreground text-xs">
                       {playerDisplayName(p)}
                     </span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
+                      <Image
+                        src={rankIconUrl}
+                        alt=""
+                        width={14}
+                        height={14}
+                        className="shrink-0"
+                      />
+                      {p.rank_tier?.toLowerCase() ?? "Unranked"}{" "}
+                      {p.rank_division ?? ""}
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="p-1">
+                <div className="flex items-center justify-center gap-2">
+                  {p.op_score != null ? (
+                    <span className="text-xs font-semibold">{p.op_score}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
+                  )}
+                  <div className="flex gap-1">
+                    {p.is_mvp && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-semibold px-1.5 py-0 rounded-full",
+                          "bg-amber-500/20 text-amber-700 dark:text-amber-400",
+                        )}
+                      >
+                        MVP
+                      </span>
+                    )}
+                    {p.is_ace && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-semibold px-1.5 py-0 rounded-full",
+                          "bg-slate-500/20 text-slate-700 dark:text-slate-300",
+                        )}
+                      >
+                        ACE
+                      </span>
+                    )}
                   </div>
                 </div>
               </TableCell>
@@ -161,38 +240,9 @@ export default function TeamTable({
                 </span>
               </TableCell>
               <TableCell className="p-1 text-center">
-                <span className="text-xs">{p.total_minions_killed ?? 0}</span>
-              </TableCell>
-              <TableCell className="p-1">
-                <div className="flex flex-col items-center gap-0.5">
-                  {/* OP-style score (0-10), computed in DB; MVP/ACE = best on winning/losing team */}
-                  {p.op_score != null ? (
-                    <span className="text-xs font-medium">{p.op_score}</span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
-                  )}
-                  <div className="flex gap-1">
-                    {p.is_mvp && (
-                      <span
-                        className={cn(
-                          "text-[10px] font-semibold px-1.5 py-0 rounded",
-                          "bg-amber-500/20 text-amber-700 dark:text-amber-400",
-                        )}
-                      >
-                        MVP
-                      </span>
-                    )}
-                    {p.is_ace && (
-                      <span
-                        className={cn(
-                          "text-[10px] font-semibold px-1.5 py-0 rounded",
-                          "bg-slate-500/20 text-slate-700 dark:text-slate-300",
-                        )}
-                      >
-                        ACE
-                      </span>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-0.5 items-center">
+                  <span className="text-xs">{p.total_minions_killed ?? 0}</span>
+                  <span className="text-xs">{csPerMin.toFixed(1)}/m</span>
                 </div>
               </TableCell>
             </TableRow>

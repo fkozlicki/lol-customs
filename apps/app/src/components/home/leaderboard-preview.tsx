@@ -105,13 +105,17 @@ function CurrentStreakCell({
 function BestStreakCell({ value }: { value: number | null }) {
   const hasBest = value != null && value > 0;
   return (
-    <span className="text-muted-foreground flex items-center justify-end gap-1 tabular-nums">
+    <span className="text-muted-foreground flex items-center gap-1 tabular-nums text-[11px]">
       {hasBest && (
-        <Icons.Flame className="size-3.5 text-amber-500/70 dark:text-amber-400/70 shrink-0" />
+        <Icons.Flame className="size-2.5 text-amber-500/70 dark:text-amber-400/70 shrink-0" />
       )}
       {value != null ? String(value) : "—"}
     </span>
   );
+}
+
+function formatKdaStat(value: number): string {
+  return value.toFixed(1).replace(/\.0$/, "");
 }
 
 function formatKda(
@@ -120,10 +124,19 @@ function formatKda(
   avgAssists: number | null,
 ): string {
   if (avgKills == null && avgDeaths == null && avgAssists == null) return "—";
-  const k = (avgKills ?? 0).toFixed(1);
-  const d = (avgDeaths ?? 0).toFixed(1);
-  const a = (avgAssists ?? 0).toFixed(1);
+  const k = formatKdaStat(avgKills ?? 0);
+  const d = formatKdaStat(avgDeaths ?? 0);
+  const a = formatKdaStat(avgAssists ?? 0);
   return `${k} / ${d} / ${a}`;
+}
+
+function calculateKda(
+  avgKills: number | null,
+  avgDeaths: number | null,
+  avgAssists: number | null,
+): number {
+  if (avgKills == null && avgDeaths == null && avgAssists == null) return 0;
+  return (avgKills ?? 0) + (avgAssists ?? 0) / (avgDeaths ?? 1);
 }
 
 interface LeaderboardProps {
@@ -161,33 +174,26 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
             <TableHead className="min-w-[200px] px-4 py-3">
               {t("tablePlayer")}
             </TableHead>
-            <TableHead className="w-20 px-4 py-3 text-right">
+            <TableHead className="w-20 px-4 py-3 text-center">
               {t("tableRating")}
             </TableHead>
-            <TableHead className="w-16 px-4 py-3 text-right">
-              {t("tableWl")}
-            </TableHead>
-            <TableHead className="w-14 px-4 py-3 text-right">
+            <TableHead className="w-14 px-4 py-3 text-center">
               {t("tableWr")}
             </TableHead>
-            <TableHead className="w-28 px-4 py-3 text-right">
+            <TableHead className="w-28 px-4 py-3 text-center">
               {t("tableKda")}
             </TableHead>
-            <TableHead className="w-20 px-4 py-3 text-right">
+            <TableHead className="w-20 px-4 py-3 text-center">
               {t("tableStreak")}
-            </TableHead>
-            <TableHead className="w-16 px-4 py-3 text-right">
-              {t("tableBest")}
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {leaderboard.map((row: LeaderboardRow, index: number) => {
             const rank = index + 1;
-            const name =
-              row.player?.game_name && row.player?.tag_line
-                ? `${row.player.game_name}#${row.player.tag_line}`
-                : row.puuid.slice(0, 8);
+            const name = row.player?.game_name
+              ? `${row.player.game_name}`
+              : row.puuid.slice(0, 8);
             const iconUrl = profileIconUrl(row.player?.profile_icon ?? null);
             const isLeader = rank === 1;
             const isTopThree = rank <= 3;
@@ -252,26 +258,49 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="px-4 py-3 text-right tabular-nums font-medium">
+                <TableCell className="px-4 py-3 text-center font-medium">
                   {Math.round(row.effective_rating ?? 0)}
                 </TableCell>
-                <TableCell className="text-muted-foreground px-4 py-3 text-right tabular-nums">
-                  {row.wins ?? 0}/{row.losses ?? 0}
-                </TableCell>
-                <TableCell className="text-muted-foreground px-4 py-3 text-right tabular-nums">
-                  {winrate(row.wins, row.losses)}
-                </TableCell>
-                <TableCell className="text-muted-foreground px-4 py-3 text-right tabular-nums text-xs">
-                  {formatKda(row.avg_kills, row.avg_deaths, row.avg_assists)}
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <CurrentStreakCell
-                    winStreak={row.win_streak}
-                    loseStreak={row.lose_streak}
-                  />
+
+                <TableCell className="px-4 py-3 text-center">
+                  <div className=" flex flex-col items-center">
+                    <span className="font-medium text-xs">
+                      {winrate(row.wins, row.losses)}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {row.wins ?? 0}/{row.losses ?? 0}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell className="px-4 py-3">
-                  <BestStreakCell value={row.best_streak} />
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs font-medium">
+                      {calculateKda(
+                        row.avg_kills,
+                        row.avg_deaths,
+                        row.avg_assists,
+                      ).toFixed(2)}
+                      :1
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {formatKda(
+                        row.avg_kills,
+                        row.avg_deaths,
+                        row.avg_assists,
+                      )}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="px-4 py-3">
+                  <div className="flex flex-col items-center">
+                    <CurrentStreakCell
+                      winStreak={row.win_streak}
+                      loseStreak={row.lose_streak}
+                    />
+                    {row.best_streak ? (
+                      <BestStreakCell value={row.best_streak} />
+                    ) : null}
+                  </div>
                 </TableCell>
               </TableRow>
             );

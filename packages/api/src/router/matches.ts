@@ -7,7 +7,9 @@ export const matchesRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { data, error } = await ctx.supabase
         .from("matches")
-        .select("*")
+        .select(
+          "*, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))",
+        )
         .eq("match_id", input.matchId)
         .single();
       if (error) {
@@ -51,35 +53,30 @@ export const matchesRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const limit = input?.limit ?? 20;
-      let matchesQ = ctx.supabase
+      let q = ctx.supabase
         .from("matches")
-        .select("*")
+        .select(
+          "*, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))",
+        )
         .order("game_creation", { ascending: false })
         .limit(limit);
+
       if (input?.platformId) {
-        matchesQ = matchesQ.eq("platform_id", input.platformId);
+        q = q.eq("platform_id", input.platformId);
       }
-      const { data: matches, error: matchesError } = await matchesQ;
-      if (matchesError) throw matchesError;
-      if (!matches?.length) return [];
-      const matchIds = matches.map((m) => m.match_id);
-      const { data: participants, error: partError } = await ctx.supabase
-        .from("match_participants")
-        .select("*, players(game_name, tag_line, profile_icon)")
-        .in("match_id", matchIds);
-      if (partError) throw partError;
-      const byMatch = new Map<number, typeof participants>();
-      for (const p of participants ?? []) {
-        const list = byMatch.get(p.match_id) ?? [];
-        list.push(p);
-        byMatch.set(p.match_id, list);
-      }
-      return matches.map((match) => ({
-        match,
-        participants: (byMatch.get(match.match_id) ?? []).sort(
+
+      const { data: rows, error } = await q;
+
+      if (error) throw error;
+      if (!rows?.length) return [];
+
+      return rows.map((row) => {
+        const { teams: _t, match_participants: mp, ...match } = row;
+        const participants = (mp ?? []).sort(
           (a, b) => (a.participant_id ?? 0) - (b.participant_id ?? 0),
-        ),
-      }));
+        );
+        return { match, participants, teams: _t };
+      });
     }),
 
   list: publicProcedure
@@ -103,7 +100,9 @@ export const matchesRouter = createTRPCRouter({
         const matchIds = participantRows.map((r) => r.match_id);
         const { data: matches, error } = await ctx.supabase
           .from("matches")
-          .select("*")
+          .select(
+            "*, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))",
+          )
           .in("match_id", matchIds)
           .order("game_creation", { ascending: false });
         if (error) throw error;
