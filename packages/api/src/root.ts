@@ -1,8 +1,8 @@
 import { datadragonRouter } from "./router/datadragon";
 import { matchesRouter } from "./router/matches";
 import { playersRouter } from "./router/players";
-import { riotRouter } from "./router/riot";
 import { riftRankRouter } from "./router/rift-rank";
+import { riotRouter } from "./router/riot";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({

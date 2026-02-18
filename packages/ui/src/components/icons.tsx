@@ -34,6 +34,7 @@ export const Icons = {
   Square,
   Sun,
   X,
+  Trophy,
 };
 
 export type { LucideIcon } from "lucide-react";

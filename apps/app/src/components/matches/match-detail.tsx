@@ -82,6 +82,11 @@ export function MatchDetail({ entry, patch, championMap }: MatchDetailProps) {
     0,
   );
 
+  const scores = participants
+    .map((p) => p.op_score)
+    .filter((opScore): opScore is number => opScore != null)
+    .sort((a, b) => b - a);
+
   return (
     <div className="bg-muted/50 rounded-sm">
       <TeamTable
@@ -94,6 +99,8 @@ export function MatchDetail({ entry, patch, championMap }: MatchDetailProps) {
         highestDamageTaken={highestDamageTaken}
         totalKills={blueKills}
         duration={match.duration}
+        rawJson={match.raw_json}
+        scores={scores}
       />
       <div className="flex px-4 py-2 border-y gap-4">
         <div className="space-y-1">
@@ -247,6 +254,8 @@ export function MatchDetail({ entry, patch, championMap }: MatchDetailProps) {
         highestDamageTaken={highestDamageTaken}
         totalKills={redKills}
         duration={match.duration}
+        rawJson={match.raw_json}
+        scores={scores}
       />
     </div>
   );

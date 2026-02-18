@@ -1,3 +1,4 @@
+import type { Json } from "@v1/supabase/types";
 import { cn } from "@v1/ui/cn";
 import { Progress } from "@v1/ui/progress";
 import {
@@ -13,9 +14,59 @@ import type { ChampionMap, MatchWithParticipants } from "./match-detail";
 
 type Participant = MatchWithParticipants["participants"][number];
 
+interface RawParticipant {
+  stats: {
+    item0: number;
+    item1: number;
+    item2: number;
+    item3: number;
+    item4: number;
+    item5: number;
+    item6: number;
+    perk0: number;
+    perk1: number;
+    perk2: number;
+    perk3: number;
+    perk4: number;
+    perk5: number;
+    perkPrimaryStyle?: number;
+  };
+  participantId: number;
+  spell1Id: number;
+  spell2Id: number;
+}
+
+interface RawJson {
+  participants: RawParticipant[];
+}
+
 const DD_CDN = "https://ddragon.leagueoflegends.com/cdn";
+
 const RANK_CRESTS_BASE =
   "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/";
+
+const SPELL_ID_TO_KEY: Record<number, string> = {
+  1: "SummonerBoost",
+  3: "SummonerExhaust",
+  4: "SummonerFlash",
+  6: "SummonerHaste",
+  7: "SummonerHeal",
+  11: "SummonerSmite",
+  12: "SummonerTeleport",
+  14: "SummonerDot",
+  21: "SummonerBarrier",
+  30: "SummonerPoroRecall",
+  31: "SummonerPoroThrow",
+  32: "SummonerSnowball",
+  39: "SummonerSnowURFSnowball_Mark",
+  54: "Summoner_UltBookPlaceholder",
+  55: "Summoner_UltBookSmitePlaceholder",
+};
+
+function getSpellIconUrl(spellId: number, patch: string): string {
+  const key = SPELL_ID_TO_KEY[spellId] ?? "SummonerFlash";
+  return `${DD_CDN}/${patch}/img/spell/${key}.png`;
+}
 
 const RANK_TIERS = new Set([
   "iron",
@@ -57,6 +108,8 @@ export default function TeamTable({
   highestDamageTaken,
   totalKills,
   duration,
+  rawJson,
+  scores,
 }: {
   team: Participant[];
   championMap: ChampionMap;
@@ -67,18 +120,22 @@ export default function TeamTable({
   highestDamageTaken: number;
   totalKills: number;
   duration: number;
+  rawJson: Json;
+  scores: number[];
 }) {
   const result = isVictorious ? "Victory" : "Defeat";
+  const rawParticipants = (rawJson as unknown as RawJson).participants;
 
   return (
     <Table className="w-full">
       <colgroup>
         <col className="w-auto" />
-        <col className="w-[88px]" />
-        <col className="w-[118px]" />
-        <col className="w-[120px]" />
         <col className="w-[68px]" />
-        <col className="w-[76px]" />
+        <col className="w-[98px]" />
+        <col className="w-[100px]" />
+        <col className="w-[48px]" />
+        <col className="w-[56px]" />
+        <col className="w-[195px]" />
       </colgroup>
       <TableHeader>
         <TableRow>
@@ -105,6 +162,9 @@ export default function TeamTable({
           <TableHead className="text-center text-xs text-muted-foreground">
             CS
           </TableHead>
+          <TableHead className="text-center text-xs text-muted-foreground">
+            Items
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -125,6 +185,19 @@ export default function TeamTable({
           const csPerMin =
             (p.total_minions_killed ?? 0 + (p.neutral_minions_killed ?? 0)) /
             (duration / 60);
+          const rawData = rawParticipants.find(
+            (par) => par.participantId === p.participant_id,
+          );
+          // place - based on op score
+          const place = p.op_score ? scores.indexOf(p.op_score) + 1 : null;
+          const placeText =
+            place === 1
+              ? "1st"
+              : place === 2
+                ? "2nd"
+                : place === 3
+                  ? "3rd"
+                  : `${place}th`;
 
           return (
             <TableRow
@@ -137,7 +210,7 @@ export default function TeamTable({
               )}
             >
               <TableCell className="p-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   {ch && (
                     <div className="relative">
                       <Image
@@ -153,7 +226,27 @@ export default function TeamTable({
                     </div>
                   )}
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-muted-foreground text-xs">
+                    {rawData?.spell1Id != null && rawData.spell1Id !== 0 && (
+                      <Image
+                        src={getSpellIconUrl(rawData.spell1Id, patch)}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="rounded-sm"
+                      />
+                    )}
+                    {rawData?.spell2Id != null && rawData.spell2Id !== 0 && (
+                      <Image
+                        src={getSpellIconUrl(rawData.spell2Id, patch)}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="rounded-sm"
+                      />
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted-foreground text-xs max-w-[90px] truncate">
                       {playerDisplayName(p)}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
@@ -171,34 +264,37 @@ export default function TeamTable({
                 </div>
               </TableCell>
               <TableCell className="p-1">
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1">
                   {p.op_score != null ? (
                     <span className="text-xs font-semibold">{p.op_score}</span>
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
                   )}
-                  <div className="flex gap-1">
-                    {p.is_mvp && (
-                      <span
-                        className={cn(
-                          "text-[10px] font-semibold px-1.5 py-0 rounded-full",
-                          "bg-amber-500/20 text-amber-700 dark:text-amber-400",
-                        )}
-                      >
-                        MVP
-                      </span>
-                    )}
-                    {p.is_ace && (
-                      <span
-                        className={cn(
-                          "text-[10px] font-semibold px-1.5 py-0 rounded-full",
-                          "bg-slate-500/20 text-slate-700 dark:text-slate-300",
-                        )}
-                      >
-                        ACE
-                      </span>
-                    )}
-                  </div>
+                  {p.is_mvp && (
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                        "bg-amber-500 text-white",
+                      )}
+                    >
+                      MVP
+                    </span>
+                  )}
+                  {p.is_ace && (
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                        "bg-indigo-600/70 text-white",
+                      )}
+                    >
+                      ACE
+                    </span>
+                  )}
+                  {!p.is_mvp && !p.is_ace && placeText && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0 rounded-full bg-slate-400 dark:bg-slate-500 text-white">
+                      {placeText}
+                    </span>
+                  )}
                 </div>
               </TableCell>
               <TableCell className="p-1">
@@ -243,6 +339,35 @@ export default function TeamTable({
                 <div className="flex flex-col gap-0.5 items-center">
                   <span className="text-xs">{p.total_minions_killed ?? 0}</span>
                   <span className="text-xs">{csPerMin.toFixed(1)}/m</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-0.5 items-center">
+                  {[
+                    rawData?.stats.item0,
+                    rawData?.stats.item1,
+                    rawData?.stats.item2,
+                    rawData?.stats.item3,
+                    rawData?.stats.item4,
+                    rawData?.stats.item5,
+                    rawData?.stats.item6,
+                  ].map((itemId, index) =>
+                    itemId ? (
+                      <Image
+                        key={`${index}-${itemId}`}
+                        src={`${DD_CDN}/${patch}/img/item/${itemId}.png`}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className="rounded-sm"
+                      />
+                    ) : (
+                      <div
+                        key={`${index}-${itemId}`}
+                        className="size-6 bg-muted rounded-sm"
+                      />
+                    ),
+                  )}
                 </div>
               </TableCell>
             </TableRow>
