@@ -119,12 +119,7 @@ function formatKda(
   avgDeaths: number | null,
   avgAssists: number | null,
 ): string {
-  if (
-    avgKills == null &&
-    avgDeaths == null &&
-    avgAssists == null
-  )
-    return "—";
+  if (avgKills == null && avgDeaths == null && avgAssists == null) return "—";
   const k = (avgKills ?? 0).toFixed(1);
   const d = (avgDeaths ?? 0).toFixed(1);
   const a = (avgAssists ?? 0).toFixed(1);
@@ -258,7 +253,7 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
                   </div>
                 </TableCell>
                 <TableCell className="px-4 py-3 text-right tabular-nums font-medium">
-                  {row.rating ?? "—"}
+                  {Math.round(row.effective_rating ?? 0)}
                 </TableCell>
                 <TableCell className="text-muted-foreground px-4 py-3 text-right tabular-nums">
                   {row.wins ?? 0}/{row.losses ?? 0}
