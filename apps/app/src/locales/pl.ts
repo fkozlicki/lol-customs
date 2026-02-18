@@ -1,5 +1,9 @@
 export default {
   welcome: "Cześć {name}!",
+  locale: {
+    en: "Angielski",
+    pl: "Polski",
+  },
   dashboard: {
     sidebar: {
       appName: "Derby",

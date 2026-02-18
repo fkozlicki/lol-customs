@@ -47,7 +47,8 @@
     "./input-group": "./src/components/input-group.tsx",
     "./textarea": "./src/components/textarea.tsx",
     "./combobox": "./src/components/combobox.tsx",
-    "./progress": "./src/components/progress.tsx"
+    "./progress": "./src/components/progress.tsx",
+    "./dropdown-menu": "./src/components/dropdown-menu.tsx"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
