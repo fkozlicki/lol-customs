@@ -6,8 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { MatchCard } from "./match-card";
-import { MatchDetail } from "./match-detail";
+import MatchHistoryCard from "./match-history-card";
 
 type MatchWithParticipants =
   RouterOutputs["matches"]["recentWithParticipants"][number];
@@ -51,22 +50,14 @@ export function MatchHistoryList({ limit = 50 }: MatchHistoryListProps) {
   return (
     <div className="space-y-3">
       {matchesData.map((entry: MatchWithParticipants) => (
-        <div key={entry.match.match_id} className="space-y-1">
-          <MatchCard
-            entry={entry}
-            patch={patch ?? ""}
-            championMap={championMap ?? {}}
-            isExpanded={expandedMatchId === entry.match.match_id}
-            onToggleExpand={() => toggleExpand(entry.match.match_id)}
-          />
-          {expandedMatchId === entry.match.match_id && (
-            <MatchDetail
-              entry={entry}
-              patch={patch ?? ""}
-              championMap={championMap ?? {}}
-            />
-          )}
-        </div>
+        <MatchHistoryCard
+          key={entry.match.match_id}
+          entry={entry}
+          patch={patch ?? ""}
+          championMap={championMap ?? {}}
+          expandedMatchId={expandedMatchId}
+          toggleExpand={toggleExpand}
+        />
       ))}
     </div>
   );

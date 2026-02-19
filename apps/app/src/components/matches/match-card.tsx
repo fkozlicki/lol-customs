@@ -4,53 +4,18 @@ import type { RouterOutputs } from "@v1/api";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
-import { Separator } from "@v1/ui/separator";
-import { formatDistanceToNowStrict } from "date-fns";
-import Image from "next/image";
+import { AverageRank } from "./average-rank";
+import { MatchMetadata } from "./match-metadata";
+import { MatchResult } from "./match-result";
+import MatchTeam from "./match-team";
+import { MVPPlayer } from "./mvp-player";
 
-const DD_CDN = "https://ddragon.leagueoflegends.com/cdn";
-const RANK_CRESTS_BASE =
-  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/";
-const RANK_TIERS_CREST = new Set([
-  "iron",
-  "bronze",
-  "silver",
-  "gold",
-  "platinum",
-  "emerald",
-  "diamond",
-  "master",
-  "grandmaster",
-  "challenger",
-]);
-
-type MatchWithParticipants =
+export type MatchWithParticipants =
   RouterOutputs["matches"]["recentWithParticipants"][number];
-type Participant = MatchWithParticipants["participants"][number];
+export type MatchParticipant = MatchWithParticipants["participants"][number];
 
 interface ChampionMap {
   [key: string]: { id: string; key: string; name: string; imageFull: string };
-}
-
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}m ${s}s`;
-}
-
-function playerDisplayName(p: Participant): string {
-  const pl = p.players as {
-    game_name: string | null;
-    tag_line: string | null;
-  } | null;
-  if (!pl?.game_name) return "—";
-  return pl.game_name;
-}
-
-function matchTypeLabel(match: MatchWithParticipants["match"]): string {
-  if (match.game_mode) return match.game_mode;
-  if (match.queue_id != null) return `Queue ${match.queue_id}`;
-  return "Custom";
 }
 
 const RANK_TIER_ORDER = [
@@ -102,7 +67,7 @@ function numericToRank(n: number): { tier: string; division: string } {
   return { tier, division } as { tier: string; division: string };
 }
 
-function averageGameRank(participants: Participant[]): string {
+function averageGameRank(participants: MatchParticipant[]): string {
   const values = participants
     .map((p) => rankToNumeric(p.rank_tier, p.rank_division))
     .filter((v): v is number => v != null);
@@ -116,82 +81,12 @@ function averageGameRank(participants: Participant[]): string {
   return `${tier.toLowerCase()}${divLabel}`.trim();
 }
 
-function averageRankCrestUrl(avgRankLabel: string): string {
-  if (avgRankLabel === "—") return `${RANK_CRESTS_BASE}unranked.svg`;
-  const tier = avgRankLabel.split(" ")[0]?.toLowerCase() ?? "";
-  return RANK_TIERS_CREST.has(tier)
-    ? `${RANK_CRESTS_BASE}${tier}.svg`
-    : `${RANK_CRESTS_BASE}unranked.svg`;
-}
-
 interface MatchCardProps {
   entry: MatchWithParticipants;
   patch: string;
   championMap: ChampionMap;
   isExpanded: boolean;
   onToggleExpand: () => void;
-}
-
-function MatchTeam({
-  teamName,
-  team,
-  championMap,
-  patch,
-}: {
-  team: Participant[];
-  championMap: ChampionMap;
-  patch: string;
-  teamName: "red" | "blue";
-}) {
-  const isVictorious = team[0]?.win === true;
-
-  return (
-    <div className="flex flex-col gap-0.5 shrink-0">
-      <div className="flex items-center gap-1">
-        <span
-          className={cn(
-            "text-[10px] font-semibold uppercase",
-            teamName === "blue" ? "text-blue-500" : "text-red-500",
-          )}
-        >
-          {teamName}
-        </span>
-
-        <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium uppercase inline-flex items-center gap-0.5">
-          {isVictorious && <Icons.Trophy className="size-3 text-amber-500" />}
-          {isVictorious ? "Winners" : "Losers"}
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-0.5">
-        {team.map((p) => {
-          const ch =
-            p.champion_id != null ? championMap[String(p.champion_id)] : null;
-          return (
-            <div
-              key={p.puuid}
-              className="flex items-center gap-1.5 truncate max-w-[140px]"
-            >
-              {ch ? (
-                <Image
-                  src={`${DD_CDN}/${patch}/img/champion/${ch.imageFull}`}
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="rounded-sm shrink-0 object-cover"
-                />
-              ) : (
-                <div className="h-5 w-5 rounded-full bg-muted shrink-0" />
-              )}
-              <span className="truncate text-xs max-w-[80px]">
-                {playerDisplayName(p)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
 }
 
 export function MatchCard({
@@ -215,78 +110,20 @@ export function MatchCard({
     <div className="rounded-sm border-l-[6px] border-border bg-secondary/50 overflow-hidden flex items-stretch">
       <div className="flex px-3 py-1 flex-1">
         {/* Match meta */}
-        <div className="flex flex-col shrink-0 min-w-[100px] justify-between">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-muted-foreground text-xs font-semibold">
-              {matchTypeLabel(match)}
-            </span>
-            <span className="text-muted-foreground text-xs">
-              {formatDistanceToNowStrict(match.game_creation, {
-                addSuffix: true,
-              })}
-            </span>
-          </div>
-          <Separator className="my-1" />
-          <div className="flex flex-col gap-0.5">
-            <span className="font-medium text-sm">
-              {formatDuration(match.duration)}
-            </span>
-            {match.patch && (
-              <span className="text-muted-foreground text-xs">
-                Patch {match.patch.split(".").slice(0, 2).join(".")}
-              </span>
-            )}
-          </div>
-        </div>
+        <MatchMetadata match={match} />
+
         <div className="flex justify-evenly items-center flex-1">
           {/* Match result - Red/Blue <Won> or <Lost> */}
           <div className="flex flex-col gap-2">
-            <div
-              className={cn(
-                "rounded px-2 py-1 text-sm font-medium ",
-                blueWon
-                  ? "bg-blue-500/20 text-blue-700 dark:text-blue-300"
-                  : "bg-red-500/20 text-red-700 dark:text-red-300",
-              )}
-            >
-              {blueWon ? "Blue victory" : "Red victory"}
-            </div>
-
-            <div className="">
-              <span className="text-muted-foreground text-xs">Avg rank:</span>
-              <div className="flex items-center gap-0.5">
-                <Image
-                  src={averageRankCrestUrl(avgRank)}
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="rounded-sm shrink-0 object-cover"
-                />
-                <span className="text-xs capitalize">{avgRank}</span>
-              </div>
-            </div>
+            <MatchResult blueWon={blueWon} />
+            <AverageRank rank={avgRank} />
           </div>
 
-          {/* MVP Player */}
-          {participantWithMVP && mvpChampion && (
-            <div className="flex flex-col items-center">
-              <Image
-                src={`${DD_CDN}/${patch}/img/champion/${mvpChampion.imageFull}`}
-                alt=""
-                width={48}
-                height={48}
-                className="rounded-full shrink-0 object-cover"
-              />
-
-              <span className="text-sm">
-                {playerDisplayName(participantWithMVP)}
-              </span>
-
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500 text-white">
-                MVP
-              </span>
-            </div>
-          )}
+          <MVPPlayer
+            champion={mvpChampion}
+            participant={participantWithMVP}
+            patch={patch}
+          />
         </div>
 
         <div className="flex items-center gap-4">
