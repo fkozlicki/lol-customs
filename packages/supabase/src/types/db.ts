@@ -294,7 +294,6 @@ export type Database = {
           avg_deaths: number | null
           avg_kills: number | null
           best_streak: number | null
-          effective_rating: number | null
           lose_streak: number | null
           losses: number | null
           puuid: string
@@ -308,7 +307,6 @@ export type Database = {
           avg_deaths?: number | null
           avg_kills?: number | null
           best_streak?: number | null
-          effective_rating?: number | null
           lose_streak?: number | null
           losses?: number | null
           puuid: string
@@ -322,7 +320,6 @@ export type Database = {
           avg_deaths?: number | null
           avg_kills?: number | null
           best_streak?: number | null
-          effective_rating?: number | null
           lose_streak?: number | null
           losses?: number | null
           puuid?: string

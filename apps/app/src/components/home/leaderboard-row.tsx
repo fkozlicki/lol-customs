@@ -121,7 +121,7 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
         </div>
       </TableCell>
       <TableCell className="px-4 py-3 text-center font-medium">
-        {Math.round(row.effective_rating ?? 0)}
+        {Math.round(row.rating ?? 0)}
       </TableCell>
 
       <TableCell className="px-4 py-3 text-center">

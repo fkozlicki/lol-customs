@@ -13,7 +13,6 @@ interface LeaderboardRatingRow {
   avg_kills: number | null;
   avg_deaths: number | null;
   avg_assists: number | null;
-  effective_rating: number | null;
 }
 
 interface LeaderboardEntry extends LeaderboardRatingRow {
@@ -40,10 +39,10 @@ export const riftRankRouter = createTRPCRouter({
       const { data: ratings, error: ratingsError } = await ctx.supabase
         .from("ratings")
         .select(
-          "puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at, avg_kills, avg_deaths, avg_assists, effective_rating",
+          "puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at, avg_kills, avg_deaths, avg_assists",
         )
         .not("rating", "is", null)
-        .order("effective_rating", { ascending: false })
+        .order("rating", { ascending: false })
         .limit(limit);
 
       if (ratingsError) throw ratingsError;
