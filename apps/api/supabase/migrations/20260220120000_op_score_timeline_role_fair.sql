@@ -165,10 +165,10 @@ BEGIN
       m.role,
       m.puuid,
       m.win,
-      coalesce((b.participant_frames->>(m.participant_id::text))->>'totalGold', '0')::numeric AS gold,
-      coalesce((b.participant_frames->>(m.participant_id::text))->>'xp', '0')::numeric AS xp,
-      (coalesce((b.participant_frames->>(m.participant_id::text))->>'minionsKilled', '0')::numeric
-       + coalesce((b.participant_frames->>(m.participant_id::text))->>'jungleMinionsKilled', '0')::numeric) AS cs
+      coalesce((b.participant_frames->(m.participant_id::text))->>'totalGold', '0')::numeric AS gold,
+      coalesce((b.participant_frames->(m.participant_id::text))->>'xp', '0')::numeric AS xp,
+      (coalesce((b.participant_frames->(m.participant_id::text))->>'minionsKilled', '0')::numeric
+       + coalesce((b.participant_frames->(m.participant_id::text))->>'jungleMinionsKilled', '0')::numeric) AS cs
     FROM best_frame b
     CROSS JOIN mp m
   ),
