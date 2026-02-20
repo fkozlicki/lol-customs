@@ -10,7 +10,10 @@ export default function MatchParticipantScore({
   p,
   scores,
 }: MatchParticipantScoreProps) {
-  const place = p.op_score ? scores.indexOf(p.op_score) + 1 : null;
+  const place =
+    p.op_score != null
+      ? 1 + scores.filter((s) => s > p.op_score!).length
+      : null;
   const placeText =
     place === 1
       ? "1st"
