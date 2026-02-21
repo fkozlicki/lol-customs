@@ -7,6 +7,7 @@
     "stop": "supabase stop",
     "migrate": "supabase migration up",
     "seed": "supabase db seed generate && supabase db seed run",
+    "seed:from-remote": "supabase db dump --linked --data-only -f supabase/seeds/remote-data.sql",
     "reset": "supabase db reset",
     "generate": "supabase gen types --lang=typescript --local --schema public > ../../packages/supabase/src/types/db.ts"
   },

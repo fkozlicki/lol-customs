@@ -222,6 +222,32 @@ export type Database = {
         }
         Relationships: []
       }
+      match_kills: {
+        Row: {
+          match_id: number
+          killer_participant_id: number
+          victim_participant_id: number
+        }
+        Insert: {
+          match_id: number
+          killer_participant_id: number
+          victim_participant_id: number
+        }
+        Update: {
+          match_id?: number
+          killer_participant_id?: number
+          victim_participant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_kills_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["match_id"]
+          },
+        ]
+      }
       players: {
         Row: {
           first_seen_at: string | null

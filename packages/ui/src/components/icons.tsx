@@ -15,6 +15,7 @@ import {
   Square,
   Sun,
   Trophy,
+  Users2,
   X,
 } from "lucide-react";
 
@@ -37,6 +38,7 @@ export const Icons = {
   X,
   Trophy,
   HOF: Crown,
+  Users2,
 };
 
 export type { LucideIcon } from "lucide-react";

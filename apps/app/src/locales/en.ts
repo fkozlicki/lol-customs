@@ -10,6 +10,7 @@ export default {
       leaderboard: "Leaderboard",
       matchHistory: "Match history",
       hallOfFame: "Hall of Fame",
+      duos: "Squad",
       downloadDesktopApp: "Download desktop app",
     },
     download: {
@@ -47,6 +48,18 @@ export default {
         description: "Recent custom games.",
         emptyTitle: "Match history",
         noMatchesYet: "No matches yet.",
+      },
+      duos: {
+        title: "Squad",
+        description: "Your regulars and rivals: who you play with, win or lose with, and who you kill or get killed by.",
+        mostGamesWith: "Partner in crime",
+        mostWinsWith: "Lucky charm",
+        mostLossesWith: "Tilt buddy",
+        mostKilledPlayer: "Your punching bag",
+        mostlyKilledBy: "Your nemesis",
+        noDataYet: "No data yet.",
+        showMore: "Show more",
+        showLess: "Show less",
       },
       hallOfFame: {
         title: "Hall of Fame",
