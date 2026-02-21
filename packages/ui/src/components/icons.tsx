@@ -3,6 +3,7 @@ import {
   Check,
   ChevronDown,
   Copy,
+  Crown,
   Download,
   Flame,
   Folder,
@@ -35,6 +36,7 @@ export const Icons = {
   Sun,
   X,
   Trophy,
+  HOF: Crown,
 };
 
 export type { LucideIcon } from "lucide-react";

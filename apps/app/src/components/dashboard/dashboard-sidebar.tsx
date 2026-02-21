@@ -37,15 +37,17 @@ const hasZip = Boolean(env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL);
 const hasBoth = hasInstaller && hasZip;
 const hasAnyDownload = hasInstaller || hasZip;
 
-export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
+const PATHS = [
+  { path: "/", label: "sidebar.leaderboard", Icon: Icons.Leaderboard },
+  { path: "/matches", label: "sidebar.matchHistory", Icon: Icons.Calendar },
+  { path: "/hof", label: "sidebar.hallOfFame", Icon: Icons.HOF },
+] as const;
+
+export function DashboardSidebar({ children }: DashboardSidebarProps) {
   const t = useScopedI18n("dashboard");
   const pathname = usePathname();
-  const base = `/${locale}`;
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, "$1") || "/";
-  const isLeaderboardActive =
-    pathWithoutLocale === "/" || pathWithoutLocale === "";
-  const isMatchesActive = pathWithoutLocale === "/matches";
 
   return (
     <SidebarProvider>
@@ -59,22 +61,19 @@ export function DashboardSidebar({ locale, children }: DashboardSidebarProps) {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isLeaderboardActive}>
-                    <Link href={base}>
-                      <Icons.Leaderboard className="size-4" />
-                      <span>{t("sidebar.leaderboard")}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={isMatchesActive}>
-                    <Link href={`${base}/matches`}>
-                      <Icons.Calendar className="size-4" />
-                      <span>{t("sidebar.matchHistory")}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {PATHS.map(({ path, label, Icon }) => (
+                  <SidebarMenuItem key={path}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathWithoutLocale === pathname}
+                    >
+                      <Link href={path}>
+                        <Icon className="size-4" />
+                        <span>{t(label)}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

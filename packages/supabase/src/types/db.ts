@@ -290,40 +290,94 @@ export type Database = {
       }
       ratings: {
         Row: {
+          ace_games: number
           avg_assists: number | null
+          avg_cc_time: number | null
+          avg_champ_level: number | null
+          avg_cs: number | null
+          avg_damage_taken: number | null
+          avg_damage_to_champions: number | null
           avg_deaths: number | null
+          avg_gold_earned: number | null
+          avg_gold_spent: number | null
+          avg_heal: number | null
+          avg_kda: number | null
           avg_kills: number | null
+          avg_neutral_minions: number | null
+          avg_op_score: number | null
+          avg_turret_kills: number | null
+          avg_vision_score: number | null
           best_streak: number | null
           lose_streak: number | null
           losses: number | null
+          mvp_games: number
           puuid: string
           rating: number | null
+          total_penta_kills: number
+          total_quadra_kills: number
+          total_triple_kills: number
           updated_at: string | null
           win_streak: number | null
           wins: number | null
         }
         Insert: {
+          ace_games?: number
           avg_assists?: number | null
+          avg_cc_time?: number | null
+          avg_champ_level?: number | null
+          avg_cs?: number | null
+          avg_damage_taken?: number | null
+          avg_damage_to_champions?: number | null
           avg_deaths?: number | null
+          avg_gold_earned?: number | null
+          avg_gold_spent?: number | null
+          avg_heal?: number | null
+          avg_kda?: number | null
           avg_kills?: number | null
+          avg_neutral_minions?: number | null
+          avg_op_score?: number | null
+          avg_turret_kills?: number | null
+          avg_vision_score?: number | null
           best_streak?: number | null
           lose_streak?: number | null
           losses?: number | null
+          mvp_games?: number
           puuid: string
           rating?: number | null
+          total_penta_kills?: number
+          total_quadra_kills?: number
+          total_triple_kills?: number
           updated_at?: string | null
           win_streak?: number | null
           wins?: number | null
         }
         Update: {
+          ace_games?: number
           avg_assists?: number | null
+          avg_cc_time?: number | null
+          avg_champ_level?: number | null
+          avg_cs?: number | null
+          avg_damage_taken?: number | null
+          avg_damage_to_champions?: number | null
           avg_deaths?: number | null
+          avg_gold_earned?: number | null
+          avg_gold_spent?: number | null
+          avg_heal?: number | null
+          avg_kda?: number | null
           avg_kills?: number | null
+          avg_neutral_minions?: number | null
+          avg_op_score?: number | null
+          avg_turret_kills?: number | null
+          avg_vision_score?: number | null
           best_streak?: number | null
           lose_streak?: number | null
           losses?: number | null
+          mvp_games?: number
           puuid?: string
           rating?: number | null
+          total_penta_kills?: number
+          total_quadra_kills?: number
+          total_triple_kills?: number
           updated_at?: string | null
           win_streak?: number | null
           wins?: number | null
