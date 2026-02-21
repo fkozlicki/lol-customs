@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { RawParticipant } from "./match-table";
+import type { RawParticipant } from "./team-table";
 
 interface MatchParticipantItemsProps {
   rawData: RawParticipant | undefined;

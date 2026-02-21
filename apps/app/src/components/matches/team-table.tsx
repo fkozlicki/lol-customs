@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@v1/ui/table";
 import type { ChampionMap, MatchParticipant } from "./match-history-list";
-import { MatchRow } from "./match-row";
+import { TeamRow } from "./team-row";
 
 export interface RawParticipant {
   stats: {
@@ -107,7 +107,7 @@ export default function TeamTable({
       </TableHeader>
       <TableBody>
         {team.map((p) => (
-          <MatchRow
+          <TeamRow
             key={p.puuid}
             p={p}
             championMap={championMap}

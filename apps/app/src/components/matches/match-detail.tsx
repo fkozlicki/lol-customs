@@ -2,8 +2,8 @@
 
 import type { ChampionMap, Match } from "./match-history-list";
 import { MatchStats } from "./match-stats";
-import TeamTable from "./match-table";
 import { TeamObjectives } from "./team-objectives";
+import TeamTable from "./team-table";
 
 interface MatchDetailProps {
   match: Match;

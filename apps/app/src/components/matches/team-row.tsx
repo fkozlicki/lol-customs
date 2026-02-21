@@ -8,9 +8,9 @@ import MatchParticipantItems from "./match-participant-items";
 import MatchParticipantKDA from "./match-participant-kda";
 import MatchParticipantScore from "./match-participant-score";
 import MatchParticipantWards from "./match-participant-wards";
-import type { RawParticipant } from "./match-table";
+import type { RawParticipant } from "./team-table";
 
-interface MatchRowProps {
+interface TeamRowProps {
   p: MatchParticipant;
   championMap: ChampionMap;
   highestDamageDealt: number;
@@ -23,7 +23,7 @@ interface MatchRowProps {
   patch: string;
 }
 
-export function MatchRow({
+export function TeamRow({
   p,
   championMap,
   highestDamageDealt,
@@ -34,7 +34,7 @@ export function MatchRow({
   scores,
   isVictorious,
   patch,
-}: MatchRowProps) {
+}: TeamRowProps) {
   const ch = p.champion_id != null ? championMap[String(p.champion_id)] : null;
 
   const rawData = rawParticipants.find(
