@@ -20,7 +20,13 @@ export default function MatchParticipantKDA({
         {p.kills ?? 0}/{p.deaths ?? 0}/{p.assists ?? 0} ({killParticipation}
         %)
       </span>
-      <span className="text-xs">{kdaRatio.toFixed(2)}</span>
+      {kdaRatio === Infinity ? (
+        <span className="text-xs bg-amber-500 text-white px-1.5 rounded-full font-medium">
+          Perfect
+        </span>
+      ) : (
+        <span className="text-xs">{kdaRatio.toFixed(2)}</span>
+      )}
     </div>
   );
 }
