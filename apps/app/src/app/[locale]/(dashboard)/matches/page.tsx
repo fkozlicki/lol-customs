@@ -30,7 +30,7 @@ export default async function MatchHistoryPage() {
   const t = await getScopedI18n("dashboard.pages.matchHistory");
   const queryClient = getQueryClient();
   await Promise.all([
-    queryClient.fetchQuery(trpc.matches.recentWithParticipants.queryOptions({ limit: 50 })),
+    queryClient.fetchQuery(trpc.matches.list.queryOptions({ limit: 50 })),
     queryClient.fetchQuery(trpc.datadragon.currentPatch.queryOptions()),
     queryClient.fetchQuery(trpc.datadragon.championMap.queryOptions()),
   ]);

@@ -5,21 +5,21 @@ import { MatchStats } from "./match-stats";
 import TeamTable from "./match-table";
 import { TeamObjectives } from "./team-objectives";
 
-export type MatchWithParticipants =
-  RouterOutputs["matches"]["recentWithParticipants"][number];
+type Match = RouterOutputs["matches"]["list"][number];
 
 export interface ChampionMap {
   [key: string]: { id: string; key: string; name: string; imageFull: string };
 }
 
 interface MatchDetailProps {
-  entry: MatchWithParticipants;
+  match: Match;
   patch: string;
   championMap: ChampionMap;
 }
 
-export function MatchDetail({ entry, patch, championMap }: MatchDetailProps) {
-  const { match, participants, teams } = entry;
+export function MatchDetail({ match, patch, championMap }: MatchDetailProps) {
+  const participants = match.match_participants ?? [];
+  const teams = match.teams ?? [];
   const blueTeamParticipants = participants.filter((p) => p.team_id === 100);
   const redTeamParticipants = participants.filter((p) => p.team_id === 200);
   const blueKills = blueTeamParticipants.reduce(

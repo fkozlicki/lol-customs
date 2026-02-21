@@ -59,6 +59,12 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
               {t("tableKda")}
             </TableHead>
             <TableHead className="w-20 px-4 py-3 text-center">
+              {t("tableMvp")}
+            </TableHead>
+            <TableHead className="w-20 px-4 py-3 text-center">
+              {t("tableAce")}
+            </TableHead>
+            <TableHead className="w-20 px-4 py-3 text-center">
               {t("tableStreak")}
             </TableHead>
           </TableRow>

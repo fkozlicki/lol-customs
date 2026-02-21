@@ -149,6 +149,12 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
           </span>
         </div>
       </TableCell>
+      <TableCell className="px-4 py-3 text-center">
+        {row.mvp_games ?? 0}
+      </TableCell>
+      <TableCell className="px-4 py-3 text-center">
+        {row.ace_games ?? 0}
+      </TableCell>
       <TableCell className="px-4 py-3">
         <div className="flex flex-col items-center">
           <CurrentStreak

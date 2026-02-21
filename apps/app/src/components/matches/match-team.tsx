@@ -1,10 +1,13 @@
+import type { RouterOutputs } from "@v1/api";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import Image from "next/image";
-import type { MatchParticipant } from "./match-card";
 import type { ChampionMap } from "./match-detail";
 
 const DD_CDN = "https://ddragon.leagueoflegends.com/cdn";
+
+type MatchParticipant =
+  RouterOutputs["matches"]["list"][number]["match_participants"][number];
 
 export default function MatchTeam({
   teamName,

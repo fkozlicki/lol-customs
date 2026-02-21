@@ -1,15 +1,11 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import type { RouterOutputs } from "@v1/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import MatchHistoryCard from "./match-history-card";
-
-type MatchWithParticipants =
-  RouterOutputs["matches"]["recentWithParticipants"][number];
 
 interface MatchHistoryListProps {
   limit?: number;
@@ -21,7 +17,7 @@ export function MatchHistoryList({ limit = 50 }: MatchHistoryListProps) {
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 
   const { data: matchesData } = useSuspenseQuery(
-    trpc.matches.recentWithParticipants.queryOptions({ limit }),
+    trpc.matches.list.queryOptions({ limit }),
   );
   const { data: patch } = useSuspenseQuery(
     trpc.datadragon.currentPatch.queryOptions(),
@@ -49,10 +45,10 @@ export function MatchHistoryList({ limit = 50 }: MatchHistoryListProps) {
 
   return (
     <div className="space-y-3">
-      {matchesData.map((entry: MatchWithParticipants) => (
+      {matchesData.map((match) => (
         <MatchHistoryCard
-          key={entry.match.match_id}
-          entry={entry}
+          key={match.match_id}
+          match={match}
           patch={patch ?? ""}
           championMap={championMap ?? {}}
           expandedMatchId={expandedMatchId}

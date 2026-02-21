@@ -10,10 +10,9 @@ import { MatchResult } from "./match-result";
 import MatchTeam from "./match-team";
 import { MVPPlayer } from "./mvp-player";
 
-export type MatchWithParticipants =
-  RouterOutputs["matches"]["recentWithParticipants"][number];
-export type MatchParticipant = MatchWithParticipants["participants"][number];
+type Match = RouterOutputs["matches"]["list"][number];
 
+type MatchParticipant = Match["match_participants"][number];
 interface ChampionMap {
   [key: string]: { id: string; key: string; name: string; imageFull: string };
 }
@@ -82,7 +81,7 @@ function averageGameRank(participants: MatchParticipant[]): string {
 }
 
 interface MatchCardProps {
-  entry: MatchWithParticipants;
+  match: Match;
   patch: string;
   championMap: ChampionMap;
   isExpanded: boolean;
@@ -90,17 +89,17 @@ interface MatchCardProps {
 }
 
 export function MatchCard({
-  entry,
+  match,
   patch,
   championMap,
   isExpanded,
   onToggleExpand,
 }: MatchCardProps) {
-  const { match, participants } = entry;
-  const blueTeam = participants.filter((p) => p.team_id === 100);
-  const redTeam = participants.filter((p) => p.team_id === 200);
+  const participants = match.match_participants ?? [];
+  const blueTeam = participants.filter((t) => t.team_id === 100);
+  const redTeam = participants.filter((t) => t.team_id === 200);
   const blueWon = blueTeam[0]?.win === true;
-  const avgRank = averageGameRank(participants);
+  const avgRank = averageGameRank(match.match_participants ?? []);
   const participantWithMVP = participants.find((p) => p.is_mvp);
   const mvpChampion = participantWithMVP
     ? championMap[String(participantWithMVP.champion_id)]

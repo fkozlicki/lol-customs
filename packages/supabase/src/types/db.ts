@@ -9,6 +9,32 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      match_kills: {
+        Row: {
+          killer_participant_id: number
+          match_id: number
+          victim_participant_id: number
+        }
+        Insert: {
+          killer_participant_id: number
+          match_id: number
+          victim_participant_id: number
+        }
+        Update: {
+          killer_participant_id?: number
+          match_id?: number
+          victim_participant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_kills_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["match_id"]
+          },
+        ]
+      }
       match_participants: {
         Row: {
           assists: number | null
@@ -221,32 +247,6 @@ export type Database = {
           timeline_json?: Json
         }
         Relationships: []
-      }
-      match_kills: {
-        Row: {
-          match_id: number
-          killer_participant_id: number
-          victim_participant_id: number
-        }
-        Insert: {
-          match_id: number
-          killer_participant_id: number
-          victim_participant_id: number
-        }
-        Update: {
-          match_id?: number
-          killer_participant_id?: number
-          victim_participant_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "match_kills_match_id_fkey"
-            columns: ["match_id"]
-            isOneToOne: false
-            referencedRelation: "matches"
-            referencedColumns: ["match_id"]
-          },
-        ]
       }
       players: {
         Row: {
@@ -473,6 +473,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _compute_op_scores_fallback: {
+        Args: { p_match_id: number; v_duration_sec: number }
+        Returns: undefined
+      }
+      _compute_op_scores_timeline: {
+        Args: { p_match_id: number; v_duration_sec: number; v_timeline: Json }
+        Returns: undefined
+      }
+      apply_rating_update_for_match: {
+        Args: { p_match_id: number }
+        Returns: undefined
+      }
       compute_op_scores_for_match: {
         Args: { p_match_id: number }
         Returns: undefined

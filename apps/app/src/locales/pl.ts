@@ -37,6 +37,8 @@ export default {
         tableWl: "W/P",
         tableWr: "WR",
         tableKda: "KDA",
+        tableMvp: "MVP",
+        tableAce: "ACE",
         tableStreak: "Seria",
         tableBest: "Rekord",
         rank1st: "1.",
