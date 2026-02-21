@@ -28,6 +28,12 @@ export const matchesRouter = createTRPCRouter({
           message: error.message,
         });
       }
-      return data;
+
+      return data.map((m) => ({
+        ...m,
+        match_participants: m.match_participants.sort(
+          (a, b) => (a.participant_id ?? 0) - (b.participant_id ?? 0),
+        ),
+      }));
     }),
 });
