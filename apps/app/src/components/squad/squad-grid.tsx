@@ -29,10 +29,9 @@ export function SquadGridSkeleton() {
             <div className="bg-muted h-5 w-32 rounded" />
           </div>
           <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((j) => (
+            {[1, 2, 3].map((j) => (
               <div key={j} className="space-y-2">
                 <div className="bg-muted h-3 w-24 rounded" />
-                <div className="bg-muted h-8 w-full rounded" />
                 <div className="bg-muted h-8 w-full rounded" />
               </div>
             ))}
