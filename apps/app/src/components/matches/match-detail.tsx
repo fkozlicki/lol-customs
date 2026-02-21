@@ -1,15 +1,9 @@
 "use client";
 
-import type { RouterOutputs } from "@v1/api";
+import type { ChampionMap, Match } from "./match-history-list";
 import { MatchStats } from "./match-stats";
 import TeamTable from "./match-table";
 import { TeamObjectives } from "./team-objectives";
-
-type Match = RouterOutputs["matches"]["list"][number];
-
-export interface ChampionMap {
-  [key: string]: { id: string; key: string; name: string; imageFull: string };
-}
 
 interface MatchDetailProps {
   match: Match;
@@ -17,7 +11,11 @@ interface MatchDetailProps {
   championMap: ChampionMap;
 }
 
-export function MatchDetail({ match, patch, championMap }: MatchDetailProps) {
+export default function MatchDetail({
+  match,
+  patch,
+  championMap,
+}: MatchDetailProps) {
   const participants = match.match_participants ?? [];
   const teams = match.teams ?? [];
   const blueTeamParticipants = participants.filter((p) => p.team_id === 100);

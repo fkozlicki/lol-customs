@@ -1,8 +1,6 @@
-import type { RouterOutputs } from "@v1/api";
-import { MatchCard } from "./match-card";
-import { type ChampionMap, MatchDetail } from "./match-detail";
-
-type Match = RouterOutputs["matches"]["list"][number];
+import MatchCard from "./match-card";
+import MatchDetail from "./match-detail";
+import type { ChampionMap, Match } from "./match-history-list";
 
 interface MatchHistoryCardProps {
   match: Match;

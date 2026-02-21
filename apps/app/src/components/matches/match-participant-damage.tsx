@@ -1,5 +1,5 @@
 import { Progress } from "@v1/ui/progress";
-import type { MatchParticipant } from "./match-card";
+import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantDamageProps {
   p: MatchParticipant;

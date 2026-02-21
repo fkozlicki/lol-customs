@@ -1,7 +1,6 @@
 import { cn } from "@v1/ui/cn";
 import { TableCell, TableRow } from "@v1/ui/table";
-import type { MatchParticipant } from "./match-card";
-import type { ChampionMap } from "./match-detail";
+import type { ChampionMap, MatchParticipant } from "./match-history-list";
 import MatchParticipantCS from "./match-participant-cs";
 import MatchParticipantDamage from "./match-participant-damage";
 import MatchParticipantInfo from "./match-participant-info";

@@ -1,21 +1,18 @@
 "use client";
 
-import type { RouterOutputs } from "@v1/api";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { AverageRank } from "./average-rank";
+import type {
+  ChampionMap,
+  Match,
+  MatchParticipant,
+} from "./match-history-list";
 import { MatchMetadata } from "./match-metadata";
 import { MatchResult } from "./match-result";
 import MatchTeam from "./match-team";
 import { MVPPlayer } from "./mvp-player";
-
-type Match = RouterOutputs["matches"]["list"][number];
-
-type MatchParticipant = Match["match_participants"][number];
-interface ChampionMap {
-  [key: string]: { id: string; key: string; name: string; imageFull: string };
-}
 
 const RANK_TIER_ORDER = [
   "IRON",
@@ -88,7 +85,7 @@ interface MatchCardProps {
   onToggleExpand: () => void;
 }
 
-export function MatchCard({
+export default function MatchCard({
   match,
   patch,
   championMap,

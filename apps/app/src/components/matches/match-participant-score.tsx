@@ -1,5 +1,5 @@
 import { cn } from "@v1/ui/cn";
-import type { MatchParticipant } from "./match-card";
+import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantScoreProps {
   p: MatchParticipant;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import type { RouterOutputs } from "@v1/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
 import { useScopedI18n } from "@/locales/client";
@@ -9,6 +10,12 @@ import MatchHistoryCard from "./match-history-card";
 
 interface MatchHistoryListProps {
   limit?: number;
+}
+
+export type Match = RouterOutputs["matches"]["list"][number];
+export type MatchParticipant = Match["match_participants"][number];
+export interface ChampionMap {
+  [key: string]: { id: string; key: string; name: string; imageFull: string };
 }
 
 export function MatchHistoryList({ limit = 50 }: MatchHistoryListProps) {

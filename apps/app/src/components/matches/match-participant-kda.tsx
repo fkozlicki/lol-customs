@@ -1,4 +1,4 @@
-import type { MatchParticipant } from "./match-card";
+import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantKDAProps {
   p: MatchParticipant;

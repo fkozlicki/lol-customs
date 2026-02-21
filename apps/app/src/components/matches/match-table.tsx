@@ -7,10 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@v1/ui/table";
-import type { ChampionMap, MatchWithParticipants } from "./match-detail";
+import type { ChampionMap, MatchParticipant } from "./match-history-list";
 import { MatchRow } from "./match-row";
-
-type Participant = MatchWithParticipants["participants"][number];
 
 export interface RawParticipant {
   stats: {
@@ -51,7 +49,7 @@ export default function TeamTable({
   rawJson,
   scores,
 }: {
-  team: Participant[];
+  team: MatchParticipant[];
   championMap: ChampionMap;
   patch: string;
   isVictorious: boolean;

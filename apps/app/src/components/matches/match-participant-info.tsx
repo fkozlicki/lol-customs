@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { MatchParticipant } from "./match-card";
-import type { ChampionMap } from "./match-detail";
+
+import type { ChampionMap, MatchParticipant } from "./match-history-list";
 import type { RawParticipant } from "./match-table";
 
 interface MatchParticipantInfoProps {
