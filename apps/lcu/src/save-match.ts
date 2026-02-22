@@ -1,13 +1,8 @@
 import type { LcuMatchDetails } from "./lcu-types.js";
 import { supabase } from "./supabase.js";
-import {
-  transformMatch,
-  type TransformOptions,
-} from "./transform-match.js";
+import { transformMatch, type TransformOptions } from "./transform-match.js";
 
-export type SaveMatchResult =
-  | { saved: true }
-  | { saved: false; error: string };
+export type SaveMatchResult = { saved: true } | { saved: false; error: string };
 
 /** Returns result with saved flag and error reason when failed. */
 export async function saveMatch(
@@ -17,7 +12,8 @@ export async function saveMatch(
   const transformed = transformMatch(match, options);
 
   if (!transformed) {
-    const msg = "Skipped invalid match (not custom, wrong player count, or too short).";
+    const msg =
+      "Skipped invalid match (not custom, wrong player count, or too short).";
     console.log(msg, match.gameId);
     return { saved: false, error: msg };
   }

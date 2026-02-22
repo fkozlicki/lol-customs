@@ -8,9 +8,7 @@ import { useTRPC } from "@/trpc/react";
 
 export function HofGrid() {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.riftRank.hofLeaders.queryOptions(),
-  );
+  const { data } = useSuspenseQuery(trpc.riftRank.hofLeaders.queryOptions());
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -49,7 +49,12 @@ export default function MatchParticipantInfo({
           {p.players.game_name}
         </span>
         <span className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
-          <RankCrest tier={p.rank_tier} width={14} height={14} className="shrink-0" />
+          <RankCrest
+            tier={p.rank_tier}
+            width={14}
+            height={14}
+            className="shrink-0"
+          />
           {p.rank_tier?.toLowerCase() ?? "Unranked"} {p.rank_division ?? ""}
         </span>
       </div>

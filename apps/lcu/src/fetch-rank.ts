@@ -36,9 +36,9 @@ function getApiKey(): string {
     const configPath = path.join(__dirname, "supabase-config.json");
     if (fs.existsSync(configPath)) {
       try {
-        const data = JSON.parse(
-          fs.readFileSync(configPath, "utf8"),
-        ) as { RIOT_API_KEY?: string };
+        const data = JSON.parse(fs.readFileSync(configPath, "utf8")) as {
+          RIOT_API_KEY?: string;
+        };
         key = data.RIOT_API_KEY;
       } catch {
         // ignore
@@ -54,9 +54,10 @@ function getApiKey(): string {
 }
 
 /** Map platform id (e.g. EUN1, NA1) to Riot region and platform. */
-function platformToRegionAndPlatform(
-  platformId: string,
-): { region: RiotRegion; platform: string } {
+function platformToRegionAndPlatform(platformId: string): {
+  region: RiotRegion;
+  platform: string;
+} {
   const upper = (platformId ?? "").toUpperCase();
   const platform = (platformId ?? "").toLowerCase();
   if (["EUN1", "EUW1", "TR1", "RU"].some((p) => upper.startsWith(p))) {
@@ -68,7 +69,9 @@ function platformToRegionAndPlatform(
   if (["KR", "JP1"].some((p) => upper.startsWith(p))) {
     return { region: "asia", platform };
   }
-  if (["OC1", "PH2", "SG2", "TH2", "TW2", "VN2"].some((p) => upper.startsWith(p))) {
+  if (
+    ["OC1", "PH2", "SG2", "TH2", "TW2", "VN2"].some((p) => upper.startsWith(p))
+  ) {
     return { region: "sea", platform };
   }
   return { region: "europe", platform };

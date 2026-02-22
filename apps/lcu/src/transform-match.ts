@@ -11,10 +11,7 @@ export interface TransformOptions {
   /** Game timeline JSON; use {} when missing or failed fetch. */
   timeline?: Record<string, unknown>;
   /** Per-participant rank (keyed by puuid). */
-  participantRanks?: Map<
-    string,
-    { rank_tier: string; rank_division: string }
-  >;
+  participantRanks?: Map<string, { rank_tier: string; rank_division: string }>;
 }
 
 export function transformMatch(
@@ -29,9 +26,10 @@ export function transformMatch(
     return null;
   }
 
-  const timelineJson = options?.timeline && Object.keys(options.timeline).length > 0
-    ? options.timeline
-    : {};
+  const timelineJson =
+    options?.timeline && Object.keys(options.timeline).length > 0
+      ? options.timeline
+      : {};
 
   const matchRow = {
     match_id: match.gameId,

@@ -57,10 +57,14 @@ export const riotRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      const entries = await getPlayerRankByRiotId(input.gameName, input.tagLine, {
-        region: input.region,
-        platformId: input.platformId,
-      });
+      const entries = await getPlayerRankByRiotId(
+        input.gameName,
+        input.tagLine,
+        {
+          region: input.region,
+          platformId: input.platformId,
+        },
+      );
       return entries;
     }),
 });

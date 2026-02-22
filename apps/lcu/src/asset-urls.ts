@@ -34,12 +34,18 @@ const SPELL_ID_TO_KEY: Record<number, string> = {
   55: "Summoner_UltBookSmitePlaceholder",
 };
 
-export function spellIconUrl(spellId: number, ddVersion = DEFAULT_DD_VERSION): string {
+export function spellIconUrl(
+  spellId: number,
+  ddVersion = DEFAULT_DD_VERSION,
+): string {
   const key = SPELL_ID_TO_KEY[spellId] ?? "SummonerFlash";
   return `${dataDragonBase(ddVersion)}/spell/${key}.png`;
 }
 
-export function itemIconUrl(itemId: number, ddVersion = DEFAULT_DD_VERSION): string {
+export function itemIconUrl(
+  itemId: number,
+  ddVersion = DEFAULT_DD_VERSION,
+): string {
   if (itemId === 0) return "";
   return `${dataDragonBase(ddVersion)}/item/${itemId}.png`;
 }

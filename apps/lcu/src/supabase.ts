@@ -9,9 +9,10 @@ let key: string | undefined;
 
 if (fs.existsSync(configPath)) {
   try {
-    const data = JSON.parse(
-      fs.readFileSync(configPath, "utf8"),
-    ) as { SUPABASE_URL?: string; SUPABASE_SERVICE_KEY?: string };
+    const data = JSON.parse(fs.readFileSync(configPath, "utf8")) as {
+      SUPABASE_URL?: string;
+      SUPABASE_SERVICE_KEY?: string;
+    };
     url = data.SUPABASE_URL;
     key = data.SUPABASE_SERVICE_KEY;
   } catch {

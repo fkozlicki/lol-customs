@@ -1,10 +1,10 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { championImageUrl } from "@/utils/asset-urls";
 import { cn } from "@v1/ui/cn";
 import Image from "next/image";
 import { useTRPC } from "@/trpc/react";
+import { championImageUrl } from "@/utils/asset-urls";
 
 interface ChampionImageProps {
   championId: number | null;

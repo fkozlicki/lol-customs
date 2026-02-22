@@ -25,10 +25,7 @@ export function loadConfig(userDataPath: string): LcuConfig {
   }
 }
 
-export function saveConfig(
-  userDataPath: string,
-  config: LcuConfig,
-): void {
+export function saveConfig(userDataPath: string, config: LcuConfig): void {
   const configPath = getConfigPath(userDataPath);
   fs.mkdirSync(path.dirname(configPath), { recursive: true });
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf8");

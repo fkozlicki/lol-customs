@@ -25,7 +25,11 @@ async function fetchPlayers(
     .from("players")
     .select("puuid, game_name, tag_line, profile_icon")
     .in("puuid", uniq);
-  if (error) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
+  if (error)
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: error.message,
+    });
   const map = new Map<string, PlayerInfo>();
   for (const p of data ?? []) {
     map.set(p.puuid, {
@@ -39,7 +43,12 @@ async function fetchPlayers(
 
 /** Per-player: teammate puuid -> count (games/wins/losses). Top N by count. */
 function buildTeammateCounts(
-  rows: Array<{ match_id: number; puuid: string; team_id: number | null; win: boolean | null }>,
+  rows: Array<{
+    match_id: number;
+    puuid: string;
+    team_id: number | null;
+    win: boolean | null;
+  }>,
   filter: "all" | "win" | "loss",
   partnerLimit: number,
 ): Map<string, Array<{ puuid: string; count: number }>> {
@@ -87,7 +96,11 @@ function buildTeammateCounts(
 
 /** From match_kills + match_participants: per killer_puuid -> top victim; per victim_puuid -> top killer. */
 function buildKillStats(
-  kills: Array<{ match_id: number; killer_participant_id: number; victim_participant_id: number }>,
+  kills: Array<{
+    match_id: number;
+    killer_participant_id: number;
+    victim_participant_id: number;
+  }>,
   participantToPuuid: Map<string, string>,
 ): {
   mostKilled: Map<string, { puuid: string; count: number }>;
@@ -128,72 +141,99 @@ function buildKillStats(
 }
 
 export const duosRouter = createTRPCRouter({
-  duosPerPlayer: publicProcedure.input(duosPerPlayerInput).query(async ({ ctx, input }) => {
-    const partnerLimit = input?.partnerLimit ?? 5;
+  duosPerPlayer: publicProcedure
+    .input(duosPerPlayerInput)
+    .query(async ({ ctx, input }) => {
+      const partnerLimit = input?.partnerLimit ?? 5;
 
-    const { data: mpRows, error: mpError } = await ctx.supabase
-      .from("match_participants")
-      .select("match_id, puuid, participant_id, team_id, win")
-      .limit(500_000);
-    if (mpError) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: mpError.message });
-    const rows = mpRows ?? [];
+      const { data: mpRows, error: mpError } = await ctx.supabase
+        .from("match_participants")
+        .select("match_id, puuid, participant_id, team_id, win")
+        .limit(500_000);
+      if (mpError)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: mpError.message,
+        });
+      const rows = mpRows ?? [];
 
-    const playerPuuidSet = new Set(rows.map((r) => r.puuid));
-    const playerPuuids = [...playerPuuidSet];
+      const playerPuuidSet = new Set(rows.map((r) => r.puuid));
+      const playerPuuids = [...playerPuuidSet];
 
-    const mostGamesWith = buildTeammateCounts(
-      rows.map((r) => ({ match_id: r.match_id, puuid: r.puuid, team_id: r.team_id, win: r.win })),
-      "all",
-      partnerLimit,
-    );
-    const mostWinsWith = buildTeammateCounts(
-      rows.map((r) => ({ match_id: r.match_id, puuid: r.puuid, team_id: r.team_id, win: r.win })),
-      "win",
-      partnerLimit,
-    );
-    const mostLossesWith = buildTeammateCounts(
-      rows.map((r) => ({ match_id: r.match_id, puuid: r.puuid, team_id: r.team_id, win: r.win })),
-      "loss",
-      partnerLimit,
-    );
+      const mostGamesWith = buildTeammateCounts(
+        rows.map((r) => ({
+          match_id: r.match_id,
+          puuid: r.puuid,
+          team_id: r.team_id,
+          win: r.win,
+        })),
+        "all",
+        partnerLimit,
+      );
+      const mostWinsWith = buildTeammateCounts(
+        rows.map((r) => ({
+          match_id: r.match_id,
+          puuid: r.puuid,
+          team_id: r.team_id,
+          win: r.win,
+        })),
+        "win",
+        partnerLimit,
+      );
+      const mostLossesWith = buildTeammateCounts(
+        rows.map((r) => ({
+          match_id: r.match_id,
+          puuid: r.puuid,
+          team_id: r.team_id,
+          win: r.win,
+        })),
+        "loss",
+        partnerLimit,
+      );
 
-    const participantToPuuid = new Map<string, string>();
-    for (const r of rows) {
-      if (r.participant_id != null) {
-        participantToPuuid.set(`${r.match_id}:${r.participant_id}`, r.puuid);
+      const participantToPuuid = new Map<string, string>();
+      for (const r of rows) {
+        if (r.participant_id != null) {
+          participantToPuuid.set(`${r.match_id}:${r.participant_id}`, r.puuid);
+        }
       }
-    }
 
-    const { data: killRows, error: killError } = await ctx.supabase
-      .from("match_kills")
-      .select("match_id, killer_participant_id, victim_participant_id")
-      .limit(500_000);
-    if (killError) {
-      if ((killError as { code?: string }).code === "42P01") {
-        return buildPerPlayerResult(
-          playerPuuids,
-          mostGamesWith,
-          mostWinsWith,
-          mostLossesWith,
-          new Map(),
-          new Map(),
-          ctx.supabase,
-        );
+      const { data: killRows, error: killError } = await ctx.supabase
+        .from("match_kills")
+        .select("match_id, killer_participant_id, victim_participant_id")
+        .limit(500_000);
+      if (killError) {
+        if ((killError as { code?: string }).code === "42P01") {
+          return buildPerPlayerResult(
+            playerPuuids,
+            mostGamesWith,
+            mostWinsWith,
+            mostLossesWith,
+            new Map(),
+            new Map(),
+            ctx.supabase,
+          );
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: killError.message,
+        });
       }
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: killError.message });
-    }
-    const { mostKilled, mostlyKilledBy } = buildKillStats(killRows ?? [], participantToPuuid);
+      const { mostKilled, mostlyKilledBy } = buildKillStats(
+        killRows ?? [],
+        participantToPuuid,
+      );
 
-    return buildPerPlayerResult(
-      playerPuuids,
-      mostGamesWith,
-      mostWinsWith,
-      mostLossesWith,
-      mostKilled,
-      mostlyKilledBy,
-      ctx.supabase,
-    );
-  }),
+      return buildPerPlayerResult(
+        playerPuuids,
+        mostGamesWith,
+        mostWinsWith,
+        mostLossesWith,
+        mostKilled,
+        mostlyKilledBy,
+        ctx.supabase,
+      );
+    }),
 });
 
 async function buildPerPlayerResult(
@@ -206,12 +246,18 @@ async function buildPerPlayerResult(
   supabase: Client,
 ) {
   const allPartnerPuuids = new Set<string>();
-  for (const arr of mostGamesWith.values()) for (const p of arr) allPartnerPuuids.add(p.puuid);
-  for (const arr of mostWinsWith.values()) for (const p of arr) allPartnerPuuids.add(p.puuid);
-  for (const arr of mostLossesWith.values()) for (const p of arr) allPartnerPuuids.add(p.puuid);
+  for (const arr of mostGamesWith.values())
+    for (const p of arr) allPartnerPuuids.add(p.puuid);
+  for (const arr of mostWinsWith.values())
+    for (const p of arr) allPartnerPuuids.add(p.puuid);
+  for (const arr of mostLossesWith.values())
+    for (const p of arr) allPartnerPuuids.add(p.puuid);
   for (const v of mostKilled.values()) allPartnerPuuids.add(v.puuid);
   for (const v of mostlyKilledBy.values()) allPartnerPuuids.add(v.puuid);
-  const players = await fetchPlayers(supabase, [...playerPuuids, ...allPartnerPuuids]);
+  const players = await fetchPlayers(supabase, [
+    ...playerPuuids,
+    ...allPartnerPuuids,
+  ]);
 
   return playerPuuids.map((puuid) => {
     const games = mostGamesWith.get(puuid) ?? [];
@@ -222,14 +268,34 @@ async function buildPerPlayerResult(
     return {
       puuid,
       player: players.get(puuid) ?? null,
-      mostGamesWith: games.map((g) => ({ puuid: g.puuid, player: players.get(g.puuid) ?? null, count: g.count })),
-      mostWinsWith: wins.map((w) => ({ puuid: w.puuid, player: players.get(w.puuid) ?? null, count: w.count })),
-      mostLossesWith: losses.map((l) => ({ puuid: l.puuid, player: players.get(l.puuid) ?? null, count: l.count })),
+      mostGamesWith: games.map((g) => ({
+        puuid: g.puuid,
+        player: players.get(g.puuid) ?? null,
+        count: g.count,
+      })),
+      mostWinsWith: wins.map((w) => ({
+        puuid: w.puuid,
+        player: players.get(w.puuid) ?? null,
+        count: w.count,
+      })),
+      mostLossesWith: losses.map((l) => ({
+        puuid: l.puuid,
+        player: players.get(l.puuid) ?? null,
+        count: l.count,
+      })),
       mostKilled: killed
-        ? { puuid: killed.puuid, player: players.get(killed.puuid) ?? null, count: killed.count }
+        ? {
+            puuid: killed.puuid,
+            player: players.get(killed.puuid) ?? null,
+            count: killed.count,
+          }
         : null,
       mostlyKilledBy: killedBy
-        ? { puuid: killedBy.puuid, player: players.get(killedBy.puuid) ?? null, count: killedBy.count }
+        ? {
+            puuid: killedBy.puuid,
+            player: players.get(killedBy.puuid) ?? null,
+            count: killedBy.count,
+          }
         : null,
     };
   });

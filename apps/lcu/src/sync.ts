@@ -57,9 +57,7 @@ export async function fetchGamesForUi(
     .select("match_id")
     .in("match_id", gameIds);
 
-  const savedSet = new Set(
-    (savedRows ?? []).map((r) => r.match_id as number),
-  );
+  const savedSet = new Set((savedRows ?? []).map((r) => r.match_id as number));
 
   const games: GameForUi[] = matches.map((match) => ({
     match,

@@ -15,10 +15,7 @@ config({ path: envPath });
 
 import { loadConfig, saveConfig } from "../config.js";
 import { detectLolDirectory, isLockfileInDirectory } from "../lcu.js";
-import {
-  fetchGamesForUi,
-  saveSelectedMatches,
-} from "../sync.js";
+import { fetchGamesForUi, saveSelectedMatches } from "../sync.js";
 
 interface AppConfig {
   APP_BASE_URL: string;

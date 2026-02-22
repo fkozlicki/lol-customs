@@ -73,7 +73,10 @@ async function riotFetchPlatform<T>(
   return res.json() as Promise<T>;
 }
 
-async function riotFetchRegion<T>(region: RiotRegion, path: string): Promise<T> {
+async function riotFetchRegion<T>(
+  region: RiotRegion,
+  path: string,
+): Promise<T> {
   const base = RIOT_REGIONAL_BASE.replace("{region}", region);
   const url = `${base}${path}`;
   const key = getApiKey();

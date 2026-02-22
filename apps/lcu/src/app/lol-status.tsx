@@ -24,7 +24,10 @@ export function LolStatus({ hasFolder, isRunning, className }: LolStatusProps) {
       <img
         src="/riot-icon.png"
         alt=""
-        className={cn("size-4 object-contain", running ? "opacity-90" : "opacity-70")}
+        className={cn(
+          "size-4 object-contain",
+          running ? "opacity-90" : "opacity-70",
+        )}
       />
       <span
         className={cn(
