@@ -30,7 +30,12 @@ export default async function MatchHistoryPage() {
   const t = await getScopedI18n("dashboard.pages.matchHistory");
   const queryClient = getQueryClient();
   await Promise.all([
-    queryClient.fetchQuery(trpc.matches.list.queryOptions({ limit: 50 })),
+    queryClient.prefetchInfiniteQuery(
+      trpc.matches.list.infiniteQueryOptions(
+        { limit: 20 },
+        { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
+      ),
+    ),
     queryClient.fetchQuery(trpc.datadragon.currentPatch.queryOptions()),
     queryClient.fetchQuery(trpc.datadragon.championMap.queryOptions()),
   ]);
@@ -43,7 +48,7 @@ export default async function MatchHistoryPage() {
           <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
         <Suspense fallback={<MatchHistorySkeleton />}>
-          <MatchHistoryList limit={50} />
+          <MatchHistoryList />
         </Suspense>
       </div>
     </HydrateClient>

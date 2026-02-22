@@ -33,6 +33,7 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "react-hook-form": "^7.54.2",
+    "react-intersection-observer": "^10.0.3",
     "superjson": "catalog:",
     "zod": "catalog:"
   },
