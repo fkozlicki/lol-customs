@@ -1,6 +1,55 @@
-# Vero – Cursor Rules
+# Cursor Rules
 
-Use these rules so Cursor generates consistent, clean, and predictable code across the monorepo.
+## Purpose
+
+These rules guide the AI assistant when making changes in this repository. Use them so Cursor generates consistent, clean, and predictable code across the monorepo. Optimize for correctness, minimal diffs, readability, and maintainability.
+
+---
+
+## General Principles
+
+- Make the smallest change that solves the problem.
+- Prefer clarity over cleverness.
+- Preserve existing architecture and conventions unless explicitly asked to refactor.
+- Do not introduce unnecessary dependencies.
+- Avoid speculative changes.
+- Backward compatibility matters; production stability is prioritized; simplicity is preferred over novelty.
+
+---
+
+## Before Making Changes
+
+- Read relevant files fully before editing.
+- Search for existing utilities or patterns to reuse.
+- Understand surrounding context and call sites.
+- Check for existing tests and expected behavior.
+
+If requirements are unclear, ask for clarification instead of guessing.
+
+---
+
+## Safety Rules
+
+- Do not delete code unless certain it is unused or instructed.
+- Do not change public APIs without explicit instruction.
+- Avoid breaking changes.
+- Never modify secrets, credentials, or environment configs unless asked.
+
+---
+
+## When Unsure
+
+- Ask questions.
+- Propose options with tradeoffs.
+- Do not invent requirements.
+
+---
+
+## Tone of Suggestions
+
+- Be concise.
+- Be practical.
+- Prefer actionable recommendations.
 
 ---
 
@@ -15,9 +64,12 @@ Use these rules so Cursor generates consistent, clean, and predictable code acro
 
 ## Code Style & Structure
 
+- Follow existing code style and formatting.
 - Write concise TypeScript; prefer **functional and declarative** patterns; avoid classes.
 - Prefer iteration and small modules over duplication.
-- Use descriptive names with auxiliary verbs where it helps (e.g. `isLoading`, `hasError`).
+- Use descriptive variable and function names; auxiliary verbs where it helps (e.g. `isLoading`, `hasError`).
+- Keep functions small and focused.
+- Add comments only when intent is not obvious; avoid premature abstraction.
 - **File order**: exported component → subcomponents → helpers → static content → types.
 - Use the **`function`** keyword for pure functions and components.
 - Use **named exports** for components; **default export** for the main component in a file is the repo convention (e.g. `export default function UsersTable()`).
@@ -115,6 +167,7 @@ Use these rules so Cursor generates consistent, clean, and predictable code acro
 - Wrap client trees in **Suspense** with a clear fallback.
 - Use **dynamic** imports for heavy or below-the-fold UI when it helps.
 - Avoid putting data fetching or global state in client components when the same can be done in RSC + prefetch + hydration.
+- Prefer simple solutions first; optimize only when justified. Avoid unnecessary allocations or expensive operations.
 
 ---
 
@@ -130,6 +183,44 @@ Use these rules so Cursor generates consistent, clean, and predictable code acro
 
 - **App env**: Define and validate in `apps/app/src/env.mjs` with `@t3-oss/env-nextjs` and Zod. List every used variable in `runtimeEnv` and in `server`/`client` sections.
 - **Biome**: Repo uses Biome for lint and format; respect `biome.json` (e.g. organize imports, space indent). Use `biome-ignore` sparingly and only with a short reason.
+
+---
+
+## Testing
+
+- Update or add tests when behavior changes.
+- Ensure existing tests continue to pass.
+- Cover edge cases where reasonable.
+
+---
+
+## Refactoring Guidelines
+
+Refactor only when:
+
+- It directly supports the requested change, or
+- The user explicitly asks for refactoring.
+
+When refactoring:
+
+- Keep changes incremental.
+- Preserve behavior.
+- Explain rationale in comments if non-obvious.
+
+---
+
+## Documentation
+
+- Update README or docs if usage changes.
+- Keep documentation concise and accurate.
+
+---
+
+## Git Hygiene
+
+- Produce clean, reviewable diffs.
+- Avoid unrelated formatting changes.
+- Group logically related edits.
 
 ---
 
