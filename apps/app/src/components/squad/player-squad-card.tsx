@@ -1,12 +1,12 @@
 "use client";
 
 import type { RouterOutputs } from "@v1/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import { Button } from "@v1/ui/button";
 import { Card, CardContent, CardHeader } from "@v1/ui/card";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { useState } from "react";
+import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import { PartnerRow } from "./partner-row";
 
@@ -16,14 +16,6 @@ type PartnerEntry = {
   player: PlayerSquadEntry["player"];
   count: number;
 };
-
-const PROFILE_ICON_CDN =
-  "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons";
-
-function profileIconUrl(iconId: number | null): string | null {
-  if (iconId == null) return null;
-  return `${PROFILE_ICON_CDN}/${iconId}.jpg`;
-}
 
 function displayName(player: PlayerSquadEntry["player"]): string {
   if (player?.game_name != null && player?.tag_line != null) {
@@ -88,18 +80,17 @@ function CollapsiblePartnerList({
 export function PlayerSquadCard({ entry }: PlayerSquadCardProps) {
   const t = useScopedI18n("dashboard.pages.duos");
   const name = displayName(entry.player);
-  const iconUrl = profileIconUrl(entry.player?.profile_icon ?? null);
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center gap-3">
-          <Avatar className="size-10 shrink-0 rounded-full">
-            <AvatarImage src={iconUrl ?? undefined} alt="" />
-            <AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-sm">
-              {name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <ProfileIcon
+            iconId={entry.player?.profile_icon ?? null}
+            name={name}
+            avatarClassName="size-10 rounded-full"
+            fallbackClassName="rounded-lg text-sm"
+          />
           <p className="min-w-0 truncate font-semibold">{name}</p>
         </div>
       </CardHeader>

@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@v1/ui/table";
-import type { ChampionMap, MatchParticipant } from "./match-history-list";
+import type { MatchParticipant } from "./match-history-list";
 import { TeamRow } from "./team-row";
 
 export interface RawParticipant {
@@ -38,8 +38,6 @@ export interface RawJson {
 
 export default function TeamTable({
   team,
-  championMap,
-  patch,
   isVictorious,
   teamName,
   highestDamageDealt,
@@ -50,8 +48,6 @@ export default function TeamTable({
   scores,
 }: {
   team: MatchParticipant[];
-  championMap: ChampionMap;
-  patch: string;
   isVictorious: boolean;
   teamName: string;
   highestDamageDealt: number;
@@ -110,7 +106,6 @@ export default function TeamTable({
           <TeamRow
             key={p.puuid}
             p={p}
-            championMap={championMap}
             highestDamageDealt={highestDamageDealt}
             highestDamageTaken={highestDamageTaken}
             totalKills={totalKills}
@@ -118,7 +113,6 @@ export default function TeamTable({
             rawParticipants={rawParticipants}
             scores={scores}
             isVictorious={isVictorious}
-            patch={patch}
           />
         ))}
       </TableBody>

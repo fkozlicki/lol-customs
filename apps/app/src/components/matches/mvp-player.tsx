@@ -1,22 +1,18 @@
-import Image from "next/image";
-import type { ChampionMap, MatchParticipant } from "./match-history-list";
-
-const DD_CDN = "https://ddragon.leagueoflegends.com/cdn";
+import { ChampionImage } from "@/components/game-assets/champion-image";
+import type { MatchParticipant } from "./match-history-list";
 
 interface MVPPlayerProps {
-  champion: ChampionMap[string] | null | undefined;
+  championId: number | null | undefined;
   participant: MatchParticipant | null | undefined;
-  patch: string;
 }
 
-export function MVPPlayer({ champion, participant, patch }: MVPPlayerProps) {
-  if (!participant || !champion) return null;
+export function MVPPlayer({ championId, participant }: MVPPlayerProps) {
+  if (!participant || championId == null) return null;
 
   return (
     <div className="flex flex-col items-center">
-      <Image
-        src={`${DD_CDN}/${patch}/img/champion/${champion.imageFull}`}
-        alt=""
+      <ChampionImage
+        championId={championId}
         width={48}
         height={48}
         className="rounded-full shrink-0 object-cover"

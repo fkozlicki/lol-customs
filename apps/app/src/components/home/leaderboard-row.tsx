@@ -1,10 +1,10 @@
 "use client";
 
 import type { RouterOutputs } from "@v1/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { TableCell, TableRow } from "@v1/ui/table";
+import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import { BestStreak } from "./best-streak";
 import CurrentStreak from "./current-streak";
@@ -15,15 +15,6 @@ type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
 interface LeaderboardRowProps {
   row: LeaderboardRow;
   index: number;
-}
-
-// Community Dragon has "latest" and includes all profile icons (e.g. 7091)
-const PROFILE_ICON_CDN =
-  "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons";
-
-function profileIconUrl(iconId: number | null): string | null {
-  if (iconId == null) return null;
-  return `${PROFILE_ICON_CDN}/${iconId}.jpg`;
 }
 
 function winrate(wins: number | null, losses: number | null): string {
@@ -65,7 +56,6 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
   const name = row.player?.game_name
     ? `${row.player.game_name}`
     : row.puuid.slice(0, 8);
-  const iconUrl = profileIconUrl(row.player?.profile_icon ?? null);
   const isLeader = rank === 1;
   const isTopThree = rank <= 3;
 
@@ -93,25 +83,21 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
       </TableCell>
       <TableCell className="whitespace-nowrap px-4 py-3">
         <div className={cn("flex items-center gap-3 font-medium")}>
-          <Avatar
-            className={cn(
-              "shrink-0 ring-2 ring-border/50",
+          <ProfileIcon
+            iconId={row.player?.profile_icon ?? null}
+            name={name}
+            fallbackChars={1}
+            avatarClassName={cn(
+              "ring-2 ring-border/50",
               isLeader ? "size-11 ring-amber-500/40" : "size-9",
             )}
-          >
-            {iconUrl ? (
-              <AvatarImage src={iconUrl} alt="" className="object-cover" />
-            ) : null}
-            <AvatarFallback
-              className={cn(
-                "bg-muted text-muted-foreground text-xs",
-                isLeader &&
-                  "bg-amber-500/10 text-amber-700 dark:text-amber-400",
-              )}
-            >
-              {name.slice(0, 1).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+            fallbackClassName={cn(
+              "text-xs",
+              isLeader
+                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                : "bg-muted text-muted-foreground",
+            )}
+          />
           <span className={cn(isLeader && "font-semibold text-foreground")}>
             {name}
           </span>

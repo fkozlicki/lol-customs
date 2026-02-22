@@ -4,11 +4,7 @@ import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { AverageRank } from "./average-rank";
-import type {
-  ChampionMap,
-  Match,
-  MatchParticipant,
-} from "./match-history-list";
+import type { Match, MatchParticipant } from "./match-history-list";
 import { MatchMetadata } from "./match-metadata";
 import { MatchResult } from "./match-result";
 import MatchTeam from "./match-team";
@@ -79,16 +75,12 @@ function averageGameRank(participants: MatchParticipant[]): string {
 
 interface MatchCardProps {
   match: Match;
-  patch: string;
-  championMap: ChampionMap;
   isExpanded: boolean;
   onToggleExpand: () => void;
 }
 
 export default function MatchCard({
   match,
-  patch,
-  championMap,
   isExpanded,
   onToggleExpand,
 }: MatchCardProps) {
@@ -98,9 +90,6 @@ export default function MatchCard({
   const blueWon = blueTeam[0]?.win === true;
   const avgRank = averageGameRank(match.match_participants ?? []);
   const participantWithMVP = participants.find((p) => p.is_mvp);
-  const mvpChampion = participantWithMVP
-    ? championMap[String(participantWithMVP.champion_id)]
-    : null;
 
   return (
     <div className="rounded-sm border-l-[6px] border-border bg-secondary/50 overflow-hidden flex items-stretch">
@@ -116,20 +105,14 @@ export default function MatchCard({
           </div>
 
           <MVPPlayer
-            champion={mvpChampion}
+            championId={participantWithMVP?.champion_id}
             participant={participantWithMVP}
-            patch={patch}
           />
         </div>
 
         <div className="flex items-center gap-4">
           {/* Blue team */}
-          <MatchTeam
-            team={blueTeam}
-            championMap={championMap}
-            patch={patch}
-            teamName="blue"
-          />
+          <MatchTeam team={blueTeam} teamName="blue" />
 
           {/* vs */}
           <span className="text-muted-foreground text-xs font-medium shrink-0 hidden sm:inline self-center">
@@ -137,12 +120,7 @@ export default function MatchCard({
           </span>
 
           {/* Red team */}
-          <MatchTeam
-            team={redTeam}
-            championMap={championMap}
-            patch={patch}
-            teamName="red"
-          />
+          <MatchTeam team={redTeam} teamName="red" />
         </div>
       </div>
       {/* Expand */}

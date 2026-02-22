@@ -1,6 +1,6 @@
 import { cn } from "@v1/ui/cn";
 import { TableCell, TableRow } from "@v1/ui/table";
-import type { ChampionMap, MatchParticipant } from "./match-history-list";
+import type { MatchParticipant } from "./match-history-list";
 import MatchParticipantCS from "./match-participant-cs";
 import MatchParticipantDamage from "./match-participant-damage";
 import MatchParticipantInfo from "./match-participant-info";
@@ -12,7 +12,6 @@ import type { RawParticipant } from "./team-table";
 
 interface TeamRowProps {
   p: MatchParticipant;
-  championMap: ChampionMap;
   highestDamageDealt: number;
   highestDamageTaken: number;
   totalKills: number;
@@ -20,12 +19,10 @@ interface TeamRowProps {
   rawParticipants: RawParticipant[];
   scores: number[];
   isVictorious: boolean;
-  patch: string;
 }
 
 export function TeamRow({
   p,
-  championMap,
   highestDamageDealt,
   highestDamageTaken,
   totalKills,
@@ -33,14 +30,10 @@ export function TeamRow({
   rawParticipants,
   scores,
   isVictorious,
-  patch,
 }: TeamRowProps) {
-  const ch = p.champion_id != null ? championMap[String(p.champion_id)] : null;
-
   const rawData = rawParticipants.find(
     (par) => par.participantId === p.participant_id,
   );
-  // place - based on op score
 
   return (
     <TableRow
@@ -53,7 +46,7 @@ export function TeamRow({
       )}
     >
       <TableCell className="p-1">
-        <MatchParticipantInfo p={p} ch={ch} patch={patch} rawData={rawData} />
+        <MatchParticipantInfo p={p} rawData={rawData} />
       </TableCell>
       <TableCell className="p-1">
         <MatchParticipantScore p={p} scores={scores} />
@@ -75,7 +68,7 @@ export function TeamRow({
         <MatchParticipantCS p={p} duration={duration} />
       </TableCell>
       <TableCell>
-        <MatchParticipantItems rawData={rawData} patch={patch} />
+        <MatchParticipantItems rawData={rawData} />
       </TableCell>
     </TableRow>
   );

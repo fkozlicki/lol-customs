@@ -1,23 +1,14 @@
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
-import Image from "next/image";
-import type { ChampionMap, MatchParticipant } from "./match-history-list";
-
-const DD_CDN = "https://ddragon.leagueoflegends.com/cdn";
+import { ChampionImage } from "@/components/game-assets/champion-image";
+import type { MatchParticipant } from "./match-history-list";
 
 interface MatchTeamProps {
   team: MatchParticipant[];
-  championMap: ChampionMap;
-  patch: string;
   teamName: "red" | "blue";
 }
 
-export default function MatchTeam({
-  teamName,
-  team,
-  championMap,
-  patch,
-}: MatchTeamProps) {
+export default function MatchTeam({ teamName, team }: MatchTeamProps) {
   const isVictorious = team[0]?.win === true;
 
   return (
@@ -39,31 +30,22 @@ export default function MatchTeam({
       </div>
 
       <div className="flex flex-col gap-0.5">
-        {team.map((p) => {
-          const ch =
-            p.champion_id != null ? championMap[String(p.champion_id)] : null;
-          return (
-            <div
-              key={p.puuid}
-              className="flex items-center gap-1.5 truncate max-w-[140px]"
-            >
-              {ch ? (
-                <Image
-                  src={`${DD_CDN}/${patch}/img/champion/${ch.imageFull}`}
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="rounded-sm shrink-0 object-cover"
-                />
-              ) : (
-                <div className="h-5 w-5 rounded-full bg-muted shrink-0" />
-              )}
-              <span className="truncate text-xs max-w-[80px]">
-                {p.players.game_name}
-              </span>
-            </div>
-          );
-        })}
+        {team.map((p) => (
+          <div
+            key={p.puuid}
+            className="flex items-center gap-1.5 truncate max-w-[140px]"
+          >
+            <ChampionImage
+              championId={p.champion_id}
+              width={16}
+              height={16}
+              className="rounded-sm shrink-0 object-cover"
+            />
+            <span className="truncate text-xs max-w-[80px]">
+              {p.players.game_name}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

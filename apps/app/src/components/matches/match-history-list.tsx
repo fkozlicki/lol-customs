@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useSuspenseInfiniteQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
@@ -14,9 +11,6 @@ import MatchHistoryCard from "./match-history-card";
 
 export type Match = RouterOutputs["matches"]["list"]["items"][number];
 export type MatchParticipant = Match["match_participants"][number];
-export interface ChampionMap {
-  [key: string]: { id: string; key: string; name: string; imageFull: string };
-}
 
 export function MatchHistoryList() {
   const t = useScopedI18n("dashboard.pages.matchHistory");
@@ -30,12 +24,6 @@ export function MatchHistoryList() {
         { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
       ),
     );
-  const { data: patch } = useSuspenseQuery(
-    trpc.datadragon.currentPatch.queryOptions(),
-  );
-  const { data: championMap } = useSuspenseQuery(
-    trpc.datadragon.championMap.queryOptions(),
-  );
 
   const matches = data.pages.flatMap((p) => p.items);
 
@@ -62,8 +50,6 @@ export function MatchHistoryList() {
         <MatchHistoryCard
           key={match.match_id}
           match={match}
-          patch={patch ?? ""}
-          championMap={championMap ?? {}}
           expandedMatchId={expandedMatchId}
           toggleExpand={toggleExpand}
         />

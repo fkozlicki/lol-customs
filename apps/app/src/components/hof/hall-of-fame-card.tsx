@@ -1,7 +1,6 @@
 "use client";
 
 import type { RouterOutputs } from "@v1/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import {
   Card,
   CardContent,
@@ -9,16 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@v1/ui/card";
+import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import type { HofTitleId } from "./hof-config";
-
-const PROFILE_ICON_CDN =
-  "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons";
-
-function profileIconUrl(iconId: number | null): string | null {
-  if (iconId == null) return null;
-  return `${PROFILE_ICON_CDN}/${iconId}.jpg`;
-}
 
 type HofLeaderEntry = RouterOutputs["riftRank"]["hofLeaders"][HofTitleId];
 
@@ -53,7 +45,6 @@ export default function HallOfFameCard({
       ? `${leader.game_name} #${leader.tag_line}`
       : (leader?.game_name ?? "—");
   const valueStr = formatValue(leader?.value ?? null, valueFormat);
-  const iconUrl = profileIconUrl(leader?.profile_icon ?? null);
 
   return (
     <Card>
@@ -63,12 +54,12 @@ export default function HallOfFameCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <Avatar className="size-12 shrink-0 rounded-lg border-2 border-border">
-            <AvatarImage src={iconUrl ?? undefined} alt="" />
-            <AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-sm">
-              {displayName.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <ProfileIcon
+            iconId={leader?.profile_icon ?? null}
+            name={displayName}
+            avatarClassName="size-12 rounded-lg border-2 border-border"
+            fallbackClassName="rounded-lg text-sm"
+          />
           <p className="min-w-0 truncate font-medium">{displayName}</p>
         </div>
         {valueStr != null && (

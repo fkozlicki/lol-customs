@@ -1,21 +1,15 @@
 "use client";
 
-import type { ChampionMap, Match } from "./match-history-list";
+import type { Match } from "./match-history-list";
 import { MatchStats } from "./match-stats";
 import { TeamObjectives } from "./team-objectives";
 import TeamTable from "./team-table";
 
 interface MatchDetailProps {
   match: Match;
-  patch: string;
-  championMap: ChampionMap;
 }
 
-export default function MatchDetail({
-  match,
-  patch,
-  championMap,
-}: MatchDetailProps) {
+export default function MatchDetail({ match }: MatchDetailProps) {
   const participants = match.match_participants ?? [];
   const teams = match.teams ?? [];
   const blueTeamParticipants = participants.filter((p) => p.team_id === 100);
@@ -71,8 +65,6 @@ export default function MatchDetail({
       <TeamTable
         teamName="Blue Team"
         team={blueTeamParticipants}
-        championMap={championMap}
-        patch={patch}
         isVictorious={blueTeam?.win ?? false}
         highestDamageDealt={highestDamageDealt}
         highestDamageTaken={highestDamageTaken}
@@ -111,8 +103,6 @@ export default function MatchDetail({
       <TeamTable
         teamName="Red Team"
         team={redTeamParticipants}
-        championMap={championMap}
-        patch={patch}
         isVictorious={redTeam?.win ?? false}
         highestDamageDealt={highestDamageDealt}
         highestDamageTaken={highestDamageTaken}
