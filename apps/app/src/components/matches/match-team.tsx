@@ -6,46 +6,65 @@ import type { MatchParticipant } from "./match-history-list";
 interface MatchTeamProps {
   team: MatchParticipant[];
   teamName: "red" | "blue";
+  playerParticipant?: MatchParticipant;
 }
 
-export default function MatchTeam({ teamName, team }: MatchTeamProps) {
+export default function MatchTeam({
+  teamName,
+  team,
+  playerParticipant,
+}: MatchTeamProps) {
   const isVictorious = team[0]?.win === true;
+
+  const profileTeam = !!playerParticipant;
 
   return (
     <div className="flex flex-col gap-0.5 shrink-0">
-      <div className="flex items-center gap-1">
-        <span
-          className={cn(
-            "text-[10px] font-semibold uppercase",
-            teamName === "blue" ? "text-blue-500" : "text-red-500",
-          )}
-        >
-          {teamName}
-        </span>
+      {!profileTeam && (
+        <div className="flex items-center gap-1">
+          <span
+            className={cn(
+              "text-[10px] font-semibold uppercase",
+              teamName === "blue" ? "text-blue-500" : "text-red-500",
+            )}
+          >
+            {teamName}
+          </span>
 
-        <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium uppercase inline-flex items-center gap-0.5">
-          {isVictorious && <Icons.Trophy className="size-3 text-amber-500" />}
-          {isVictorious ? "Winners" : "Losers"}
-        </span>
-      </div>
+          <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium uppercase inline-flex items-center gap-0.5">
+            {isVictorious && <Icons.Trophy className="size-3 text-amber-500" />}
+            {isVictorious ? "Winners" : "Losers"}
+          </span>
+        </div>
+      )}
 
       <div className="flex flex-col gap-0.5">
-        {team.map((p) => (
-          <div
-            key={p.puuid}
-            className="flex items-center gap-1.5 truncate max-w-[140px]"
-          >
-            <ChampionImage
-              championId={p.champion_id}
-              width={16}
-              height={16}
-              className="rounded-sm shrink-0 object-cover"
-            />
-            <span className="truncate text-xs max-w-[80px]">
-              {p.players.game_name}
-            </span>
-          </div>
-        ))}
+        {team.map((p) => {
+          const isPlayer = p.puuid === playerParticipant?.puuid;
+
+          return (
+            <div
+              key={p.puuid}
+              className="flex items-center gap-1.5 truncate max-w-[140px]"
+            >
+              <ChampionImage
+                championId={p.champion_id}
+                width={16}
+                height={16}
+                className="rounded-sm shrink-0 object-cover"
+              />
+              <span
+                className={cn(
+                  "truncate text-xs max-w-[80px]",
+                  profileTeam && "text-muted-foreground",
+                  isPlayer && "font-semibold text-foreground",
+                )}
+              >
+                {p.players.game_name}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -7,34 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@v1/ui/table";
-import type { MatchParticipant } from "./match-history-list";
+import type { MatchParticipant, RawJson } from "./match-history-list";
 import { TeamRow } from "./team-row";
-
-export interface RawParticipant {
-  stats: {
-    item0: number;
-    item1: number;
-    item2: number;
-    item3: number;
-    item4: number;
-    item5: number;
-    item6: number;
-    perk0: number;
-    perk1: number;
-    perk2: number;
-    perk3: number;
-    perk4: number;
-    perk5: number;
-    perkPrimaryStyle?: number;
-  };
-  participantId: number;
-  spell1Id: number;
-  spell2Id: number;
-}
-
-export interface RawJson {
-  participants: RawParticipant[];
-}
 
 export default function TeamTable({
   team,

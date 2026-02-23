@@ -46,15 +46,6 @@ export default function MatchDetail({ match }: MatchDetailProps) {
     ...redTeamParticipants,
   ].reduce((max, p) => Math.max(max, p.total_damage_taken ?? 0), 0);
 
-  const blueTeamKills = blueTeamParticipants.reduce(
-    (sum, p) => sum + (p.kills ?? 0),
-    0,
-  );
-  const redTeamKills = redTeamParticipants.reduce(
-    (sum, p) => sum + (p.kills ?? 0),
-    0,
-  );
-
   const scores = participants
     .map((p) => p.op_score)
     .filter((opScore): opScore is number => opScore != null)
@@ -84,8 +75,8 @@ export default function MatchDetail({ match }: MatchDetailProps) {
         />
 
         <MatchStats
-          blueTeamKills={blueTeamKills}
-          redTeamKills={redTeamKills}
+          blueTeamKills={blueKills}
+          redTeamKills={redKills}
           blueGold={blueGold}
           totalGold={totalGold}
         />

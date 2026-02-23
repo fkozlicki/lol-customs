@@ -1,6 +1,6 @@
 import { cn } from "@v1/ui/cn";
 import { TableCell, TableRow } from "@v1/ui/table";
-import type { MatchParticipant } from "./match-history-list";
+import type { MatchParticipant, RawParticipant } from "./match-history-list";
 import MatchParticipantCS from "./match-participant-cs";
 import MatchParticipantDamage from "./match-participant-damage";
 import MatchParticipantInfo from "./match-participant-info";
@@ -8,7 +8,6 @@ import MatchParticipantItems from "./match-participant-items";
 import MatchParticipantKDA from "./match-participant-kda";
 import MatchParticipantScore from "./match-participant-score";
 import MatchParticipantWards from "./match-participant-wards";
-import type { RawParticipant } from "./team-table";
 
 interface TeamRowProps {
   p: MatchParticipant;

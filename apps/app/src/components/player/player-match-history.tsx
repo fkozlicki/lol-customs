@@ -1,53 +1,27 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import type { RouterOutputs } from "@v1/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
 import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
-import { useScopedI18n } from "@/locales/client";
+import MatchHistoryCard from "@/components/matches/match-history-card";
 import { useTRPC } from "@/trpc/react";
-import MatchHistoryCard from "./match-history-card";
 
-export type Match = RouterOutputs["matches"]["list"]["items"][number];
-export type MatchParticipant = Match["match_participants"][number];
-
-export interface RawParticipant {
-  stats: {
-    item0: number;
-    item1: number;
-    item2: number;
-    item3: number;
-    item4: number;
-    item5: number;
-    item6: number;
-    perk0: number;
-    perk1: number;
-    perk2: number;
-    perk3: number;
-    perk4: number;
-    perk5: number;
-    perkPrimaryStyle?: number;
-  };
-  participantId: number;
-  spell1Id: number;
-  spell2Id: number;
+interface PlayerMatchHistoryProps {
+  puuid: string;
 }
 
-export interface RawJson {
-  participants: RawParticipant[];
-}
-
-export function MatchHistoryList() {
-  const t = useScopedI18n("dashboard.pages.matchHistory");
+export function PlayerMatchHistory({ puuid }: PlayerMatchHistoryProps) {
   const trpc = useTRPC();
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
-      trpc.matches.list.infiniteQueryOptions(
-        { limit: 10 },
-        { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
+      trpc.matches.listByPuuid.infiniteQueryOptions(
+        { puuid, limit: 10 },
+        {
+          getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+        },
       ),
     );
 
@@ -61,23 +35,26 @@ export function MatchHistoryList() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{t("emptyTitle")}</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Match History
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">{t("noMatchesYet")}</p>
+          <p className="text-sm text-muted-foreground">No matches found.</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {matches.map((match) => (
         <MatchHistoryCard
           key={match.match_id}
           match={match}
           expandedMatchId={expandedMatchId}
           toggleExpand={toggleExpand}
+          puuid={puuid}
         />
       ))}
       <InfiniteScrollTrigger

@@ -4,6 +4,7 @@ import type { RouterOutputs } from "@v1/api";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { TableCell, TableRow } from "@v1/ui/table";
+import Link from "next/link";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import { BestStreak } from "./best-streak";
@@ -82,7 +83,16 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
         </div>
       </TableCell>
       <TableCell className="whitespace-nowrap px-4 py-3">
-        <div className={cn("flex items-center gap-3 font-medium")}>
+        <Link
+          href={
+            row.player?.game_name && row.player?.tag_line
+              ? `/players/${encodeURIComponent(row.player.game_name)}-${encodeURIComponent(row.player.tag_line)}`
+              : "#"
+          }
+          className={cn(
+            "flex items-center gap-3 font-medium hover:underline underline-offset-2",
+          )}
+        >
           <ProfileIcon
             iconId={row.player?.profile_icon ?? null}
             name={name}
@@ -104,7 +114,7 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
           {isLeader && (
             <Icons.Leaderboard className="size-4 text-amber-500 dark:text-amber-400 shrink-0" />
           )}
-        </div>
+        </Link>
       </TableCell>
       <TableCell className="px-4 py-3 text-center font-medium">
         {Math.round(row.rating ?? 0)}

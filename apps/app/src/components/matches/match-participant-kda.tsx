@@ -21,9 +21,7 @@ export default function MatchParticipantKDA({
         %)
       </span>
       {kdaRatio === Infinity ? (
-        <span className="text-xs bg-amber-500 text-white px-1.5 rounded-full font-medium">
-          Perfect
-        </span>
+        <span className="text-xs text-amber-500 font-semibold">Perfect</span>
       ) : (
         <span className="text-xs">{kdaRatio.toFixed(2)}</span>
       )}

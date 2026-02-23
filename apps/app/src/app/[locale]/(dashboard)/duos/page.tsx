@@ -8,7 +8,7 @@ export default async function SquadPage() {
   prefetch(trpc.duos.duosPerPlayer.queryOptions());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
       <div>
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted-foreground">{t("description")}</p>

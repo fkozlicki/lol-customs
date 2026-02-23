@@ -17,9 +17,7 @@ export default async function DashboardLayout({
     <DashboardSidebar locale={locale}>
       <SidebarInset>
         <AppHeader />
-        <div className="flex-1 overflow-auto p-4 max-w-3xl mx-auto w-full">
-          {children}
-        </div>
+        <div className="flex-1 overflow-auto">{children}</div>
       </SidebarInset>
     </DashboardSidebar>
   );

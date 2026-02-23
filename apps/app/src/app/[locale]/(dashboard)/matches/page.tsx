@@ -1,28 +1,16 @@
-import { Card, CardContent, CardHeader } from "@v1/ui/card";
-import { Skeleton } from "@v1/ui/skeleton";
 import { Suspense } from "react";
+import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
 import { getScopedI18n } from "@/locales/server";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
 function MatchHistorySkeleton() {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <Skeleton className="h-6 w-32" />
-      </CardHeader>
-      <CardContent>
-        <ul className="space-y-2">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <li key={i} className="flex justify-between gap-4 py-3">
-              <Skeleton className="h-4 w-28" />
-              <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-4 w-16" />
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
+    <div className="space-y-2">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <MatchCardSkeleton key={i} className="bg-secondary/50" />
+      ))}
+    </div>
   );
 }
 
@@ -42,7 +30,7 @@ export default async function MatchHistoryPage() {
 
   return (
     <HydrateClient>
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground text-sm">{t("description")}</p>
