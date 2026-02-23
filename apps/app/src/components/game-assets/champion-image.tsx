@@ -44,6 +44,7 @@ export function ChampionImage({
       alt={champion.name}
       width={width}
       height={height}
+      unoptimized
       className={className}
     />
   );

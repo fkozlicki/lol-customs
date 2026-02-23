@@ -49,6 +49,7 @@ export function SpellImage({
       alt=""
       width={width}
       height={height}
+      unoptimized
       className={className}
     />
   );
