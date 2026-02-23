@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@v1/ui/card";
+import Link from "next/link";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import type { HofTitleId } from "./hof-config";
@@ -53,7 +54,14 @@ export default function HallOfFameCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
+        <Link
+          href={
+            leader?.game_name && leader?.tag_line
+              ? `/players/${encodeURIComponent(leader.game_name)}-${encodeURIComponent(leader.tag_line)}`
+              : "#"
+          }
+          className="flex items-center gap-3 hover:underline underline-offset-2"
+        >
           <ProfileIcon
             iconId={leader?.profile_icon ?? null}
             name={displayName}
@@ -61,7 +69,7 @@ export default function HallOfFameCard({
             fallbackClassName="rounded-lg text-sm"
           />
           <p className="min-w-0 truncate font-medium">{displayName}</p>
-        </div>
+        </Link>
         {valueStr != null && (
           <p className="rounded-lg bg-primary/10 px-3 py-2 font-semibold tabular-nums text-primary">
             {valueStr}

@@ -43,13 +43,7 @@ export function PlayerRankCard({
         <CardContent>
           <div className="flex items-center gap-3">
             <div className="relative w-16 h-16 shrink-0 overflow-hidden">
-              <Image
-                src={rankEmblemUrl(null)}
-                alt="Unranked"
-                fill
-                className="object-cover scale-200"
-                unoptimized
-              />
+              <div className="w-full h-full bg-muted rounded-full" />
             </div>
             <span className="text-sm text-muted-foreground">Unranked</span>
           </div>

@@ -5,6 +5,7 @@ import { Button } from "@v1/ui/button";
 import { Card, CardContent, CardHeader } from "@v1/ui/card";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
+import Link from "next/link";
 import { useState } from "react";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
@@ -84,7 +85,14 @@ export function PlayerSquadCard({ entry }: PlayerSquadCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <div className="flex items-center gap-3">
+        <Link
+          href={
+            entry.player?.game_name && entry.player?.tag_line
+              ? `/players/${encodeURIComponent(entry.player.game_name)}-${encodeURIComponent(entry.player.tag_line)}`
+              : "#"
+          }
+          className="flex items-center gap-3 hover:underline underline-offset-2"
+        >
           <ProfileIcon
             iconId={entry.player?.profile_icon ?? null}
             name={name}
@@ -92,7 +100,7 @@ export function PlayerSquadCard({ entry }: PlayerSquadCardProps) {
             fallbackClassName="rounded-lg text-sm"
           />
           <p className="min-w-0 truncate font-semibold">{name}</p>
-        </div>
+        </Link>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         <CollapsiblePartnerList

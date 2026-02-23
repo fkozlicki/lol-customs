@@ -1,6 +1,7 @@
 import { ChampionImage } from "@/components/game-assets/champion-image";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { SpellImage } from "@/components/game-assets/spell-image";
+import Link from "next/link";
 import type { MatchParticipant } from "./match-history-list";
 import type { RawParticipant } from "./team-table";
 
@@ -45,9 +46,16 @@ export default function MatchParticipantInfo({
         )}
       </div>
       <div className="flex flex-col gap-0.5">
-        <span className="text-muted-foreground text-xs max-w-[90px] truncate">
+        <Link
+          href={
+            p.players?.game_name && p.players?.tag_line
+              ? `/players/${encodeURIComponent(p.players.game_name)}-${encodeURIComponent(p.players.tag_line)}`
+              : "#"
+          }
+          className="text-muted-foreground text-xs max-w-[90px] truncate hover:underline underline-offset-2"
+        >
           {p.players.game_name}
-        </span>
+        </Link>
         <span className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
           <RankCrest
             tier={p.rank_tier}
