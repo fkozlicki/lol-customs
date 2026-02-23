@@ -1,5 +1,5 @@
 import { ItemImage } from "@/components/game-assets/item-image";
-import type { RawParticipant } from "./team-table";
+import type { RawParticipant } from "./match-history-list";
 
 interface MatchParticipantItemsProps {
   rawData: RawParticipant | undefined;

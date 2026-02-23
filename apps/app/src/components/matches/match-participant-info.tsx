@@ -1,9 +1,8 @@
+import Link from "next/link";
 import { ChampionImage } from "@/components/game-assets/champion-image";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { SpellImage } from "@/components/game-assets/spell-image";
-import Link from "next/link";
-import type { MatchParticipant } from "./match-history-list";
-import type { RawParticipant } from "./team-table";
+import type { MatchParticipant, RawParticipant } from "./match-history-list";
 
 interface MatchParticipantInfoProps {
   p: MatchParticipant;
