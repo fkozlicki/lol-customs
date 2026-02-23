@@ -25,20 +25,20 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.16",
     "@types/node": "^22",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@types/semver": "^7.5.8",
+    "@v1/typescript": "workspace:*",
+    "concurrently": "^9.1.0",
     "cross-env": "^7.0.2",
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8",
-    "concurrently": "^9.1.0",
     "next": "catalog:react",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "wait-on": "^8.0.1",
-    "@types/react": "catalog:react",
-    "@types/react-dom": "catalog:react",
-    "@types/semver": "^7.5.8",
-    "@v1/typescript": "workspace:*"
+    "wait-on": "^8.0.1"
   },
   "build": {
     "appId": "com.niunio.lcu",

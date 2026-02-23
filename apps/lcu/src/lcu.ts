@@ -138,7 +138,7 @@ function lcuRequest<T>(
           if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
             try {
               resolve({ data: JSON.parse(body) as T });
-            } catch (e) {
+            } catch {
               reject(new Error(`LCU ${pathSegment}: invalid JSON`));
             }
           } else {
