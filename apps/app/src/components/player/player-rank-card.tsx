@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import Image from "next/image";
 import { useTRPC } from "@/trpc/react";
-import { rankCrestUrl } from "@/utils/asset-urls";
+import { rankEmblemUrl } from "@/utils/asset-urls";
 
 interface PlayerRankCardProps {
   gameName: string;
@@ -42,14 +42,15 @@ export function PlayerRankCard({
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
-            <Image
-              src={rankCrestUrl(null)}
-              alt="Unranked"
-              width={48}
-              height={48}
-              className="shrink-0"
-              unoptimized
-            />
+            <div className="relative w-16 h-16 shrink-0 overflow-hidden">
+              <Image
+                src={rankEmblemUrl(null)}
+                alt="Unranked"
+                fill
+                className="object-cover scale-200"
+                unoptimized
+              />
+            </div>
             <span className="text-sm text-muted-foreground">Unranked</span>
           </div>
         </CardContent>
@@ -72,14 +73,15 @@ export function PlayerRankCard({
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-3">
-          <Image
-            src={rankCrestUrl(tier)}
-            alt={tier}
-            width={56}
-            height={56}
-            className="shrink-0"
-            unoptimized
-          />
+          <div className="relative w-16 h-16 shrink-0 overflow-hidden">
+            <Image
+              src={rankEmblemUrl(tier)}
+              alt={tier}
+              fill
+              className="object-cover scale-200"
+              unoptimized
+            />
+          </div>
           <div className="flex flex-col">
             <span className="font-semibold text-base leading-tight">
               {formatRank(tier, rank)}
