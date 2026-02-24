@@ -14,6 +14,7 @@ export const env = createEnv({
     LCU_MINIMUM_VERSION: z.string().optional().default("0.2.0"),
     SUPABASE_SERVICE_KEY: z.string(),
     RIOT_API_KEY: z.string(),
+    HUGGING_FACE_TOKEN: z.string(),
   },
   client: {
     NEXT_PUBLIC_LCU_DOWNLOAD_URL: z.string().url().optional(),
@@ -32,6 +33,7 @@ export const env = createEnv({
     SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY,
     VERCEL_URL: process.env.VERCEL_URL,
     RIOT_API_KEY: process.env.RIOT_API_KEY,
+    HUGGING_FACE_TOKEN: process.env.HUGGING_FACE_TOKEN,
   },
   skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION,
 });

@@ -290,6 +290,51 @@ export const forumRouter = createTRPCRouter({
       }),
   }),
 
+  images: createTRPCRouter({
+    checkNsfw: protectedProcedure
+      .input(z.object({ url: z.string().url() }))
+      .mutation(async ({ input }) => {
+        const token = process.env.HUGGING_FACE_TOKEN;
+        if (!token) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "HUGGING_FACE_TOKEN is not configured",
+          });
+        }
+
+        const imgRes = await fetch(input.url);
+        if (!imgRes.ok) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Could not fetch image for NSFW check",
+          });
+        }
+        const blob = await imgRes.arrayBuffer();
+
+        const hfRes = await fetch(
+          "https://api-inference.huggingface.co/models/Falconsai/nsfw_image_detection",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/octet-stream",
+            },
+            body: blob,
+          },
+        );
+
+        if (!hfRes.ok) {
+          // If HF API fails (e.g. model cold-starting), fail closed
+          return { isNsfw: true };
+        }
+
+        const results: { label: string; score: number }[] = await hfRes.json();
+        const nsfwScore =
+          results.find((r) => r.label === "nsfw")?.score ?? 0;
+        return { isNsfw: nsfwScore > 0.5 };
+      }),
+  }),
+
   commentReactions: createTRPCRouter({
     toggle: protectedProcedure
       .input(

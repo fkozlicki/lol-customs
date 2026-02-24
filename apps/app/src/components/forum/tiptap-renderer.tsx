@@ -18,6 +18,7 @@ function ImageNodeView({ node }: NodeViewProps) {
       <SafeImage
         src={node.attrs.src as string}
         alt={(node.attrs.alt as string | undefined) ?? ""}
+        initialNsfw={node.attrs.nsfw === true}
         className="rounded-md max-w-full"
       />
     </NodeViewWrapper>
@@ -25,6 +26,15 @@ function ImageNodeView({ node }: NodeViewProps) {
 }
 
 const SafeImageExtension = ImageExtension.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      nsfw: {
+        default: false,
+        parseHTML: (el) => el.getAttribute("data-nsfw") === "true",
+      },
+    };
+  },
   addNodeView() {
     return ReactNodeViewRenderer(ImageNodeView);
   },

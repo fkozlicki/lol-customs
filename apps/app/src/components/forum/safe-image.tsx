@@ -7,8 +7,10 @@ import type { NSFWJS } from "nsfwjs";
 import { useEffect, useState } from "react";
 import { useScopedI18n } from "@/locales/client";
 
-// Threshold per individual category — any single NSFW class above this flags the image
-const NSFW_PER_CATEGORY_THRESHOLD = 0.5;
+// Any single NSFW category above this threshold flags the image
+const NSFW_PER_CATEGORY_THRESHOLD = 0.35;
+// Combined sum of all NSFW categories above this threshold also flags the image
+const NSFW_COMBINED_THRESHOLD = 0.6;
 const NSFW_CATEGORIES = new Set(["Porn", "Hentai", "Sexy"]);
 
 // Module-level singleton — model loads once and is reused across all SafeImage instances
@@ -16,8 +18,9 @@ let modelPromise: Promise<NSFWJS> | null = null;
 
 function getModel(): Promise<NSFWJS> {
   if (!modelPromise) {
-    // Use default MobileNetV2 — more reliable in bundled environments than MobileNetV2Mid (graph model)
-    modelPromise = import("nsfwjs").then(({ load }) => load("MobileNetV2"));
+    modelPromise = import("nsfwjs").then(({ load }) =>
+      load("MobileNetV2Mid", { type: "graph" }),
+    );
   }
   return modelPromise;
 }
@@ -26,14 +29,20 @@ interface SafeImageProps {
   src: string;
   alt?: string;
   className?: string;
+  initialNsfw?: boolean;
 }
 
-export function SafeImage({ src, alt, className }: SafeImageProps) {
+export function SafeImage({ src, alt, className, initialNsfw }: SafeImageProps) {
   const t = useScopedI18n("dashboard.pages.posts.sensitiveContent");
-  const [status, setStatus] = useState<"loading" | "safe" | "nsfw">("loading");
+  const [status, setStatus] = useState<"loading" | "safe" | "nsfw">(
+    initialNsfw ? "nsfw" : "loading",
+  );
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
+    // Server-side HF check already determined this image is NSFW — skip nsfwjs
+    if (initialNsfw) return;
+
     let cancelled = false;
     setStatus("loading");
     setRevealed(false);
@@ -48,15 +57,21 @@ export function SafeImage({ src, alt, className }: SafeImageProps) {
         if (cancelled) return;
         const predictions = await model.classify(img);
         if (cancelled) return;
-        const isNsfw = predictions.some(
-          (p) =>
-            NSFW_CATEGORIES.has(p.className) &&
-            p.probability >= NSFW_PER_CATEGORY_THRESHOLD,
+        const nsfwPredictions = predictions.filter((p) =>
+          NSFW_CATEGORIES.has(p.className),
         );
+        const combinedScore = nsfwPredictions.reduce(
+          (sum, p) => sum + p.probability,
+          0,
+        );
+        const isNsfw =
+          nsfwPredictions.some(
+            (p) => p.probability >= NSFW_PER_CATEGORY_THRESHOLD,
+          ) || combinedScore >= NSFW_COMBINED_THRESHOLD;
         setStatus(isNsfw ? "nsfw" : "safe");
       } catch {
-        // On classification error, show the image
-        if (!cancelled) setStatus("safe");
+        // Fail closed — on classification error, blur the image
+        if (!cancelled) setStatus("nsfw");
       }
     };
 
@@ -69,7 +84,7 @@ export function SafeImage({ src, alt, className }: SafeImageProps) {
     return () => {
       cancelled = true;
     };
-  }, [src]);
+  }, [src, initialNsfw]);
 
   if (status === "loading") {
     return <Skeleton className="w-full h-48 rounded-md" />;

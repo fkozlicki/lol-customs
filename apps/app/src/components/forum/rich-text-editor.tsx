@@ -1,15 +1,31 @@
 "use client";
 
-import { createClient } from "@v1/supabase/client";
-import { Button } from "@v1/ui/button";
+import { useMutation } from "@tanstack/react-query";
 import { Image } from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Icons } from "@v1/ui/icons";
-import { useRef } from "react";
-import { toast } from "@v1/ui/sonner";
+import { createClient } from "@v1/supabase/client";
+import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
+import { Icons } from "@v1/ui/icons";
+import { toast } from "@v1/ui/sonner";
+import { useRef } from "react";
+import { useTRPC } from "@/trpc/react";
+
+// Extend Image to carry the server-side nsfw flag through TipTap JSON
+const NsfwImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      nsfw: {
+        default: false,
+        parseHTML: (el) => el.getAttribute("data-nsfw") === "true",
+        renderHTML: (attrs) => (attrs.nsfw ? { "data-nsfw": "true" } : {}),
+      },
+    };
+  },
+});
 
 interface RichTextEditorProps {
   onChange: (json: Record<string, unknown>) => void;
@@ -23,12 +39,15 @@ export function RichTextEditor({
   userId,
 }: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const trpc = useTRPC();
+
+  const checkNsfw = useMutation(trpc.forum.images.checkNsfw.mutationOptions());
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit,
-      Image.configure({ allowBase64: false }),
+      NsfwImage.configure({ allowBase64: false }),
       Placeholder.configure({ placeholder }),
     ],
     onUpdate: ({ editor }) => {
@@ -66,7 +85,22 @@ export function RichTextEditor({
     }
 
     const { data } = supabase.storage.from("forum-images").getPublicUrl(path);
-    editor.chain().focus().setImage({ src: data.publicUrl }).run();
+    const publicUrl = data.publicUrl;
+
+    // Check NSFW server-side; fail closed (treat as nsfw) if the call errors
+    let isNsfw = false;
+    try {
+      const result = await checkNsfw.mutateAsync({ url: publicUrl });
+      isNsfw = result.isNsfw;
+    } catch {
+      isNsfw = true;
+    }
+
+    editor
+      .chain()
+      .focus()
+      .insertContent({ type: "image", attrs: { src: publicUrl, nsfw: isNsfw } })
+      .run();
 
     // reset input so the same file can be re-selected
     e.target.value = "";
