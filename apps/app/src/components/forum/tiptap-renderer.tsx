@@ -1,30 +1,57 @@
 "use client";
 
-import { generateHTML } from "@tiptap/core";
-import { Image } from "@tiptap/extension-image";
+import {
+  EditorContent,
+  NodeViewWrapper,
+  ReactNodeViewRenderer,
+  useEditor,
+} from "@tiptap/react";
+import { Image as ImageExtension } from "@tiptap/extension-image";
+import type { NodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useMemo } from "react";
+import { useEffect } from "react";
+import { SafeImage } from "./safe-image";
+
+function ImageNodeView({ node }: NodeViewProps) {
+  return (
+    <NodeViewWrapper>
+      <SafeImage
+        src={node.attrs.src as string}
+        alt={(node.attrs.alt as string | undefined) ?? ""}
+        className="rounded-md max-w-full"
+      />
+    </NodeViewWrapper>
+  );
+}
+
+const SafeImageExtension = ImageExtension.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageNodeView);
+  },
+});
 
 interface TipTapRendererProps {
   content: Record<string, unknown>;
 }
 
 export function TipTapRenderer({ content }: TipTapRendererProps) {
-  const html = useMemo(() => {
-    try {
-      return generateHTML(content as Parameters<typeof generateHTML>[0], [
-        StarterKit,
-        Image,
-      ]);
-    } catch {
-      return "";
-    }
-  }, [content]);
+  const editor = useEditor({
+    immediatelyRender: false,
+    editable: false,
+    extensions: [StarterKit, SafeImageExtension],
+    content,
+    editorProps: {
+      attributes: {
+        class: "prose prose-sm dark:prose-invert max-w-none",
+      },
+    },
+  });
 
-  return (
-    <div
-      className="prose prose-sm dark:prose-invert max-w-none [&_img]:rounded-md [&_img]:max-w-full"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
+
+  return <EditorContent editor={editor} />;
 }
