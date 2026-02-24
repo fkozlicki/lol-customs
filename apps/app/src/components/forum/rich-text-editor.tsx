@@ -10,8 +10,12 @@ import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { toast } from "@v1/ui/sonner";
-import { useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { useTRPC } from "@/trpc/react";
+
+export interface RichTextEditorHandle {
+  clearContent: () => void;
+}
 
 // Extend Image to carry the server-side nsfw flag through TipTap JSON
 const NsfwImage = Image.extend({
@@ -33,11 +37,8 @@ interface RichTextEditorProps {
   userId: string;
 }
 
-export function RichTextEditor({
-  onChange,
-  placeholder = "Write something...",
-  userId,
-}: RichTextEditorProps) {
+export const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
+  function RichTextEditor({ onChange, placeholder = "Write something...", userId }, ref) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
 
@@ -106,6 +107,12 @@ export function RichTextEditor({
     e.target.value = "";
   }
 
+  useImperativeHandle(ref, () => ({
+    clearContent: () => {
+      editor?.commands.clearContent(true);
+    },
+  }));
+
   if (!editor) return null;
 
   return (
@@ -169,7 +176,7 @@ export function RichTextEditor({
       <EditorContent editor={editor} />
     </div>
   );
-}
+});
 
 function ToolbarButton({
   children,

@@ -5,7 +5,7 @@ import { Button } from "@v1/ui/button";
 import { toast } from "@v1/ui/sonner";
 import { useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { RichTextEditor } from "@/components/forum/rich-text-editor";
+import { RichTextEditor, type RichTextEditorHandle } from "@/components/forum/rich-text-editor";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
@@ -19,6 +19,7 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
   const t = useScopedI18n("dashboard.pages.posts.comments");
   const [isEmpty, setIsEmpty] = useState(true);
   const contentRef = useRef<Record<string, unknown>>({});
+  const editorRef = useRef<RichTextEditorHandle>(null);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -28,6 +29,9 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
         queryClient.invalidateQueries(
           trpc.forum.comments.list.queryOptions({ postId }),
         );
+        editorRef.current?.clearContent();
+        contentRef.current = {};
+        setIsEmpty(true);
       },
       onError: (err) => {
         toast.error(err.message);
@@ -76,6 +80,7 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       <RichTextEditor
+        ref={editorRef}
         onChange={handleEditorChange}
         placeholder={t("placeholder")}
         userId={profile.id}
