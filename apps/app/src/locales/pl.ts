@@ -14,7 +14,7 @@ export default {
         description: "Wybierz nick i opcjonalny awatar, aby zacząć.",
         uploadHint: "Kliknij, aby przesłać awatar (opcjonalne)",
         nicknameLabel: "Nick",
-        nicknamePlaceholder: "np. Challenger1",
+        nicknamePlaceholder: "np. Sutokopter",
         settingUp: "Tworzenie...",
         submit: "Utwórz profil",
         toast: {

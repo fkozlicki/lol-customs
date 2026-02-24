@@ -14,7 +14,7 @@ export default {
         description: "Pick a nickname and an optional avatar to get started.",
         uploadHint: "Click to upload avatar (optional)",
         nicknameLabel: "Nickname",
-        nicknamePlaceholder: "e.g. Challenger1",
+        nicknamePlaceholder: "e.g. Sutokopter",
         settingUp: "Setting up...",
         submit: "Create profile",
         toast: {
