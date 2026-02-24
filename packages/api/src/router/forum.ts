@@ -329,8 +329,7 @@ export const forumRouter = createTRPCRouter({
         }
 
         const results: { label: string; score: number }[] = await hfRes.json();
-        const nsfwScore =
-          results.find((r) => r.label === "nsfw")?.score ?? 0;
+        const nsfwScore = results.find((r) => r.label === "nsfw")?.score ?? 0;
         return { isNsfw: nsfwScore > 0.5 };
       }),
   }),
