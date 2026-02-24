@@ -22,7 +22,8 @@ export default {
           avatarTooLarge: "Awatar musi być mniejszy niż 5 MB",
           signInFailed: "Logowanie nie powiodło się. Spróbuj ponownie.",
           getUserFailed: "Nie udało się pobrać użytkownika. Spróbuj ponownie.",
-          avatarUploadFailed: "Przesyłanie awatara nie powiodło się. Możesz ustawić go później.",
+          avatarUploadFailed:
+            "Przesyłanie awatara nie powiodło się. Możesz ustawić go później.",
         },
       },
     },

@@ -90,10 +90,13 @@ export default function NewPostPage() {
             control={form.control}
             name="title"
             render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("newPostPage.titleLabel")}</FormLabel>
-                  <FormControl>
-                    <Input placeholder={t("newPostPage.titlePlaceholder")} {...field} />
+              <FormItem>
+                <FormLabel>{t("newPostPage.titleLabel")}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t("newPostPage.titlePlaceholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,14 +107,14 @@ export default function NewPostPage() {
             control={form.control}
             name="content"
             render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("newPostPage.contentLabel")}</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      onChange={field.onChange}
-                      placeholder={t("newPostPage.contentPlaceholder")}
-                      userId={profile.id}
-                    />
+              <FormItem>
+                <FormLabel>{t("newPostPage.contentLabel")}</FormLabel>
+                <FormControl>
+                  <RichTextEditor
+                    onChange={field.onChange}
+                    placeholder={t("newPostPage.contentPlaceholder")}
+                    userId={profile.id}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -123,7 +126,9 @@ export default function NewPostPage() {
               <Link href="/posts">{t("newPostPage.cancel")}</Link>
             </Button>
             <Button type="submit" disabled={createPost.isPending}>
-              {createPost.isPending ? t("newPostPage.publishing") : t("newPostPage.publish")}
+              {createPost.isPending
+                ? t("newPostPage.publishing")
+                : t("newPostPage.publish")}
             </Button>
           </div>
         </form>

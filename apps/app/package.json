@@ -34,7 +34,6 @@
     "date-fns": "^4.1.0",
     "geist": "^1.5.1",
     "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.575.0",
     "next": "catalog:react",
     "next-international": "^1.2.4",
     "next-safe-action": "^7.9.0",

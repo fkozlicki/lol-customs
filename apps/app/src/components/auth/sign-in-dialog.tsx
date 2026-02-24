@@ -181,9 +181,7 @@ export function SignInDialog() {
                   <Icons.Camera className="size-5 text-white" />
                 </div>
               </button>
-              <p className="text-xs text-muted-foreground">
-                {t("uploadHint")}
-              </p>
+              <p className="text-xs text-muted-foreground">{t("uploadHint")}</p>
               <input
                 ref={fileInputRef}
                 type="file"

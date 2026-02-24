@@ -28,9 +28,7 @@ export default async function PostsPage() {
       <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground text-sm">
-            {t("description")}
-          </p>
+          <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
         <Suspense fallback={<PostListSkeleton />}>
           <PostList />

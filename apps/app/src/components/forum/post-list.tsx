@@ -56,9 +56,7 @@ export function PostList() {
         </div>
       ) : posts.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-muted-foreground text-sm">
-            {t("noPosts")}
-          </p>
+          <p className="text-muted-foreground text-sm">{t("noPosts")}</p>
         </div>
       ) : (
         <div className="space-y-3">
