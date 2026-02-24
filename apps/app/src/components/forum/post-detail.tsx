@@ -2,8 +2,11 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
+import { Button } from "@v1/ui/button";
+import { Icons } from "@v1/ui/icons";
 import { Separator } from "@v1/ui/separator";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 import { useTRPC } from "@/trpc/react";
 import { CommentList } from "./comment-list";
 import { ReactionButtons } from "./reaction-buttons";
@@ -25,6 +28,11 @@ export function PostDetail({ postId }: PostDetailProps) {
 
   return (
     <div className="space-y-6">
+      <Button variant="outline" asChild>
+        <Link href="/posts">
+          <Icons.ChevronLeft className="size-4" /> Back to posts
+        </Link>
+      </Button>
       {/* Post header */}
       <div className="space-y-1">
         <div className="flex items-center gap-2 mt-2">

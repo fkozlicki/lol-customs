@@ -68,19 +68,18 @@ export default function NewPostPage() {
   if (isLoading || !profile) return null;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 py-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild className="shrink-0">
-          <Link href="/posts">
-            <Icons.ChevronLeft className="size-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-xl font-semibold">New post</h1>
-          <p className="text-sm text-muted-foreground">
-            Share something with the community.
-          </p>
-        </div>
+    <div className="max-w-3xl mx-auto space-y-4 py-6">
+      <Button variant="outline" asChild>
+        <Link href="/posts">
+          <Icons.ChevronLeft className="size-4" /> Back to posts
+        </Link>
+      </Button>
+
+      <div>
+        <h1 className="text-xl font-semibold">New post</h1>
+        <p className="text-sm text-muted-foreground">
+          Share something with the community.
+        </p>
       </div>
 
       <Form {...form}>

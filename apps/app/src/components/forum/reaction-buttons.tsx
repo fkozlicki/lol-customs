@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@v1/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@v1/ui/button";
+import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { toast } from "@v1/ui/sonner";
-import { cn } from "@v1/ui/cn";
 import { useUser } from "@/components/auth/user-context";
 import { useTRPC } from "@/trpc/react";
 
@@ -26,7 +26,7 @@ export function ReactionButtons({
   const queryClient = useQueryClient();
 
   const myReaction = profile
-    ? reactions.find((r) => r.user_id === profile.id)?.type ?? null
+    ? (reactions.find((r) => r.user_id === profile.id)?.type ?? null)
     : null;
 
   const toggleMutation = useMutation(
@@ -95,7 +95,6 @@ export function ReactionButtons({
           myReaction === "like" && "text-green-500 hover:text-green-500",
         )}
         onClick={() => handleReaction("like")}
-        disabled={toggleMutation.isPending}
       >
         <Icons.ThumbsUp className="size-4" />
         <span className="text-xs tabular-nums">{initialLikes}</span>
@@ -108,7 +107,6 @@ export function ReactionButtons({
           myReaction === "dislike" && "text-red-500 hover:text-red-500",
         )}
         onClick={() => handleReaction("dislike")}
-        disabled={toggleMutation.isPending}
       >
         <Icons.ThumbsDown className="size-4" />
         <span className="text-xs tabular-nums">{initialDislikes}</span>
