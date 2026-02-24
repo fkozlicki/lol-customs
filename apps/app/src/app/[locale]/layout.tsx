@@ -6,6 +6,8 @@ import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { UserProvider } from "@/components/auth/user-context";
 import { I18nProviderClient } from "@/locales/client";
 import { TRPCReactProvider } from "@/trpc/react";
 
@@ -44,15 +46,18 @@ export default async function RootLayout({
       >
         <I18nProviderClient locale={locale}>
           <TRPCReactProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <NuqsAdapter>{children}</NuqsAdapter>
-              <Toaster richColors={true} />
-            </ThemeProvider>
+            <UserProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <NuqsAdapter>{children}</NuqsAdapter>
+                <Toaster richColors={true} />
+                <SignInDialog />
+              </ThemeProvider>
+            </UserProvider>
           </TRPCReactProvider>
         </I18nProviderClient>
       </body>

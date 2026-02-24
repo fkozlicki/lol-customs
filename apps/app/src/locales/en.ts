@@ -11,6 +11,7 @@ export default {
       matchHistory: "Match history",
       hallOfFame: "Hall of Fame",
       duos: "Squad",
+      posts: "Posts",
       downloadDesktopApp: "Download desktop app",
     },
     download: {

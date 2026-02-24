@@ -42,6 +42,7 @@ const PATHS = [
   { path: "/matches", label: "sidebar.matchHistory", Icon: Icons.Calendar },
   { path: "/hof", label: "sidebar.hallOfFame", Icon: Icons.HOF },
   { path: "/duos", label: "sidebar.duos", Icon: Icons.Users2 },
+  { path: "/posts", label: "sidebar.posts", Icon: Icons.MessageSquare },
 ] as const;
 
 export function DashboardSidebar({ children }: DashboardSidebarProps) {

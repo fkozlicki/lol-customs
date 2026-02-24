@@ -11,6 +11,7 @@ export default {
       matchHistory: "Historia meczów",
       hallOfFame: "Sławy",
       duos: "Ekipa",
+      posts: "Posty",
       downloadDesktopApp: "Pobierz aplikację desktop",
     },
     download: {

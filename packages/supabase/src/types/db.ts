@@ -468,6 +468,150 @@ export type Database = {
           },
         ];
       };
+      user_profiles: {
+        Row: {
+          id: string;
+          nickname: string;
+          avatar_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          nickname: string;
+          avatar_url?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          nickname?: string;
+          avatar_url?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      forum_posts: {
+        Row: {
+          id: string;
+          author_id: string;
+          title: string;
+          content: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id: string;
+          title: string;
+          content: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string;
+          title?: string;
+          content?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "user_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      forum_comment_reactions: {
+        Row: {
+          comment_id: string;
+          user_id: string;
+          type: "like" | "dislike";
+        };
+        Insert: {
+          comment_id: string;
+          user_id: string;
+          type: "like" | "dislike";
+        };
+        Update: {
+          comment_id?: string;
+          user_id?: string;
+          type?: "like" | "dislike";
+        };
+        Relationships: [
+          {
+            foreignKeyName: "forum_comment_reactions_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "forum_comments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      forum_reactions: {
+        Row: {
+          post_id: string;
+          user_id: string;
+          type: "like" | "dislike";
+        };
+        Insert: {
+          post_id: string;
+          user_id: string;
+          type: "like" | "dislike";
+        };
+        Update: {
+          post_id?: string;
+          user_id?: string;
+          type?: "like" | "dislike";
+        };
+        Relationships: [
+          {
+            foreignKeyName: "forum_reactions_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "forum_posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      forum_comments: {
+        Row: {
+          id: string;
+          post_id: string;
+          author_id: string;
+          content: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          author_id: string;
+          content: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          author_id?: string;
+          content?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "forum_comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "forum_posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "forum_comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "user_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

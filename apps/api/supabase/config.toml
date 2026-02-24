@@ -11,6 +11,7 @@ max_rows = 100
 site_url = "http://localhost:3000"
 additional_redirect_urls = ["https://localhost:3000", "http://localhost:54321/auth/v1/callback"]
 jwt_expiry = 36000
+enable_anonymous_sign_ins = true
 
 [db]
 port = 54322
