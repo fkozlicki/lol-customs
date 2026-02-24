@@ -7,6 +7,7 @@ import { Icons } from "@v1/ui/icons";
 import { Separator } from "@v1/ui/separator";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { CommentList } from "./comment-list";
 import { ReactionButtons } from "./reaction-buttons";
@@ -17,6 +18,7 @@ interface PostDetailProps {
 }
 
 export function PostDetail({ postId }: PostDetailProps) {
+  const t = useScopedI18n("dashboard.pages.posts");
   const trpc = useTRPC();
   const { data: post } = useSuspenseQuery(
     trpc.forum.posts.get.queryOptions({ id: postId }),
@@ -30,7 +32,7 @@ export function PostDetail({ postId }: PostDetailProps) {
     <div className="space-y-6">
       <Button variant="outline" asChild>
         <Link href="/posts">
-          <Icons.ChevronLeft className="size-4" /> Back to posts
+          <Icons.ChevronLeft className="size-4" /> {t("backToPosts")}
         </Link>
       </Button>
       {/* Post header */}
@@ -44,7 +46,7 @@ export function PostDetail({ postId }: PostDetailProps) {
           </Avatar>
           <div className="flex flex-col">
             <span className="text-sm font-medium">
-              {author?.nickname ?? "Unknown"}
+              {author?.nickname ?? t("unknown")}
             </span>
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(post.created_at), {

@@ -1,5 +1,6 @@
 import { Skeleton } from "@v1/ui/skeleton";
 import { Suspense } from "react";
+import { getScopedI18n } from "@/locales/server";
 import { PostList } from "@/components/forum/post-list";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
@@ -14,6 +15,7 @@ function PostListSkeleton() {
 }
 
 export default async function PostsPage() {
+  const t = await getScopedI18n("dashboard.pages.posts");
   prefetch(
     trpc.forum.posts.list.infiniteQueryOptions(
       { limit: 20 },
@@ -25,9 +27,9 @@ export default async function PostsPage() {
     <HydrateClient>
       <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Posts</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground text-sm">
-            Community posts and discussions.
+            {t("description")}
           </p>
         </div>
         <Suspense fallback={<PostListSkeleton />}>

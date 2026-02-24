@@ -16,9 +16,11 @@ import { Icons } from "@v1/ui/icons";
 import { useUser } from "@/components/auth/user-context";
 import { LocaleSwitcher } from "@/components/dashboard/locale-switcher";
 import { ThemeSwitcher } from "@/components/dashboard/theme-switcher";
+import { useScopedI18n } from "@/locales/client";
 
 export function AppHeader() {
   const { profile, isLoading, openSignInDialog } = useUser();
+  const t = useScopedI18n("dashboard.auth");
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -58,7 +60,7 @@ export function AppHeader() {
                     <div className="px-2 py-1.5">
                       <p className="text-sm font-medium">{profile.nickname}</p>
                       <p className="text-xs text-muted-foreground">
-                        Anonymous user
+                        {t("anonymousUser")}
                       </p>
                     </div>
                     <DropdownMenuSeparator />
@@ -67,7 +69,7 @@ export function AppHeader() {
                       className="text-destructive focus:text-destructive"
                     >
                       <Icons.LogOut className="mr-2 size-4" />
-                      Sign out
+                      {t("signOut")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -79,7 +81,7 @@ export function AppHeader() {
                   onClick={openSignInDialog}
                 >
                   <Icons.User className="size-4" />
-                  Sign in
+                  {t("signIn")}
                 </Button>
               )}
             </>

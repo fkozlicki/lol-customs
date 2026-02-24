@@ -26,6 +26,7 @@ import { toast } from "@v1/ui/sonner";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { useUser } from "./user-context";
 
@@ -44,6 +45,7 @@ type FormValues = z.infer<typeof schema>;
 
 export function SignInDialog() {
   const { signInDialogOpen, closeSignInDialog, refreshProfile } = useUser();
+  const t = useScopedI18n("dashboard.auth.profile");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -66,7 +68,7 @@ export function SignInDialog() {
         form.reset();
         setAvatarFile(null);
         setAvatarPreview(null);
-        toast.success("Welcome! Your profile is set up.");
+        toast.success(t("toast.success"));
       },
       onError: (err) => {
         toast.error(err.message);
@@ -79,7 +81,7 @@ export function SignInDialog() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Avatar must be smaller than 5MB");
+      toast.error(t("toast.avatarTooLarge"));
       return;
     }
     setAvatarFile(file);
@@ -95,7 +97,7 @@ export function SignInDialog() {
     if (!sessionData.session) {
       const { error: signInError } = await supabase.auth.signInAnonymously();
       if (signInError) {
-        toast.error("Failed to sign in. Please try again.", {
+        toast.error(t("toast.signInFailed"), {
           description: signInError.message,
         });
         setIsSubmitting(false);
@@ -107,7 +109,7 @@ export function SignInDialog() {
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) {
-      toast.error("Failed to get user. Please try again.");
+      toast.error(t("toast.getUserFailed"));
       setIsSubmitting(false);
       return;
     }
@@ -122,7 +124,7 @@ export function SignInDialog() {
         .upload(path, avatarFile, { upsert: true });
 
       if (uploadError) {
-        toast.error("Failed to upload avatar. You can set it later.");
+        toast.error(t("toast.avatarUploadFailed"));
       } else {
         const { data: urlData } = supabase.storage
           .from("avatars")
@@ -151,10 +153,8 @@ export function SignInDialog() {
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create your profile</DialogTitle>
-          <DialogDescription>
-            Pick a nickname and an optional avatar to get started.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -182,7 +182,7 @@ export function SignInDialog() {
                 </div>
               </button>
               <p className="text-xs text-muted-foreground">
-                Click to upload avatar (optional)
+                {t("uploadHint")}
               </p>
               <input
                 ref={fileInputRef}
@@ -198,9 +198,9 @@ export function SignInDialog() {
               name="nickname"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nickname</FormLabel>
+                  <FormLabel>{t("nicknameLabel")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Challenger1" {...field} />
+                    <Input placeholder={t("nicknamePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -213,8 +213,8 @@ export function SignInDialog() {
               disabled={isSubmitting || setupProfile.isPending}
             >
               {isSubmitting || setupProfile.isPending
-                ? "Setting up..."
-                : "Create profile"}
+                ? t("settingUp")
+                : t("submit")}
             </Button>
           </form>
         </Form>

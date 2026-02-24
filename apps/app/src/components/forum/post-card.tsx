@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import { Icons } from "@v1/ui/icons";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import { useScopedI18n } from "@/locales/client";
 
 type Post = RouterOutputs["forum"]["posts"]["list"]["items"][number];
 
@@ -36,6 +37,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const t = useScopedI18n("dashboard.pages.posts");
   const author = Array.isArray(post.author) ? post.author[0] : post.author;
 
   return (
@@ -54,7 +56,7 @@ export function PostCard({ post }: PostCardProps) {
 
           <div className="flex items-center gap-1.5 mt-0.5 text-xs flex-wrap">
             <span className="font-semibold">
-              {author?.nickname ?? "Unknown"}
+              {author?.nickname ?? t("unknown")}
             </span>
             <span>·</span>
             <span className="text-muted-foreground">

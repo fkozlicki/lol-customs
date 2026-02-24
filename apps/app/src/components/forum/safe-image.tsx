@@ -5,6 +5,7 @@ import { Icons } from "@v1/ui/icons";
 import { Skeleton } from "@v1/ui/skeleton";
 import type { NSFWJS } from "nsfwjs";
 import { useEffect, useState } from "react";
+import { useScopedI18n } from "@/locales/client";
 
 // Threshold per individual category — any single NSFW class above this flags the image
 const NSFW_PER_CATEGORY_THRESHOLD = 0.5;
@@ -28,6 +29,7 @@ interface SafeImageProps {
 }
 
 export function SafeImage({ src, alt, className }: SafeImageProps) {
+  const t = useScopedI18n("dashboard.pages.posts.sensitiveContent");
   const [status, setStatus] = useState<"loading" | "safe" | "nsfw">("loading");
   const [revealed, setRevealed] = useState(false);
 
@@ -78,13 +80,13 @@ export function SafeImage({ src, alt, className }: SafeImageProps) {
       <div className="flex flex-col items-center justify-center gap-3 rounded-md bg-muted border border-border p-8 text-center">
         <Icons.EyeOff className="size-8 text-muted-foreground" />
         <div>
-          <p className="text-sm font-medium">Sensitive content</p>
+          <p className="text-sm font-medium">{t("title")}</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            This image may contain adult content.
+            {t("description")}
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={() => setRevealed(true)}>
-          Show image
+          {t("show")}
         </Button>
       </div>
     );

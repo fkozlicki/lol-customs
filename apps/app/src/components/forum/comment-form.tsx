@@ -6,6 +6,7 @@ import { toast } from "@v1/ui/sonner";
 import { useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
 import { RichTextEditor } from "@/components/forum/rich-text-editor";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface CommentFormProps {
@@ -15,6 +16,7 @@ interface CommentFormProps {
 
 export function CommentForm({ postId, onCancel }: CommentFormProps) {
   const { profile, openSignInDialog } = useUser();
+  const t = useScopedI18n("dashboard.pages.posts.comments");
   const [isEmpty, setIsEmpty] = useState(true);
   const contentRef = useRef<Record<string, unknown>>({});
   const trpc = useTRPC();
@@ -63,9 +65,9 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
             className="underline underline-offset-2 hover:text-foreground transition-colors"
             onClick={openSignInDialog}
           >
-            Sign in
+            {t("signIn")}
           </button>{" "}
-          to leave a comment.
+          {t("signInSuffix")}
         </p>
       </div>
     );
@@ -75,19 +77,19 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
     <form onSubmit={handleSubmit} className="space-y-2">
       <RichTextEditor
         onChange={handleEditorChange}
-        placeholder="Write a comment..."
+        placeholder={t("placeholder")}
         userId={profile.id}
       />
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={onCancel}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           type="submit"
           size="sm"
           disabled={isEmpty || createComment.isPending}
         >
-          {createComment.isPending ? "Posting..." : "Post comment"}
+          {createComment.isPending ? t("posting") : t("post")}
         </Button>
       </div>
     </form>

@@ -6,11 +6,13 @@ import { Icons } from "@v1/ui/icons";
 import { Skeleton } from "@v1/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/auth/user-context";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { PostCard } from "./post-card";
 
 export function PostList() {
   const { profile, openSignInDialog } = useUser();
+  const t = useScopedI18n("dashboard.pages.posts");
   const trpc = useTRPC();
   const router = useRouter();
 
@@ -42,7 +44,7 @@ export function PostList() {
         </p>
         <Button onClick={handleNewPost} size="sm" className="gap-1.5">
           <Icons.PenSquare className="size-4" />
-          New post
+          {t("newPost")}
         </Button>
       </div>
 
@@ -55,7 +57,7 @@ export function PostList() {
       ) : posts.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">
           <p className="text-muted-foreground text-sm">
-            No posts yet. Be the first to post!
+            {t("noPosts")}
           </p>
         </div>
       ) : (
@@ -73,7 +75,7 @@ export function PostList() {
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
           >
-            {isFetchingNextPage ? "Loading..." : "Load more"}
+            {isFetchingNextPage ? t("loading") : t("loadMore")}
           </Button>
         </div>
       )}

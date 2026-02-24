@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import { Button } from "@v1/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { CommentForm } from "./comment-form";
 import { CommentReactionButtons } from "./comment-reaction-buttons";
@@ -15,6 +16,7 @@ interface CommentListProps {
 }
 
 export function CommentList({ postId }: CommentListProps) {
+  const t = useScopedI18n("dashboard.pages.posts");
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
     trpc.forum.comments.list.queryOptions({ postId }),
@@ -32,13 +34,13 @@ export function CommentList({ postId }: CommentListProps) {
           onClick={() => setShowForm(true)}
           className="w-full"
         >
-          Join the conversation
+          {t("comments.joinConversation")}
         </Button>
       )}
 
       {data.items.length === 0 ? (
         <p className="text-sm text-muted-foreground py-4 text-center">
-          No comments yet. Be the first!
+          {t("comments.noComments")}
         </p>
       ) : (
         <div className="space-y-4">
@@ -60,7 +62,7 @@ export function CommentList({ postId }: CommentListProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-sm font-medium">
-                      {author?.nickname ?? "Unknown"}
+                      {author?.nickname ?? t("unknown")}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(comment.created_at), {
