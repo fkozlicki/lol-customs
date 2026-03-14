@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@v1/supabase/client";
 import {
   createContext,
@@ -9,7 +10,6 @@ import {
   useState,
 } from "react";
 import { useTRPC } from "@/trpc/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface UserProfile {
   id: string;

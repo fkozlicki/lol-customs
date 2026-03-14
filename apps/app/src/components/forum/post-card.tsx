@@ -73,7 +73,7 @@ export function PostCard({ post }: PostCardProps) {
           </h2>
 
           {post.content && Object.keys(post.content).length > 0 && (
-            <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
+            <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2 break-all">
               {getContentPreview(post.content as Record<string, unknown>)}
             </p>
           )}

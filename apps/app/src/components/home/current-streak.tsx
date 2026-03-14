@@ -23,6 +23,7 @@ export default function CurrentStreak({
   const l = loseStreak ?? 0;
   const hasStreak = w > 0 || l > 0;
   const isWinning = w > 0;
+
   return (
     <span className="flex items-center justify-end gap-1 tabular-nums">
       {hasStreak && (

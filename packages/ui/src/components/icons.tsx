@@ -11,6 +11,7 @@ import {
   EyeOff,
   Flame,
   Folder,
+  Globe,
   Heading2,
   HelpCircle,
   Image,
@@ -69,6 +70,7 @@ export const Icons = {
   List,
   ListOrdered,
   Image,
+  Locale: Globe,
 };
 
 export type { LucideIcon } from "lucide-react";

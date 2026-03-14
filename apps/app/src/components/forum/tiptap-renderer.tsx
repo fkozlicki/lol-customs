@@ -1,13 +1,13 @@
 "use client";
 
+import { Image as ImageExtension } from "@tiptap/extension-image";
+import type { NodeViewProps } from "@tiptap/react";
 import {
   EditorContent,
   NodeViewWrapper,
   ReactNodeViewRenderer,
   useEditor,
 } from "@tiptap/react";
-import { Image as ImageExtension } from "@tiptap/extension-image";
-import type { NodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
 import { SafeImage } from "./safe-image";
@@ -48,7 +48,16 @@ export function TipTapRenderer({ content }: TipTapRendererProps) {
   const editor = useEditor({
     immediatelyRender: false,
     editable: false,
-    extensions: [StarterKit, SafeImageExtension],
+    extensions: [
+      StarterKit.configure({
+        paragraph: {
+          HTMLAttributes: {
+            class: "break-all",
+          },
+        },
+      }),
+      SafeImageExtension,
+    ],
     content,
     editorProps: {
       attributes: {

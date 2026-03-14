@@ -1,9 +1,9 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { itemImageUrl } from "@/utils/asset-urls";
 import Image from "next/image";
 import { useTRPC } from "@/trpc/react";
+import { itemImageUrl } from "@/utils/asset-urls";
 
 interface ItemImageProps {
   itemId: number | null;

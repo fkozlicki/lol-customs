@@ -16,7 +16,7 @@ function matchTypeLabel(match: Match): string {
 
 export function MatchMetadata({ match }: { match: Match }) {
   return (
-    <div className="flex flex-col shrink-0 min-w-[100px] justify-between">
+    <div className="flex flex-col shrink-0 justify-between">
       <div className="flex flex-col gap-0.5">
         <span className="text-muted-foreground text-xs font-semibold">
           {matchTypeLabel(match)}

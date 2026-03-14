@@ -26,6 +26,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { env } from "@/env.mjs";
 import { useScopedI18n } from "@/locales/client";
+import { PATHS } from "./nav";
 
 interface DashboardSidebarProps {
   locale: string;
@@ -37,14 +38,6 @@ const hasZip = Boolean(env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL);
 const hasBoth = hasInstaller && hasZip;
 const hasAnyDownload = hasInstaller || hasZip;
 
-const PATHS = [
-  { path: "/", label: "sidebar.leaderboard", Icon: Icons.Leaderboard },
-  { path: "/matches", label: "sidebar.matchHistory", Icon: Icons.Calendar },
-  { path: "/hof", label: "sidebar.hallOfFame", Icon: Icons.HOF },
-  { path: "/duos", label: "sidebar.duos", Icon: Icons.Users2 },
-  { path: "/posts", label: "sidebar.posts", Icon: Icons.MessageSquare },
-] as const;
-
 export function DashboardSidebar({ children }: DashboardSidebarProps) {
   const t = useScopedI18n("dashboard");
   const pathname = usePathname();
@@ -53,7 +46,7 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="lg:flex">
         <SidebarHeader>
           <span className="font-semibold text-foreground">
             {t("sidebar.appName")}

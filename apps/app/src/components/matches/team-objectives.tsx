@@ -43,7 +43,7 @@ export function TeamObjectives({
     teamName === "blue" ? OBJECTIVE_ICONS : OBJECTIVE_ICONS_RED;
 
   return (
-    <div className="space-y-1">
+    <div className="flex items-center gap-2 justify-center sm:block sm:space-y-1">
       <div className={cn("flex gap-2", align === "right" && "justify-end")}>
         <div className="flex items-center gap-1.5 text-xs">
           <Image

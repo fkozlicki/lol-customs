@@ -25,19 +25,23 @@ export function LocaleSwitcher({ className }: { className?: string }) {
   const segment = pathname.split("/")[1] as Locale;
 
   const currentLocale: Locale = LOCALES.includes(segment) ? segment : "en";
-  const currentLabel = t(currentLocale);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
+          size="icon-sm"
           className={cn("gap-1.5 font-medium", className)}
           aria-label="Switch language"
         >
-          {currentLabel}
-          <Icons.ChevronDown className="size-4 opacity-70" />
+          {/* {currentLabel} */}
+          <div className="relative">
+            <Icons.Locale className="size-4" />
+            <div className="absolute -bottom-1 -right-1 rounded-full bg-background text-foreground uppercase font-bold text-[8px] px-px">
+              {currentLocale}
+            </div>
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

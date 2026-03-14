@@ -86,7 +86,7 @@ export default function MatchCard({
           </div>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className="items-center gap-4 hidden lg:flex">
           {/* Blue team */}
           <MatchTeam
             team={blueTeamParticipants}

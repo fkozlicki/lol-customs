@@ -64,7 +64,7 @@ export default function MatchDetail({ match }: MatchDetailProps) {
         rawJson={match.raw_json}
         scores={scores}
       />
-      <div className="flex px-4 py-2 border-y gap-4">
+      <div className="flex flex-col sm:flex-row px-4 py-2 border-y gap-4">
         <TeamObjectives
           baronKills={blueTeam?.baron_kills ?? 0}
           dragonKills={blueTeam?.dragon_kills ?? 0}

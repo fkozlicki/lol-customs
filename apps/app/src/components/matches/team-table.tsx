@@ -38,10 +38,10 @@ export default function TeamTable({
     <Table className="w-full">
       <colgroup>
         <col className="w-auto" />
-        <col className="w-[68px]" />
+        <col className="w-[75px]" />
         <col className="w-[98px]" />
         <col className="w-[100px]" />
-        <col className="w-[48px]" />
+        <col className="w-[56px]" />
         <col className="w-[56px]" />
         <col className="w-[195px]" />
       </colgroup>
