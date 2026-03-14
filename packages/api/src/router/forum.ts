@@ -44,27 +44,24 @@ export const forumRouter = createTRPCRouter({
           });
         }
 
-        const items = data ?? [];
-        let nextCursor: string | undefined;
-        if (items.length > limit) {
-          const nextItem = items.pop();
-          nextCursor = nextItem?.created_at ?? undefined;
-        }
+        const items = data.map((post) => {
+          const reactions = Array.isArray(post.reactions) ? post.reactions : [];
+          return {
+            ...post,
+            likes: reactions.filter((r) => r.type === "like").length,
+            dislikes: reactions.filter((r) => r.type === "dislike").length,
+            commentCount: Array.isArray(post.comments)
+              ? post.comments.length
+              : 0,
+          };
+        });
+
+        const hasNextPage = items.length > limit;
+        const lastItem = hasNextPage ? items[limit - 1] : undefined;
+        const nextCursor = lastItem?.created_at ?? null;
 
         return {
-          items: items.map((post) => {
-            const reactions = Array.isArray(post.reactions)
-              ? post.reactions
-              : [];
-            return {
-              ...post,
-              likes: reactions.filter((r) => r.type === "like").length,
-              dislikes: reactions.filter((r) => r.type === "dislike").length,
-              commentCount: Array.isArray(post.comments)
-                ? post.comments.length
-                : 0,
-            };
-          }),
+          items: items.slice(0, limit),
           nextCursor,
         };
       }),
@@ -231,25 +228,24 @@ export const forumRouter = createTRPCRouter({
           });
         }
 
-        const items = data ?? [];
-        let nextCursor: string | undefined;
-        if (items.length > input.limit) {
-          const nextItem = items.pop();
-          nextCursor = nextItem?.created_at ?? undefined;
-        }
+        const items = data.map((comment) => {
+          const reactions = Array.isArray(comment.reactions)
+            ? comment.reactions
+            : [];
+          return {
+            ...comment,
+            likes: reactions.filter((r) => r.type === "like").length,
+            dislikes: reactions.filter((r) => r.type === "dislike").length,
+            reactions,
+          };
+        });
+
+        const hasNextPage = items.length > input.limit;
+        const lastItem = hasNextPage ? items[input.limit - 1] : undefined;
+        const nextCursor = lastItem?.created_at ?? null;
 
         return {
-          items: items.map((comment) => {
-            const reactions = Array.isArray(comment.reactions)
-              ? comment.reactions
-              : [];
-            return {
-              ...comment,
-              likes: reactions.filter((r) => r.type === "like").length,
-              dislikes: reactions.filter((r) => r.type === "dislike").length,
-              reactions,
-            };
-          }),
+          items: items.slice(0, input.limit),
           nextCursor,
         };
       }),

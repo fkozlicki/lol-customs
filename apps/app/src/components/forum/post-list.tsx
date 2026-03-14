@@ -3,11 +3,11 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
 import { Icons } from "@v1/ui/icons";
-import { Skeleton } from "@v1/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/auth/user-context";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
+import { InfiniteScrollTrigger } from "../infinite-scroll-trigger";
 import { PostCard } from "./post-card";
 
 export function PostList() {
@@ -19,7 +19,7 @@ export function PostList() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useSuspenseInfiniteQuery(
       trpc.forum.posts.list.infiniteQueryOptions(
-        { limit: 20 },
+        { limit: 10 },
         { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
       ),
     );
@@ -32,6 +32,14 @@ export function PostList() {
       return;
     }
     router.push("/posts/new");
+  }
+
+  if (!posts.length) {
+    return (
+      <div className="rounded-lg border border-dashed border-border p-12 text-center">
+        <p className="text-muted-foreground text-sm">{t("noPosts")}</p>
+      </div>
+    );
   }
 
   return (
@@ -48,35 +56,17 @@ export function PostList() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
-          ))}
-        </div>
-      ) : posts.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-muted-foreground text-sm">{t("noPosts")}</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
+      <div className="space-y-3">
+        {posts.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
 
-      {hasNextPage && (
-        <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-          >
-            {isFetchingNextPage ? t("loading") : t("loadMore")}
-          </Button>
-        </div>
-      )}
+      <InfiniteScrollTrigger
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+      />
     </div>
   );
 }
