@@ -67,7 +67,7 @@ export function TeamRow({
         <MatchParticipantCS p={p} duration={duration} />
       </TableCell>
       <TableCell>
-        <MatchParticipantItems rawData={rawData} />
+        <MatchParticipantItems rawData={rawData} isVictorious={isVictorious} />
       </TableCell>
     </TableRow>
   );

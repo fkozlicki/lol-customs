@@ -22,9 +22,9 @@ import {
   SidebarProvider,
 } from "@v1/ui/sidebar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { env } from "@/env.mjs";
+import { useLocalePathname } from "@/hooks/use-locale-pathname";
 import { useScopedI18n } from "@/locales/client";
 import { PATHS } from "./nav";
 
@@ -33,119 +33,86 @@ interface DashboardSidebarProps {
   children: React.ReactNode;
 }
 
-const hasInstaller = Boolean(env.NEXT_PUBLIC_LCU_DOWNLOAD_URL);
-const hasZip = Boolean(env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL);
-const hasBoth = hasInstaller && hasZip;
-const hasAnyDownload = hasInstaller || hasZip;
-
 export function DashboardSidebar({ children }: DashboardSidebarProps) {
   const t = useScopedI18n("dashboard");
-  const pathname = usePathname();
+  const { checkIfActivePath } = useLocalePathname();
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
-  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, "$1") || "/";
 
   return (
-    <SidebarProvider>
-      <Sidebar className="lg:flex">
-        <SidebarHeader>
-          <span className="font-semibold text-foreground">
-            {t("sidebar.appName")}
-          </span>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {PATHS.map(({ path, label, Icon }) => (
-                  <SidebarMenuItem key={path}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathWithoutLocale === pathname}
-                    >
-                      <Link href={path}>
-                        <Icon className="size-4" />
-                        <span>{t(label)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter>
-          {hasAnyDownload && (
+    <>
+      <Dialog open={downloadDialogOpen} onOpenChange={setDownloadDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t("download.title")}</DialogTitle>
+            <DialogDescription>{t("download.description")}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Button asChild size="lg" className="w-full">
+              <a
+                href={env.NEXT_PUBLIC_LCU_DOWNLOAD_URL!}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setDownloadDialogOpen(false)}
+              >
+                <Icons.Download className="size-4" />
+                {t("download.installerExe")}
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="w-full">
+              <a
+                href={env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL!}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setDownloadDialogOpen(false)}
+              >
+                {t("download.zipPortable")}
+              </a>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <SidebarProvider>
+        <Sidebar className="lg:flex">
+          <SidebarHeader>
+            <span className="font-semibold text-foreground">
+              {t("sidebar.appName")}
+            </span>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {PATHS.map(({ path, label, Icon }) => (
+                    <SidebarMenuItem key={path}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={checkIfActivePath(path)}
+                      >
+                        <Link href={path} prefetch={true}>
+                          <Icon className="size-4" />
+                          <span>{t(label)}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarFooter>
             <SidebarMenuItem>
-              {hasBoth ? (
-                <>
-                  <SidebarMenuButton
-                    onClick={() => setDownloadDialogOpen(true)}
-                  >
-                    <Icons.Download className="size-4" />
-                    <span>{t("sidebar.downloadDesktopApp")}</span>
-                  </SidebarMenuButton>
-                  <Dialog
-                    open={downloadDialogOpen}
-                    onOpenChange={setDownloadDialogOpen}
-                  >
-                    <DialogContent className="max-w-sm">
-                      <DialogHeader>
-                        <DialogTitle>{t("download.title")}</DialogTitle>
-                        <DialogDescription>
-                          {t("download.description")}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex flex-col gap-2">
-                        <Button asChild size="lg" className="w-full">
-                          <a
-                            href={env.NEXT_PUBLIC_LCU_DOWNLOAD_URL!}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setDownloadDialogOpen(false)}
-                          >
-                            <Icons.Download className="size-4" />
-                            {t("download.installerExe")}
-                          </a>
-                        </Button>
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="lg"
-                          className="w-full"
-                        >
-                          <a
-                            href={env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL!}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setDownloadDialogOpen(false)}
-                          >
-                            {t("download.zipPortable")}
-                          </a>
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </>
-              ) : (
-                <SidebarMenuButton asChild>
-                  <a
-                    href={
-                      env.NEXT_PUBLIC_LCU_DOWNLOAD_URL ??
-                      env.NEXT_PUBLIC_LCU_DOWNLOAD_ZIP_URL!
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Icons.Download className="size-4" />
-                    <span>{t("sidebar.downloadDesktopApp")}</span>
-                  </a>
-                </SidebarMenuButton>
-              )}
+              <SidebarMenuButton
+                variant="primary"
+                onClick={() => setDownloadDialogOpen(true)}
+              >
+                <Icons.Download className="size-4" />
+                <span>{t("sidebar.downloadDesktopApp")}</span>
+              </SidebarMenuButton>
             </SidebarMenuItem>
-          )}
-        </SidebarFooter>
-      </Sidebar>
-      {children}
-    </SidebarProvider>
+          </SidebarFooter>
+        </Sidebar>
+        {children}
+      </SidebarProvider>
+    </>
   );
 }

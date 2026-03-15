@@ -10,21 +10,14 @@ import {
 } from "@v1/ui/dropdown-menu";
 import { Icons } from "@v1/ui/icons";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useLocalePathname } from "@/hooks/use-locale-pathname";
 import { useScopedI18n } from "@/locales/client";
 
 const LOCALES = ["en", "pl"] as const;
 
-type Locale = (typeof LOCALES)[number];
-
 export function LocaleSwitcher({ className }: { className?: string }) {
   const t = useScopedI18n("locale");
-  const pathname = usePathname();
-
-  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, "$1") || "/";
-  const segment = pathname.split("/")[1] as Locale;
-
-  const currentLocale: Locale = LOCALES.includes(segment) ? segment : "en";
+  const { locale: currentLocale, pathWithoutLocale } = useLocalePathname();
 
   return (
     <DropdownMenu>

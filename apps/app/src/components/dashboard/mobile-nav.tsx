@@ -1,22 +1,35 @@
+"use client";
+
+import { Button } from "@v1/ui/button";
 import Link from "next/link";
-import { getScopedI18n } from "@/locales/server";
+import { useLocalePathname } from "@/hooks/use-locale-pathname";
+import { useScopedI18n } from "@/locales/client";
 import { PATHS } from "./nav";
 
-export async function MobileNav() {
-  const t = await getScopedI18n("dashboard");
+export function MobileNav() {
+  const t = useScopedI18n("dashboard");
+  const { pathWithoutLocale } = useLocalePathname();
+
+  function isActive(path: string): boolean {
+    if (path === "/") return pathWithoutLocale === "/";
+    return pathWithoutLocale.startsWith(path);
+  }
 
   return (
-    <div className="sticky bottom-0 bg-background border-t border-border h-12 p-2 md:hidden">
-      <div className="flex gap-4 h-full">
+    <div className="sticky bottom-0 bg-background border-t border-border py-2 md:hidden">
+      <div className="flex gap-4 h-full justify-evenly">
         {PATHS.map(({ path, label, Icon }) => (
-          <Link
+          <Button
             key={path}
-            href={path}
-            className="flex-1 grid place-items-center"
+            asChild
+            variant={isActive(path) ? "default" : "ghost"}
+            size="icon-lg"
           >
-            <Icon className="size-4" />
-            <span className="sr-only">{t(label)}</span>
-          </Link>
+            <Link href={path}>
+              <Icon className="size-4" />
+              <span className="sr-only">{t(label)}</span>
+            </Link>
+          </Button>
         ))}
       </div>
     </div>

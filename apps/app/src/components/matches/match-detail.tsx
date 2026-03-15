@@ -52,7 +52,7 @@ export default function MatchDetail({ match }: MatchDetailProps) {
     .sort((a, b) => b - a);
 
   return (
-    <div className="bg-muted/50 rounded-sm">
+    <div className="bg-background rounded-sm">
       <TeamTable
         teamName="Blue Team"
         team={blueTeamParticipants}

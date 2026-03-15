@@ -52,7 +52,7 @@ export default function MatchCard({
   return (
     <div
       className={cn(
-        "rounded-sm border-l-[6px] border-border bg-secondary/50 overflow-hidden flex items-stretch",
+        "rounded-sm border-l-[6px] border-border bg-background overflow-hidden flex items-stretch",
         playerParticipant && {
           "border-blue-600/80 bg-blue-600/10 dark:border-blue-400/80 dark:bg-blue-400/20":
             hasWon,

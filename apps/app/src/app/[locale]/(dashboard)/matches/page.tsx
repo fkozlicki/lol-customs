@@ -2,13 +2,13 @@ import { Suspense } from "react";
 import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
 import { getScopedI18n } from "@/locales/server";
-import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 function MatchHistorySkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 10 }).map((_, i) => (
-        <MatchCardSkeleton key={i} className="bg-secondary/50" />
+        <MatchCardSkeleton key={i} />
       ))}
     </div>
   );
@@ -16,17 +16,14 @@ function MatchHistorySkeleton() {
 
 export default async function MatchHistoryPage() {
   const t = await getScopedI18n("dashboard.pages.matchHistory");
-  const queryClient = getQueryClient();
-  await Promise.all([
-    queryClient.prefetchInfiniteQuery(
-      trpc.matches.list.infiniteQueryOptions(
-        { limit: 20 },
-        { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
-      ),
+  prefetch(
+    trpc.matches.list.infiniteQueryOptions(
+      { limit: 20 },
+      { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
     ),
-    queryClient.fetchQuery(trpc.datadragon.currentPatch.queryOptions()),
-    queryClient.fetchQuery(trpc.datadragon.championMap.queryOptions()),
-  ]);
+  );
+  prefetch(trpc.datadragon.currentPatch.queryOptions());
+  prefetch(trpc.datadragon.championMap.queryOptions());
 
   return (
     <HydrateClient>

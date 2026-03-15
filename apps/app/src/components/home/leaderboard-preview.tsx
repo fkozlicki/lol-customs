@@ -39,7 +39,7 @@ export function Leaderboard({ limit = 50 }: LeaderboardProps) {
   }
 
   return (
-    <div className="border rounded-2xl">
+    <div className="border rounded-2xl bg-background">
       <Table>
         <TableHeader>
           <TableRow className="text-muted-foreground border-b bg-muted/20 hover:bg-muted/20">
