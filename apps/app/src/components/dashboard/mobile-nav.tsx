@@ -2,18 +2,18 @@
 
 import { Button } from "@v1/ui/button";
 import Link from "next/link";
-import { useLocalePathname } from "@/hooks/use-locale-pathname";
+import { usePathname } from "next/navigation";
 import { useScopedI18n } from "@/locales/client";
 import { PATHS } from "./nav";
 
 export function MobileNav() {
   const t = useScopedI18n("dashboard");
-  const { pathWithoutLocale } = useLocalePathname();
+  const pathname = usePathname();
 
-  function isActive(path: string): boolean {
-    if (path === "/") return pathWithoutLocale === "/";
-    return pathWithoutLocale.startsWith(path);
-  }
+  const checkIfActivePath = (path: string): boolean => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
 
   return (
     <div className="sticky bottom-0 bg-background border-t border-border py-2 md:hidden">
@@ -22,7 +22,7 @@ export function MobileNav() {
           <Button
             key={path}
             asChild
-            variant={isActive(path) ? "default" : "ghost"}
+            variant={checkIfActivePath(path) ? "default" : "ghost"}
             size="icon-lg"
           >
             <Link href={path}>

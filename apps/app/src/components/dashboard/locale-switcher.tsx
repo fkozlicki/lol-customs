@@ -9,15 +9,17 @@ import {
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
 import { Icons } from "@v1/ui/icons";
-import Link from "next/link";
-import { useLocalePathname } from "@/hooks/use-locale-pathname";
-import { useScopedI18n } from "@/locales/client";
-
-const LOCALES = ["en", "pl"] as const;
+import { SUPPORTED_LOCALES } from "@/locales";
+import {
+  useChangeLocale,
+  useCurrentLocale,
+  useScopedI18n,
+} from "@/locales/client";
 
 export function LocaleSwitcher({ className }: { className?: string }) {
   const t = useScopedI18n("locale");
-  const { locale: currentLocale, pathWithoutLocale } = useLocalePathname();
+  const currentLocale = useCurrentLocale();
+  const changeLocale = useChangeLocale();
 
   return (
     <DropdownMenu>
@@ -28,7 +30,6 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           className={cn("gap-1.5 font-medium", className)}
           aria-label="Switch language"
         >
-          {/* {currentLabel} */}
           <div className="relative">
             <Icons.Locale className="size-4" />
             <div className="absolute -bottom-1 -right-1 rounded-full bg-background text-foreground uppercase font-bold text-[8px] px-px">
@@ -38,14 +39,9 @@ export function LocaleSwitcher({ className }: { className?: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {LOCALES.map((locale) => (
-          <DropdownMenuItem key={locale} asChild>
-            <Link
-              href={`/${locale}${pathWithoutLocale}`}
-              className={cn(currentLocale === locale && "bg-accent")}
-            >
-              {t(locale)}
-            </Link>
+        {SUPPORTED_LOCALES.map((locale) => (
+          <DropdownMenuItem key={locale} onClick={() => changeLocale(locale)}>
+            {t(locale)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

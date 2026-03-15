@@ -22,9 +22,9 @@ import {
   SidebarProvider,
 } from "@v1/ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { env } from "@/env.mjs";
-import { useLocalePathname } from "@/hooks/use-locale-pathname";
 import { useScopedI18n } from "@/locales/client";
 import { PATHS } from "./nav";
 
@@ -35,8 +35,13 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ children }: DashboardSidebarProps) {
   const t = useScopedI18n("dashboard");
-  const { checkIfActivePath } = useLocalePathname();
+  const pathname = usePathname();
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+
+  const checkIfActivePath = (path: string): boolean => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
 
   return (
     <>
