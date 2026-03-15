@@ -10,6 +10,7 @@ interface PlayerMetadataProps {
   scores: number[];
   totalKills: number;
   participants: MatchParticipant[];
+  isVictorious: boolean;
 }
 
 export function PlayerMetadata({
@@ -18,6 +19,7 @@ export function PlayerMetadata({
   scores,
   totalKills,
   participants,
+  isVictorious,
 }: PlayerMetadataProps) {
   const kdaRatio =
     ((participant.kills ?? 0) + (participant.assists ?? 0)) /
@@ -69,7 +71,10 @@ export function PlayerMetadata({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <MatchParticipantItems rawData={rawData} />
+          <MatchParticipantItems
+            rawData={rawData}
+            isVictorious={isVictorious}
+          />
           <MatchParticipantScore p={participant} scores={scores} hideScore />
         </div>
       </div>

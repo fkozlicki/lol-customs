@@ -36,7 +36,7 @@ export default function MatchCard({
     .sort((a, b) => b - a);
 
   const playerParticipant = participants.find((p) => p.puuid === puuid);
-  const hasWon = playerParticipant?.win === true;
+  const isVictorious = playerParticipant?.win === true;
   const rawData = rawParticipants.find(
     (par) => par.participantId === playerParticipant?.participant_id,
   );
@@ -55,9 +55,9 @@ export default function MatchCard({
         "rounded-sm border-l-[6px] border-border bg-background overflow-hidden flex items-stretch",
         playerParticipant && {
           "border-blue-600/80 bg-blue-600/10 dark:border-blue-400/80 dark:bg-blue-400/20":
-            hasWon,
+            isVictorious,
           "border-red-500/80 bg-red-500/10 dark:border-red-400/80 dark:bg-red-400/10":
-            !hasWon,
+            !isVictorious,
         },
       )}
     >
@@ -71,6 +71,7 @@ export default function MatchCard({
             scores={scores}
             totalKills={totalKills}
             participants={participants}
+            isVictorious={isVictorious}
           />
         ) : (
           <div className="flex justify-evenly items-center flex-1">
@@ -94,7 +95,6 @@ export default function MatchCard({
             playerParticipant={playerParticipant}
           />
 
-          {/* vs */}
           <span className="text-muted-foreground text-xs font-medium shrink-0 hidden sm:inline self-center">
             vs
           </span>
@@ -107,6 +107,7 @@ export default function MatchCard({
           />
         </div>
       </div>
+
       {/* Expand */}
       <div>
         <Button
@@ -116,9 +117,9 @@ export default function MatchCard({
             "h-full min-h-full rounded-none border-none",
             playerParticipant && {
               "bg-blue-600/10 dark:bg-blue-400/20 hover:bg-blue-600/20 dark:hover:bg-blue-400/30":
-                hasWon,
+                isVictorious,
               "bg-red-500/10 dark:bg-red-400/10 hover:bg-red-500/20 dark:hover:bg-red-400/20":
-                !hasWon,
+                !isVictorious,
             },
           )}
           onClick={onToggleExpand}
