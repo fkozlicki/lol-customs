@@ -17,7 +17,7 @@ interface PostDetailProps {
   postId: string;
 }
 
-export function PostDetail({ postId }: PostDetailProps) {
+export function PostDetails({ postId }: PostDetailProps) {
   const t = useScopedI18n("dashboard.pages.posts");
   const trpc = useTRPC();
   const { data: post } = useSuspenseQuery(

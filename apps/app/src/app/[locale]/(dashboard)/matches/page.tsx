@@ -1,18 +1,8 @@
 import { Suspense } from "react";
-import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
+import MatchHistorySkeleton from "@/components/matches/match-history-skeleton";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
-
-function MatchHistorySkeleton() {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <MatchCardSkeleton key={i} />
-      ))}
-    </div>
-  );
-}
 
 export default async function MatchHistoryPage() {
   const t = await getScopedI18n("dashboard.pages.matchHistory");

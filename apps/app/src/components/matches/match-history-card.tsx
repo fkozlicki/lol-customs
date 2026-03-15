@@ -1,5 +1,5 @@
 import MatchCard from "./match-card";
-import MatchDetail from "./match-detail";
+import MatchDetails from "./match-details";
 import type { Match } from "./match-history-list";
 
 interface MatchHistoryCardProps {
@@ -23,7 +23,7 @@ export default function MatchHistoryCard({
         onToggleExpand={() => toggleExpand(match.match_id)}
         puuid={puuid}
       />
-      {expandedMatchId === match.match_id && <MatchDetail match={match} />}
+      {expandedMatchId === match.match_id && <MatchDetails match={match} />}
     </div>
   );
 }

@@ -25,7 +25,7 @@ export function PlayerProfileHeader({
   const iconId = stats?.player?.profile_icon ?? null;
 
   return (
-    <div className="flex items-center gap-4 border-b p-6">
+    <div className="flex items-center gap-4 border-b p-6 bg-background">
       <ProfileIcon
         iconId={iconId}
         name={name}

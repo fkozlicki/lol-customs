@@ -9,7 +9,7 @@ interface MatchDetailProps {
   match: Match;
 }
 
-export default function MatchDetail({ match }: MatchDetailProps) {
+export default function MatchDetails({ match }: MatchDetailProps) {
   const participants = match.match_participants ?? [];
   const teams = match.teams ?? [];
   const blueTeamParticipants = participants.filter((p) => p.team_id === 100);
