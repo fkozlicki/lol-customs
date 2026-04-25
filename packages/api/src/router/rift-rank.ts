@@ -2,6 +2,12 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
+const afterGamesSchema = z.number().int().min(1).max(100_000);
+
+function toIsoDate(value: string): string {
+  return new Date(value).toISOString();
+}
+
 const hofTitleSchema = z.enum([
   "most_kills",
   "most_assists",
@@ -43,16 +49,116 @@ const hofTitleSchema = z.enum([
 ]);
 
 export const riftRankRouter = createTRPCRouter({
+  /** Row count in `matches` — drives the "1 … N, live" picker (same cardinality as ladder games if every row is one rated game). */
+  ladderRatedMatchCount: publicProcedure.query(async ({ ctx }) => {
+    const { count, error } = await ctx.supabase
+      .from("matches")
+      .select("*", { count: "exact", head: true });
+
+    if (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      });
+    }
+
+    const n = count ?? 0;
+    if (!Number.isFinite(n) || n < 0) {
+      return 0;
+    }
+    return Math.min(n, 100_000);
+  }),
+
   leaderboard: publicProcedure
     .input(
       z
         .object({
           limit: z.number().min(1).max(200).default(50),
+          afterGames: afterGamesSchema.optional(),
         })
         .optional(),
     )
     .query(async ({ ctx, input }) => {
       const limit = input?.limit ?? 50;
+      const afterGames = input?.afterGames;
+
+      if (afterGames) {
+        const offset = afterGames - 1;
+        const { data: matchRows, error: matchError } = await ctx.supabase
+          .from("matches")
+          .select("match_id")
+          .order("game_creation", { ascending: true })
+          .order("match_id", { ascending: true })
+          .range(offset, offset);
+
+        if (matchError) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: matchError.message,
+          });
+        }
+
+        const targetMatchId = matchRows?.[0]?.match_id;
+        if (targetMatchId == null) {
+          return [];
+        }
+
+        const { data: endSnapshot, error: endError } = await ctx.supabase
+          .from("rating_history")
+          .select("created_at")
+          .eq("match_id", targetMatchId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (endError) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: endError.message,
+          });
+        }
+
+        const snapshotAt = endSnapshot?.created_at;
+        if (!snapshotAt) {
+          return [];
+        }
+
+        const { data, error } = await ctx.supabase.rpc("leaderboard_at", {
+          p_at: toIsoDate(snapshotAt),
+          p_limit: limit,
+        });
+
+        if (error) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+
+        return (data ?? []).map((row) => ({
+          puuid: row.puuid,
+          rating: row.rating,
+          wins: row.wins,
+          losses: row.losses,
+          best_streak: row.best_streak,
+          win_streak: row.win_streak,
+          lose_streak: row.lose_streak,
+          updated_at: row.updated_at,
+          avg_kills: row.avg_kills,
+          avg_deaths: row.avg_deaths,
+          avg_assists: row.avg_assists,
+          mvp_games: row.mvp_games,
+          ace_games: row.ace_games,
+          player: {
+            puuid: row.puuid,
+            game_name: row.game_name,
+            tag_line: row.tag_line,
+            profile_icon: row.profile_icon,
+            platform_id: row.platform_id,
+          },
+        }));
+      }
+
       const { data, error } = await ctx.supabase
         .from("ratings")
         .select(
