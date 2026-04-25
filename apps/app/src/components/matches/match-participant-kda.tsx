@@ -1,3 +1,5 @@
+import { cn } from "@v1/ui/cn";
+import { formatKdaRatio } from "@/utils/stats";
 import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantKDAProps {
@@ -12,7 +14,7 @@ export default function MatchParticipantKDA({
   const killParticipation = Math.round(
     (((p.kills ?? 0) + (p.assists ?? 0)) / totalKills) * 100,
   );
-  const kdaRatio = ((p.kills ?? 0) + (p.assists ?? 0)) / (p.deaths ?? 0);
+  const kdaRatio = formatKdaRatio(p.kills, p.deaths, p.assists);
 
   return (
     <div className="flex flex-col gap-0.5 items-center">
@@ -20,11 +22,14 @@ export default function MatchParticipantKDA({
         {p.kills ?? 0}/{p.deaths ?? 0}/{p.assists ?? 0} ({killParticipation}
         %)
       </span>
-      {kdaRatio === Infinity ? (
-        <span className="text-xs text-amber-500 font-semibold">Perfect</span>
-      ) : (
-        <span className="text-xs">{kdaRatio.toFixed(2)}</span>
-      )}
+
+      <span
+        className={cn("text-xs", {
+          "text-amber-500 font-semibold": kdaRatio === "Perfect",
+        })}
+      >
+        {kdaRatio}
+      </span>
     </div>
   );
 }

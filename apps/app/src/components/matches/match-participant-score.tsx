@@ -31,7 +31,9 @@ export default function MatchParticipantScore({
 
   return (
     <div className="flex items-center justify-center gap-1">
-      {!hideScore && <span className="text-xs font-bold">{opScore}</span>}
+      {!hideScore && (
+        <span className="text-xs font-bold">{opScore.toFixed(1)}</span>
+      )}
       {p.is_mvp && (
         <span
           className={cn(

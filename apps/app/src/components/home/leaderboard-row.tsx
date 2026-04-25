@@ -7,6 +7,7 @@ import { TableCell, TableRow } from "@v1/ui/table";
 import Link from "next/link";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
+import { formatKda, formatKdaRatio, formatWinrate } from "@/utils/stats";
 import { BestStreak } from "./best-streak";
 import CurrentStreak from "./current-streak";
 import RankBadge from "./rank-badge";
@@ -16,38 +17,6 @@ type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
 interface LeaderboardRowProps {
   row: LeaderboardRow;
   index: number;
-}
-
-function winrate(wins: number | null, losses: number | null): string {
-  if (wins == null || losses == null) return "—";
-  const total = wins + losses;
-  if (total === 0) return "0%";
-  return `${Math.round((wins / total) * 100)}%`;
-}
-
-function formatKdaStat(value: number): string {
-  return value.toFixed(1).replace(/\.0$/, "");
-}
-
-function formatKda(
-  avgKills: number | null,
-  avgDeaths: number | null,
-  avgAssists: number | null,
-): string {
-  if (avgKills == null && avgDeaths == null && avgAssists == null) return "—";
-  const k = formatKdaStat(avgKills ?? 0);
-  const d = formatKdaStat(avgDeaths ?? 0);
-  const a = formatKdaStat(avgAssists ?? 0);
-  return `${k} / ${d} / ${a}`;
-}
-
-function calculateKda(
-  avgKills: number | null,
-  avgDeaths: number | null,
-  avgAssists: number | null,
-): number {
-  if (avgKills == null && avgDeaths == null && avgAssists == null) return 0;
-  return ((avgKills ?? 0) + (avgAssists ?? 0)) / (avgDeaths ?? 1);
 }
 
 export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
@@ -123,7 +92,7 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
       <TableCell className="px-4 py-3 text-center">
         <div className=" flex flex-col items-center">
           <span className="font-medium text-xs">
-            {winrate(row.wins, row.losses)}
+            {formatWinrate(row.wins, row.losses)}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {row.wins ?? 0}/{row.losses ?? 0}
@@ -133,12 +102,7 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
       <TableCell className="px-4 py-3">
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium">
-            {calculateKda(
-              row.avg_kills,
-              row.avg_deaths,
-              row.avg_assists,
-            ).toFixed(2)}
-            :1
+            {formatKdaRatio(row.avg_kills, row.avg_deaths, row.avg_assists)}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {formatKda(row.avg_kills, row.avg_deaths, row.avg_assists)}

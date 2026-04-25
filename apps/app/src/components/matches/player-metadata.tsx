@@ -1,3 +1,5 @@
+import { cn } from "@v1/ui/cn";
+import { formatKdaRatio } from "@/utils/stats";
 import { ChampionImage } from "../game-assets/champion-image";
 import { AverageRank } from "./average-rank";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";
@@ -21,9 +23,11 @@ export function PlayerMetadata({
   participants,
   isVictorious,
 }: PlayerMetadataProps) {
-  const kdaRatio =
-    ((participant.kills ?? 0) + (participant.assists ?? 0)) /
-    (participant.deaths ?? 0);
+  const kdaRatio = formatKdaRatio(
+    participant.kills,
+    participant.deaths,
+    participant.assists,
+  );
 
   const slash = () => (
     <span className="text-lg font-medium text-muted-foreground">/</span>
@@ -55,8 +59,12 @@ export function PlayerMetadata({
                 <span className="text-red-500">{participant.deaths ?? 0}</span>{" "}
                 {slash()} {participant.assists ?? 0}
               </span>
-              <span className="text-xs text-muted-foreground font-medium">
-                {kdaRatio.toFixed(2)}:1 KDA
+              <span
+                className={cn("text-xs text-muted-foreground font-medium", {
+                  "text-amber-500 font-semibold": kdaRatio === "Perfect",
+                })}
+              >
+                {kdaRatio} KDA
               </span>
             </div>
           </div>
