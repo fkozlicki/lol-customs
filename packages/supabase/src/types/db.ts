@@ -280,22 +280,52 @@ export type Database = {
       };
       rating_history: {
         Row: {
+          ace_games: number | null;
+          avg_assists: number | null;
+          avg_deaths: number | null;
+          avg_kills: number | null;
+          best_streak: number | null;
           created_at: string | null;
+          lose_streak: number | null;
+          losses: number | null;
           match_id: number;
+          mvp_games: number | null;
           puuid: string;
           rating_after: number | null;
+          win_streak: number | null;
+          wins: number | null;
         };
         Insert: {
+          ace_games?: number | null;
+          avg_assists?: number | null;
+          avg_deaths?: number | null;
+          avg_kills?: number | null;
+          best_streak?: number | null;
           created_at?: string | null;
+          lose_streak?: number | null;
+          losses?: number | null;
           match_id: number;
+          mvp_games?: number | null;
           puuid: string;
           rating_after?: number | null;
+          win_streak?: number | null;
+          wins?: number | null;
         };
         Update: {
+          ace_games?: number | null;
+          avg_assists?: number | null;
+          avg_deaths?: number | null;
+          avg_kills?: number | null;
+          best_streak?: number | null;
           created_at?: string | null;
+          lose_streak?: number | null;
+          losses?: number | null;
           match_id?: number;
+          mvp_games?: number | null;
           puuid?: string;
           rating_after?: number | null;
+          win_streak?: number | null;
+          wins?: number | null;
         };
         Relationships: [
           {
@@ -622,7 +652,12 @@ export type Database = {
         Returns: undefined;
       };
       _compute_op_scores_timeline: {
-        Args: { p_match_id: number; v_duration_sec: number; v_timeline: Json };
+        Args: {
+          p_match_id: number;
+          v_cadence_sec: number;
+          v_duration_sec: number;
+          v_timeline: Json;
+        };
         Returns: undefined;
       };
       apply_rating_update_for_match: {
@@ -634,11 +669,33 @@ export type Database = {
         Returns: undefined;
       };
       compute_player_streaks: {
-        Args: { p_puuid: string };
+        Args: { p_puuid: string; p_as_of?: string };
         Returns: {
           best_streak: number;
           lose_streak: number;
           win_streak: number;
+        }[];
+      };
+      leaderboard_at: {
+        Args: { p_at: string; p_limit?: number };
+        Returns: {
+          ace_games: number;
+          avg_assists: number | null;
+          avg_deaths: number | null;
+          avg_kills: number | null;
+          best_streak: number | null;
+          game_name: string | null;
+          lose_streak: number | null;
+          losses: number;
+          mvp_games: number;
+          platform_id: string | null;
+          profile_icon: number | null;
+          puuid: string;
+          rating: number;
+          tag_line: string | null;
+          updated_at: string | null;
+          win_streak: number | null;
+          wins: number;
         }[];
       };
     };
