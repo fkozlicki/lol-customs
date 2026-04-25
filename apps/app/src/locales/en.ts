@@ -63,6 +63,8 @@ export default {
         tableAce: "ACE",
         tableStreak: "Streak",
         tableBest: "Best",
+        historyLive: "live",
+        afterGames: "After {count} games",
         rank1st: "1st",
         rank2nd: "2nd",
         rank3rd: "3rd",

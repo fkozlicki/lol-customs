@@ -64,6 +64,8 @@ export default {
         tableAce: "ACE",
         tableStreak: "Seria",
         tableBest: "Rekord",
+        historyLive: "Na żywo",
+        afterGames: "Po {count} grach",
         rank1st: "1.",
         rank2nd: "2.",
         rank3rd: "3.",

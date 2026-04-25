@@ -12,17 +12,42 @@ import {
 } from "@v1/ui/table";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
+import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
 import LeaderboardRow from "./leaderboard-row";
 
 interface LeaderboardProps {
   limit?: number;
+  after?: number;
 }
 
-export function Leaderboard({ limit = 50 }: LeaderboardProps) {
+function parseAfterGames(
+  totalMatches: number,
+  value: number | undefined,
+): number | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  const maxAfter = maxHistoricallyAfterGames(totalMatches);
+  if (!Number.isInteger(value) || value < 1 || maxAfter < 1) {
+    return undefined;
+  }
+  return Math.min(value, maxAfter);
+}
+
+export function Leaderboard({ limit = 50, after }: LeaderboardProps) {
   const t = useScopedI18n("dashboard.pages.leaderboard");
   const trpc = useTRPC();
+  const { data: gamesPlayed = 0 } = useSuspenseQuery(
+    trpc.riftRank.ladderRatedMatchCount.queryOptions(),
+  );
+
+  const afterGames = parseAfterGames(gamesPlayed, after);
+
   const { data: leaderboard } = useSuspenseQuery(
-    trpc.riftRank.leaderboard.queryOptions({ limit }),
+    trpc.riftRank.leaderboard.queryOptions({
+      limit,
+      afterGames,
+    }),
   );
 
   if (!leaderboard?.length) {
