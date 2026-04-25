@@ -72,87 +72,141 @@ Zmiana jest więc ograniczona do ±24 punktów na mecz.
 
 ## Formuła OP Score
 
-OP Score to **wynik gry w skali 0–10** dla każdego uczestnika meczu. Obliczany jest na dwa sposoby w zależności od tego, czy dostępne są **dane timeline**.
+OP Score to wynik gry **w skali 0–10** dla każdego uczestnika meczu, przechowywany jako `numeric(5, 3)` — UI pokazuje jedno miejsce po przecinku, a ranking oraz wybór MVP/ACE używają pełnych trzech miejsc.
 
-### Gdy brak lub nieprawidłowy timeline (fallback)
+Wynik to **ważona suma czterech filarów**, każdy w \([0, 1]\):
 
-Wszystko opiera się wyłącznie na **statystykach końcowych**. Wszystkie metryki są normalizowane do \([0, 1]\) przez **maksimum w meczu** (najlepsza wartość w meczu = 1).
+- **Walka (C)** — wpływ na teamfighty, obrażenia, udział w zabójstwach, „smart KDA”.
+- **Ekonomia (E)** — zdobyte złoto i CS/min, normalizowane **w obrębie tej samej roli**.
+- **Utility (U)** — wizja, crowd control, tankowanie / mitygacja, obrażenia do struktur.
+- **Timeline (T)** — progresja ważona czasem z kotwicą na końcu meczu. `T` jest pomijane w ścieżce fallback (gdy brak klatek timeline).
 
-1. **Współczynnik KDA**  
-   \( \text{KDA} = \frac{K + A}{\max(D, 1)} \).  
-   Normalizacja: \( \text{kda\_norm} = \min\bigl(1,\ \text{KDA} / \max_{\text{mecz}}(\text{KDA})\bigr) \).
+Normalizacje używają wartości **w obrębie meczu**. Tam gdzie mianownik mógłby być zerem, używamy niewielkiego floora, żeby niezerowy zawodnik pozostał na szczycie swojego filaru. Każdy składnik jest ograniczony do \([0, 1]\).
 
-2. **Udział w zabójstwach (KP)**  
-   \( \text{KP} = \frac{K + A}{\text{suma zabójstw drużyny}} \).  
-   Już w \([0,1]\): \( \text{kp\_norm} = \min(1, \text{KP}) \).
+### Cztery filary
 
-3. **Udział w obrażeniach**  
-   Udział = twoje obrażenia do bohaterów / suma obrażeń drużyny do bohaterów.  
-   Normalizacja przez maks. udział w meczu: \( \text{dmg\_norm} = \min(1,\ \text{udział} / \max_{\text{mecz}}(\text{udział}) \).
+Niech `duration_min = duration_sec / 60` i dla gracza z drużyny `t` niech `team_dmg`, `team_taken`, `team_mitig`, `team_kills` oznaczają sumę po 5 kolegach. Dla każdego udziału dzielimy przez wartość drużyny i obcinamy do \([0, 1]\).
 
-4. **CS na minutę**  
-   \( \text{CS/min} = \frac{\text{suma CS}}{\text{czas gry w minutach}} \).  
-   Normalizacja: \( \text{cs\_norm} = \min(1,\ \text{CS/min} / \max_{\text{mecz}}(\text{CS/min}) \).
-
-5. **Punkty wizji**  
-   Normalizacja: \( \text{vision\_norm} = \min(1,\ \text{vision} / \max_{\text{mecz}}(\text{vision}) \).
-
-**OP Score (fallback):**
+#### Walka
 
 \[
-\text{OP Score} = \text{round}\Bigl(10 \cdot \bigl(0{,}25\cdot\text{kda\_norm} + 0{,}25\cdot\text{kp\_norm} + 0{,}25\cdot\text{dmg\_norm} + 0{,}15\cdot\text{cs\_norm} + 0{,}10\cdot\text{vision\_norm}\bigr),\ 1\Bigr).
+C = 0{,}45 \cdot \operatorname{clip}\!\left(\tfrac{\text{dmg\_share}}{\max_{\text{mecz}}\text{dmg\_share}}\right)
+  + 0{,}35 \cdot \operatorname{clip}\!\left(\tfrac{K + A}{\text{team\_kills}}\right)
+  + 0{,}20 \cdot \operatorname{clip}\!\left(\tfrac{(K + 0{,}75 A)/\max(D, 1)}{\max_{\text{mecz}}(\cdot)}\right).
 \]
 
-Wynik jest z przedziału \([0, 10]\) z jednym miejscem po przecinku.
+#### Ekonomia (uczciwa rolowo)
 
----
-
-### Gdy timeline jest dostępny (co 5 minut, uwzględnienie roli)
-
-Mecz jest dzielony na **okna 5-minutowe** (5, 10, 15, … minut). Dla każdego takiego momentu bierzemy klatkę timeline najbliższą temu czasowi i liczymy **wynik snapshotu** z danych dostępnych wtedy. Następnie uśredniamy te snapshoty i łączymy z końcowym udziałem w obrażeniach i wizji.
-
-#### Snapshot co 5 minut
-
-W każdym momencie 5-min mamy dla gracza:
-
-- **Gold, XP, CS** (miniony + dżungla) z tej klatki.
-- **K, D, A** oraz **zabójstwa drużyny** ze wszystkich zdarzeń do tego czasu → współczynnik KDA i KP w tym momencie.
-
-Normalizacja:
-
-- **Gold, XP, CS** są normalizowane **w ramach roli** (np. junglerzy do junglerów, lanerzy do lanerów), żeby żadna rola nie była karana za inny styl farmienia. Dla każdego (czas, rola) bierzemy max gold, max XP, max CS w tej roli i ustawiamy:
-  - \( \text{gold\_norm} = \min(1,\ \text{gold} / \max_{\text{ta sama rola}}(\text{gold}) \),
-  - analogicznie **xp_norm** i **cs_norm**.
-- **KDA** i **KP** w tym momencie są normalizowane przez **maksimum w meczu** w tym momencie (wspólne dla wszystkich ról).
-
-Wynik snapshotu dla danego okna (średnia z pięciu składowych 0–1):
+Każdy gracz trafia do koszyka roli (niżej). Dla `(mecz, rola)` bierzemy maksimum roli dla złota i CS/min.
 
 \[
-\text{snapshot} = \frac{\text{gold\_norm} + \text{xp\_norm} + \text{cs\_norm} + \text{kda\_norm} + \text{kp\_norm}}{5}.
+E = 0{,}55 \cdot \operatorname{clip}\!\left(\tfrac{\text{gold\_earned}}{\max_{\text{rola}}(\text{gold\_earned})}\right)
+  + 0{,}45 \cdot \operatorname{clip}\!\left(\tfrac{\text{CS/min}}{\max_{\text{rola}}(\text{CS/min})}\right).
 \]
 
-#### Wynik timeline (średnia po oknach 5-min)
+#### Utility
 
 \[
-\text{timeline\_score} = \frac{1}{N} \sum_{\text{okna 5-min}} \text{snapshot},
+U = 0{,}30 \cdot \operatorname{clip}\!\left(\tfrac{\text{vision/min}}{\max_{\text{mecz}}(\cdot)}\right)
+  + 0{,}25 \cdot \operatorname{clip}\!\left(\tfrac{\text{time\_ccing\_others}}{\max_{\text{mecz}}(\cdot)}\right)
+  + 0{,}30 \cdot \operatorname{clip}\!\left(\tfrac{\max(\text{dmg\_taken\_share},\ \text{self\_mitig\_share})}{\max_{\text{mecz}}(\cdot)}\right)
+  + 0{,}15 \cdot \operatorname{clip}\!\left(\tfrac{\text{turret\_kills} + \text{inhibitor\_kills}}{\max_{\text{mecz}}(\cdot)}\right).
 \]
 
-gdzie \( N \) to liczba okien 5-minutowych w meczu. Zatem \( \text{timeline\_score} \in [0, 1] \).
+#### Timeline
 
-#### Końcowe obrażenia i wizja
+Snapshoty przy `t = cadence, 2·cadence, …` oraz jeden dodatkowy zakotwiczony na `t = duration_sec` (koniec gry). `cadence = 300s` na Summoner's Rift i `180s` na ARAM (`map_id = 12` lub kolejka 100 / 450 / 900 / 920).
 
-- **dmg_norm** = twój udział w obrażeniach (twoje / drużyny) podzielony przez maksymalny udział w meczu, z ograniczeniem do 1.
-- **vision_norm** = twoje punkty wizji podzielone przez maksymalne punkty wizji w meczu, z ograniczeniem do 1.
+Dla każdego snapshotu bierzemy najbliższą klatkę timeline i obliczamy:
 
-#### Końcowy OP Score (ścieżka z timeline)
+- `eco_snap = (gold_role_norm + xp_role_norm + cs_role_norm) / 3` z maksami roli per-snapshot.
+- `combat_snap = (kda_norm + kp_norm) / 2` z eventów kumulatywnych do `target_ts`, normalizowane globalnym maksem per-snapshot.
+- `snap = 0,55 · eco_snap + 0,45 · combat_snap`.
+
+Późniejsze snapshoty ważą więcej, tak aby kotwica końcowa dominowała:
 
 \[
-\text{OP Score} = \text{round}\Bigl(10 \cdot \bigl(0{,}75\cdot\text{timeline\_score} + 0{,}15\cdot\text{dmg\_norm} + 0{,}10\cdot\text{vision\_norm}\bigr),\ 1\Bigr).
+w(t) = 0{,}5 + \tfrac{t}{\text{duration\_sec}},\qquad
+T = \tfrac{\sum_i w_i \cdot \text{snap}_i}{\sum_i w_i}.
 \]
 
-Czyli **75%** pochodzi z timeline (gold/XP/CS/KDA/KP w trakcie meczu), **15%** z końcowego udziału w obrażeniach, **10%** z końcowej wizji.
+`w(wczesne) ≈ 0,5…1,0` rośnie liniowo do `w(koniec) = 1,5`, więc finalny snapshot liczy się mniej więcej 3× bardziej niż otwarcie — bez zupełnego dominowania progresji.
 
-#### MVP i ACE
+### Koszyki ról
 
-- **MVP** = gracz z najwyższym OP Score w **wygranej** drużynie.
-- **ACE** = gracz z najwyższym OP Score w **przegranej** drużynie.
+Wyznaczane w SQL z `match_participants.role` (Riot `timeline.role`) i `match_participants.lane` (Riot `timeline.lane`), z CS-owym tiebreakerem dla niejednoznacznych duetów BOTTOM i heurystyką neutralnych minionów dla jungle.
+
+| Reguła | Koszyk |
+|--------|--------|
+| `role = 'DUO_SUPPORT'` | SUPPORT |
+| `role = 'DUO_CARRY'` | CARRY |
+| `lane = 'JUNGLE'` lub `neutral_minions >= 60` | JUNGLE |
+| `lane = 'BOTTOM'` i `minions < 50` | SUPPORT |
+| `lane = 'BOTTOM'` i `minions >= 50` | CARRY |
+| `lane = 'MIDDLE'` | MID |
+| `lane = 'TOP'` | TOP |
+| w przeciwnym razie | UNKNOWN |
+
+### Wagi filarów zależne od roli (suma = 1 na rolę)
+
+| Rola | w_C | w_E | w_U | w_T |
+|------|-----|-----|-----|-----|
+| CARRY   | 0{,}40 | 0{,}27 | 0{,}10 | 0{,}23 |
+| MID     | 0{,}40 | 0{,}25 | 0{,}12 | 0{,}23 |
+| TOP     | 0{,}33 | 0{,}25 | 0{,}19 | 0{,}23 |
+| JUNGLE  | 0{,}33 | 0{,}22 | 0{,}22 | 0{,}23 |
+| SUPPORT | 0{,}25 | 0{,}12 | 0{,}40 | 0{,}23 |
+| UNKNOWN | 0{,}35 | 0{,}25 | 0{,}17 | 0{,}23 |
+
+`T` ma stałą wartość **0,23** we wszystkich rolach: progresja jest sygnałem pomocniczym, nie głównym. Żaden filar nie przekracza 0,40 dla żadnej roli, więc nikt nie zostanie MVP wyłącznie na jednym wymiarze bez przyzwoitej gry w pozostałych.
+
+### Końcowy wynik
+
+\[
+\text{OP Score} = \operatorname{round}\!\left(10 \cdot \left(w_C\,C + w_E\,E + w_U\,U + w_T\,T\right),\ 3\right),
+\]
+
+zapisany jako `numeric(5, 3)`. UI zaokrągla do jednego miejsca dla wyświetlenia; ranking / MVP używa pełnej precyzji.
+
+### Fallback (brak klatek timeline lub duration krótszy niż cadence)
+
+`T` jest pominięte, a jego 0,23 jest rozdzielone proporcjonalnie między `C`, `E`, `U`:
+
+| Rola | w_C | w_E | w_U |
+|------|-----|-----|-----|
+| CARRY   | 0{,}52 | 0{,}35 | 0{,}13 |
+| MID     | 0{,}52 | 0{,}32 | 0{,}16 |
+| TOP     | 0{,}43 | 0{,}32 | 0{,}25 |
+| JUNGLE  | 0{,}43 | 0{,}29 | 0{,}28 |
+| SUPPORT | 0{,}32 | 0{,}16 | 0{,}52 |
+| UNKNOWN | 0{,}46 | 0{,}32 | 0{,}22 |
+
+\[
+\text{OP Score} = \operatorname{round}\!\left(10 \cdot \left(w_C\,C + w_E\,E + w_U\,U\right),\ 3\right).
+\]
+
+### MVP / ACE (deterministyczne)
+
+W ramach podziału wygrana/przegrana:
+
+1. `op_score DESC`
+2. `(w_C · C + w_U · U) DESC` — wpływ walki + utility
+3. `dmg_share DESC`
+4. `vision_per_min DESC`
+5. `participant_id ASC`
+
+`MVP = rn 1` w drużynie wygrywającej, `ACE = rn 1` w drużynie przegrywającej. Przy trzech miejscach po przecinku i czterech znormalizowanych filarach prawdziwe remisy są praktycznie niemożliwe; pozostałe klucze gwarantują ścisły, totalny porządek.
+
+### Dlaczego to jest lepsze niż stare 75 / 15 / 10
+
+- **Wizja nie jest już stałym 10%.** Wkład wizji u carry to `w_U × 0,30 ≈ 3%`; u supporta `0,40 × 0,30 = 12%` — zgodnie z tym, na czym każdej roli faktycznie zależy.
+- **Koniec gry liczy się pierwszorzędnie.** `C + E + U` stanowi 77% wyniku we wszystkich rolach (vs. 25% wcześniej) i korzysta ze statystyk, które wcześniej ignorowaliśmy (CC, tankowanie, obiektywy).
+- **Timeline to progresja, nie cała historia.** 23% z wagą czasu i kotwicą końcową zamiast 75% płaskiej średniej, która gubiła ostatnie `duration % cadence` minut.
+- **Uczciwość wobec ról.** Support może wygrać wizją / CC / tankowaniem; tank na mitygacji + CC; carry na obrażeniach + zabójstwach + złocie.
+
+### Literatura / inspiracje
+
+- OP.GG — [OP Score explained](https://help.op.gg/hc/en-us/articles/31088715328665-OP-Score-explained).
+- LoL Tracker — [MVP Score explanation](https://www.lol-tracker.com/mvp-score-explanation) (explicit pillars).
+- Spectral.gg — [MVP formula](https://spectral.gg/docs/mvp_formula) (role factors, late-game weighting).
+- PandaSkill — [arXiv 2501.10049](https://arxiv.org/abs/2501.10049) (role-isolated modeling).

@@ -72,87 +72,141 @@ So the change is capped at ±24 points per game.
 
 ## OP Score formula
 
-OP Score is a **0–10** performance score for each participant in a match. It is computed in two ways depending on whether **timeline data** is available.
+OP Score is a **0–10** performance score for each participant in a match, stored as `numeric(5, 3)` so the UI can display one decimal while the leaderboard and MVP/ACE ordering use the full three-decimal precision.
 
-### When timeline is missing or invalid (fallback)
+The score is a **weighted sum of four pillars**, each mapped to \([0, 1]\):
 
-Everything is based on **end-of-game** stats only. All metrics are normalized to \([0, 1]\) by the **match maximum** (best value in that match = 1).
+- **Combat (C)** — teamfight impact, damage, kill participation, smart KDA.
+- **Economy (E)** — gold earned and CS/min, normalized **within the same role bucket**.
+- **Utility (U)** — vision, crowd control, tanking / mitigation, structure damage.
+- **Timeline (T)** — time-weighted progression across cadence snapshots plus an explicit game-end anchor. `T` is omitted in the fallback path (no timeline frames).
 
-1. **KDA ratio**  
-   \( \text{KDA} = \frac{K + A}{\max(D, 1)} \).  
-   Normalized: \( \text{kda\_norm} = \min\bigl(1,\ \text{KDA} / \max_{\text{match}}(\text{KDA})\bigr) \).
+All normalizations use **within-match** bounds. Where the denominator would be zero, we clamp to a tiny positive floor so any non-zero player stays at the top of their pillar. Every term is clipped to \([0, 1]\).
 
-2. **Kill participation**  
-   \( \text{KP} = \frac{K + A}{\text{team total kills}} \).  
-   Already in \([0,1]\): \( \text{kp\_norm} = \min(1, \text{KP}) \).
+### Four pillars
 
-3. **Damage share**  
-   Damage share = your damage to champs / your team’s total damage to champs.  
-   Normalized by match max share: \( \text{dmg\_norm} = \min(1,\ \text{share} / \max_{\text{match}}(\text{share}) \).
+Let `duration_min = duration_sec / 60` and, for a player on team `t`, `team_dmg`, `team_taken`, `team_mitig`, `team_kills` be the sum over all 5 teammates. For every ratio we divide by the team value and clip to \([0, 1]\).
 
-4. **CS per minute**  
-   \( \text{CS/min} = \frac{\text{total CS}}{\text{game duration in minutes}} \).  
-   Normalized: \( \text{cs\_norm} = \min(1,\ \text{CS/min} / \max_{\text{match}}(\text{CS/min}) \).
-
-5. **Vision score**  
-   Normalized: \( \text{vision\_norm} = \min(1,\ \text{vision} / \max_{\text{match}}(\text{vision}) \).
-
-**Fallback OP Score:**
+#### Combat
 
 \[
-\text{OP Score} = \text{round}\Bigl(10 \cdot \bigl(0.25\cdot\text{kda\_norm} + 0.25\cdot\text{kp\_norm} + 0.25\cdot\text{dmg\_norm} + 0.15\cdot\text{cs\_norm} + 0.10\cdot\text{vision\_norm}\bigr),\ 1\Bigr).
+C = 0.45 \cdot \operatorname{clip}\!\left(\tfrac{\text{dmg\_share}}{\max_{\text{match}}\text{dmg\_share}}\right)
+  + 0.35 \cdot \operatorname{clip}\!\left(\tfrac{K + A}{\text{team\_kills}}\right)
+  + 0.20 \cdot \operatorname{clip}\!\left(\tfrac{(K + 0.75 A)/\max(D, 1)}{\max_{\text{match}}(\cdot)}\right).
 \]
 
-So the result is in \([0, 10]\) with one decimal place.
+#### Economy (role-fair)
 
----
-
-### When timeline is available (every 5 minutes, role-fair)
-
-The game is split into **5-minute windows** (5, 10, 15, … minutes). For each such time we take the timeline frame closest to that time and compute a **snapshot score** from data available then. We then average these snapshots and blend with end-of-game damage and vision.
-
-#### Per 5-minute snapshot
-
-At each 5-min mark we have, per player:
-
-- **Gold, XP, CS** (minions + jungle) from that frame.
-- **K, D, A** and **team kills** from all events up to that time → KDA ratio and KP at that moment.
-
-Normalization:
-
-- **Gold, XP, CS** are normalized **within role** (e.g. compare junglers to junglers, laners to laners) so no role is penalized for different farm patterns. For each (time, role), we take the max gold, max XP, max CS in that role and set:
-  - \( \text{gold\_norm} = \min(1,\ \text{gold} / \max_{\text{same role}}(\text{gold}) \),
-  - and similarly for **xp_norm** and **cs_norm**.
-- **KDA** and **KP** at that time are normalized by the **match** maximum at that time (same for all roles).
-
-Snapshot score for that time window (average of five 0–1 components):
+Each participant is mapped to a role bucket (see below). For `(match, role)` we take the role-local max for gold and CS/min.
 
 \[
-\text{snapshot} = \frac{\text{gold\_norm} + \text{xp\_norm} + \text{cs\_norm} + \text{kda\_norm} + \text{kp\_norm}}{5}.
+E = 0.55 \cdot \operatorname{clip}\!\left(\tfrac{\text{gold\_earned}}{\max_{\text{role}}(\text{gold\_earned})}\right)
+  + 0.45 \cdot \operatorname{clip}\!\left(\tfrac{\text{CS/min}}{\max_{\text{role}}(\text{CS/min})}\right).
 \]
 
-#### Timeline score (average over 5-min windows)
+#### Utility
 
 \[
-\text{timeline\_score} = \frac{1}{N} \sum_{\text{5-min windows}} \text{snapshot},
+U = 0.30 \cdot \operatorname{clip}\!\left(\tfrac{\text{vision/min}}{\max_{\text{match}}(\cdot)}\right)
+  + 0.25 \cdot \operatorname{clip}\!\left(\tfrac{\text{time\_ccing\_others}}{\max_{\text{match}}(\cdot)}\right)
+  + 0.30 \cdot \operatorname{clip}\!\left(\tfrac{\max(\text{dmg\_taken\_share},\ \text{self\_mitig\_share})}{\max_{\text{match}}(\cdot)}\right)
+  + 0.15 \cdot \operatorname{clip}\!\left(\tfrac{\text{turret\_kills} + \text{inhibitor\_kills}}{\max_{\text{match}}(\cdot)}\right).
 \]
 
-where \( N \) is the number of 5-minute windows in the game. So \( \text{timeline\_score} \in [0, 1] \).
+#### Timeline
 
-#### End-of-game damage and vision
+Snapshots at `t = cadence, 2·cadence, …` plus one extra snapshot anchored at `t = duration_sec` (the end of the game). `cadence = 300s` on Summoner's Rift and `180s` on ARAM (`map_id = 12` or queue 100 / 450 / 900 / 920).
 
-- **dmg_norm** = your damage share (your damage / team damage) divided by the match maximum of that share, capped at 1.
-- **vision_norm** = your vision score divided by the match maximum vision score, capped at 1.
+For each snapshot we take the closest timeline frame and compute:
 
-#### Final OP Score (timeline path)
+- `eco_snap = (gold_role_norm + xp_role_norm + cs_role_norm) / 3` with role-local per-snapshot maxes.
+- `combat_snap = (kda_norm + kp_norm) / 2` from events cumulative up to `target_ts`, normalized by the global per-snapshot max.
+- `snap = 0.55 · eco_snap + 0.45 · combat_snap`.
+
+Later snapshots are weighted more so the end-game anchor dominates:
 
 \[
-\text{OP Score} = \text{round}\Bigl(10 \cdot \bigl(0.75\cdot\text{timeline\_score} + 0.15\cdot\text{dmg\_norm} + 0.10\cdot\text{vision\_norm}\bigr),\ 1\Bigr).
+w(t) = 0.5 + \tfrac{t}{\text{duration\_sec}},\qquad
+T = \tfrac{\sum_i w_i \cdot \text{snap}_i}{\sum_i w_i}.
 \]
 
-So **75%** comes from the timeline (gold/XP/CS/KDA/KP over the game), **15%** from end-of-game damage share, and **10%** from end-of-game vision.
+`w(early) ≈ 0.5…1.0` rises linearly to `w(end) = 1.5`, so the final snapshot counts roughly 3× an opening one without ever fully drowning out progression.
 
-#### MVP and ACE
+### Role buckets
 
-- **MVP** = player with the highest OP Score on the **winning** team.
-- **ACE** = player with the highest OP Score on the **losing** team.
+Derived in SQL from `match_participants.role` (Riot `timeline.role`) and `match_participants.lane` (Riot `timeline.lane`), with a CS tiebreaker for ambiguous BOTTOM duos and a neutral-minion heuristic for jungle detection.
+
+| Rule | Bucket |
+|------|--------|
+| `role = 'DUO_SUPPORT'` | SUPPORT |
+| `role = 'DUO_CARRY'` | CARRY |
+| `lane = 'JUNGLE'` or `neutral_minions >= 60` | JUNGLE |
+| `lane = 'BOTTOM'` and `minions < 50` | SUPPORT |
+| `lane = 'BOTTOM'` and `minions >= 50` | CARRY |
+| `lane = 'MIDDLE'` | MID |
+| `lane = 'TOP'` | TOP |
+| otherwise | UNKNOWN |
+
+### Role-aware pillar weights (sum to 1 per role)
+
+| Role | w_C | w_E | w_U | w_T |
+|------|-----|-----|-----|-----|
+| CARRY   | 0.40 | 0.27 | 0.10 | 0.23 |
+| MID     | 0.40 | 0.25 | 0.12 | 0.23 |
+| TOP     | 0.33 | 0.25 | 0.19 | 0.23 |
+| JUNGLE  | 0.33 | 0.22 | 0.22 | 0.23 |
+| SUPPORT | 0.25 | 0.12 | 0.40 | 0.23 |
+| UNKNOWN | 0.35 | 0.25 | 0.17 | 0.23 |
+
+`T` is fixed at **0.23** across roles: progression is a supporting signal, not the main story. No pillar ever exceeds 0.40 for any role, so nobody can single-handedly top MVP without decent play elsewhere.
+
+### Final composite
+
+\[
+\text{OP Score} = \operatorname{round}\!\left(10 \cdot \left(w_C\,C + w_E\,E + w_U\,U + w_T\,T\right),\ 3\right),
+\]
+
+stored as `numeric(5, 3)`. The UI rounds to one decimal for display; the leaderboard / MVP logic uses the stored value.
+
+### Fallback (no timeline frames or duration below cadence)
+
+`T` is omitted and its 0.23 is redistributed proportionally across `C`, `E`, `U`:
+
+| Role | w_C | w_E | w_U |
+|------|-----|-----|-----|
+| CARRY   | 0.52 | 0.35 | 0.13 |
+| MID     | 0.52 | 0.32 | 0.16 |
+| TOP     | 0.43 | 0.32 | 0.25 |
+| JUNGLE  | 0.43 | 0.29 | 0.28 |
+| SUPPORT | 0.32 | 0.16 | 0.52 |
+| UNKNOWN | 0.46 | 0.32 | 0.22 |
+
+\[
+\text{OP Score} = \operatorname{round}\!\left(10 \cdot \left(w_C\,C + w_E\,E + w_U\,U\right),\ 3\right).
+\]
+
+### MVP / ACE (deterministic)
+
+Within each team's win/loss partition:
+
+1. `op_score DESC`
+2. `(w_C · C + w_U · U) DESC` — combat + utility impact
+3. `dmg_share DESC`
+4. `vision_per_min DESC`
+5. `participant_id ASC`
+
+`MVP = rn 1` on the winning team, `ACE = rn 1` on the losing team. With three decimals of precision and four normalized pillars, true ties are effectively eliminated; the remaining tie-breakers guarantee a strict total order.
+
+### Why this is better than the old 75 / 15 / 10 blend
+
+- **Vision is no longer a flat 10%.** A carry's vision contribution is `w_U × 0.30 ≈ 3%`; a support's is `0.40 × 0.30 = 12%` — in line with what each role actually cares about.
+- **End-game matters first.** `C + E + U` carry 77% of the score across roles (vs. 25% before) and use stats we previously ignored (CC, tanking, objectives).
+- **Timeline is progression, not the whole story.** 23% with time-weighting and an explicit end-of-game anchor instead of 75% of a sparse flat mean that dropped the last `duration % cadence` minutes entirely.
+- **Role fairness.** Supports can win on vision / CC / tanking; tanks on mitigation + CC; carries on damage + kills + gold.
+
+### Research references
+
+- OP.GG — [OP Score explained](https://help.op.gg/hc/en-us/articles/31088715328665-OP-Score-explained).
+- LoL Tracker — [MVP Score explanation](https://www.lol-tracker.com/mvp-score-explanation) (explicit pillars).
+- Spectral.gg — [MVP formula](https://spectral.gg/docs/mvp_formula) (role factors, late-game weighting).
+- PandaSkill — [arXiv 2501.10049](https://arxiv.org/abs/2501.10049) (role-isolated modeling).
