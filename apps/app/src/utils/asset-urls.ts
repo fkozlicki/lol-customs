@@ -9,6 +9,17 @@ const CDRAGON_RANK_CRESTS =
 const CDRAGON_RANK_EMBLEMS =
   "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/";
 
+const CDRAGON_POSITION_ICONS =
+  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/";
+
+const POSITION_ROLE_FILES: Record<string, string> = {
+  TOP: "icon-position-top.png",
+  JUNGLE: "icon-position-jungle.png",
+  MID: "icon-position-middle.png",
+  ADC: "icon-position-bottom.png",
+  SUPPORT: "icon-position-utility.png",
+};
+
 const RANK_TIERS = new Set([
   "iron",
   "bronze",
@@ -53,4 +64,10 @@ export function rankEmblemUrl(tier: string | null): string {
   return RANK_TIERS.has(normalized)
     ? `${CDRAGON_RANK_EMBLEMS}emblem-${normalized}.png`
     : `${CDRAGON_RANK_EMBLEMS}emblem-unranked.png`;
+}
+
+/** Clash position-selector icons (top / jungle / middle / bottom / utility). */
+export function positionRoleIconUrl(role: string): string {
+  const file = POSITION_ROLE_FILES[role] ?? "icon-position-none.png";
+  return `${CDRAGON_POSITION_ICONS}${file}`;
 }

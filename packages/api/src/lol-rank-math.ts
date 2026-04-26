@@ -1,3 +1,5 @@
+/** Solo/Duo tier + division → numeric ladder position (shared match logic). */
+
 export const RANK_TIER_ORDER = [
   "IRON",
   "BRONZE",
@@ -10,6 +12,7 @@ export const RANK_TIER_ORDER = [
   "GRANDMASTER",
   "CHALLENGER",
 ] as const;
+
 export const RANK_DIVISION_ORDER = ["IV", "III", "II", "I"] as const;
 
 export function rankToNumeric(
@@ -47,7 +50,6 @@ export function numericToRank(n: number): { tier: string; division: string } {
   return { tier, division } as { tier: string; division: string };
 }
 
-/** Solo/Duo tier snapshots → display label + tier for crests (matches server lol-rank-math). */
 export function averageSoloRankMeta(
   snapshots: { tier: string | null; division: string | null }[],
 ): { label: string; tier: string | null } {
@@ -69,13 +71,17 @@ export function averageSoloRankMeta(
   return { label, tier };
 }
 
-export function averageGameRank(
-  participants: { rank_tier: string | null; rank_division: string | null }[],
+export function averageSoloRankLabel(
+  snapshots: { tier: string | null; division: string | null }[],
 ): string {
-  return averageSoloRankMeta(
-    participants.map((p) => ({
-      tier: p.rank_tier,
-      division: p.rank_division,
-    })),
-  ).label;
+  return averageSoloRankMeta(snapshots).label;
+}
+
+export function formatSoloRankDisplay(
+  tier: string,
+  rankDivision: string,
+): string {
+  const apex = ["MASTER", "GRANDMASTER", "CHALLENGER"];
+  if (apex.includes(tier.toUpperCase())) return tier;
+  return `${tier} ${rankDivision}`.trim();
 }

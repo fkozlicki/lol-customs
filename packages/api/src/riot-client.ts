@@ -6,8 +6,31 @@
 const RIOT_PLATFORM_BASE = "https://{platform}.api.riotgames.com";
 const RIOT_REGIONAL_BASE = "https://{region}.api.riotgames.com";
 
+const RANK_CACHE_TTL_MS = 60_000;
+const rankCache = new Map<string, { at: number; data: RiotLeagueEntry[] }>();
+
 /** Account API (regional: europe, americas, asia, sea) */
 export type RiotRegion = "europe" | "americas" | "asia" | "sea";
+
+/** Map platform host (e.g. eun1, na1) to Account API region. */
+export function platformIdToRegion(platformId: string): RiotRegion {
+  const upper = (platformId ?? "").toUpperCase();
+  if (["EUN1", "EUW1", "TR1", "RU"].some((p) => upper.startsWith(p))) {
+    return "europe";
+  }
+  if (["NA1", "BR1", "LA1", "LA2"].some((p) => upper.startsWith(p))) {
+    return "americas";
+  }
+  if (["KR", "JP1"].some((p) => upper.startsWith(p))) {
+    return "asia";
+  }
+  if (
+    ["OC1", "PH2", "SG2", "TH2", "TW2", "VN2"].some((p) => upper.startsWith(p))
+  ) {
+    return "sea";
+  }
+  return "europe";
+}
 
 export interface RiotAccount {
   puuid: string;
@@ -56,6 +79,28 @@ function getApiKey(): string {
   return key;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Retry 429 with Retry-After (capped) a few times before surfacing. */
+async function fetchWithRiot429Retry(
+  doFetch: () => Promise<Response>,
+  maxAttempts = 3,
+): Promise<Response> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const res = await doFetch();
+    if (res.status !== 429) return res;
+    if (attempt === maxAttempts - 1) return res;
+    const ra = res.headers.get("retry-after") ?? res.headers.get("Retry-After");
+    const delaySec = ra
+      ? Math.min(5, Math.max(0.5, Number.parseFloat(ra) || 1))
+      : 1;
+    await sleep(Math.round(delaySec * 1000));
+  }
+  throw new Error("Riot API: retry loop exhausted");
+}
+
 async function riotFetchPlatform<T>(
   platformId: string,
   path: string,
@@ -63,9 +108,11 @@ async function riotFetchPlatform<T>(
   const base = RIOT_PLATFORM_BASE.replace("{platform}", platformId);
   const url = `${base}${path}`;
   const key = getApiKey();
-  const res = await fetch(url, {
-    headers: { "X-Riot-Token": key },
-  });
+  const res = await fetchWithRiot429Retry(() =>
+    fetch(url, {
+      headers: { "X-Riot-Token": key },
+    }),
+  );
   if (!res.ok) {
     if (res.status === 404) return null as T;
     throw new Error(`Riot API ${res.status}: ${res.statusText}`);
@@ -80,14 +127,51 @@ async function riotFetchRegion<T>(
   const base = RIOT_REGIONAL_BASE.replace("{region}", region);
   const url = `${base}${path}`;
   const key = getApiKey();
-  const res = await fetch(url, {
-    headers: { "X-Riot-Token": key },
-  });
+  const res = await fetchWithRiot429Retry(() =>
+    fetch(url, {
+      headers: { "X-Riot-Token": key },
+    }),
+  );
   if (!res.ok) {
     if (res.status === 404) return null as T;
     throw new Error(`Riot API ${res.status}: ${res.statusText}`);
   }
   return res.json() as Promise<T>;
+}
+
+/**
+ * Run async work on items with at most `concurrency` in flight (order preserved).
+ */
+export async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let nextIndex = 0;
+  const limit = Math.max(1, Math.floor(concurrency));
+
+  async function worker(): Promise<void> {
+    while (true) {
+      const i = nextIndex++;
+      if (i >= items.length) return;
+      results[i] = await mapper(items[i] as T, i);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () =>
+    worker(),
+  );
+  await Promise.all(workers);
+  return results;
+}
+
+function rankCacheKey(
+  gameName: string,
+  tagLine: string,
+  platformId: string,
+): string {
+  return `${gameName.trim().toLowerCase()}#${tagLine.trim().toLowerCase()}@${platformId.trim().toLowerCase()}`;
 }
 
 /**
@@ -120,10 +204,29 @@ export async function getRankedEntriesByPuuid(
   return entries ?? [];
 }
 
+async function fetchPlayerRankByRiotIdFromApi(
+  gameName: string,
+  tagLine: string,
+  options?: {
+    region?: RiotRegion;
+    platformId?: string;
+  },
+): Promise<RiotLeagueEntry[]> {
+  const platformId = options?.platformId ?? "eun1";
+  const region = options?.region ?? platformIdToRegion(platformId);
+
+  const account = await getAccountByRiotId(region, gameName, tagLine);
+  if (!account) return [];
+
+  return getRankedEntriesByPuuid(account.puuid, platformId);
+}
+
 /**
  * Get ranked entries for a player by Riot ID (gameName#tagLine).
  * 1. riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine} → puuid
  * 2. lol/league/v4/entries/by-puuid/{puuid} → entries
+ *
+ * Short in-memory TTL cache to reduce duplicate Riot calls (same process).
  */
 export async function getPlayerRankByRiotId(
   gameName: string,
@@ -133,13 +236,18 @@ export async function getPlayerRankByRiotId(
     platformId?: string;
   },
 ): Promise<RiotLeagueEntry[]> {
-  const region = options?.region ?? "europe";
-  const platformId = options?.platformId ?? "eun1";
-
-  const account = await getAccountByRiotId(region, gameName, tagLine);
-  if (!account) return [];
-
-  return getRankedEntriesByPuuid(account.puuid, platformId);
+  const platformId = (options?.platformId ?? "eun1").trim().toLowerCase();
+  const key = rankCacheKey(gameName, tagLine, platformId);
+  const hit = rankCache.get(key);
+  if (hit && Date.now() - hit.at < RANK_CACHE_TTL_MS) {
+    return hit.data.slice();
+  }
+  const data = await fetchPlayerRankByRiotIdFromApi(gameName, tagLine, {
+    ...options,
+    platformId,
+  });
+  rankCache.set(key, { at: Date.now(), data: data.slice() });
+  return data.slice();
 }
 
 /**
