@@ -89,10 +89,13 @@ Let `duration_min = duration_sec / 60` and, for a player on team `t`, `team_dmg`
 
 #### Combat
 
+Lobby max kills \(\max_{\text{match}} K\) (floored at 1) scales raw kill volume alongside team shares:
+
 \[
-C = 0.45 \cdot \operatorname{clip}\!\left(\tfrac{\text{dmg\_share}}{\max_{\text{match}}\text{dmg\_share}}\right)
-  + 0.35 \cdot \operatorname{clip}\!\left(\tfrac{K + A}{\text{team\_kills}}\right)
-  + 0.20 \cdot \operatorname{clip}\!\left(\tfrac{(K + 0.75 A)/\max(D, 1)}{\max_{\text{match}}(\cdot)}\right).
+C = 0.32 \cdot \operatorname{clip}\!\left(\tfrac{\text{dmg\_share}}{\max_{\text{match}}\text{dmg\_share}}\right)
+  + 0.28 \cdot \operatorname{clip}\!\left(\tfrac{K + A}{\text{team\_kills}}\right)
+  + 0.22 \cdot \operatorname{clip}\!\left(\tfrac{(K + 0.75 A)/\max(D, 1)}{\max_{\text{match}}(\cdot)}\right)
+  + 0.18 \cdot \operatorname{clip}\!\left(\tfrac{K}{\max_{\text{match}} K}\right).
 \]
 
 #### Economy (role-fair)
@@ -107,9 +110,9 @@ E = 0.55 \cdot \operatorname{clip}\!\left(\tfrac{\text{gold\_earned}}{\max_{\tex
 #### Utility
 
 \[
-U = 0.30 \cdot \operatorname{clip}\!\left(\tfrac{\text{vision/min}}{\max_{\text{match}}(\cdot)}\right)
-  + 0.25 \cdot \operatorname{clip}\!\left(\tfrac{\text{time\_ccing\_others}}{\max_{\text{match}}(\cdot)}\right)
-  + 0.30 \cdot \operatorname{clip}\!\left(\tfrac{\max(\text{dmg\_taken\_share},\ \text{self\_mitig\_share})}{\max_{\text{match}}(\cdot)}\right)
+U = 0.38 \cdot \operatorname{clip}\!\left(\tfrac{\text{vision/min}}{\max_{\text{match}}(\cdot)}\right)
+  + 0.22 \cdot \operatorname{clip}\!\left(\tfrac{\text{time\_ccing\_others}}{\max_{\text{match}}(\cdot)}\right)
+  + 0.25 \cdot \operatorname{clip}\!\left(\tfrac{\max(\text{dmg\_taken\_share},\ \text{self\_mitig\_share})}{\max_{\text{match}}(\cdot)}\right)
   + 0.15 \cdot \operatorname{clip}\!\left(\tfrac{\text{turret\_kills} + \text{inhibitor\_kills}}{\max_{\text{match}}(\cdot)}\right).
 \]
 
@@ -134,9 +137,13 @@ T = \tfrac{\sum_i w_i \cdot \text{snap}_i}{\sum_i w_i}.
 
 ### Role buckets
 
-Derived in SQL from `match_participants.role` (Riot `timeline.role`) and `match_participants.lane` (Riot `timeline.lane`), with a CS tiebreaker for ambiguous BOTTOM duos and a neutral-minion heuristic for jungle detection.
+Effective bucket `_op_effective_role_bucket` (SQL):
 
-| Rule | Bucket |
+1. **Summoner's Rift + exactly 10 participants** (`matches.map_id = 11` and 10 rows in `match_participants`): fixed **lobby slot** from Riot `participantId` (custom 5v5 seat order): ids **1–5** and **6–10** each map **TOP → JUNGLE → MID → CARRY → SUPPORT**. If `participant_id` is missing or outside 1–10, fall back to the Riot heuristic below.
+2. **Exactly 10 participants but not SR** (any other `map_id`): **UNKNOWN** for everyone (avoid wrong lane weights on other maps).
+3. **Otherwise** (not 10 players, or no match row): Riot heuristic from `match_participants.role` / `lane` via `_op_role_bucket` — CS tiebreaker for ambiguous BOTTOM duos, neutral-minion floor for jungle.
+
+| Rule (heuristic fallback `_op_role_bucket`) | Bucket |
 |------|--------|
 | `role = 'DUO_SUPPORT'` | SUPPORT |
 | `role = 'DUO_CARRY'` | CARRY |
@@ -151,14 +158,14 @@ Derived in SQL from `match_participants.role` (Riot `timeline.role`) and `match_
 
 | Role | w_C | w_E | w_U | w_T |
 |------|-----|-----|-----|-----|
-| CARRY   | 0.40 | 0.27 | 0.10 | 0.23 |
-| MID     | 0.40 | 0.25 | 0.12 | 0.23 |
+| CARRY   | 0.42 | 0.25 | 0.10 | 0.23 |
+| MID     | 0.42 | 0.23 | 0.12 | 0.23 |
 | TOP     | 0.33 | 0.25 | 0.19 | 0.23 |
 | JUNGLE  | 0.33 | 0.22 | 0.22 | 0.23 |
 | SUPPORT | 0.25 | 0.12 | 0.40 | 0.23 |
 | UNKNOWN | 0.35 | 0.25 | 0.17 | 0.23 |
 
-`T` is fixed at **0.23** across roles: progression is a supporting signal, not the main story. No pillar ever exceeds 0.40 for any role, so nobody can single-handedly top MVP without decent play elsewhere.
+`T` is fixed at **0.23** across roles: progression is a supporting signal, not the main story. Carry/mid combat weights are capped at **0.42** for `w_C` so damage and kills still share the score with economy, utility, and timeline.
 
 ### Final composite
 
@@ -174,8 +181,8 @@ stored as `numeric(5, 3)`. The UI rounds to one decimal for display; the leaderb
 
 | Role | w_C | w_E | w_U |
 |------|-----|-----|-----|
-| CARRY   | 0.52 | 0.35 | 0.13 |
-| MID     | 0.52 | 0.32 | 0.16 |
+| CARRY   | 0.54 | 0.33 | 0.13 |
+| MID     | 0.54 | 0.30 | 0.16 |
 | TOP     | 0.43 | 0.32 | 0.25 |
 | JUNGLE  | 0.43 | 0.29 | 0.28 |
 | SUPPORT | 0.32 | 0.16 | 0.52 |
@@ -192,10 +199,13 @@ Within each team's win/loss partition:
 1. `op_score DESC`
 2. `(w_C · C + w_U · U) DESC` — combat + utility impact
 3. `dmg_share DESC`
-4. `vision_per_min DESC`
-5. `participant_id ASC`
+4. **`kills DESC`**
+5. `vision_per_min DESC`
+6. `participant_id ASC`
 
-`MVP = rn 1` on the winning team, `ACE = rn 1` on the losing team. With three decimals of precision and four normalized pillars, true ties are effectively eliminated; the remaining tie-breakers guarantee a strict total order.
+`MVP = rn 1` on the winning team, `ACE = rn 1` on the losing team. After assignment, **MVP's stored `op_score` is set to at least the ACE's `op_score`** on that match (`greatest(mvp, ace)`), so MVP never ranks below ACE on the score column.
+
+With three decimals of precision and four normalized pillars, true ties are rare; the tie-breakers above give a strict total order within each partition.
 
 ### Why this is better than the old 75 / 15 / 10 blend
 

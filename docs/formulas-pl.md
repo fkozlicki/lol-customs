@@ -89,10 +89,13 @@ Niech `duration_min = duration_sec / 60` i dla gracza z drużyny `t` niech `team
 
 #### Walka
 
+Maksymalna liczba zabójstw w meczu \(\max_{\text{mecz}} K\) (minimum 1) skaluje surowe zabójstwa obok udziałów drużynowych:
+
 \[
-C = 0{,}45 \cdot \operatorname{clip}\!\left(\tfrac{\text{dmg\_share}}{\max_{\text{mecz}}\text{dmg\_share}}\right)
-  + 0{,}35 \cdot \operatorname{clip}\!\left(\tfrac{K + A}{\text{team\_kills}}\right)
-  + 0{,}20 \cdot \operatorname{clip}\!\left(\tfrac{(K + 0{,}75 A)/\max(D, 1)}{\max_{\text{mecz}}(\cdot)}\right).
+C = 0{,}32 \cdot \operatorname{clip}\!\left(\tfrac{\text{dmg\_share}}{\max_{\text{mecz}}\text{dmg\_share}}\right)
+  + 0{,}28 \cdot \operatorname{clip}\!\left(\tfrac{K + A}{\text{team\_kills}}\right)
+  + 0{,}22 \cdot \operatorname{clip}\!\left(\tfrac{(K + 0{,}75 A)/\max(D, 1)}{\max_{\text{mecz}}(\cdot)}\right)
+  + 0{,}18 \cdot \operatorname{clip}\!\left(\tfrac{K}{\max_{\text{mecz}} K}\right).
 \]
 
 #### Ekonomia (uczciwa rolowo)
@@ -107,9 +110,9 @@ E = 0{,}55 \cdot \operatorname{clip}\!\left(\tfrac{\text{gold\_earned}}{\max_{\t
 #### Utility
 
 \[
-U = 0{,}30 \cdot \operatorname{clip}\!\left(\tfrac{\text{vision/min}}{\max_{\text{mecz}}(\cdot)}\right)
-  + 0{,}25 \cdot \operatorname{clip}\!\left(\tfrac{\text{time\_ccing\_others}}{\max_{\text{mecz}}(\cdot)}\right)
-  + 0{,}30 \cdot \operatorname{clip}\!\left(\tfrac{\max(\text{dmg\_taken\_share},\ \text{self\_mitig\_share})}{\max_{\text{mecz}}(\cdot)}\right)
+U = 0{,}38 \cdot \operatorname{clip}\!\left(\tfrac{\text{vision/min}}{\max_{\text{mecz}}(\cdot)}\right)
+  + 0{,}22 \cdot \operatorname{clip}\!\left(\tfrac{\text{time\_ccing\_others}}{\max_{\text{mecz}}(\cdot)}\right)
+  + 0{,}25 \cdot \operatorname{clip}\!\left(\tfrac{\max(\text{dmg\_taken\_share},\ \text{self\_mitig\_share})}{\max_{\text{mecz}}(\cdot)}\right)
   + 0{,}15 \cdot \operatorname{clip}\!\left(\tfrac{\text{turret\_kills} + \text{inhibitor\_kills}}{\max_{\text{mecz}}(\cdot)}\right).
 \]
 
@@ -134,9 +137,13 @@ T = \tfrac{\sum_i w_i \cdot \text{snap}_i}{\sum_i w_i}.
 
 ### Koszyki ról
 
-Wyznaczane w SQL z `match_participants.role` (Riot `timeline.role`) i `match_participants.lane` (Riot `timeline.lane`), z CS-owym tiebreakerem dla niejednoznacznych duetów BOTTOM i heurystyką neutralnych minionów dla jungle.
+Efektywny koszyk `_op_effective_role_bucket` (SQL):
 
-| Reguła | Koszyk |
+1. **Summoner's Rift + dokładnie 10 uczestników** (`matches.map_id = 11` i 10 wierszy w `match_participants`): stałe **miejsce w lobby** z Riot `participantId` (kolejność miejsc w customie 5v5): id **1–5** i **6–10** → każda piątka **TOP → JUNGLE → MID → CARRY → SUPPORT**. Gdy brak `participant_id` lub poza 1–10 — heurystyka Riot poniżej.
+2. **Dokładnie 10 graczy, ale nie SR** (inny `map_id`): **UNKNOWN** dla wszystkich.
+3. **Pozostałe przypadki**: heurystyka Riot z `role` / `lane` przez `_op_role_bucket` — tiebreaker CS dla BOTTOM, próg neutralnych minionów dla jungle.
+
+| Reguła (fallback `_op_role_bucket`) | Koszyk |
 |--------|--------|
 | `role = 'DUO_SUPPORT'` | SUPPORT |
 | `role = 'DUO_CARRY'` | CARRY |
@@ -151,14 +158,14 @@ Wyznaczane w SQL z `match_participants.role` (Riot `timeline.role`) i `match_par
 
 | Rola | w_C | w_E | w_U | w_T |
 |------|-----|-----|-----|-----|
-| CARRY   | 0{,}40 | 0{,}27 | 0{,}10 | 0{,}23 |
-| MID     | 0{,}40 | 0{,}25 | 0{,}12 | 0{,}23 |
+| CARRY   | 0{,}42 | 0{,}25 | 0{,}10 | 0{,}23 |
+| MID     | 0{,}42 | 0{,}23 | 0{,}12 | 0{,}23 |
 | TOP     | 0{,}33 | 0{,}25 | 0{,}19 | 0{,}23 |
 | JUNGLE  | 0{,}33 | 0{,}22 | 0{,}22 | 0{,}23 |
 | SUPPORT | 0{,}25 | 0{,}12 | 0{,}40 | 0{,}23 |
 | UNKNOWN | 0{,}35 | 0{,}25 | 0{,}17 | 0{,}23 |
 
-`T` ma stałą wartość **0,23** we wszystkich rolach: progresja jest sygnałem pomocniczym, nie głównym. Żaden filar nie przekracza 0,40 dla żadnej roli, więc nikt nie zostanie MVP wyłącznie na jednym wymiarze bez przyzwoitej gry w pozostałych.
+`T` ma stałą wartość **0,23** we wszystkich rolach: progresja jest sygnałem pomocniczym, nie głównym. Wagi walki dla carry/mid są ograniczone do **0,42** dla `w_C`, żeby obrażenia i zabójstwa nadal dzieliły wynik z ekonomią, utility i timeline.
 
 ### Końcowy wynik
 
@@ -174,8 +181,8 @@ zapisany jako `numeric(5, 3)`. UI zaokrągla do jednego miejsca dla wyświetleni
 
 | Rola | w_C | w_E | w_U |
 |------|-----|-----|-----|
-| CARRY   | 0{,}52 | 0{,}35 | 0{,}13 |
-| MID     | 0{,}52 | 0{,}32 | 0{,}16 |
+| CARRY   | 0{,}54 | 0{,}33 | 0{,}13 |
+| MID     | 0{,}54 | 0{,}30 | 0{,}16 |
 | TOP     | 0{,}43 | 0{,}32 | 0{,}25 |
 | JUNGLE  | 0{,}43 | 0{,}29 | 0{,}28 |
 | SUPPORT | 0{,}32 | 0{,}16 | 0{,}52 |
@@ -192,10 +199,13 @@ W ramach podziału wygrana/przegrana:
 1. `op_score DESC`
 2. `(w_C · C + w_U · U) DESC` — wpływ walki + utility
 3. `dmg_share DESC`
-4. `vision_per_min DESC`
-5. `participant_id ASC`
+4. **`kills DESC`**
+5. `vision_per_min DESC`
+6. `participant_id ASC`
 
-`MVP = rn 1` w drużynie wygrywającej, `ACE = rn 1` w drużynie przegrywającej. Przy trzech miejscach po przecinku i czterech znormalizowanych filarach prawdziwe remisy są praktycznie niemożliwe; pozostałe klucze gwarantują ścisły, totalny porządek.
+`MVP = rn 1` w drużynie wygrywającej, `ACE = rn 1` w drużynie przegrywającej. Po wyborze **wynik MVP w kolumnie `op_score` jest podbijany do co najmniej wyniku ACE** w tym meczu (`greatest(mvp, ace)`), żeby MVP nigdy nie miała niższego OP niż ACE.
+
+Przy trzech miejscach po przecinku remisy są rzadkie; powyższe klucze dają ścisły porządek w obrębie każdej partycji.
 
 ### Dlaczego to jest lepsze niż stare 75 / 15 / 10
 
