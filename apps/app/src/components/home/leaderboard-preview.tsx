@@ -80,6 +80,9 @@ export function Leaderboard({ limit = 50, after }: LeaderboardProps) {
             <TableHead className="w-14 px-4 py-3 text-center">
               {t("tableWr")}
             </TableHead>
+            <TableHead className="w-14 px-4 py-3 text-center">
+              {t("tableGamesPlayed")}
+            </TableHead>
             <TableHead className="w-28 px-4 py-3 text-center">
               {t("tableKda")}
             </TableHead>

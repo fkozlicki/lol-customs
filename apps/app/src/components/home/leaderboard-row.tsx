@@ -90,12 +90,18 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
       </TableCell>
 
       <TableCell className="px-4 py-3 text-center">
+        <span className="font-medium text-xs">
+          {formatWinrate(row.wins, row.losses)}
+        </span>
+      </TableCell>
+      <TableCell className="px-4 py-3 text-center">
         <div className=" flex flex-col items-center">
           <span className="font-medium text-xs">
-            {formatWinrate(row.wins, row.losses)}
+            {(row.wins ?? 0) + (row.losses ?? 0)}
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {row.wins ?? 0}/{row.losses ?? 0}
+            <span className="text-green-700">{row.wins ?? 0}</span>/
+            <span className="text-red-700">{row.losses ?? 0}</span>
           </span>
         </div>
       </TableCell>

@@ -21,6 +21,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@v1/ui/sidebar";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -79,9 +80,18 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
       <SidebarProvider>
         <Sidebar className="lg:flex">
           <SidebarHeader>
-            <span className="font-semibold text-foreground">
-              {t("sidebar.appName")}
-            </span>
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/jasper.jpg"
+                alt="Derby"
+                width={28}
+                height={28}
+                className="rounded"
+              />
+              <span className="font-semibold text-foreground">
+                {t("sidebar.appName")}
+              </span>
+            </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
