@@ -669,7 +669,7 @@ export type Database = {
         Returns: undefined;
       };
       compute_player_streaks: {
-        Args: { p_puuid: string; p_as_of?: string };
+        Args: { p_puuid: string; p_through_match_id: number };
         Returns: {
           best_streak: number;
           lose_streak: number;
