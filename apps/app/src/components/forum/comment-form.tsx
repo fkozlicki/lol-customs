@@ -5,7 +5,10 @@ import { Button } from "@v1/ui/button";
 import { toast } from "@v1/ui/sonner";
 import { useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { RichTextEditor, type RichTextEditorHandle } from "@/components/forum/rich-text-editor";
+import {
+  RichTextEditor,
+  type RichTextEditorHandle,
+} from "@/components/forum/rich-text-editor";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 

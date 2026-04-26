@@ -37,8 +37,13 @@ interface RichTextEditorProps {
   userId: string;
 }
 
-export const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
-  function RichTextEditor({ onChange, placeholder = "Write something...", userId }, ref) {
+export const RichTextEditor = forwardRef<
+  RichTextEditorHandle,
+  RichTextEditorProps
+>(function RichTextEditor(
+  { onChange, placeholder = "Write something...", userId },
+  ref,
+) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
 
