@@ -2,6 +2,7 @@
 
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
+import { ScrollArea, ScrollBar } from "@v1/ui/scroll-area";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useScopedI18n } from "@/locales/client";
 import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
@@ -33,20 +34,23 @@ export default function LeaderboardHistoryPicker({
   return (
     <div className={cn("border rounded-lg overflow-hidden", className)}>
       <div className="flex items-center">
-        <div className="overflow-x-auto flex items-center">
-          {gameOptions.map((gameCount) => (
-            <Button
-              key={gameCount}
-              type="button"
-              size="xl"
-              variant={after === gameCount ? "default" : "outline"}
-              onClick={() => setAfter(gameCount)}
-              className="w-16 rounded-none border-0 border-r"
-            >
-              {gameCount}
-            </Button>
-          ))}
-        </div>
+        <ScrollArea className="overflow-x-auto">
+          <div className="flex items-center">
+            {gameOptions.map((gameCount) => (
+              <Button
+                key={gameCount}
+                type="button"
+                size="xl"
+                variant={after === gameCount ? "default" : "outline"}
+                onClick={() => setAfter(gameCount)}
+                className="w-16 rounded-none border-0 border-r"
+              >
+                {gameCount}
+              </Button>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
         <Button
           type="button"
           size="xl"

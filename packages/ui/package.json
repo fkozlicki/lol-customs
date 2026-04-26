@@ -49,7 +49,8 @@
     "./combobox": "./src/components/combobox.tsx",
     "./progress": "./src/components/progress.tsx",
     "./dropdown-menu": "./src/components/dropdown-menu.tsx",
-    "./chart": "./src/components/chart.tsx"
+    "./chart": "./src/components/chart.tsx",
+    "./scroll-area": "./src/components/scroll-area.tsx"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
