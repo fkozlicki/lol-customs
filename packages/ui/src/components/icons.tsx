@@ -73,6 +73,7 @@ export const Icons = {
   ListOrdered,
   Image,
   Locale: Globe,
+  Captain: Crown,
 };
 
 export type { LucideIcon } from "lucide-react";

@@ -144,10 +144,11 @@ function TeamTable({
               <RoleIcon role={p.role} label={roleLabel(t, p.role)} />
             </div>
 
-            <div className="flex-1">
-              <span className="text-foreground inline-flex items-center gap-1.5 font-medium">
-                {p.gameName}
-              </span>
+            <div className="inline-flex items-center gap-1.5 flex-1">
+              <span className="text-foreground font-medium">{p.gameName}</span>
+              {p.isCaptain && (
+                <Icons.Captain className="size-4 text-amber-500" />
+              )}
             </div>
 
             <SoloRankDisplay
