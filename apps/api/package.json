@@ -5,6 +5,7 @@
     "dev": "supabase start",
     "login": "supabase login",
     "stop": "supabase stop",
+    "push": "supabase db push",
     "migrate": "supabase migration up",
     "seed": "supabase db seed generate && supabase db seed run",
     "seed:from-remote": "supabase db dump --linked --data-only -f supabase/seeds/remote-data.sql",
