@@ -219,7 +219,7 @@ export default {
           myPassed:
             "Zrobiłeś pass — gracz czeka, aż przeciwnik zlicytuje lub oboje zrobicie pass.",
           iAmBroke:
-            "Nie masz już budżetu. Możesz zrobić pass, gdy przeciwnik decyduje, albo weźmie gracza za $1.",
+            "Nie masz już budżetu — przeciwnik weźmie gracza za $1 albo odsunie go na koniec kolejki.",
           preparingPlayer: "Przygotowywanie kolejnego gracza...",
           upcoming: "Kolejność kolejnych graczy",
           notFound: "Ten pokój aukcji nie istnieje.",

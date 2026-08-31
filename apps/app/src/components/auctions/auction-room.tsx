@@ -330,19 +330,9 @@ function ActiveStage({
                     </Button>
                   </div>
                 ) : iAmBroke ? (
-                  <>
-                    <p className="text-xs text-muted-foreground">
-                      {t("room.iAmBroke")}
-                    </p>
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      disabled={!canPass || pass.isPending}
-                      onClick={() => pass.mutate({ id: room.id })}
-                    >
-                      {passLabel}
-                    </Button>
-                  </>
+                  <p className="text-xs text-muted-foreground">
+                    {t("room.iAmBroke")}
+                  </p>
                 ) : (
                   <>
                     <div className="grid grid-cols-[1fr_auto_auto] gap-2">

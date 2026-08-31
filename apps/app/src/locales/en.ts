@@ -214,7 +214,7 @@ export default {
           myPassed:
             "You passed — this player waits until your opponent bids or both of you pass.",
           iAmBroke:
-            "You have no budget left. You can pass while your opponent decides, or they will take the player for $1.",
+            "You have no budget left — your opponent will take the player for $1 or send them to the back of the draw.",
           preparingPlayer: "Preparing the next player...",
           upcoming: "Upcoming draw order",
           notFound: "This auction room does not exist.",
