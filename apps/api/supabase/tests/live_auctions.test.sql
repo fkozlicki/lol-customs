@@ -49,7 +49,7 @@ create temporary table auction_test_state (
   room_id uuid not null
 );
 
-select plan(52);
+select plan(72);
 
 select has_table('public', 'auction_rooms', 'auction_rooms exists');
 select has_table('public', 'auction_captains', 'auction_captains exists');
@@ -179,39 +179,56 @@ select is(
   1::bigint, 'hidden mode persists only the revealed draw position'
 );
 
+-- ---- revocable opening pass, no budget reserve, all-in, passive $1 rule ----
 select tests.login('10000000-0000-0000-0000-000000000002');
-select throws_ok(format(
+select lives_ok(format(
   $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000012')$$,
   (select room_id from auction_test_state where name = 'hidden')
-), 'P0001', 'AUCTION_PASS_NOT_ALLOWED', 'pass is unavailable before the opening bid');
+), 'a captain may pass before the opening bid');
+select is(
+  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  'awaiting_opening_bid', 'a lone opening pass does not advance the phase'
+);
+select is(
+  (select (public.auction_get_room((select room_id from auction_test_state where name = 'hidden'))->'openingPass'->>'b')),
+  'true', 'the opening pass is recorded against the passing side'
+);
+select lives_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000012')$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 're-passing before a bid is idempotent');
+
+-- a single opening pass is revoked once the foe opens bidding (no reserve)
+select tests.login('10000000-0000-0000-0000-000000000001');
+select lives_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000013', 1)$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'the opening bid is accepted without a budget reserve');
+select is(
+  (select (public.auction_get_room((select room_id from auction_test_state where name = 'hidden'))->'openingPass'->>'a')),
+  'false', 'opening passes are cleared once bidding opens'
+);
+
 select tests.login('10000000-0000-0000-0000-000000000001');
 select throws_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000013', 18)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'P0001', 'AUCTION_BUDGET_RESERVE', 'bid must preserve one dollar per remaining slot');
-select lives_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000014', 1)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'legal opening bid is accepted');
-select throws_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000015')$$,
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000014')$$,
   (select room_id from auction_test_state where name = 'hidden')
 ), 'P0001', 'AUCTION_LEADER_CANNOT_PASS', 'leading captain cannot pass');
 select tests.login('10000000-0000-0000-0000-000000000002');
 select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000016')$$,
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000015')$$,
   (select room_id from auction_test_state where name = 'hidden')
-), 'losing captain can pass');
+), 'the non-leading captain can pass to concede the player');
 select is(
   (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
   'sold_pause', 'pass atomically resolves the player'
 );
 select is(
-  (select count(*) from public.auction_events where request_id = '20000000-0000-0000-0000-000000000016'),
+  (select count(*) from public.auction_events where request_id = '20000000-0000-0000-0000-000000000015'),
   1::bigint, 'command request id is recorded once'
 );
 select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000016')$$,
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000015')$$,
   (select room_id from auction_test_state where name = 'hidden')
 ), 'retrying pass is idempotent');
 select is(
@@ -219,32 +236,126 @@ select is(
   1::bigint, 'idempotent retry does not duplicate sale'
 );
 
+-- fast-forward the sold pause and test the 2/2 opening-pass skip
 update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
 where id = (select room_id from auction_test_state where name = 'hidden');
 select public.auction_tick();
 select tests.login('10000000-0000-0000-0000-000000000001');
+select lives_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000016')$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'captain A passes on the next player');
+select tests.login('10000000-0000-0000-0000-000000000002');
+select lives_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000017')$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'a reciprocal pass triggers a 2/2 skip');
+select is(
+  (select count(*) from public.auction_events where room_id = (select room_id from auction_test_state where name = 'hidden') and event_type = 'pass_skipped'),
+  1::bigint, 'the skip is recorded as a pass_skipped event'
+);
+select is(
+  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  'awaiting_opening_bid', 'the next player is revealed after a 2/2 skip'
+);
+select is(
+  (select count(*) from public.auction_players
+   where room_id = (select room_id from auction_test_state where name = 'hidden')
+     and not is_captain and revealed and assigned_side is null),
+  1::bigint, 'exactly one unassigned player is revealed after the skip'
+);
+
+-- late bid rejected by server time, then tick sells on an elapsed deadline
+select tests.login('10000000-0000-0000-0000-000000000001');
 select public.auction_bid(
   (select room_id from auction_test_state where name = 'hidden'),
-  '20000000-0000-0000-0000-000000000017', 1
+  '20000000-0000-0000-0000-000000000024', 1
+);
+select is(
+  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  'bidding', 'an opening bid enters bidding when the foe can counter'
 );
 update public.auction_rooms set bid_deadline = clock_timestamp() - interval '1 second'
 where id = (select room_id from auction_test_state where name = 'hidden');
 select tests.login('10000000-0000-0000-0000-000000000002');
 select throws_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000018', 2)$$,
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000025', 2)$$,
   (select room_id from auction_test_state where name = 'hidden')
 ), 'P0001', 'AUCTION_DEADLINE_PASSED', 'late bid is rejected by server time');
 select cmp_ok(public.auction_tick(), '>=', 1, 'tick resolves an elapsed bid deadline');
 
+-- all-in (bidding the whole remaining budget) instantly wins when the foe cannot beat it
+update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
+where id = (select room_id from auction_test_state where name = 'hidden');
+select public.auction_tick();
+select tests.login('10000000-0000-0000-0000-000000000001');
+select throws_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000018', 99)$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'P0001', 'AUCTION_BUDGET_EXCEEDED', 'a bid above remaining budget is rejected');
+update public.auction_captains set budget_remaining = 5
+where room_id = (select room_id from auction_test_state where name = 'hidden') and side = 'B';
+select tests.login('10000000-0000-0000-0000-000000000001');
+select lives_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000019', 18)$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'an all-in bid wins immediately when the foe cannot raise');
+select is(
+  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  'sold_pause', 'an unbeatable all-in resolves straight to the sold pause'
+);
+select is(
+  (select budget_remaining from public.auction_captains
+   where room_id = (select room_id from auction_test_state where name = 'hidden') and side = 'A'),
+  0, 'the all-in side reaches zero budget'
+);
+
+-- passive $1 rule: with the foe at zero budget, bids are capped at current + $1
+update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
+where id = (select room_id from auction_test_state where name = 'hidden');
+select public.auction_tick();
+select tests.login('10000000-0000-0000-0000-000000000001');
+select throws_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000020', 1)$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'P0001', 'AUCTION_BUDGET_EXCEEDED', 'a captain at zero budget cannot bid');
+select tests.login('10000000-0000-0000-0000-000000000002');
+select throws_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000021', 3)$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'P0001', 'AUCTION_OPPONENT_PASSIVE', 'a foe at zero budget caps the bid at $1 over current');
+select lives_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000022', 1)$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'the $1 passive bid is accepted');
+select is(
+  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  'sold_pause', 'the $1 bid wins instantly against a zero-budget foe'
+);
+
+-- a lone pass by the money side skips the player when the foe is at zero budget
+update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
+where id = (select room_id from auction_test_state where name = 'hidden');
+select public.auction_tick();
+select tests.login('10000000-0000-0000-0000-000000000002');
+select lives_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000023')$$,
+  (select room_id from auction_test_state where name = 'hidden')
+), 'the money side can pass to send a player to the back of the queue');
+select is(
+  (select count(*) from public.auction_events where room_id = (select room_id from auction_test_state where name = 'hidden') and event_type = 'pass_skipped'),
+  2::bigint, 'the lone money-side pass is recorded as a skip'
+);
+
 select tests.login('10000000-0000-0000-0000-000000000003');
 select public.auction_set_ready(
   (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000019', true
+  '20000000-0000-0000-0000-000000000040', true
 );
 select tests.login('10000000-0000-0000-0000-000000000004');
 select public.auction_set_ready(
   (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000020', true
+  '20000000-0000-0000-0000-000000000041', true
 );
 update public.auction_rooms set countdown_ends_at = clock_timestamp() - interval '1 second'
 where id = (select room_id from auction_test_state where name = 'visible');
@@ -274,12 +385,12 @@ where room_id = (select room_id from auction_test_state where name = 'visible');
 select tests.login('10000000-0000-0000-0000-000000000003');
 select public.auction_bid(
   (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000021', 1
+  '20000000-0000-0000-0000-000000000042', 1
 );
 select tests.login('10000000-0000-0000-0000-000000000004');
 select public.auction_pass(
   (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000022'
+  '20000000-0000-0000-0000-000000000043'
 );
 select is(
   (select status from public.auction_rooms where id = (select room_id from auction_test_state where name = 'visible')),
@@ -295,7 +406,11 @@ select is(
 );
 select is(
   (select count(*) from public.auction_events where room_id = (select room_id from auction_test_state where name = 'visible') and event_type = 'auto_assigned'),
-  1::bigint, 'remaining player is auto-assigned for one dollar'
+  1::bigint, 'remaining player is auto-assigned to round out the losing side'
+);
+select is(
+  (select amount from public.auction_events where room_id = (select room_id from auction_test_state where name = 'visible') and event_type = 'auto_assigned'),
+  0, 'auto-assigned players cost zero dollars'
 );
 select is(
   (select count(*) from public.auction_list_active()),
@@ -304,12 +419,12 @@ select is(
 
 select tests.login('10000000-0000-0000-0000-000000000002');
 select throws_ok(format(
-  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000023')$$,
+  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000044')$$,
   (select room_id from auction_test_state where name = 'hidden')
 ), 'P0001', 'AUCTION_PERMISSION_DENIED', 'non-creator cannot cancel');
 select tests.login('10000000-0000-0000-0000-000000000001');
 select lives_ok(format(
-  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000024')$$,
+  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000045')$$,
   (select room_id from auction_test_state where name = 'hidden')
 ), 'creator can cancel an active room');
 select is(
