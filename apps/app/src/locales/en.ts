@@ -206,7 +206,15 @@ export default {
           leading: "Leading: {team}",
           waitingFirstBid: "The timer starts with the first bid.",
           soldPause: "Finalizing the sale...",
-          maxBid: "Your maximum legal bid is $ {amount} after roster reserve.",
+          passOpeningHint:
+            "Both captains passing sends the player to the back of the draw; passing is cancelled as soon as anyone bids.",
+          passHint: "Passing concedes the current player to the leading captain.",
+          opponentPassed:
+            "Your opponent passed — one more pass sends this player to the back of the draw.",
+          myPassed:
+            "You passed — this player waits until your opponent bids or both of you pass.",
+          iAmBroke:
+            "You have no budget left. You can pass while your opponent decides, or they will take the player for $1.",
           preparingPlayer: "Preparing the next player...",
           upcoming: "Upcoming draw order",
           notFound: "This auction room does not exist.",
@@ -237,7 +245,11 @@ export default {
           removeCaptain: "Remove captain",
           bid: "Bid",
           customBid: "Custom bid amount",
+          allIn: "All-in",
           pass: "Pass",
+          passOpening: "Pass",
+          takeForOne: "Take for $1",
+          sendBack: "Send to back",
           cancel: "Cancel auction",
         },
         feed: {
@@ -246,8 +258,9 @@ export default {
           player: "player",
           bid: "{team} bid $ {amount} for {player}.",
           pass: "{team} passed.",
+          passSkipped: "{team} passed — {player} sent to the back of the draw.",
           sold: "{player} sold to {team} for $ {amount}.",
-          autoAssigned: "{player} automatically joined {team} for $1.",
+          autoAssigned: "{player} automatically joined {team} for free.",
           joined: "{team}'s captain joined.",
           left: "Team B's captain left.",
           removed: "Team B's captain was removed.",

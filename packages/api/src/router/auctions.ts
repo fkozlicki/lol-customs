@@ -67,8 +67,10 @@ function domainError(error: RpcError): TRPCError {
     AUCTION_PERMISSION_DENIED: "You cannot perform this action.",
     AUCTION_DEADLINE_PASSED: "The bidding deadline has passed.",
     AUCTION_BID_TOO_LOW: "The bid is too low.",
-    AUCTION_BUDGET_RESERVE: "This bid would leave too little budget.",
-    AUCTION_PASS_NOT_ALLOWED: "Pass is not available yet.",
+    AUCTION_BUDGET_EXCEEDED: "This bid exceeds your remaining budget.",
+    AUCTION_OPPONENT_PASSIVE:
+      "You cannot raise so high against an opponent with no budget.",
+    AUCTION_PASS_NOT_ALLOWED: "Pass is not available right now.",
     AUCTION_LEADER_CANNOT_PASS: "The leading captain cannot pass.",
   };
   const message = domainCode
@@ -134,6 +136,10 @@ function riotIdKey(player: { gameName: string; tagLine: string }): string {
   return `${player.gameName.trim().toLowerCase()}#${player.tagLine.trim().toLowerCase()}`;
 }
 
+function otherSide(side: AuctionSide | null): AuctionSide {
+  return side === "A" ? "B" : "A";
+}
+
 interface RawCaptain {
   side: AuctionSide;
   teamName: string;
@@ -186,6 +192,7 @@ interface RawRoom {
   countdownEndsAt: string | null;
   bidDeadline: string | null;
   phaseDeadline: string | null;
+  openingPass: { a: boolean; b: boolean };
   stateVersion: number;
   serverTime: string;
   createdAt: string;
@@ -246,6 +253,23 @@ function normalizeListItem(raw: RawListItem): AuctionListItem {
 function normalizeRoom(raw: RawRoom): AuctionRoomView {
   const mySide = raw.permissions.side;
   const hasCaptainB = raw.captains.some((captain) => captain.side === "B");
+  const myBudget =
+    raw.captains.find((captain) => captain.side === mySide)?.budgetRemaining ??
+    null;
+  const opponentBudget =
+    raw.captains.find((captain) => captain.side === otherSide(mySide))
+      ?.budgetRemaining ?? null;
+  const inActiveBidding =
+    raw.status === "active" &&
+    (raw.phase === "awaiting_opening_bid" || raw.phase === "bidding");
+  const myPassed =
+    mySide !== null &&
+    raw.phase === "awaiting_opening_bid" &&
+    (mySide === "A" ? raw.openingPass.a : raw.openingPass.b);
+  const opponentPassed =
+    mySide !== null &&
+    raw.phase === "awaiting_opening_bid" &&
+    (mySide === "A" ? raw.openingPass.b : raw.openingPass.a);
   return {
     id: raw.id,
     status: raw.status,
@@ -256,6 +280,7 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
     currentPlayerId: raw.currentPlayerId,
     currentBid: raw.currentBid || null,
     currentLeaderSide: raw.leadingSide,
+    openingPass: raw.openingPass,
     countdownEndsAt: raw.countdownEndsAt,
     phaseEndsAt: raw.phase === "bidding" ? raw.bidDeadline : raw.phaseDeadline,
     createdAt: raw.createdAt,
@@ -299,14 +324,13 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
       canReady:
         mySide !== null && ["waiting", "countdown"].includes(raw.status),
       canBid:
-        mySide !== null &&
-        raw.status === "active" &&
-        ["awaiting_opening_bid", "bidding"].includes(raw.phase ?? ""),
+        inActiveBidding && myBudget !== null && myBudget > 0,
       canPass:
         mySide !== null &&
         raw.status === "active" &&
-        raw.phase === "bidding" &&
-        raw.leadingSide !== mySide,
+        ((raw.phase === "awaiting_opening_bid" &&
+          raw.leadingSide === null) ||
+          (raw.phase === "bidding" && raw.leadingSide !== mySide)),
       canCancel: raw.permissions.canCancel,
     },
   };

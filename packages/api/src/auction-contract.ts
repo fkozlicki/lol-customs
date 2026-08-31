@@ -25,6 +25,7 @@ export type AuctionEventType =
   | "player_revealed"
   | "bid"
   | "pass"
+  | "pass_skipped"
   | "sold"
   | "auto_assigned"
   | "cancelled"
@@ -110,6 +111,7 @@ export interface AuctionRoomView {
   currentPlayerId: string | null;
   currentBid: number | null;
   currentLeaderSide: AuctionSide | null;
+  openingPass: { a: boolean; b: boolean };
   countdownEndsAt: string | null;
   phaseEndsAt: string | null;
   createdAt: string;

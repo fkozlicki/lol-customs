@@ -120,6 +120,8 @@ function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
     if (event.type === "bid")
       return t("feed.bid", { team, amount: event.amount ?? 0, player: name });
     if (event.type === "pass") return t("feed.pass", { team });
+    if (event.type === "pass_skipped")
+      return t("feed.passSkipped", { team, player: name });
     if (event.type === "sold")
       return t("feed.sold", { team, amount: event.amount ?? 0, player: name });
     if (event.type === "auto_assigned")
@@ -188,17 +190,23 @@ function ActiveStage({
   );
   const mySide = room.permissions.mySide;
   const myCaptain = mySide ? captainFor(room, mySide) : undefined;
-  const acquired = mySide
-    ? playersFor(room, mySide).filter(
-        (player) => myCaptain?.playerId !== player.id,
-      ).length
-    : 0;
-  const maxBid = myCaptain
-    ? myCaptain.budgetRemaining - Math.max(0, 3 - acquired)
-    : 0;
+  const opponentSide = mySide === "A" ? "B" : "A";
+  const opponentCaptain = mySide
+    ? captainFor(room, opponentSide)
+    : undefined;
+  const myBudget = myCaptain?.budgetRemaining ?? 0;
+  const opponentBudget = opponentCaptain?.budgetRemaining ?? 0;
   const minimumBid = (room.currentBid ?? 0) + 1;
+  // passive rule: against a broke opponent the active side may only bid "$1 over"
+  const maxBid = opponentBudget === 0 ? minimumBid : myBudget;
+  const allIn = myBudget;
   const [amount, setAmount] = useState(minimumBid);
-  useEffect(() => setAmount(minimumBid), [minimumBid]);
+  // keep a legally-entered higher bid instead of snapping back to the minimum
+  useEffect(() => {
+    setAmount((current) =>
+      current < minimumBid ? minimumBid : Math.min(current, maxBid),
+    );
+  }, [minimumBid, maxBid]);
   const failed = (error: { message: string }) => {
     toast.error(error.message);
     refresh();
@@ -209,7 +217,31 @@ function ActiveStage({
   const pass = useMutation(
     trpc.auctions.pass.mutationOptions({ onSuccess: refresh, onError: failed }),
   );
-  const canBid = room.permissions.canBid && room.currentLeaderSide !== mySide;
+  const canBid =
+    room.permissions.canBid &&
+    room.currentLeaderSide !== mySide &&
+    myBudget >= minimumBid;
+  const canPass = room.permissions.canPass;
+  const opponentIsBroke = opponentBudget === 0;
+  const iAmBroke = myBudget === 0;
+  const moneyDecision =
+    room.phase === "awaiting_opening_bid" && opponentIsBroke && !iAmBroke;
+  const passLabel =
+    room.phase === "awaiting_opening_bid"
+      ? t("actions.passOpening")
+      : t("actions.pass");
+  const passHint =
+    room.phase === "awaiting_opening_bid"
+      ? t("room.passOpeningHint")
+      : t("room.passHint");
+  const isOpening = room.phase === "awaiting_opening_bid";
+  const myPassFlag = mySide ? (mySide === "A" ? "a" : "b") : null;
+  const opponentPassFlag =
+    mySide === "A" ? "b" : mySide === "B" ? "a" : null;
+  const myPassed = myPassFlag ? room.openingPass[myPassFlag] : false;
+  const opponentPassed = opponentPassFlag
+    ? room.openingPass[opponentPassFlag]
+    : false;
 
   return (
     <Card className="relative overflow-hidden border-amber-500/30 bg-[radial-gradient(circle_at_50%_0%,color-mix(in_oklab,var(--color-amber-500)_14%,transparent),transparent_52%)] shadow-xl">
@@ -256,9 +288,16 @@ function ActiveStage({
                 durationSeconds={room.bidSeconds}
               />
             ) : room.phase === "awaiting_opening_bid" ? (
-              <p className="rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground">
-                {t("room.waitingFirstBid")}
-              </p>
+              <div className="space-y-1.5">
+                <p className="rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground">
+                  {t("room.waitingFirstBid")}
+                </p>
+                {opponentPassed && (
+                  <p className="rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600">
+                    {t("room.opponentPassed")}
+                  </p>
+                )}
+              </div>
             ) : (
               <p className="text-lg font-semibold text-amber-500">
                 {t("room.soldPause")}
@@ -266,47 +305,104 @@ function ActiveStage({
             )}
             {mySide && room.phase !== "sold_pause" && (
               <div className="mt-6 w-full max-w-md space-y-3 rounded-xl border bg-background/85 p-3 backdrop-blur">
-                <div className="grid grid-cols-[1fr_auto_auto] gap-2">
-                  <Input
-                    type="number"
-                    min={minimumBid}
-                    max={maxBid}
-                    value={amount}
-                    onChange={(event) => setAmount(event.target.valueAsNumber)}
-                    aria-label={t("actions.customBid")}
-                  />
-                  <Button
-                    disabled={
-                      !canBid ||
-                      bid.isPending ||
-                      amount < minimumBid ||
-                      amount > maxBid
-                    }
-                    onClick={() => bid.mutate({ id: room.id, amount })}
-                  >
-                    {t("actions.bid")}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    disabled={!canBid || bid.isPending || minimumBid > maxBid}
-                    onClick={() =>
-                      bid.mutate({ id: room.id, amount: minimumBid })
-                    }
-                  >
-                    +1
-                  </Button>
-                </div>
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  disabled={!room.permissions.canPass || pass.isPending}
-                  onClick={() => pass.mutate({ id: room.id })}
-                >
-                  {t("actions.pass")}
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  {t("room.maxBid", { amount: maxBid })}
-                </p>
+                {isOpening && myPassed && (
+                  <p className="flex items-center justify-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-600">
+                    <Icons.Check className="size-4" />
+                    {t("room.myPassed")}
+                  </p>
+                )}
+                {moneyDecision ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      disabled={!canBid || bid.isPending}
+                      onClick={() =>
+                        bid.mutate({ id: room.id, amount: minimumBid })
+                      }
+                    >
+                      {t("actions.takeForOne")}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      disabled={!canPass || pass.isPending}
+                      onClick={() => pass.mutate({ id: room.id })}
+                    >
+                      {t("actions.sendBack")}
+                    </Button>
+                  </div>
+                ) : iAmBroke ? (
+                  <>
+                    <p className="text-xs text-muted-foreground">
+                      {t("room.iAmBroke")}
+                    </p>
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      disabled={!canPass || pass.isPending}
+                      onClick={() => pass.mutate({ id: room.id })}
+                    >
+                      {passLabel}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-[1fr_auto_auto] gap-2">
+                      <Input
+                        type="number"
+                        min={minimumBid}
+                        max={maxBid}
+                        value={Number.isNaN(amount) ? "" : amount}
+                        onChange={(event) =>
+                          setAmount(event.target.valueAsNumber)
+                        }
+                        aria-label={t("actions.customBid")}
+                      />
+                      <Button
+                        disabled={
+                          !canBid ||
+                          bid.isPending ||
+                          amount < minimumBid ||
+                          amount > maxBid
+                        }
+                        onClick={() => bid.mutate({ id: room.id, amount })}
+                      >
+                        {t("actions.bid")}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        disabled={!canBid || bid.isPending || minimumBid > maxBid}
+                        onClick={() =>
+                          bid.mutate({ id: room.id, amount: minimumBid })
+                        }
+                      >
+                        +1
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="destructive"
+                        disabled={
+                          !canBid ||
+                          bid.isPending ||
+                          allIn < minimumBid ||
+                          allIn > maxBid
+                        }
+                        onClick={() =>
+                          bid.mutate({ id: room.id, amount: allIn })
+                        }
+                      >
+                        {t("actions.allIn")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={!canPass || pass.isPending}
+                        onClick={() => pass.mutate({ id: room.id })}
+                      >
+                        {passLabel}
+                      </Button>
+                    </div>
+                  </>
+                )}
+                <p className="text-xs text-muted-foreground">{passHint}</p>
               </div>
             )}
           </>

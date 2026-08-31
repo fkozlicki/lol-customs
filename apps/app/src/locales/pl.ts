@@ -210,7 +210,16 @@ export default {
           leading: "Prowadzi: {team}",
           waitingFirstBid: "Licznik ruszy po pierwszej ofercie.",
           soldPause: "Finalizowanie sprzedaży...",
-          maxBid: "Maksymalna legalna oferta z rezerwą składu: $ {amount}.",
+          passOpeningHint:
+            "Pass obu kapitanów odsyła gracza na koniec kolejki; pass zostaje anulowany, gdy ktokolwiek zlicytuje.",
+          passHint:
+            "Pass oddaje aktualnego gracza prowadzącemu kapitanowi.",
+          opponentPassed:
+            "Przeciwnik zrobił pass — Twój pass odsyła gracza na koniec kolejki.",
+          myPassed:
+            "Zrobiłeś pass — gracz czeka, aż przeciwnik zlicytuje lub oboje zrobicie pass.",
+          iAmBroke:
+            "Nie masz już budżetu. Możesz zrobić pass, gdy przeciwnik decyduje, albo weźmie gracza za $1.",
           preparingPlayer: "Przygotowywanie kolejnego gracza...",
           upcoming: "Kolejność kolejnych graczy",
           notFound: "Ten pokój aukcji nie istnieje.",
@@ -240,7 +249,11 @@ export default {
           removeCaptain: "Usuń kapitana",
           bid: "Licytuj",
           customBid: "Własna kwota oferty",
+          allIn: "All-in",
           pass: "Pass",
+          passOpening: "Pass",
+          takeForOne: "Weź za $1",
+          sendBack: "Odsuń na koniec",
           cancel: "Anuluj aukcję",
         },
         feed: {
@@ -249,8 +262,9 @@ export default {
           player: "gracz",
           bid: "{team} oferuje $ {amount} za {player}.",
           pass: "{team} pasuje.",
+          passSkipped: "{team} pasuje — {player} wraca na koniec kolejki.",
           sold: "{player} sprzedany do {team} za $ {amount}.",
-          autoAssigned: "{player} automatycznie trafia do {team} za $1.",
+          autoAssigned: "{player} automatycznie trafia do {team} za darmo.",
           joined: "Kapitan {team} dołączył.",
           left: "Kapitan Team B odszedł.",
           removed: "Kapitan Team B został usunięty.",
