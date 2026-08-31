@@ -10,6 +10,7 @@
     "seed": "supabase db seed generate && supabase db seed run",
     "seed:from-remote": "supabase db dump --linked --data-only -f supabase/seeds/remote-data.sql",
     "reset": "supabase db reset",
+    "test:db": "supabase test db",
     "generate": "supabase gen types --lang=typescript --local --schema public > ../../packages/supabase/src/types/db.ts"
   },
   "dependencies": {
