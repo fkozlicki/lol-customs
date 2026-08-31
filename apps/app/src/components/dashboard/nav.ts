@@ -7,4 +7,5 @@ export const PATHS = [
   { path: "/duos", label: "sidebar.duos", Icon: Icons.Users2 },
   { path: "/posts", label: "sidebar.posts", Icon: Icons.MessageSquare },
   { path: "/shuffle", label: "sidebar.shuffle", Icon: Icons.RandomTeams },
+  { path: "/auctions", label: "sidebar.auctions", Icon: Icons.Auction },
 ] as const;

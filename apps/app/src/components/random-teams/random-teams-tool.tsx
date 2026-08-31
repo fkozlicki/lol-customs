@@ -24,6 +24,7 @@ import {
   type RandomTeamsResult,
   type RandomTeamsTeam,
 } from "@/utils/random-teams";
+import { parseRiotId, riotIdKey } from "@/utils/riot-id";
 
 const DEFAULT_PLATFORM_ID = "eun1";
 
@@ -40,23 +41,6 @@ function newRosterKey(): string {
     return crypto.randomUUID();
   }
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function riotKey(gameName: string, tagLine: string): string {
-  return `${gameName.trim().toLowerCase()}#${tagLine.trim().toLowerCase()}`;
-}
-
-/** Riot ID as `GameName#TagLine`; split on last `#` so names may contain `#`. */
-function parseRiotIdInput(
-  raw: string,
-): { gameName: string; tagLine: string } | null {
-  const s = raw.trim();
-  const i = s.lastIndexOf("#");
-  if (i <= 0 || i >= s.length - 1) return null;
-  const gameName = s.slice(0, i).trim();
-  const tagLine = s.slice(i + 1).trim();
-  if (!gameName || !tagLine) return null;
-  return { gameName, tagLine };
 }
 
 type TeamResult = RandomTeamsTeam;
@@ -190,16 +174,18 @@ export default function RandomTeamsTool() {
   >(null);
   const [teams, setTeams] = useState<RandomTeamsResult | null>(null);
 
-  const rosterKeys = useMemo(
-    () => new Set(roster.map((r) => riotKey(r.gameName, r.tagLine))),
-    [roster],
-  );
+  const rosterKeys = useMemo(() => new Set(roster.map(riotIdKey)), [roster]);
 
   const ladderPlayers = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (allPlayers as DbPlayer[]).filter((p) => {
       if (!p.game_name || !p.tag_line) return false;
-      if (rosterKeys.has(riotKey(p.game_name, p.tag_line))) return false;
+      if (
+        rosterKeys.has(
+          riotIdKey({ gameName: p.game_name, tagLine: p.tag_line }),
+        )
+      )
+        return false;
       if (!q) return true;
       return p.game_name.toLowerCase().includes(q);
     });
@@ -266,7 +252,7 @@ export default function RandomTeamsTool() {
   }, [loadRequest?.key]);
 
   function addToRoster(entry: Omit<RosterEntry, "key">): boolean {
-    const key = riotKey(entry.gameName, entry.tagLine);
+    const key = riotIdKey(entry);
     if (rosterKeys.has(key)) {
       toast.error(t("toastDuplicate"));
       return false;
@@ -295,7 +281,7 @@ export default function RandomTeamsTool() {
   }
 
   function addManual() {
-    const parsed = parseRiotIdInput(manualRiotId);
+    const parsed = parseRiotId(manualRiotId);
     if (!parsed) {
       toast.error(t("toastInvalidRiot"));
       return;

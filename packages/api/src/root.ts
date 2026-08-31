@@ -1,3 +1,4 @@
+import { auctionsRouter } from "./router/auctions";
 import { datadragonRouter } from "./router/datadragon";
 import { duosRouter } from "./router/duos";
 import { forumRouter } from "./router/forum";
@@ -9,6 +10,7 @@ import { userProfilesRouter } from "./router/user-profiles";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
+  auctions: auctionsRouter,
   players: playersRouter,
   matches: matchesRouter,
   riftRank: riftRankRouter,

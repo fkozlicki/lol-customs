@@ -17,13 +17,14 @@ export function MobileNav() {
 
   return (
     <div className="sticky bottom-0 bg-background border-t border-border py-2 md:hidden">
-      <div className="flex gap-4 h-full justify-evenly">
+      <div className="grid h-full grid-cols-7 gap-1 px-1">
         {PATHS.map(({ path, label, Icon }) => (
           <Button
             key={path}
             asChild
             variant={checkIfActivePath(path) ? "default" : "ghost"}
             size="icon-lg"
+            className="w-full"
           >
             <Link href={path}>
               <Icon className="size-4" />
