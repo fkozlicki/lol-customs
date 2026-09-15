@@ -1,137 +1,91 @@
-![hero](image.png)
+# Custom Ladder
 
+An Elo ladder for a group's League of Legends custom games.
 
-<p align="center">
-	<h1 align="center"><b>Create v1</b></h1>
-<p align="center">
-    An open-source starter kit based on <a href="https://midday.ai">Midday</a>.
-    <br />
-    <br />
-    <a href="https://v1.run"><strong>Website</strong></a> · 
-    <a href="https://github.com/midday-ai/v1/issues"><strong>Issues</strong></a> · 
-    <a href="#whats-included"><strong>What's included</strong></a> ·
-    <a href="#prerequisites"><strong>Prerequisites</strong></a> ·
-    <a href="#getting-started"><strong>Getting Started</strong></a> ·
-    <a href="#how-to-use"><strong>How to use</strong></a>
-  </p>
-</p>
+Players install a small desktop app that reads custom games from their League client and uploads them.
+Each match is rated and gets per-player OP scores. The web app then shows leaderboards, match history,
+Hall of Fame and rivalries, per season and across all seasons. It also has a team shuffler, live
+auctions for picking teams, and a forum.
 
-Everything you need to build a production ready SaaS, it's a opinionated stack based on learnings from building Midday using the latest Next.js framework, it's a monorepo with a focus on code reuse and best practices that will grow with your business.
+Domain terms are defined in [CONTEXT.md](CONTEXT.md), decisions are recorded in [docs/adr/](docs/adr/),
+and the rating and OP score formulas are in [docs/formulas.md](docs/formulas.md)
+([Polish version](docs/formulas-pl.md)).
 
-## What's included
-
-[Next.js](https://nextjs.org/) - Framework<br>
-[Turborepo](https://turbo.build) - Build system<br>
-[Biome](https://biomejs.dev) - Linter, formatter<br>
-[TailwindCSS](https://tailwindcss.com/) - Styling<br>
-[Shadcn](https://ui.shadcn.com/) - UI components<br>
-[TypeScript](https://www.typescriptlang.org/) - Type safety<br>
-[Supabase](https://supabase.com/) - Authentication, database, storage<br>
-[Upstash](https://upstash.com/) - Cache and rate limiting<br>
-[React Email](https://react.email/) - Email templates<br>
-[Resend](https://resend.com/) - Email delivery<br>
-[i18n](https://next-international.vercel.app/) - Internationalization<br>
-[Sentry](https://sentry.io/) - Error handling/monitoring<br>
-[Dub](https://dub.sh/) - Sharable links<br>
-[Trigger.dev](https://trigger.dev/) - Background jobs<br>
-[OpenPanel](https://openpanel.dev/) - Analytics<br>
-[Polar](https://polar.sh) - Billing (coming soon)<br>
-[react-safe-action](https://next-safe-action.dev) - Validated Server Actions<br>
-[nuqs](https://nuqs.47ng.com/) - Type-safe search params state manager<br>
-[next-themes](https://next-themes-example.vercel.app/) - Theme manager<br>
-
-## Directory Structure
+## How it fits together
 
 ```
-.
-├── apps                         # App workspace
-│    ├── api                     # Supabase (API, Auth, Storage, Realtime, Edge Functions)
-│    ├── app                     # App - your product (dashboard)
-│    ├── lcu                     # Electron desktop app (LCU sync)
-│    └── ...
-├── packages                     # Shared packages between apps
-│    ├── analytics               # OpenPanel analytics
-│    ├── email                   # React email library
-│    ├── jobs                    # Trigger.dev background jobs
-│    ├── kv                      # Upstash rate-limited key-value storage
-│    ├── logger                  # Logger library
-│    ├── supabase                # Supabase - Queries, Mutations, Clients
-│    └── ui                      # Shared UI components (Shadcn)
-├── tooling                      # are the shared configuration that are used by the apps and packages
-│    └── typescript              # Shared TypeScript configuration
-├── .cursorrules                 # Cursor rules specific to this project
-├── biome.json                   # Biome configuration
-├── turbo.json                   # Turbo configuration
-├── LICENSE
-└── README.md
+League client ──► apps/lcu (Electron) ──► Supabase (apps/api) ◄── packages/api (tRPC) ◄── apps/app (Next.js)
+                  filters custom games     stores matches,        queries per season       leaderboard, matches,
+                  and uploads them         rates them in SQL                               Hall of Fame, auctions
 ```
 
-## Prerequisites
+| Path | What it is |
+| --- | --- |
+| `apps/lcu` | Electron desktop app that syncs custom games from the League client ([details](apps/lcu/README.md)) |
+| `apps/api` | Supabase project: migrations, rating and OP score functions, pgTAP tests |
+| `apps/app` | Next.js dashboard, in English and Polish |
+| `packages/api` | tRPC routers used by the dashboard |
+| `packages/supabase` | Supabase clients and generated database types |
+| `packages/ui` | Shared shadcn/ui components |
+| `packages/logger` | Pino logger |
+| `tooling/typescript` | Shared TypeScript config |
 
-Bun<br>
-Docker<br>
-Upstash<br>
-Dub<br>
-Trigger.dev<br>
-Resend<br>
-Supabase<br>
-Sentry<br>
-OpenPanel<br>
+Stack: Bun, Turborepo, Next.js, tRPC, Supabase (Postgres, Auth, Storage), Tailwind, shadcn/ui, Electron,
+Biome.
 
-## Getting Started
+## Getting started
 
-Clone this repo locally with the following command:
-
-```bash
-bunx degit midday-ai/v1 v1
-```
-
-1. Install dependencies using bun:
+Prerequisites: [Bun](https://bun.sh), Docker (for the local Supabase stack) and a
+[Riot API key](https://developer.riotgames.com).
 
 ```sh
-bun i
-```
+bun install
 
-2. Copy `.env.example` to `.env` and update the variables.
-
-```sh
-# Copy .env.example to .env for each app
 cp apps/api/.env.example apps/api/.env
 cp apps/app/.env.example apps/app/.env
 cp apps/lcu/.env.example apps/lcu/.env
+
+bun run --cwd apps/api dev   # start local Supabase; prints the URL, anon key and service key
+bun db:reset                 # apply all migrations
+bun dev:app                  # dashboard on http://localhost:3000
 ```
 
-4. Start the development server from either bun or turbo:
+Put the keys printed by Supabase, your Riot API key and a Hugging Face token (`HUGGING_FACE_TOKEN`, used by
+the forum) into `apps/app/.env`. To sync matches from your own
+League client against the local database, point `apps/lcu/.env` at the local Supabase and run
+`bun dev:lcu`.
 
-```ts
-bun dev // starts everything in development mode (app, api, lcu, email)
-bun dev:app // starts the dashboard app in development mode
-bun dev:lcu // starts the LCU desktop app in development mode
-bun dev:api // starts the api in development mode
-bun dev:email // starts the email app in development mode
+## Commands
 
-// Database
-bun migrate // run migrations
-bun seed // run seed
-```
+| Command | Does |
+| --- | --- |
+| `bun dev` | Start everything in parallel |
+| `bun dev:app` / `bun dev:lcu` | Start the dashboard / desktop app |
+| `bun lint` | Biome lint plus workspace checks (sherif) |
+| `bun typecheck` | TypeScript across all workspaces |
+| `bun format` | Format with Biome |
+| `bun db:reset` | Rebuild the local database from migrations |
+| `bun generate:types` | Regenerate database types from the local database |
+| `bun run --cwd apps/api test:db` | Run the pgTAP database tests |
+| `bun run --cwd apps/api push` | Push migrations to the linked Supabase project |
 
-## How to use
-This boilerplate is inspired by our work on Midday, and it's designed to serve as a reference for real-world apps. Feel free to dive into the code and see how we've tackled various features. Whether you're looking to understand authentication flows, database interactions, or UI components, you'll find practical, battle-tested implementations throughout the codebase. It's not just a starting point; it's a learning resource that can help you build your own applications.
+CI runs `lint` and `typecheck` on every push.
 
-With this, you have a great starting point for your own project.
+## Working on the database
 
-## Deploy to Vercel
+- Schema changes go into a new timestamped migration in `apps/api/supabase/migrations/`. After adding
+  one, run `bun db:reset`, then `bun generate:types`, and commit the updated types.
+- Desktop apps already installed by players write straight into `matches`, `players`, `teams` and
+  `match_participants`. Don't rename or repurpose those columns: add new ones instead.
+- A new season is started by a migration that inserts a season row
+  ([ADR 0001](docs/adr/0001-seasons-dual-rating-track.md)).
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## Releasing the desktop app
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmidday-ai%2Fv1&env=RESEND_API_KEY,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,SENTRY_AUTH_TOKEN,NEXT_PUBLIC_SENTRY_DSN,SENTRY_ORG,SENTRY_PROJECT,DUB_API_KEY,NEXT_PUBLIC_OPENPANEL_CLIENT_ID,OPENPANEL_SECRET_KEY&project-name=create-v1&repository-name=create-v1&redirect-url=https%3A%2F%2Fv1.run&demo-title=Create%20v1&demo-description=An%20open-source%20starter%20kit%20based%20on%20Midday.&demo-url=https%3A%2F%2Fv1.run&demo-image=https%3A%2F%2Fv1.run%2Fopengraph-image.png&integration-ids=oac_VqOgBHqhEoFTPzGkPd7L0iH6)
+See [apps/lcu/README.md](apps/lcu/README.md). In short: `cd apps/lcu && bun run release` builds a
+Windows installer with the Supabase config embedded, and `LCU_MINIMUM_VERSION` in the dashboard prompts
+older clients to update.
 
-## Recognition
+## License
 
-<a href="https://news.ycombinator.com/item?id=41408929">
-  <img
-    style="width: 250px; height: 54px;" width="250" height="54"
-    alt="Featured on Hacker News"
-    src="https://hackernews-badge.vercel.app/api?id=41408929"
-  />
-</a>
+[MIT](LICENSE.md)
