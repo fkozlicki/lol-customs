@@ -577,6 +577,7 @@ export type Database = {
           game_creation: string
           game_mode: string | null
           game_type: string | null
+          ladder_season_id: number
           map_id: number | null
           match_id: number
           patch: string | null
@@ -593,6 +594,7 @@ export type Database = {
           game_creation: string
           game_mode?: string | null
           game_type?: string | null
+          ladder_season_id?: number
           map_id?: number | null
           match_id: number
           patch?: string | null
@@ -609,6 +611,7 @@ export type Database = {
           game_creation?: string
           game_mode?: string | null
           game_type?: string | null
+          ladder_season_id?: number
           map_id?: number | null
           match_id?: number
           patch?: string | null
@@ -618,7 +621,15 @@ export type Database = {
           season_id?: number | null
           timeline_json?: Json
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "matches_ladder_season_id_fkey"
+            columns: ["ladder_season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       players: {
         Row: {
@@ -658,6 +669,7 @@ export type Database = {
           avg_kills: number | null
           best_streak: number | null
           created_at: string | null
+          ladder_season_id: number
           lose_streak: number | null
           losses: number | null
           match_id: number
@@ -674,6 +686,7 @@ export type Database = {
           avg_kills?: number | null
           best_streak?: number | null
           created_at?: string | null
+          ladder_season_id: number
           lose_streak?: number | null
           losses?: number | null
           match_id: number
@@ -690,6 +703,7 @@ export type Database = {
           avg_kills?: number | null
           best_streak?: number | null
           created_at?: string | null
+          ladder_season_id?: number
           lose_streak?: number | null
           losses?: number | null
           match_id?: number
@@ -736,6 +750,7 @@ export type Database = {
           avg_turret_kills: number | null
           avg_vision_score: number | null
           best_streak: number | null
+          ladder_season_id: number
           lose_streak: number | null
           losses: number | null
           mvp_games: number
@@ -767,6 +782,7 @@ export type Database = {
           avg_turret_kills?: number | null
           avg_vision_score?: number | null
           best_streak?: number | null
+          ladder_season_id: number
           lose_streak?: number | null
           losses?: number | null
           mvp_games?: number
@@ -798,6 +814,7 @@ export type Database = {
           avg_turret_kills?: number | null
           avg_vision_score?: number | null
           best_streak?: number | null
+          ladder_season_id?: number
           lose_streak?: number | null
           losses?: number | null
           mvp_games?: number
@@ -814,11 +831,29 @@ export type Database = {
           {
             foreignKeyName: "ratings_puuid_fkey"
             columns: ["puuid"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["puuid"]
           },
         ]
+      }
+      seasons: {
+        Row: {
+          id: number
+          number: number
+          starts_at: string
+        }
+        Insert: {
+          id: number
+          number: number
+          starts_at: string
+        }
+        Update: {
+          id?: number
+          number?: number
+          starts_at?: string
+        }
+        Relationships: []
       }
       teams: {
         Row: {
@@ -896,6 +931,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _apply_rating_update_for_track: {
+        Args: { p_match_id: number; p_track: number }
+        Returns: undefined
+      }
       _auction_actor_id: { Args: never; Returns: string }
       _auction_fail: { Args: { p_code: string }; Returns: undefined }
       _auction_request_room: {
@@ -1028,15 +1067,16 @@ export type Database = {
         Returns: undefined
       }
       compute_player_streaks: {
-        Args: { p_puuid: string; p_through_match_id: number }
+        Args: { p_puuid: string; p_through_match_id: number; p_track: number }
         Returns: {
           best_streak: number
           lose_streak: number
           win_streak: number
         }[]
       }
+      ladder_season_for: { Args: { p_at: string }; Returns: number }
       leaderboard_at: {
-        Args: { p_at: string; p_limit?: number }
+        Args: { p_at: string; p_limit?: number; p_track: number }
         Returns: {
           ace_games: number
           avg_assists: number
