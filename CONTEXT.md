@@ -1,20 +1,71 @@
-# Domain glossary
+# Custom Ladder
 
-## Seasons
+An Elo ladder for a group's League of Legends custom games: matches uploaded from the League client are
+rated, and players are ranked per season and across all seasons.
 
-- **Season** (`seasons`, UI: "Sezon N" / "Season N") — a numbered ladder period that starts at
-  `seasons.starts_at` and lasts until the next season starts. A game belongs to the season its
-  `matches.game_creation` falls into (`matches.ladder_season_id`). Not to be confused with Riot's
-  season (`matches.season_id`, sent by the LCU app and unused by the ladder).
-- **Current season** — the season with the latest `starts_at <= now()`. The app shows it when no
-  `?season=` is given.
-- **All seasons** (`?season=all`, UI: "Wszystkie sezony" / "All seasons") — every game regardless of
-  season, ranked on the all-time rating track.
-- **Rating track** (`ratings.ladder_season_id`, `rating_history.ladder_season_id`) — an independent Elo
-  progression. Each season has its own track (`ladder_season_id = N`, hard reset to 1000), and the
-  all-time track (`ladder_season_id = 0`) never resets. Every rated game updates two tracks: its
-  season's and all-time.
-- **Season final rating** — a player's last `rating_history` snapshot within a season.
+## Language
 
-New seasons are created with a migration that inserts a row into `seasons`. See
-[ADR 0001](docs/adr/0001-seasons-dual-rating-track.md).
+### Matches
+
+**Match**:
+A League of Legends custom game with ten players lasting at least five minutes. Only matches enter the
+ladder; every other game in a player's client history is ignored, and every match is rated.
+_Avoid_: Game, rated game
+
+**Side**:
+One of the two groups of five players within a match, blue or red.
+_Avoid_: Team
+
+**Team**:
+Five players grouped before a match is played, for example by a shuffle.
+_Avoid_: Side, squad
+
+**Rivalry**:
+The shared record of two players across the matches they both played, as teammates or as opponents.
+_Avoid_: Duo (Riot's Solo/Duo queue), squad, crew
+
+### Performance
+
+**OP score**:
+A score of how well a player performed in a match, judged against the role they played.
+
+**MVP**:
+The player with the highest OP score on the winning side of a match. The MVP never scores below the ACE.
+
+**ACE**:
+The player with the highest OP score on the losing side of a match.
+
+**Hall of Fame**:
+A set of record categories, such as most MVPs or best streak, that rank players within one rating track:
+a season's or the all-time one.
+_Avoid_: HoF, records
+
+### Seasons
+
+**Season**:
+A numbered ladder period that begins at a fixed moment and lasts until the next season begins. A match
+belongs to the season in which it was created.
+_Avoid_: Split, Riot season (Riot's own season is unrelated to the ladder)
+
+**Current season**:
+The season that began most recently. It is what the app shows unless another season is chosen.
+
+**All seasons**:
+The view covering every match regardless of season, ranked on the all-time rating track.
+_Avoid_: Overall, lifetime
+
+**Rating track**:
+An independent Elo progression. Each season has its own track on which everyone starts at 1000; the
+all-time track never resets. Every match advances two tracks: its season's and the all-time one.
+
+**Season standings**:
+The ranking of players on a season's rating track. Standings of an ended season can still change when
+one of its matches is uploaded late.
+_Avoid_: Season final rating, final standings
+
+**Streak**:
+A player's run of consecutive wins or losses on a rating track, ending at their latest match. On a
+season's track it starts from zero; on the all-time track it runs across season boundaries.
+
+**Best streak**:
+The longest win streak a player has had on a rating track.
