@@ -1,11 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const matchesRouter = createTRPCRouter({
   list: publicProcedure
     .input(
       z.object({
+        season: seasonInput,
         cursor: z.string().nullish(),
         limit: z.number().min(1).max(100).default(10),
       }),
@@ -18,6 +20,10 @@ export const matchesRouter = createTRPCRouter({
         )
         .order("game_creation", { ascending: false })
         .limit(input.limit + 1);
+
+      if (!isAllTime(input.season)) {
+        query = query.eq("ladder_season_id", input.season);
+      }
 
       if (input.cursor) {
         query = query.lt("game_creation", input.cursor);
@@ -53,6 +59,7 @@ export const matchesRouter = createTRPCRouter({
     .input(
       z.object({
         puuid: z.string().min(1),
+        season: seasonInput,
         cursor: z.number().nullish(),
         limit: z.number().min(1).max(100).default(10),
       }),
@@ -61,10 +68,17 @@ export const matchesRouter = createTRPCRouter({
       // Step 1: get match IDs for the player, paginated by match_id (monotonically increasing)
       let participantQuery = ctx.supabase
         .from("match_participants")
-        .select("match_id")
+        .select("match_id, match:matches!inner(ladder_season_id)")
         .eq("puuid", input.puuid)
         .order("match_id", { ascending: false })
         .limit(input.limit + 1);
+
+      if (!isAllTime(input.season)) {
+        participantQuery = participantQuery.eq(
+          "match.ladder_season_id",
+          input.season,
+        );
+      }
 
       if (input.cursor != null) {
         participantQuery = participantQuery.lt("match_id", input.cursor);

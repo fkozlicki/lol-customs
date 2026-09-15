@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const playersRouter = createTRPCRouter({
@@ -46,7 +47,7 @@ export const playersRouter = createTRPCRouter({
     }),
 
   profileStats: publicProcedure
-    .input(z.object({ puuid: z.string().min(1) }))
+    .input(z.object({ puuid: z.string().min(1), season: seasonInput }))
     .query(async ({ ctx, input }) => {
       const { data, error } = await ctx.supabase
         .from("ratings")
@@ -54,6 +55,7 @@ export const playersRouter = createTRPCRouter({
           "*, player:players!inner(puuid, game_name, tag_line, profile_icon, first_seen_at, last_seen_at)",
         )
         .eq("puuid", input.puuid)
+        .eq("ladder_season_id", input.season)
         .single();
       if (error) {
         if (error.code === "PGRST116") return null;
@@ -66,13 +68,15 @@ export const playersRouter = createTRPCRouter({
     }),
 
   ratingHistory: publicProcedure
-    .input(z.object({ puuid: z.string().min(1) }))
+    .input(z.object({ puuid: z.string().min(1), season: seasonInput }))
     .query(async ({ ctx, input }) => {
       const { data, error } = await ctx.supabase
         .from("rating_history")
         .select("rating_after, created_at")
         .eq("puuid", input.puuid)
-        .order("created_at", { ascending: true });
+        .eq("ladder_season_id", input.season)
+        .order("created_at", { ascending: true })
+        .order("match_id", { ascending: true });
 
       if (error) {
         throw new TRPCError({
@@ -84,20 +88,61 @@ export const playersRouter = createTRPCRouter({
       return data;
     }),
 
+  /** Final standing per season (last rating snapshot in that season), oldest season first. */
+  seasonSummaries: publicProcedure
+    .input(z.object({ puuid: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const { data, error } = await ctx.supabase
+        .from("rating_history")
+        .select("ladder_season_id, rating_after, wins, losses")
+        .eq("puuid", input.puuid)
+        .gt("ladder_season_id", 0)
+        .order("created_at", { ascending: false })
+        .order("match_id", { ascending: false });
+
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+      }
+
+      const bySeason = new Map<number, (typeof data)[number]>();
+      for (const row of data) {
+        if (!bySeason.has(row.ladder_season_id)) {
+          bySeason.set(row.ladder_season_id, row);
+        }
+      }
+
+      return [...bySeason.values()]
+        .map((row) => ({
+          seasonId: row.ladder_season_id,
+          rating: row.rating_after,
+          wins: row.wins ?? 0,
+          losses: row.losses ?? 0,
+        }))
+        .sort((a, b) => a.seasonId - b.seasonId);
+    }),
+
   mostPlayedChampions: publicProcedure
     .input(
       z.object({
         puuid: z.string().min(1),
+        season: seasonInput,
         limit: z.number().min(1).max(20).default(5),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
+      let query = ctx.supabase
         .from("match_participants")
         .select(
-          "champion_id, kills, deaths, assists, match:matches!inner(match_id, teams(team_id, win)), team_id",
+          "champion_id, kills, deaths, assists, match:matches!inner(match_id, ladder_season_id, teams(team_id, win)), team_id",
         )
         .eq("puuid", input.puuid);
+      if (!isAllTime(input.season)) {
+        query = query.eq("match.ladder_season_id", input.season);
+      }
+      const { data, error } = await query;
       if (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

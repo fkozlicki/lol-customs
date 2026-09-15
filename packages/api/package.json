@@ -6,6 +6,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./src/index.ts"
+    },
+    "./season": {
+      "types": "./dist/season.d.ts",
+      "default": "./src/season.ts"
     }
   },
   "scripts": {

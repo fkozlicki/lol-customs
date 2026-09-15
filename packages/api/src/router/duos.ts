@@ -1,13 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import type { Client } from "@v1/supabase/types";
 import { z } from "zod";
+import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-const duosPerPlayerInput = z
-  .object({
-    partnerLimit: z.number().min(1).max(20).default(5),
-  })
-  .optional();
+const duosPerPlayerInput = z.object({
+  season: seasonInput,
+  partnerLimit: z.number().min(1).max(20).default(5),
+});
 
 type PlayerInfo = {
   game_name: string | null;
@@ -144,12 +144,17 @@ export const duosRouter = createTRPCRouter({
   duosPerPlayer: publicProcedure
     .input(duosPerPlayerInput)
     .query(async ({ ctx, input }) => {
-      const partnerLimit = input?.partnerLimit ?? 5;
+      const { season, partnerLimit } = input;
 
-      const { data: mpRows, error: mpError } = await ctx.supabase
+      let mpQuery = ctx.supabase
         .from("match_participants")
-        .select("match_id, puuid, participant_id, team_id, win")
-        .limit(500_000);
+        .select(
+          "match_id, puuid, participant_id, team_id, win, match:matches!inner(ladder_season_id)",
+        );
+      if (!isAllTime(season)) {
+        mpQuery = mpQuery.eq("match.ladder_season_id", season);
+      }
+      const { data: mpRows, error: mpError } = await mpQuery.limit(500_000);
       if (mpError)
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -198,10 +203,16 @@ export const duosRouter = createTRPCRouter({
         }
       }
 
-      const { data: killRows, error: killError } = await ctx.supabase
+      let killQuery = ctx.supabase
         .from("match_kills")
-        .select("match_id, killer_participant_id, victim_participant_id")
-        .limit(500_000);
+        .select(
+          "match_id, killer_participant_id, victim_participant_id, match:matches!inner(ladder_season_id)",
+        );
+      if (!isAllTime(season)) {
+        killQuery = killQuery.eq("match.ladder_season_id", season);
+      }
+      const { data: killRows, error: killError } =
+        await killQuery.limit(500_000);
       if (killError) {
         if ((killError as { code?: string }).code === "42P01") {
           return buildPerPlayerResult(

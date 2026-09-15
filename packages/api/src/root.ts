@@ -6,6 +6,7 @@ import { matchesRouter } from "./router/matches";
 import { playersRouter } from "./router/players";
 import { riftRankRouter } from "./router/rift-rank";
 import { riotRouter } from "./router/riot";
+import { seasonsRouter } from "./router/seasons";
 import { userProfilesRouter } from "./router/user-profiles";
 import { createTRPCRouter } from "./trpc";
 
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   datadragon: datadragonRouter,
   userProfiles: userProfilesRouter,
   forum: forumRouter,
+  seasons: seasonsRouter,
 });
 
 // export type definition of API

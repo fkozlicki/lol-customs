@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 const afterGamesSchema = z.number().int().min(1).max(100_000);
@@ -49,44 +50,50 @@ const hofTitleSchema = z.enum([
 ]);
 
 export const riftRankRouter = createTRPCRouter({
-  /** Row count in `matches` — drives the "1 … N, live" picker (same cardinality as ladder games if every row is one rated game). */
-  ladderRatedMatchCount: publicProcedure.query(async ({ ctx }) => {
-    const { count, error } = await ctx.supabase
-      .from("matches")
-      .select("*", { count: "exact", head: true });
+  /** Row count in `matches` for the season — drives the "1 … N, live" picker (same cardinality as ladder games if every row is one rated game). */
+  ladderRatedMatchCount: publicProcedure
+    .input(z.object({ season: seasonInput }))
+    .query(async ({ ctx, input }) => {
+      let query = ctx.supabase
+        .from("matches")
+        .select("*", { count: "exact", head: true });
+      if (!isAllTime(input.season)) {
+        query = query.eq("ladder_season_id", input.season);
+      }
+      const { count, error } = await query;
 
-    if (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: error.message,
-      });
-    }
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+      }
 
-    const n = count ?? 0;
-    if (!Number.isFinite(n) || n < 0) {
-      return 0;
-    }
-    return Math.min(n, 100_000);
-  }),
+      const n = count ?? 0;
+      if (!Number.isFinite(n) || n < 0) {
+        return 0;
+      }
+      return Math.min(n, 100_000);
+    }),
 
   leaderboard: publicProcedure
     .input(
-      z
-        .object({
-          limit: z.number().min(1).max(200).default(50),
-          afterGames: afterGamesSchema.optional(),
-        })
-        .optional(),
+      z.object({
+        season: seasonInput,
+        limit: z.number().min(1).max(200).default(50),
+        afterGames: afterGamesSchema.optional(),
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const limit = input?.limit ?? 50;
-      const afterGames = input?.afterGames;
+      const { season, limit, afterGames } = input;
 
       if (afterGames) {
         const offset = afterGames - 1;
-        const { data: matchRows, error: matchError } = await ctx.supabase
-          .from("matches")
-          .select("match_id")
+        let matchQuery = ctx.supabase.from("matches").select("match_id");
+        if (!isAllTime(season)) {
+          matchQuery = matchQuery.eq("ladder_season_id", season);
+        }
+        const { data: matchRows, error: matchError } = await matchQuery
           .order("game_creation", { ascending: true })
           .order("match_id", { ascending: true })
           .range(offset, offset);
@@ -107,6 +114,7 @@ export const riftRankRouter = createTRPCRouter({
           .from("rating_history")
           .select("created_at")
           .eq("match_id", targetMatchId)
+          .eq("ladder_season_id", season)
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -125,6 +133,7 @@ export const riftRankRouter = createTRPCRouter({
 
         const { data, error } = await ctx.supabase.rpc("leaderboard_at", {
           p_at: toIsoDate(snapshotAt),
+          p_track: season,
           p_limit: limit,
         });
 
@@ -164,6 +173,7 @@ export const riftRankRouter = createTRPCRouter({
         .select(
           "puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at, avg_kills, avg_deaths, avg_assists, mvp_games, ace_games, player:players!inner(puuid, game_name, tag_line, profile_icon, platform_id)",
         )
+        .eq("ladder_season_id", season)
         .not("rating", "is", null)
         .order("rating", { ascending: false })
         .limit(limit);
@@ -179,9 +189,10 @@ export const riftRankRouter = createTRPCRouter({
     }),
 
   /** Returns top player for every HoF title plus the stat value. Single query round-trip. */
-  hofLeaders: publicProcedure.query(
+  hofLeaders: publicProcedure.input(z.object({ season: seasonInput })).query(
     async ({
       ctx,
+      input,
     }): Promise<
       Record<
         z.infer<typeof hofTitleSchema>,
@@ -276,6 +287,7 @@ export const riftRankRouter = createTRPCRouter({
             const { data: rows, error } = await ctx.supabase
               .from("ratings")
               .select("puuid, wins, losses")
+              .eq("ladder_season_id", input.season)
               .not("wins", "is", null)
               .not("losses", "is", null);
             throwOnError(error);
@@ -301,6 +313,7 @@ export const riftRankRouter = createTRPCRouter({
             const { data: ratingRows, error } = await ctx.supabase
               .from("ratings")
               .select("puuid")
+              .eq("ladder_season_id", input.season)
               .eq("mvp_games", 0)
               .order("wins", { ascending: false })
               .limit(1);
@@ -314,6 +327,7 @@ export const riftRankRouter = createTRPCRouter({
             const { data: ratingRows, error } = await ctx.supabase
               .from("ratings")
               .select("puuid")
+              .eq("ladder_season_id", input.season)
               .eq("ace_games", 0)
               .order("wins", { ascending: false })
               .limit(1);
@@ -326,33 +340,35 @@ export const riftRankRouter = createTRPCRouter({
           ...(Object.entries(SIMPLE).map(
             async ([id, config]): Promise<[HofTitleId, HofEntry]> => {
               const { data, error } = await ctx.supabase
-                .from("players")
-                .select(`*, ratings!inner(${config.column})`)
-                .order(`ratings(${config.column})`, {
-                  ascending: config.ascending,
-                })
+                .from("ratings")
+                .select(
+                  `${config.column}, player:players!inner(game_name, tag_line, profile_icon)`,
+                )
+                .eq("ladder_season_id", input.season)
+                .order(config.column, { ascending: config.ascending })
                 .limit(1);
 
               throwOnError(error);
 
-              const row = data?.[0] as
-                | {
-                    game_name: string | null;
-                    tag_line: string | null;
-                    profile_icon: number | null;
-                    ratings: { [k: string]: number | null };
-                  }
+              const row = data?.[0] as unknown as
+                | ({ [k: string]: number | null } & {
+                    player: {
+                      game_name: string | null;
+                      tag_line: string | null;
+                      profile_icon: number | null;
+                    } | null;
+                  })
                 | undefined;
 
-              if (!row) return [id as HofTitleId, null];
+              if (!row?.player) return [id as HofTitleId, null];
 
-              const value = row.ratings?.[config.column] ?? null;
+              const value = row[config.column] ?? null;
               return [
                 id as HofTitleId,
                 {
-                  game_name: row.game_name ?? null,
-                  tag_line: row.tag_line ?? null,
-                  profile_icon: row.profile_icon ?? null,
+                  game_name: row.player.game_name ?? null,
+                  tag_line: row.player.tag_line ?? null,
+                  profile_icon: row.player.profile_icon ?? null,
                   value: value != null ? Number(value) : null,
                 },
               ];
