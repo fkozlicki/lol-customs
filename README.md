@@ -50,8 +50,8 @@ bun db:reset                 # apply all migrations
 bun dev:app                  # dashboard on http://localhost:3000
 ```
 
-Put the keys printed by Supabase, your Riot API key and a Hugging Face token (`HUGGING_FACE_TOKEN`, used by
-the forum) into `apps/app/.env`. To sync matches from your own
+Put the keys printed by Supabase, your Riot API key and a Hugging Face token (`HUGGING_FACE_TOKEN`, used to check
+forum image uploads) into `apps/app/.env`. To sync matches from your own
 League client against the local database, point `apps/lcu/.env` at the local Supabase and run
 `bun dev:lcu`.
 
