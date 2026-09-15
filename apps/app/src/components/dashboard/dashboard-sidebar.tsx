@@ -27,7 +27,9 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { env } from "@/env.mjs";
 import { useScopedI18n } from "@/locales/client";
+import { withSeason } from "@/utils/season";
 import { PATHS } from "./nav";
+import { useSeasonParam } from "./use-season-param";
 
 interface DashboardSidebarProps {
   locale: string;
@@ -37,6 +39,7 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ children }: DashboardSidebarProps) {
   const t = useScopedI18n("dashboard");
   const pathname = usePathname();
+  const season = useSeasonParam();
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
 
   const checkIfActivePath = (path: string): boolean => {
@@ -97,13 +100,16 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {PATHS.map(({ path, label, Icon }) => (
+                  {PATHS.map(({ path, label, Icon, seasonScoped }) => (
                     <SidebarMenuItem key={path}>
                       <SidebarMenuButton
                         asChild
                         isActive={checkIfActivePath(path)}
                       >
-                        <Link href={path} prefetch={true}>
+                        <Link
+                          href={seasonScoped ? withSeason(path, season) : path}
+                          prefetch={true}
+                        >
                           <Icon className="size-4" />
                           <span>{t(label)}</span>
                         </Link>

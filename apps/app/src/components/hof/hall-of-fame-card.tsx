@@ -9,8 +9,10 @@ import {
   CardTitle,
 } from "@v1/ui/card";
 import Link from "next/link";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
+import { withSeason } from "@/utils/season";
 import type { HofTitleId } from "./hof-config";
 
 type HofLeaderEntry = RouterOutputs["riftRank"]["hofLeaders"][HofTitleId];
@@ -38,6 +40,7 @@ export default function HallOfFameCard({
   leader,
 }: HallOfFameCardProps) {
   const t = useScopedI18n("dashboard.pages.hallOfFame.cards");
+  const season = useSeasonParam();
 
   const title = t(`${titleId}.title` as "most_kills.title");
   const description = t(`${titleId}.description` as "most_kills.description");
@@ -55,11 +58,12 @@ export default function HallOfFameCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Link
-          href={
+          href={withSeason(
             leader?.game_name && leader?.tag_line
               ? `/players/${encodeURIComponent(leader.game_name)}-${encodeURIComponent(leader.tag_line)}`
-              : "#"
-          }
+              : "#",
+            season,
+          )}
           className="flex items-center gap-3 hover:underline underline-offset-2"
         >
           <ProfileIcon

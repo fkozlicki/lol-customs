@@ -15,6 +15,7 @@ import { SidebarTrigger } from "@v1/ui/sidebar";
 import { TooltipProvider } from "@v1/ui/tooltip";
 import { useUser } from "@/components/auth/user-context";
 import { LocaleSwitcher } from "@/components/dashboard/locale-switcher";
+import { SeasonSelector } from "@/components/dashboard/season-selector";
 import { ThemeSwitcher } from "@/components/dashboard/theme-switcher";
 import { useScopedI18n } from "@/locales/client";
 
@@ -37,6 +38,7 @@ export function AppHeader() {
         </span>
         <div className="flex-1" />
         <div className="flex items-center gap-2">
+          <SeasonSelector />
           <ThemeSwitcher />
           <LocaleSwitcher />
           {!isLoading &&

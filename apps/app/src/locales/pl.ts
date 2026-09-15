@@ -51,6 +51,16 @@ export default {
       dark: "Ciemny",
       tooltip: "Motyw: {label}",
     },
+    season: {
+      label: "Sezon {number}",
+      allTime: "Wszystkie sezony",
+      current: "Bieżący",
+      emptyPlayerTitle: "Brak gier w Sezonie {number}",
+      emptyPlayerDescription: "Ten gracz nie zagrał jeszcze w tym sezonie.",
+      showAllTime: "Pokaż wszystkie sezony",
+      summariesTitle: "Sezony",
+      summaryRecord: "{wins}W / {losses}P",
+    },
     pages: {
       leaderboard: {
         title: "Ranking",
@@ -212,8 +222,7 @@ export default {
           soldPause: "Finalizowanie sprzedaży...",
           passOpeningHint:
             "Pass obu kapitanów odsyła gracza na koniec kolejki; pass zostaje anulowany, gdy ktokolwiek zlicytuje.",
-          passHint:
-            "Pass oddaje aktualnego gracza prowadzącemu kapitanowi.",
+          passHint: "Pass oddaje aktualnego gracza prowadzącemu kapitanowi.",
           opponentPassed:
             "Przeciwnik zrobił pass — Twój pass odsyła gracza na koniec kolejki.",
           myPassed:

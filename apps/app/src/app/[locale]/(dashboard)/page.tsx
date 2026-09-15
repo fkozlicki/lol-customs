@@ -5,20 +5,22 @@ import { Leaderboard } from "@/components/home/leaderboard-preview";
 import LeaderboardSkeleton from "@/components/home/leaderboard-skeleton";
 import { getScopedI18n } from "@/locales/server";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { getSeasonScope } from "@/utils/season-server";
 
 interface DashboardHomePageProps {
-  searchParams: Promise<{ after?: string }>;
+  searchParams: Promise<{ after?: string; season?: string }>;
 }
 
 export default async function DashboardHomePage({
   searchParams,
 }: DashboardHomePageProps) {
   const t = await getScopedI18n("dashboard.pages.leaderboard");
-  const { after } = await searchParams;
+  const { after, season: seasonParam } = await searchParams;
+  const { season } = await getSeasonScope(seasonParam);
 
   const queryClient = getQueryClient();
   const gamesPlayed = await queryClient.fetchQuery(
-    trpc.riftRank.ladderRatedMatchCount.queryOptions(),
+    trpc.riftRank.ladderRatedMatchCount.queryOptions({ season }),
   );
 
   const parsedAfterGames = Number(after);
@@ -34,7 +36,7 @@ export default async function DashboardHomePage({
       : undefined;
 
   void prefetch(
-    trpc.riftRank.leaderboard.queryOptions({ limit: 50, afterGames }),
+    trpc.riftRank.leaderboard.queryOptions({ season, limit: 50, afterGames }),
   );
 
   return (
@@ -45,8 +47,11 @@ export default async function DashboardHomePage({
           <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
         <LeaderboardHistoryPicker gamesPlayed={gamesPlayed} />
-        <Suspense fallback={<LeaderboardSkeleton />} key={afterGames}>
-          <Leaderboard limit={50} after={afterGames} />
+        <Suspense
+          fallback={<LeaderboardSkeleton />}
+          key={`${season}:${afterGames ?? "live"}`}
+        >
+          <Leaderboard season={season} limit={50} after={afterGames} />
         </Suspense>
       </div>
     </HydrateClient>

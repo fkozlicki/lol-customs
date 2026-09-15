@@ -7,6 +7,7 @@ import { useTRPC } from "@/trpc/react";
 
 interface MostPlayedChampionsProps {
   puuid: string;
+  season: number;
 }
 
 function winrate(wins: number, games: number): string {
@@ -27,10 +28,13 @@ function kda(
   return `${k} / ${d} / ${a}`;
 }
 
-export function MostPlayedChampions({ puuid }: MostPlayedChampionsProps) {
+export function MostPlayedChampions({
+  puuid,
+  season,
+}: MostPlayedChampionsProps) {
   const trpc = useTRPC();
   const { data: champions } = useSuspenseQuery(
-    trpc.players.mostPlayedChampions.queryOptions({ puuid, limit: 5 }),
+    trpc.players.mostPlayedChampions.queryOptions({ puuid, season, limit: 5 }),
   );
 
   if (!champions || champions.length === 0) {

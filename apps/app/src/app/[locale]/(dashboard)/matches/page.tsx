@@ -3,12 +3,20 @@ import { MatchHistoryList } from "@/components/matches/match-history-list";
 import MatchHistorySkeleton from "@/components/matches/match-history-skeleton";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { getSeasonScope } from "@/utils/season-server";
 
-export default async function MatchHistoryPage() {
+interface MatchHistoryPageProps {
+  searchParams: Promise<{ season?: string }>;
+}
+
+export default async function MatchHistoryPage({
+  searchParams,
+}: MatchHistoryPageProps) {
   const t = await getScopedI18n("dashboard.pages.matchHistory");
+  const { season } = await getSeasonScope((await searchParams).season);
   prefetch(
     trpc.matches.list.infiniteQueryOptions(
-      { limit: 20 },
+      { season, limit: 10 },
       { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
     ),
   );
@@ -22,8 +30,8 @@ export default async function MatchHistoryPage() {
           <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
-        <Suspense fallback={<MatchHistorySkeleton />}>
-          <MatchHistoryList />
+        <Suspense fallback={<MatchHistorySkeleton />} key={season}>
+          <MatchHistoryList season={season} />
         </Suspense>
       </div>
     </HydrateClient>

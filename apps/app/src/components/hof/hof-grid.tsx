@@ -6,9 +6,11 @@ import HallOfFameCard from "@/components/hof/hall-of-fame-card";
 import { HOF_TITLES } from "@/components/hof/hof-config";
 import { useTRPC } from "@/trpc/react";
 
-export function HofGrid() {
+export function HofGrid({ season }: { season: number }) {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.riftRank.hofLeaders.queryOptions());
+  const { data } = useSuspenseQuery(
+    trpc.riftRank.hofLeaders.queryOptions({ season }),
+  );
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -38,7 +38,7 @@ export interface RawJson {
   participants: RawParticipant[];
 }
 
-export function MatchHistoryList() {
+export function MatchHistoryList({ season }: { season: number }) {
   const t = useScopedI18n("dashboard.pages.matchHistory");
   const trpc = useTRPC();
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
@@ -46,7 +46,7 @@ export function MatchHistoryList() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
       trpc.matches.list.infiniteQueryOptions(
-        { limit: 10 },
+        { season, limit: 10 },
         { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
       ),
     );

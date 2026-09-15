@@ -7,8 +7,10 @@ import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import Link from "next/link";
 import { useState } from "react";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
+import { withSeason } from "@/utils/season";
 import { PartnerRow } from "./partner-row";
 
 type PlayerSquadEntry = RouterOutputs["duos"]["duosPerPlayer"][number];
@@ -80,17 +82,19 @@ function CollapsiblePartnerList({
 
 export function PlayerSquadCard({ entry }: PlayerSquadCardProps) {
   const t = useScopedI18n("dashboard.pages.duos");
+  const season = useSeasonParam();
   const name = displayName(entry.player);
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <Link
-          href={
+          href={withSeason(
             entry.player?.game_name && entry.player?.tag_line
               ? `/players/${encodeURIComponent(entry.player.game_name)}-${encodeURIComponent(entry.player.tag_line)}`
-              : "#"
-          }
+              : "#",
+            season,
+          )}
           className="flex items-center gap-3 hover:underline underline-offset-2"
         >
           <ProfileIcon

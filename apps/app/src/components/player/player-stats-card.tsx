@@ -7,6 +7,7 @@ import { formatKda, formatKdaRatio, formatWinrate } from "@/utils/stats";
 
 interface PlayerStatsCardProps {
   puuid: string;
+  season: number;
 }
 
 function statRow(label: string, value: string | number) {
@@ -18,10 +19,10 @@ function statRow(label: string, value: string | number) {
   );
 }
 
-export function PlayerStatsCard({ puuid }: PlayerStatsCardProps) {
+export function PlayerStatsCard({ puuid, season }: PlayerStatsCardProps) {
   const trpc = useTRPC();
   const { data: stats } = useSuspenseQuery(
-    trpc.players.profileStats.queryOptions({ puuid }),
+    trpc.players.profileStats.queryOptions({ puuid, season }),
   );
 
   if (!stats) return null;

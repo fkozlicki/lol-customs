@@ -2,10 +2,18 @@ import { Suspense } from "react";
 import { HofGrid, HofGridSkeleton } from "@/components/hof/hof-grid";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { getSeasonScope } from "@/utils/season-server";
 
-export default async function HallOfFamePage() {
+interface HallOfFamePageProps {
+  searchParams: Promise<{ season?: string }>;
+}
+
+export default async function HallOfFamePage({
+  searchParams,
+}: HallOfFamePageProps) {
   const t = await getScopedI18n("dashboard.pages.hallOfFame");
-  prefetch(trpc.riftRank.hofLeaders.queryOptions());
+  const { season } = await getSeasonScope((await searchParams).season);
+  prefetch(trpc.riftRank.hofLeaders.queryOptions({ season }));
 
   return (
     <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
@@ -14,8 +22,8 @@ export default async function HallOfFamePage() {
         <p className="text-muted-foreground">{t("description")}</p>
       </div>
       <HydrateClient>
-        <Suspense fallback={<HofGridSkeleton />}>
-          <HofGrid />
+        <Suspense fallback={<HofGridSkeleton />} key={season}>
+          <HofGrid season={season} />
         </Suspense>
       </HydrateClient>
     </div>

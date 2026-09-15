@@ -9,16 +9,17 @@ import { useTRPC } from "@/trpc/react";
 
 interface PlayerMatchHistoryProps {
   puuid: string;
+  season: number;
 }
 
-export function PlayerMatchHistory({ puuid }: PlayerMatchHistoryProps) {
+export function PlayerMatchHistory({ puuid, season }: PlayerMatchHistoryProps) {
   const trpc = useTRPC();
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
       trpc.matches.listByPuuid.infiniteQueryOptions(
-        { puuid, limit: 10 },
+        { puuid, season, limit: 10 },
         {
           getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
         },

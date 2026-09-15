@@ -9,11 +9,21 @@ import {
   ChartTooltipContent,
 } from "@v1/ui/chart";
 import { format } from "date-fns";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useTRPC } from "@/trpc/react";
 
 interface RatingHistoryChartProps {
   puuid: string;
+  season: number;
+  /** Season start markers drawn on the all-time chart. */
+  seasonStarts?: { number: number; startsAt: string }[];
 }
 
 const chartConfig = {
@@ -23,10 +33,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function RatingHistoryChart({ puuid }: RatingHistoryChartProps) {
+export function RatingHistoryChart({
+  puuid,
+  season,
+  seasonStarts = [],
+}: RatingHistoryChartProps) {
   const trpc = useTRPC();
   const { data: history } = useSuspenseQuery(
-    trpc.players.ratingHistory.queryOptions({ puuid }),
+    trpc.players.ratingHistory.queryOptions({ puuid, season }),
   );
 
   if (!history || history.length === 0) {
@@ -51,6 +65,17 @@ export function RatingHistoryChart({ puuid }: RatingHistoryChartProps) {
       ? format(new Date(point.created_at), "MMM d, HH:mm")
       : `Game ${i + 1}`,
   }));
+
+  // Index of the first game played in each season, for the season boundary lines.
+  const seasonMarkers = seasonStarts.flatMap(({ number, startsAt }) => {
+    const startMs = new Date(startsAt).getTime();
+    const firstIndex = history.findIndex(
+      (point) =>
+        point.created_at != null &&
+        new Date(point.created_at).getTime() >= startMs,
+    );
+    return firstIndex > 0 ? [{ number, index: firstIndex + 1 }] : [];
+  });
 
   const ratings = chartData.map((d) => d.rating ?? 0);
   const minRating = Math.min(...ratings);
@@ -88,6 +113,20 @@ export function RatingHistoryChart({ puuid }: RatingHistoryChartProps) {
                 />
               }
             />
+            {seasonMarkers.map((marker) => (
+              <ReferenceLine
+                key={marker.number}
+                x={marker.index}
+                stroke="var(--muted-foreground)"
+                strokeDasharray="4 4"
+                label={{
+                  value: `S${marker.number}`,
+                  position: "insideTopLeft",
+                  fontSize: 10,
+                  fill: "var(--muted-foreground)",
+                }}
+              />
+            ))}
             <Line
               dataKey="rating"
               type="linear"

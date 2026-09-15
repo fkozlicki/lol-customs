@@ -50,6 +50,16 @@ export default {
       dark: "Dark",
       tooltip: "Theme: {label}",
     },
+    season: {
+      label: "Season {number}",
+      allTime: "All seasons",
+      current: "Current",
+      emptyPlayerTitle: "No games in Season {number}",
+      emptyPlayerDescription: "This player has not played in this season yet.",
+      showAllTime: "Show all seasons",
+      summariesTitle: "Seasons",
+      summaryRecord: "{wins}W / {losses}L",
+    },
     pages: {
       leaderboard: {
         title: "Leaderboard",
@@ -208,7 +218,8 @@ export default {
           soldPause: "Finalizing the sale...",
           passOpeningHint:
             "Both captains passing sends the player to the back of the draw; passing is cancelled as soon as anyone bids.",
-          passHint: "Passing concedes the current player to the leading captain.",
+          passHint:
+            "Passing concedes the current player to the leading captain.",
           opponentPassed:
             "Your opponent passed — one more pass sends this player to the back of the draw.",
           myPassed:

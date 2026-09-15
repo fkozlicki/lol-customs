@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ChampionImage } from "@/components/game-assets/champion-image";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { SpellImage } from "@/components/game-assets/spell-image";
+import { withSeason } from "@/utils/season";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";
 
 interface MatchParticipantInfoProps {
@@ -13,6 +17,8 @@ export default function MatchParticipantInfo({
   p,
   rawData,
 }: MatchParticipantInfoProps) {
+  const season = useSeasonParam();
+
   return (
     <div className="flex items-center gap-1">
       <div className="relative">
@@ -46,11 +52,12 @@ export default function MatchParticipantInfo({
       </div>
       <div className="flex flex-col gap-0.5">
         <Link
-          href={
+          href={withSeason(
             p.players?.game_name && p.players?.tag_line
               ? `/players/${encodeURIComponent(p.players.game_name)}-${encodeURIComponent(p.players.tag_line)}`
-              : "#"
-          }
+              : "#",
+            season,
+          )}
           className="text-muted-foreground text-xs max-w-[90px] truncate hover:underline underline-offset-2"
         >
           {p.players.game_name}

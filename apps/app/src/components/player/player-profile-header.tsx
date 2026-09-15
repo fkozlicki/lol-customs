@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { ALL_TIME_SEASON } from "@v1/api/season";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useTRPC } from "@/trpc/react";
 
@@ -17,7 +18,10 @@ export function PlayerProfileHeader({
 }: PlayerProfileHeaderProps) {
   const trpc = useTRPC();
   const { data: stats } = useSuspenseQuery(
-    trpc.players.profileStats.queryOptions({ puuid }),
+    trpc.players.profileStats.queryOptions({
+      puuid,
+      season: ALL_TIME_SEASON,
+    }),
   );
 
   const name = stats?.player?.game_name ?? gameName;

@@ -16,6 +16,7 @@ import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
 import LeaderboardRow from "./leaderboard-row";
 
 interface LeaderboardProps {
+  season: number;
   limit?: number;
   after?: number;
 }
@@ -34,17 +35,18 @@ function parseAfterGames(
   return Math.min(value, maxAfter);
 }
 
-export function Leaderboard({ limit = 50, after }: LeaderboardProps) {
+export function Leaderboard({ season, limit = 50, after }: LeaderboardProps) {
   const t = useScopedI18n("dashboard.pages.leaderboard");
   const trpc = useTRPC();
   const { data: gamesPlayed = 0 } = useSuspenseQuery(
-    trpc.riftRank.ladderRatedMatchCount.queryOptions(),
+    trpc.riftRank.ladderRatedMatchCount.queryOptions({ season }),
   );
 
   const afterGames = parseAfterGames(gamesPlayed, after);
 
   const { data: leaderboard } = useSuspenseQuery(
     trpc.riftRank.leaderboard.queryOptions({
+      season,
       limit,
       afterGames,
     }),

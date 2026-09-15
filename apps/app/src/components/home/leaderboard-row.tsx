@@ -5,8 +5,10 @@ import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { TableCell, TableRow } from "@v1/ui/table";
 import Link from "next/link";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
+import { withSeason } from "@/utils/season";
 import { formatKda, formatKdaRatio, formatWinrate } from "@/utils/stats";
 import { BestStreak } from "./best-streak";
 import CurrentStreak from "./current-streak";
@@ -21,6 +23,7 @@ interface LeaderboardRowProps {
 
 export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
   const t = useScopedI18n("dashboard.pages.leaderboard");
+  const season = useSeasonParam();
 
   const rank = index + 1;
   const name = row.player?.game_name
@@ -53,11 +56,12 @@ export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
       </TableCell>
       <TableCell className="whitespace-nowrap px-4 py-3">
         <Link
-          href={
+          href={withSeason(
             row.player?.game_name && row.player?.tag_line
               ? `/players/${encodeURIComponent(row.player.game_name)}-${encodeURIComponent(row.player.tag_line)}`
-              : "#"
-          }
+              : "#",
+            season,
+          )}
           className={cn(
             "flex items-center gap-3 font-medium hover:underline underline-offset-2",
           )}

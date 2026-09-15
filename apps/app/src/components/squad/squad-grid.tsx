@@ -4,10 +4,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlayerSquadCard } from "@/components/squad/player-squad-card";
 import { useTRPC } from "@/trpc/react";
 
-export function SquadGrid() {
+export function SquadGrid({ season }: { season: number }) {
   const trpc = useTRPC();
   const { data: players } = useSuspenseQuery(
-    trpc.duos.duosPerPlayer.queryOptions({ partnerLimit: 3 }),
+    trpc.duos.duosPerPlayer.queryOptions({ season, partnerLimit: 3 }),
   );
 
   return (
