@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { UserProvider } from "@/components/auth/user-context";
+import { MotionProvider } from "@/components/motion/motion-provider";
 import { I18nProviderClient } from "@/locales/client";
 import { TRPCReactProvider } from "@/trpc/react";
 
@@ -53,7 +54,9 @@ export default async function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <NuqsAdapter>{children}</NuqsAdapter>
+                <NuqsAdapter>
+                  <MotionProvider>{children}</MotionProvider>
+                </NuqsAdapter>
                 <Toaster richColors={true} />
                 <SignInDialog />
               </ThemeProvider>

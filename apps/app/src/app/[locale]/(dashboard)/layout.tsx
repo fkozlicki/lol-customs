@@ -1,28 +1,18 @@
-import { SidebarInset } from "@v1/ui/sidebar";
-import { AppHeader } from "@/components/dashboard/app-header";
-import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { DownloadAppDialog } from "@/components/dashboard/download-app-dialog";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
+import { TopBar } from "@/components/dashboard/top-bar";
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}
-
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
-  params,
-}: DashboardLayoutProps) {
-  const { locale } = await params;
-
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <DashboardSidebar locale={locale}>
-      <SidebarInset className="min-w-0">
-        <AppHeader />
-        <div className="flex-1 overflow-hidden bg-secondary/50 dark:bg-secondary/40">
-          {children}
-        </div>
-        <MobileNav />
-      </SidebarInset>
-    </DashboardSidebar>
+    <div className="flex min-h-dvh flex-col">
+      <TopBar />
+      <main className="min-w-0 flex-1 pb-20 md:pb-0">{children}</main>
+      <MobileNav />
+      <DownloadAppDialog />
+    </div>
   );
 }

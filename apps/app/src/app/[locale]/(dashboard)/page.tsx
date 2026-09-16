@@ -1,3 +1,4 @@
+import { ALL_TIME_SEASON } from "@v1/api/season";
 import { Suspense } from "react";
 import { maxHistoricallyAfterGames } from "@/components/home/leaderboard-after-games";
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
@@ -5,6 +6,7 @@ import { Leaderboard } from "@/components/home/leaderboard-preview";
 import LeaderboardSkeleton from "@/components/home/leaderboard-skeleton";
 import { getScopedI18n } from "@/locales/server";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
 
 interface DashboardHomePageProps {
@@ -14,9 +16,13 @@ interface DashboardHomePageProps {
 export default async function DashboardHomePage({
   searchParams,
 }: DashboardHomePageProps) {
-  const t = await getScopedI18n("dashboard.pages.leaderboard");
+  const t = await getScopedI18n("dashboard.season");
   const { after, season: seasonParam } = await searchParams;
-  const { season } = await getSeasonScope(seasonParam);
+  const { season, seasons } = await getSeasonScope(seasonParam);
+  const seasonTitle =
+    season === ALL_TIME_SEASON
+      ? t("allTime")
+      : t("label", { number: seasonNumber(season, seasons) ?? season });
 
   const queryClient = getQueryClient();
   const gamesPlayed = await queryClient.fetchQuery(
@@ -41,17 +47,20 @@ export default async function DashboardHomePage({
 
   return (
     <HydrateClient>
-      <div className="space-y-6 p-4 max-w-4xl mx-auto w-full">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground text-sm">{t("description")}</p>
-        </div>
-        <LeaderboardHistoryPicker gamesPlayed={gamesPlayed} />
+      <div className="mx-auto w-full max-w-6xl px-4 pt-10 pb-16 sm:pt-16">
         <Suspense
           fallback={<LeaderboardSkeleton />}
           key={`${season}:${afterGames ?? "live"}`}
         >
-          <Leaderboard season={season} limit={50} after={afterGames} />
+          <Leaderboard
+            season={season}
+            seasonTitle={seasonTitle}
+            limit={50}
+            after={afterGames}
+            historyPicker={
+              <LeaderboardHistoryPicker gamesPlayed={gamesPlayed} />
+            }
+          />
         </Suspense>
       </div>
     </HydrateClient>

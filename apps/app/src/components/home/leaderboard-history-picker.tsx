@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { ScrollArea, ScrollBar } from "@v1/ui/scroll-area";
 import { parseAsInteger, useQueryState } from "nuqs";
@@ -31,36 +30,55 @@ export default function LeaderboardHistoryPicker({
       ? Array.from({ length: numericMax }, (_, index) => index + 1)
       : [];
 
+  if (gameOptions.length === 0) return null;
+
   return (
-    <div className={cn("border rounded-lg overflow-hidden", className)}>
-      <div className="flex items-center">
-        <ScrollArea className="overflow-x-auto">
-          <div className="flex items-center">
+    <div className={cn("flex items-center gap-4", className)}>
+      <span className="label-caps shrink-0">{t("historyLabel")}</span>
+      <div className="flex min-w-0 flex-1 items-stretch border">
+        <ScrollArea className="min-w-0 flex-1">
+          <div className="flex">
             {gameOptions.map((gameCount) => (
-              <Button
+              <PickerButton
                 key={gameCount}
-                type="button"
-                size="xl"
-                variant={after === gameCount ? "default" : "outline"}
+                active={after === gameCount}
                 onClick={() => setAfter(gameCount)}
-                className="w-16 rounded-none border-0 border-r"
               >
                 {gameCount}
-              </Button>
+              </PickerButton>
             ))}
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        <Button
-          type="button"
-          size="xl"
-          variant={!after ? "default" : "outline"}
-          onClick={() => setAfter(null)}
-          className="w-16 rounded-none border-none"
-        >
+        <PickerButton active={!after} onClick={() => setAfter(null)}>
           {t("historyLive")}
-        </Button>
+        </PickerButton>
       </div>
     </div>
+  );
+}
+
+function PickerButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "num h-8 min-w-10 shrink-0 border-r px-2 text-xs uppercase transition-colors last:border-r-0",
+        active
+          ? "bg-foreground text-background"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
   );
 }
