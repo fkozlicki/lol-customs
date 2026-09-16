@@ -63,6 +63,25 @@ export default {
       summaryRecord: "{wins}W / {losses}L",
     },
     pages: {
+      player: {
+        position: "Position",
+        rating: "Rating",
+        record: "Record",
+        kda: "KDA",
+        mvp: "MVP",
+        ace: "ACE",
+        streak: "Streak",
+        best: "Best {count}",
+        qualifying: "Qualifying",
+        qualifyingProgress: "{matches} of {count} matches",
+        ratingHistory: "Rating history",
+        noRatingHistory: "No rating history yet.",
+        mostPlayed: "Most played",
+        noChampionData: "No champions yet.",
+        matchesLabel: "matches",
+        matches: "Matches",
+        unranked: "Unranked",
+      },
       leaderboard: {
         title: "Leaderboard",
         description: "Player ratings and standings.",
@@ -88,7 +107,8 @@ export default {
         qualifyingTitle: "Qualifying",
         qualifyingHint: "Ranked after {count} matches",
         podiumQualifying: "Qualifying in progress",
-        podiumQualifyingHint: "The podium fills up once players reach {count} matches.",
+        podiumQualifyingHint:
+          "The podium fills up once players reach {count} matches.",
         noMatchesYet: "No matches in this season yet.",
       },
       matchHistory: {

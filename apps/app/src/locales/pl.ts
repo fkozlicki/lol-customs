@@ -64,6 +64,25 @@ export default {
       summaryRecord: "{wins}W / {losses}P",
     },
     pages: {
+      player: {
+        position: "Pozycja",
+        rating: "Punkty",
+        record: "Bilans",
+        kda: "KDA",
+        mvp: "MVP",
+        ace: "ACE",
+        streak: "Seria",
+        best: "Rekord {count}",
+        qualifying: "W kwalifikacjach",
+        qualifyingProgress: "{matches} z {count} meczów",
+        ratingHistory: "Historia punktów",
+        noRatingHistory: "Brak historii punktów.",
+        mostPlayed: "Najczęściej grane",
+        noChampionData: "Brak postaci.",
+        matchesLabel: "mecze",
+        matches: "Mecze",
+        unranked: "Bez rangi",
+      },
       leaderboard: {
         title: "Ranking",
         description: "Oceny i pozycje graczy.",
@@ -89,7 +108,8 @@ export default {
         qualifyingTitle: "W kwalifikacjach",
         qualifyingHint: "Pozycja po {count} meczach",
         podiumQualifying: "Kwalifikacje trwają",
-        podiumQualifyingHint: "Podium zapełni się, gdy gracze rozegrają {count} meczów.",
+        podiumQualifyingHint:
+          "Podium zapełni się, gdy gracze rozegrają {count} meczów.",
         noMatchesYet: "Brak meczów w tym sezonie.",
       },
       matchHistory: {

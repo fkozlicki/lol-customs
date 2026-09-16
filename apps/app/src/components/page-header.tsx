@@ -29,3 +29,19 @@ export function PageHeader({
     </header>
   );
 }
+
+/** Uppercase section title with a hairline above; the standard block heading below a page header. */
+export function SectionHeading({
+  children,
+  action,
+}: {
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between border-t pt-3 pb-4">
+      <h2 className="label-caps text-foreground">{children}</h2>
+      {action}
+    </div>
+  );
+}

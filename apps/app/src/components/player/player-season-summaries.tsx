@@ -1,9 +1,9 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { cn } from "@v1/ui/cn";
 import Link from "next/link";
+import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { SEASON_PARAM, type SeasonOption } from "@/utils/season";
@@ -29,11 +29,9 @@ export function PlayerSeasonSummaries({
   if (summaries.length === 0) return null;
 
   return (
-    <Card className="ring-0 rounded-sm">
-      <CardHeader className="pb-2">
-        <CardTitle>{t("summariesTitle")}</CardTitle>
-      </CardHeader>
-      <CardContent className="divide-y divide-border/40">
+    <section>
+      <SectionHeading>{t("summariesTitle")}</SectionHeading>
+      <div className="divide-y">
         {[...summaries].reverse().map((summary) => {
           const number =
             seasons.find((s) => s.id === summary.seasonId)?.number ??
@@ -43,29 +41,29 @@ export function PlayerSeasonSummaries({
               key={summary.seasonId}
               href={`?${SEASON_PARAM}=${summary.seasonId}`}
               className={cn(
-                "flex items-center justify-between py-1.5 text-sm hover:underline underline-offset-2",
-                summary.seasonId === season && "font-semibold",
+                "flex items-center justify-between py-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground",
+                summary.seasonId === season && "text-foreground",
               )}
             >
-              <span className="text-muted-foreground">
+              <span className="label-caps text-inherit">
                 {t("label", { number })}
               </span>
               <span className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground">
+                <span className="num text-xs">
                   {t("summaryRecord", {
                     wins: summary.wins,
                     losses: summary.losses,
                   })}{" "}
                   · {formatWinrate(summary.wins, summary.losses)}
                 </span>
-                <span className="font-medium tabular-nums">
+                <span className="num font-semibold text-foreground">
                   {Math.round(summary.rating ?? 0)}
                 </span>
               </span>
             </Link>
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }
