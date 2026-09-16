@@ -64,7 +64,24 @@ export const playersRouter = createTRPCRouter({
           message: error.message,
         });
       }
-      return data;
+
+      const { data: position, error: positionError } = await ctx.supabase.rpc(
+        "standings_position",
+        { p_puuid: input.puuid, p_track: input.season },
+      );
+      if (positionError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: positionError.message,
+        });
+      }
+
+      return {
+        ...data,
+        matches_played: data.matches_played ?? 0,
+        qualified: data.qualified ?? false,
+        position: position ?? null,
+      };
     }),
 
   ratingHistory: publicProcedure

@@ -158,6 +158,8 @@ export const riftRankRouter = createTRPCRouter({
           avg_assists: row.avg_assists,
           mvp_games: row.mvp_games,
           ace_games: row.ace_games,
+          matches_played: row.wins + row.losses,
+          qualified: row.qualified,
           player: {
             puuid: row.puuid,
             game_name: row.game_name,
@@ -171,10 +173,11 @@ export const riftRankRouter = createTRPCRouter({
       const { data, error } = await ctx.supabase
         .from("ratings")
         .select(
-          "puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at, avg_kills, avg_deaths, avg_assists, mvp_games, ace_games, player:players!inner(puuid, game_name, tag_line, profile_icon, platform_id)",
+          "puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at, avg_kills, avg_deaths, avg_assists, mvp_games, ace_games, matches_played, qualified, player:players!inner(puuid, game_name, tag_line, profile_icon, platform_id)",
         )
         .eq("ladder_season_id", season)
         .not("rating", "is", null)
+        .order("qualified", { ascending: false })
         .order("rating", { ascending: false })
         .limit(limit);
 
@@ -185,7 +188,20 @@ export const riftRankRouter = createTRPCRouter({
         });
       }
 
-      return data;
+      // Qualified players keep rating order; players still qualifying go by matches played.
+      return data
+        .map((row) => ({
+          ...row,
+          matches_played: row.matches_played ?? 0,
+          qualified: row.qualified ?? false,
+        }))
+        .sort((a, b) => {
+          if (a.qualified !== b.qualified) return a.qualified ? -1 : 1;
+          const byRating = (b.rating ?? 0) - (a.rating ?? 0);
+          return a.qualified
+            ? byRating
+            : b.matches_played - a.matches_played || byRating;
+        });
     }),
 
   /** Returns top player for every HoF title plus the stat value. Single query round-trip. */
@@ -288,11 +304,9 @@ export const riftRankRouter = createTRPCRouter({
               .from("ratings")
               .select("puuid, wins, losses")
               .eq("ladder_season_id", input.season)
-              .not("wins", "is", null)
-              .not("losses", "is", null);
+              .eq("qualified", true);
             throwOnError(error);
             const withRate = (rows ?? [])
-              .filter((r) => (r.wins ?? 0) + (r.losses ?? 0) >= 10)
               .map((r) => ({
                 puuid: r.puuid,
                 rate: (r.wins ?? 0) / ((r.wins ?? 0) + (r.losses ?? 0)),
@@ -314,6 +328,7 @@ export const riftRankRouter = createTRPCRouter({
               .from("ratings")
               .select("puuid")
               .eq("ladder_season_id", input.season)
+              .eq("qualified", true)
               .eq("mvp_games", 0)
               .order("wins", { ascending: false })
               .limit(1);
@@ -328,6 +343,7 @@ export const riftRankRouter = createTRPCRouter({
               .from("ratings")
               .select("puuid")
               .eq("ladder_season_id", input.season)
+              .eq("qualified", true)
               .eq("ace_games", 0)
               .order("wins", { ascending: false })
               .limit(1);
@@ -345,6 +361,7 @@ export const riftRankRouter = createTRPCRouter({
                   `${config.column}, player:players!inner(game_name, tag_line, profile_icon)`,
                 )
                 .eq("ladder_season_id", input.season)
+                .eq("qualified", true)
                 .order(config.column, { ascending: config.ascending })
                 .limit(1);
 
