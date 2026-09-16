@@ -82,6 +82,7 @@ export default {
         matchesLabel: "mecze",
         matches: "Mecze",
         unranked: "Bez rangi",
+        soloDuo: "Solo/Duo",
       },
       leaderboard: {
         title: "Ranking",
@@ -133,6 +134,8 @@ export default {
         killParticipation: "Udział",
         expand: "Pokaż szczegóły meczu",
         perfect: "Perfect",
+        sideBlue: "Niebiescy",
+        sideRed: "Czerwoni",
       },
       duos: {
         title: "Rywalizacja",

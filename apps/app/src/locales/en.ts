@@ -81,6 +81,7 @@ export default {
         matchesLabel: "matches",
         matches: "Matches",
         unranked: "Unranked",
+        soloDuo: "Solo/Duo",
       },
       leaderboard: {
         title: "Leaderboard",
@@ -132,6 +133,8 @@ export default {
         killParticipation: "KP",
         expand: "Show match details",
         perfect: "Perfect",
+        sideBlue: "Blue",
+        sideRed: "Red",
       },
       duos: {
         title: "Rivalry",

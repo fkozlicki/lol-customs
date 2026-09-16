@@ -13,7 +13,7 @@ export default function DashboardTemplate({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: DURATION.fast }}
+      transition={{ inherit: true, duration: DURATION.fast }}
     >
       {children}
     </motion.div>

@@ -68,6 +68,14 @@ Dla każdego gracza, przy wyniku oczekiwanym drużyny \( E \) i jego skalowanym 
 
 Zmiana jest więc ograniczona do ±24 punktów na mecz.
 
+### Zmiana ratingu pokazywana przy meczu
+
+Zmiana ratingu w meczu to \( \text{rating}_{\text{po}} \) minus rating gracza po jego poprzednim meczu na tym samym torze (1000 dla pierwszego meczu na torze). Zrzuty są łączone po liczbie rozegranych meczów, a nie po dacie, więc spóźniony upload porównuje się z ratingiem, do którego faktycznie został doliczony.
+
+### Kwalifikacja i pozycja w rankingu
+
+Gracz jest **zakwalifikowany** na torze ratingu po **5 meczach** na tym torze (każdy sezon i tor all-time liczą się osobno). Tylko zakwalifikowani gracze mają pozycję w rankingu i pojawiają się w Hall of Fame (we wszystkich kategoriach, także win rate) oraz w Rivalry. Pozycja to \( 1 + \) liczba zakwalifikowanych graczy z wyższym ratingiem, więc równy rating daje tę samą pozycję.
+
 ---
 
 ## Formuła OP Score

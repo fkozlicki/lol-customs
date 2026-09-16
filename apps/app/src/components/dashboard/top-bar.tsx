@@ -137,7 +137,7 @@ function ActiveMarker() {
   return (
     <motion.span
       layoutId="top-bar-active"
-      transition={{ duration: DURATION.base }}
+      transition={{ inherit: true, duration: DURATION.base }}
       className="absolute inset-x-0 -bottom-px h-0.5 bg-foreground"
     />
   );

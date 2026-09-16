@@ -66,7 +66,7 @@ export function Leaderboard({
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: DURATION.base }}
+            transition={{ inherit: true, duration: DURATION.base }}
             className="label-caps"
           >
             {t("title")}
@@ -74,7 +74,7 @@ export function Leaderboard({
           <motion.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: DURATION.slow }}
+            transition={{ inherit: true, duration: DURATION.slow }}
             className="text-[clamp(3.25rem,13vw,9rem)] font-semibold uppercase leading-[0.85] tracking-[-0.045em]"
           >
             {seasonTitle}
@@ -120,7 +120,12 @@ export function Leaderboard({
                   <LeaderboardRow
                     key={row.puuid}
                     row={row}
-                    position={index + 1}
+                    position={
+                      1 +
+                      qualified.filter(
+                        (other) => (other.rating ?? 0) > (row.rating ?? 0),
+                      ).length
+                    }
                     index={index}
                   />
                 ))}

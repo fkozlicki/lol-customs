@@ -38,7 +38,7 @@ export function PlayerSoloRank({
     <div className="flex items-center gap-1.5">
       <RankCrest tier={tier} width={16} height={16} className="shrink-0" />
       <span className="label-caps">
-        Solo/Duo ·{" "}
+        {t("soloDuo")} ·{" "}
         {tier ? [tier, division].filter(Boolean).join(" ") : t("unranked")}
         {soloQ && ` · ${soloQ.leaguePoints ?? 0} LP`}
       </span>

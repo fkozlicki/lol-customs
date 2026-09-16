@@ -59,7 +59,9 @@ export default function TeamTable({
             >
               {isVictorious ? t("victory") : t("defeat")}
             </span>{" "}
-            <span className="label-caps">· {side}</span>
+            <span className="label-caps">
+              · {side === "blue" ? t("sideBlue") : t("sideRed")}
+            </span>
           </TableHead>
           <TableHead className="label-caps text-center">
             {t("opScore")}
