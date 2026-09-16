@@ -1,4 +1,4 @@
-# Custom Ladder
+# Derby
 
 An Elo ladder for a group's League of Legends custom games.
 
@@ -85,7 +85,3 @@ CI runs `lint` and `typecheck` on every push.
 See [apps/lcu/README.md](apps/lcu/README.md). In short: `cd apps/lcu && bun run release` builds a
 Windows installer with the Supabase config embedded, and `LCU_MINIMUM_VERSION` in the dashboard prompts
 older clients to update.
-
-## License
-
-[MIT](LICENSE.md)

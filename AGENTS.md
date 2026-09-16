@@ -1,4 +1,4 @@
-# Custom Ladder
+# Derby
 
 An Elo ladder for a group's League of Legends custom games. A desktop app uploads matches from the League
 client, Supabase rates them, and a Next.js app shows leaderboards, match history, Hall of Fame and more.
@@ -14,7 +14,7 @@ See [README.md](README.md) for setup.
 
 ## Layout
 
-- `apps/lcu`: Electron app ("Niunio") that reads custom games from the League client and writes them
+- `apps/lcu`: **Derby Sync**, the Electron app (still built and shown as "Niunio") that reads custom games from the League client and writes them
   straight into Supabase tables. Distributed as an installer to non-technical users.
 - `apps/api`: the Supabase project: migrations, pgTAP tests, config. Not the tRPC server.
 - `apps/app`: Next.js dashboard (next-international with `en` and `pl`, tRPC, Supabase auth).

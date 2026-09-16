@@ -1,9 +1,13 @@
-# Custom Ladder
+# Derby
 
 An Elo ladder for a group's League of Legends custom games: matches uploaded from the League client are
 rated, and players are ranked per season and across all seasons.
 
 ## Language
+
+**Derby Sync**:
+The desktop app a player installs to upload their matches from the League client.
+_Avoid_: Niunio, LCU app
 
 ### Matches
 
@@ -66,6 +70,15 @@ _Avoid_: Season final rating, final standings
 **Streak**:
 A player's run of consecutive wins or losses on a rating track, ending at their latest match. On a
 season's track it starts from zero; on the all-time track it runs across season boundaries.
+
+**Qualified player**:
+A player with at least five matches on a rating track. Only qualified players hold a position in the
+standings and appear in Hall of Fame and Rivalry; the rest are still qualifying on that track.
+_Avoid_: Ranked player, active player
+
+**Rating change**:
+How much a single match raised or lowered a player's rating on a rating track.
+_Avoid_: LP, delta, gain
 
 **Best streak**:
 The longest win streak a player has had on a rating track.
