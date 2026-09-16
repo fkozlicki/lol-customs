@@ -45,8 +45,11 @@ export function SeasonSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <Icons.Calendar className="size-3.5" />
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em]"
+        >
           {label}
           <Icons.ChevronDown className="size-3.5 text-muted-foreground" />
         </Button>

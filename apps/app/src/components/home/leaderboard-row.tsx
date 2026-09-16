@@ -1,139 +1,169 @@
 "use client";
 
 import type { RouterOutputs } from "@v1/api";
+import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
-import { TableCell, TableRow } from "@v1/ui/table";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
+import { DURATION, STAGGER } from "@/utils/motion";
+import { playerHref } from "@/utils/riot-id";
 import { withSeason } from "@/utils/season";
 import { formatKda, formatKdaRatio, formatWinrate } from "@/utils/stats";
-import { BestStreak } from "./best-streak";
 import CurrentStreak from "./current-streak";
-import RankBadge from "./rank-badge";
 
 type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
 
 interface LeaderboardRowProps {
   row: LeaderboardRow;
+  /** Standings position; absent while the player is still qualifying. */
+  position?: number;
   index: number;
 }
 
-export default function LeaderboardRow({ row, index }: LeaderboardRowProps) {
+export default function LeaderboardRow({
+  row,
+  position,
+  index,
+}: LeaderboardRowProps) {
   const t = useScopedI18n("dashboard.pages.leaderboard");
   const season = useSeasonParam();
 
-  const rank = index + 1;
-  const name = row.player?.game_name
-    ? `${row.player.game_name}`
-    : row.puuid.slice(0, 8);
-  const isLeader = rank === 1;
-  const isTopThree = rank <= 3;
+  const name = row.player?.game_name ?? row.puuid.slice(0, 8);
+  const wins = row.wins ?? 0;
+  const losses = row.losses ?? 0;
+  const isQualifying = position == null;
 
   return (
-    <TableRow
-      key={row.puuid}
-      className={cn(
-        "border-b border-border/40 last:border-0",
-        "hover:bg-muted/40",
-        isLeader && "bg-amber-500/5 dark:bg-amber-500/10 hover:bg-amber-500/10",
-        isTopThree && !isLeader && "bg-muted/20",
-      )}
+    <motion.tr
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        delay: Math.min(index, 15) * STAGGER,
+        duration: DURATION.base,
+      }}
+      className="group border-b transition-colors hover:bg-muted/40"
     >
-      <TableCell className="px-4 py-3">
-        <div className="flex justify-start">
-          <RankBadge
-            rank={rank}
-            labels={{
-              rank1st: t("rank1st"),
-              rank2nd: t("rank2nd"),
-              rank3rd: t("rank3rd"),
-            }}
-          />
-        </div>
-      </TableCell>
-      <TableCell className="whitespace-nowrap px-4 py-3">
+      <td className="h-14 pl-4 pr-3 sm:pl-0">
+        {isQualifying ? (
+          <QualifyingProgress matches={row.matches_played} />
+        ) : (
+          <span
+            className={cn(
+              "num",
+              position <= 3
+                ? "font-semibold text-foreground"
+                : "text-muted-foreground",
+            )}
+          >
+            {String(position).padStart(2, "0")}
+          </span>
+        )}
+      </td>
+      <td className="px-3">
         <Link
           href={withSeason(
-            row.player?.game_name && row.player?.tag_line
-              ? `/players/${encodeURIComponent(row.player.game_name)}-${encodeURIComponent(row.player.tag_line)}`
-              : "#",
+            playerHref(row.player?.game_name, row.player?.tag_line),
             season,
           )}
-          className={cn(
-            "flex items-center gap-3 font-medium hover:underline underline-offset-2",
-          )}
+          className="flex min-w-0 items-center gap-3"
         >
           <ProfileIcon
             iconId={row.player?.profile_icon ?? null}
             name={name}
             fallbackChars={1}
-            avatarClassName={cn(
-              "ring-2 ring-border/50",
-              isLeader ? "size-11 ring-amber-500/40" : "size-9",
-            )}
-            fallbackClassName={cn(
-              "text-xs",
-              isLeader
-                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                : "bg-muted text-muted-foreground",
-            )}
+            avatarClassName="size-8 rounded-none"
+            fallbackClassName="rounded-none text-xs"
           />
-          <span className={cn(isLeader && "font-semibold text-foreground")}>
+          <span className="truncate font-medium underline-offset-4 group-hover:underline">
             {name}
           </span>
-          {isLeader && (
-            <Icons.Leaderboard className="size-4 text-amber-500 dark:text-amber-400 shrink-0" />
-          )}
         </Link>
-      </TableCell>
-      <TableCell className="px-4 py-3 text-center font-medium">
-        {Math.round(row.rating ?? 0)}
-      </TableCell>
-
-      <TableCell className="px-4 py-3 text-center">
-        <span className="font-medium text-xs">
-          {formatWinrate(row.wins, row.losses)}
+      </td>
+      <td className="px-3 text-right">
+        <span
+          className={cn(
+            "num text-base font-semibold",
+            isQualifying && "font-normal text-muted-foreground",
+          )}
+        >
+          {Math.round(row.rating ?? 0)}
         </span>
-      </TableCell>
-      <TableCell className="px-4 py-3 text-center">
-        <div className=" flex flex-col items-center">
-          <span className="font-medium text-xs">
-            {(row.wins ?? 0) + (row.losses ?? 0)}
-          </span>
+      </td>
+      <td className="num px-3 text-right text-muted-foreground">
+        {formatWinrate(wins, losses)}
+      </td>
+      <td className="hidden px-3 text-right sm:table-cell">
+        <div className="num flex flex-col items-end leading-tight">
+          <span>{wins + losses}</span>
           <span className="text-[11px] text-muted-foreground">
-            <span className="text-green-700">{row.wins ?? 0}</span>/
-            <span className="text-red-700">{row.losses ?? 0}</span>
+            <span className="text-win">{wins}</span>–
+            <span className="text-loss">{losses}</span>
           </span>
         </div>
-      </TableCell>
-      <TableCell className="px-4 py-3">
-        <div className="flex flex-col items-center">
-          <span className="text-xs font-medium">
+      </td>
+      <td className="hidden px-3 text-right md:table-cell">
+        <div className="num flex flex-col items-end leading-tight">
+          <span>
             {formatKdaRatio(row.avg_kills, row.avg_deaths, row.avg_assists)}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {formatKda(row.avg_kills, row.avg_deaths, row.avg_assists)}
           </span>
         </div>
-      </TableCell>
-      <TableCell className="px-4 py-3 text-center">
+      </td>
+      <td
+        className={cn(
+          "num hidden px-3 text-right md:table-cell",
+          row.mvp_games ? "text-mvp" : "text-muted-foreground",
+        )}
+      >
         {row.mvp_games ?? 0}
-      </TableCell>
-      <TableCell className="px-4 py-3 text-center">
+      </td>
+      <td
+        className={cn(
+          "num hidden px-3 text-right md:table-cell",
+          row.ace_games ? "text-ace" : "text-muted-foreground",
+        )}
+      >
         {row.ace_games ?? 0}
-      </TableCell>
-      <TableCell className="px-4 py-3">
-        <div className="flex flex-col items-center">
+      </td>
+      <td className="hidden pl-3 pr-4 text-right sm:table-cell sm:pr-0">
+        <div className="flex flex-col items-end leading-tight">
           <CurrentStreak
             winStreak={row.win_streak}
             loseStreak={row.lose_streak}
           />
-          {row.best_streak ? <BestStreak value={row.best_streak} /> : null}
+          {row.best_streak ? (
+            <span className="num text-[11px] text-muted-foreground">
+              {t("tableBest")} {row.best_streak}
+            </span>
+          ) : null}
         </div>
-      </TableCell>
-    </TableRow>
+      </td>
+    </motion.tr>
+  );
+}
+
+function QualifyingProgress({ matches }: { matches: number }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="num text-[11px] text-muted-foreground">
+        {matches}/{QUALIFICATION_MATCHES}
+      </span>
+      <div className="flex gap-0.5">
+        {Array.from({ length: QUALIFICATION_MATCHES }).map((_, i) => (
+          <span
+            key={i}
+            className={cn(
+              "h-1 w-1.5",
+              i < matches ? "bg-foreground" : "bg-border",
+            )}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
