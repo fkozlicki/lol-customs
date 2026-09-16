@@ -1,7 +1,6 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
@@ -17,6 +16,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { SectionHeading } from "@/components/page-header";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface RatingHistoryChartProps {
@@ -38,6 +39,7 @@ export function RatingHistoryChart({
   season,
   seasonStarts = [],
 }: RatingHistoryChartProps) {
+  const t = useScopedI18n("dashboard.pages.player");
   const trpc = useTRPC();
   const { data: history } = useSuspenseQuery(
     trpc.players.ratingHistory.queryOptions({ puuid, season }),
@@ -45,16 +47,10 @@ export function RatingHistoryChart({
 
   if (!history || history.length === 0) {
     return (
-      <Card className="ring-0 rounded-sm">
-        <CardHeader className="pb-2">
-          <CardTitle>Rating History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No rating history yet.
-          </p>
-        </CardContent>
-      </Card>
+      <section>
+        <SectionHeading>{t("ratingHistory")}</SectionHeading>
+        <p className="text-sm text-muted-foreground">{t("noRatingHistory")}</p>
+      </section>
     );
   }
 
@@ -85,64 +81,70 @@ export function RatingHistoryChart({
   const yMax = Math.ceil((maxRating + padding) / 10) * 10;
 
   return (
-    <Card className="ring-0 rounded-sm">
-      <CardHeader className="pb-2">
-        <CardTitle>Rating History</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-48 w-full">
-          <LineChart
-            data={chartData}
-            margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="index" hide />
-            <YAxis
-              domain={[yMin, yMax]}
-              tick={{ fontSize: 11 }}
-              tickLine={false}
-              axisLine={false}
-              width={40}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(_, payload) =>
-                    payload?.[0]?.payload?.date ?? ""
-                  }
-                />
-              }
-            />
-            {seasonMarkers.map((marker) => (
-              <ReferenceLine
-                key={marker.number}
-                x={marker.index}
-                stroke="var(--muted-foreground)"
-                strokeDasharray="4 4"
-                label={{
-                  value: `S${marker.number}`,
-                  position: "insideTopLeft",
-                  fontSize: 10,
-                  fill: "var(--muted-foreground)",
-                }}
+    <section>
+      <SectionHeading>{t("ratingHistory")}</SectionHeading>
+      <ChartContainer config={chartConfig} className="h-56 w-full">
+        <LineChart
+          data={chartData}
+          margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid vertical={false} stroke="var(--border)" />
+          <ReferenceLine
+            y={1000}
+            stroke="var(--muted-foreground)"
+            strokeDasharray="2 4"
+          />
+          <XAxis dataKey="index" hide />
+          <YAxis
+            domain={[yMin, yMax]}
+            tick={{
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+              fill: "var(--muted-foreground)",
+            }}
+            tickLine={false}
+            axisLine={false}
+            width={40}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                labelFormatter={(_, payload) =>
+                  payload?.[0]?.payload?.date ?? ""
+                }
               />
-            ))}
-            <Line
-              dataKey="rating"
-              type="linear"
-              stroke="var(--color-rating)"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{
-                r: 5,
-                stroke: "var(--color-rating)",
-                strokeWidth: 2,
-                fill: "var(--background)",
+            }
+          />
+          {seasonMarkers.map((marker) => (
+            <ReferenceLine
+              key={marker.number}
+              x={marker.index}
+              stroke="var(--muted-foreground)"
+              strokeDasharray="4 4"
+              label={{
+                value: `S${marker.number}`,
+                position: "insideTopLeft",
+                fontSize: 10,
+                fill: "var(--muted-foreground)",
               }}
             />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+          ))}
+          <Line
+            dataKey="rating"
+            type="linear"
+            stroke="var(--color-rating)"
+            strokeWidth={1.5}
+            dot={false}
+            animationDuration={800}
+            activeDot={{
+              r: 5,
+              stroke: "var(--color-rating)",
+              strokeWidth: 2,
+              fill: "var(--background)",
+            }}
+          />
+        </LineChart>
+      </ChartContainer>
+    </section>
   );
 }
