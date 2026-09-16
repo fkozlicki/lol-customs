@@ -1,7 +1,52 @@
 import { TRPCError } from "@trpc/server";
+import type { Client } from "@v1/supabase/types";
 import { z } from "zod";
 import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+
+/** Adds each participant's rating change on the given track (null when the match is not on it). */
+async function withRatingChanges<
+  T extends { match_id: number; match_participants: { puuid: string }[] },
+>(
+  supabase: Client,
+  matches: T[],
+  season: number,
+): Promise<
+  Array<
+    Omit<T, "match_participants"> & {
+      match_participants: Array<
+        T["match_participants"][number] & { rating_change: number | null }
+      >;
+    }
+  >
+> {
+  const matchIds = matches.map((m) => m.match_id);
+  const changes = new Map<string, number>();
+
+  if (matchIds.length > 0) {
+    const { data, error } = await supabase.rpc("rating_changes", {
+      p_match_ids: matchIds,
+      p_track: season,
+    });
+    if (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      });
+    }
+    for (const row of data ?? []) {
+      changes.set(`${row.match_id}:${row.puuid}`, row.rating_change);
+    }
+  }
+
+  return matches.map((m) => ({
+    ...m,
+    match_participants: m.match_participants.map((p) => ({
+      ...p,
+      rating_change: changes.get(`${m.match_id}:${p.puuid}`) ?? null,
+    })),
+  }));
+}
 
 export const matchesRouter = createTRPCRouter({
   list: publicProcedure
@@ -50,7 +95,11 @@ export const matchesRouter = createTRPCRouter({
       const nextCursor = lastItem?.game_creation ?? null;
 
       return {
-        items: items.slice(0, input.limit),
+        items: await withRatingChanges(
+          ctx.supabase,
+          items.slice(0, input.limit),
+          input.season,
+        ),
         nextCursor,
       };
     }),
@@ -127,6 +176,9 @@ export const matchesRouter = createTRPCRouter({
 
       const lastMatchId = hasNextPage ? rows[rows.length - 1]?.match_id : null;
 
-      return { items, nextCursor: lastMatchId ?? null };
+      return {
+        items: await withRatingChanges(ctx.supabase, items, input.season),
+        nextCursor: lastMatchId ?? null,
+      };
     }),
 });

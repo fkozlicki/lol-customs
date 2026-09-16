@@ -41,7 +41,7 @@ async function fetchPlayers(
   return map;
 }
 
-/** Per-player: teammate puuid -> count (games/wins/losses). Top N by count. */
+/** Per-player: qualified teammate puuid -> count (games/wins/losses). Top N by count. */
 function buildTeammateCounts(
   rows: Array<{
     match_id: number;
@@ -51,6 +51,7 @@ function buildTeammateCounts(
   }>,
   filter: "all" | "win" | "loss",
   partnerLimit: number,
+  qualified: Set<string>,
 ): Map<string, Array<{ puuid: string; count: number }>> {
   const byMatchTeam = new Map<string, string[]>();
   for (const r of rows) {
@@ -79,6 +80,7 @@ function buildTeammateCounts(
       for (let j = 0; j < unique.length; j++) {
         if (i === j) continue;
         const other = unique[j]!;
+        if (!qualified.has(other)) continue;
         counts.set(other, (counts.get(other) ?? 0) + 1);
       }
     }
@@ -94,7 +96,7 @@ function buildTeammateCounts(
   return result;
 }
 
-/** From match_kills + match_participants: per killer_puuid -> top victim; per victim_puuid -> top killer. */
+/** From match_kills + match_participants: per killer_puuid -> top victim; per victim_puuid -> top killer. Qualified players only. */
 function buildKillStats(
   kills: Array<{
     match_id: number;
@@ -102,6 +104,7 @@ function buildKillStats(
     victim_participant_id: number;
   }>,
   participantToPuuid: Map<string, string>,
+  qualified: Set<string>,
 ): {
   mostKilled: Map<string, { puuid: string; count: number }>;
   mostlyKilledBy: Map<string, { puuid: string; count: number }>;
@@ -114,6 +117,7 @@ function buildKillStats(
     const killerPuuid = participantToPuuid.get(key);
     const victimPuuid = participantToPuuid.get(victimKey);
     if (!killerPuuid || !victimPuuid) continue;
+    if (!qualified.has(killerPuuid) || !qualified.has(victimPuuid)) continue;
     let vc = killerToVictimCount.get(killerPuuid);
     if (!vc) {
       vc = new Map();
@@ -162,8 +166,21 @@ export const duosRouter = createTRPCRouter({
         });
       const rows = mpRows ?? [];
 
-      const playerPuuidSet = new Set(rows.map((r) => r.puuid));
-      const playerPuuids = [...playerPuuidSet];
+      const { data: qualifiedRows, error: qualifiedError } = await ctx.supabase
+        .from("ratings")
+        .select("puuid")
+        .eq("ladder_season_id", season)
+        .eq("qualified", true);
+      if (qualifiedError)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: qualifiedError.message,
+        });
+      const qualified = new Set((qualifiedRows ?? []).map((r) => r.puuid));
+
+      const playerPuuids = [...new Set(rows.map((r) => r.puuid))].filter(
+        (puuid) => qualified.has(puuid),
+      );
 
       const mostGamesWith = buildTeammateCounts(
         rows.map((r) => ({
@@ -174,6 +191,7 @@ export const duosRouter = createTRPCRouter({
         })),
         "all",
         partnerLimit,
+        qualified,
       );
       const mostWinsWith = buildTeammateCounts(
         rows.map((r) => ({
@@ -184,6 +202,7 @@ export const duosRouter = createTRPCRouter({
         })),
         "win",
         partnerLimit,
+        qualified,
       );
       const mostLossesWith = buildTeammateCounts(
         rows.map((r) => ({
@@ -194,6 +213,7 @@ export const duosRouter = createTRPCRouter({
         })),
         "loss",
         partnerLimit,
+        qualified,
       );
 
       const participantToPuuid = new Map<string, string>();
@@ -233,6 +253,7 @@ export const duosRouter = createTRPCRouter({
       const { mostKilled, mostlyKilledBy } = buildKillStats(
         killRows ?? [],
         participantToPuuid,
+        qualified,
       );
 
       return buildPerPlayerResult(
