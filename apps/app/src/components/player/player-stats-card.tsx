@@ -28,17 +28,14 @@ export function PlayerStatsCard({ puuid, season }: PlayerStatsCardProps) {
 
   return (
     <div className="grid grid-cols-2 border-t border-l sm:grid-cols-4 lg:grid-cols-7">
-      <Stat
-        label={t("position")}
-        className="col-span-2 sm:col-span-2 lg:col-span-2"
-      >
+      <Stat label={t("position")} className="sm:col-span-2">
         {stats.qualified && stats.position != null ? (
-          <span className="num text-5xl font-semibold leading-none sm:text-6xl">
+          <span className="num text-4xl font-semibold leading-none sm:text-6xl">
             #{String(stats.position).padStart(2, "0")}
           </span>
         ) : (
           <div className="flex flex-col gap-2">
-            <span className="text-2xl font-semibold uppercase leading-none tracking-[-0.02em]">
+            <span className="text-lg font-semibold uppercase leading-none tracking-[-0.02em] sm:text-2xl">
               {t("qualifying")}
             </span>
             <span className="num text-xs text-muted-foreground">
@@ -50,11 +47,8 @@ export function PlayerStatsCard({ puuid, season }: PlayerStatsCardProps) {
           </div>
         )}
       </Stat>
-      <Stat
-        label={t("rating")}
-        className="col-span-2 sm:col-span-2 lg:col-span-1"
-      >
-        <span className="num text-5xl font-semibold leading-none sm:text-6xl lg:text-4xl">
+      <Stat label={t("rating")} className="sm:col-span-2 lg:col-span-1">
+        <span className="num text-4xl font-semibold leading-none sm:text-6xl lg:text-4xl">
           {Math.round(stats.rating ?? 0)}
         </span>
       </Stat>

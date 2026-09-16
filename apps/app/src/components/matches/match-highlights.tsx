@@ -17,7 +17,7 @@ export function MatchHighlights({
   const ace = participants.find((p) => p.is_ace);
 
   return (
-    <div className="flex flex-1 items-center gap-5 sm:gap-8">
+    <div className="flex min-w-0 flex-1 items-center gap-5 overflow-hidden sm:gap-8">
       <div className="flex flex-col gap-1">
         <span className="label-caps">{t("winner")}</span>
         <span className="text-sm font-semibold uppercase tracking-[0.08em]">
@@ -25,7 +25,12 @@ export function MatchHighlights({
         </span>
       </div>
       <Highlight participant={mvp} label={t("mvp")} tone="mvp" />
-      <Highlight participant={ace} label={t("ace")} tone="ace" />
+      <Highlight
+        participant={ace}
+        label={t("ace")}
+        tone="ace"
+        className="hidden sm:flex"
+      />
     </div>
   );
 }
@@ -34,15 +39,17 @@ function Highlight({
   participant,
   label,
   tone,
+  className,
 }: {
   participant: MatchParticipant | undefined;
   label: string;
   tone: "mvp" | "ace";
+  className?: string;
 }) {
   if (!participant) return null;
 
   return (
-    <div className="flex min-w-0 items-center gap-2.5">
+    <div className={cn("flex min-w-0 items-center gap-2.5", className)}>
       <ChampionImage
         championId={participant.champion_id}
         width={40}
