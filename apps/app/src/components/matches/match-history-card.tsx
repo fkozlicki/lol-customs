@@ -16,7 +16,7 @@ export default function MatchHistoryCard({
   puuid,
 }: MatchHistoryCardProps) {
   return (
-    <div key={match.match_id} className="space-y-1">
+    <div key={match.match_id}>
       <MatchCard
         match={match}
         isExpanded={expandedMatchId === match.match_id}

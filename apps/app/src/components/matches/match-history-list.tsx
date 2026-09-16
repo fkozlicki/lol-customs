@@ -2,7 +2,6 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
 import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
 import { useScopedI18n } from "@/locales/client";
@@ -59,19 +58,12 @@ export function MatchHistoryList({ season }: { season: number }) {
 
   if (!matches.length) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("emptyTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">{t("noMatchesYet")}</p>
-        </CardContent>
-      </Card>
+      <p className="py-10 text-sm text-muted-foreground">{t("noMatchesYet")}</p>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {matches.map((match) => (
         <MatchHistoryCard
           key={match.match_id}

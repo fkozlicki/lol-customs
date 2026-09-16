@@ -30,7 +30,6 @@ export default function MatchDetails({ match }: MatchDetailProps) {
     (sum, p) => sum + (p.gold_earned ?? 0),
     0,
   );
-  const totalGold = blueGold + redGold;
   const blueTeam = teams.find((t) => t.team_id === 100);
   const redTeam = teams.find((t) => t.team_id === 200);
 
@@ -52,9 +51,9 @@ export default function MatchDetails({ match }: MatchDetailProps) {
     .sort((a, b) => b - a);
 
   return (
-    <div className="bg-background rounded-sm">
+    <div className="border border-t-0 bg-card">
       <TeamTable
-        teamName="Blue Team"
+        side="blue"
         team={blueTeamParticipants}
         isVictorious={blueTeam?.win ?? false}
         highestDamageDealt={highestDamageDealt}
@@ -64,7 +63,7 @@ export default function MatchDetails({ match }: MatchDetailProps) {
         rawJson={match.raw_json}
         scores={scores}
       />
-      <div className="flex flex-col sm:flex-row px-4 py-2 border-y gap-4">
+      <div className="flex flex-col gap-4 border-y px-4 py-3 sm:flex-row sm:items-center">
         <TeamObjectives
           baronKills={blueTeam?.baron_kills ?? 0}
           dragonKills={blueTeam?.dragon_kills ?? 0}
@@ -75,10 +74,10 @@ export default function MatchDetails({ match }: MatchDetailProps) {
         />
 
         <MatchStats
-          blueTeamKills={blueKills}
-          redTeamKills={redKills}
+          blueKills={blueKills}
+          redKills={redKills}
           blueGold={blueGold}
-          totalGold={totalGold}
+          redGold={redGold}
         />
 
         <TeamObjectives
@@ -92,7 +91,7 @@ export default function MatchDetails({ match }: MatchDetailProps) {
         />
       </div>
       <TeamTable
-        teamName="Red Team"
+        side="red"
         team={redTeamParticipants}
         isVictorious={redTeam?.win ?? false}
         highestDamageDealt={highestDamageDealt}

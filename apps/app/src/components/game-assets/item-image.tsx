@@ -10,7 +10,6 @@ interface ItemImageProps {
   itemId: number | null;
   width: number;
   height: number;
-  isVictorious: boolean;
   className?: string;
 }
 
@@ -18,7 +17,6 @@ export function ItemImage({
   itemId,
   width,
   height,
-  isVictorious,
   className,
 }: ItemImageProps) {
   const trpc = useTRPC();
@@ -29,10 +27,7 @@ export function ItemImage({
   if (!itemId) {
     return (
       <div
-        className={cn("rounded-sm bg-muted", {
-          "bg-blue-500/10 dark:bg-blue-900/50": isVictorious,
-          "bg-red-500/10 dark:bg-red-900/50": !isVictorious,
-        })}
+        className={cn("bg-foreground/[0.06]", className)}
         style={{ width, height }}
       />
     );

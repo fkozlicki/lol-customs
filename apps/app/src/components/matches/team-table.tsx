@@ -1,3 +1,5 @@
+"use client";
+
 import type { Json } from "@v1/supabase/types";
 import { cn } from "@v1/ui/cn";
 import {
@@ -7,13 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@v1/ui/table";
+import { useScopedI18n } from "@/locales/client";
 import type { MatchParticipant, RawJson } from "./match-history-list";
 import { TeamRow } from "./team-row";
 
 export default function TeamTable({
   team,
   isVictorious,
-  teamName,
+  side,
   highestDamageDealt,
   highestDamageTaken,
   totalKills,
@@ -23,7 +26,7 @@ export default function TeamTable({
 }: {
   team: MatchParticipant[];
   isVictorious: boolean;
-  teamName: string;
+  side: "blue" | "red";
   highestDamageDealt: number;
   highestDamageTaken: number;
   totalKills: number;
@@ -31,7 +34,7 @@ export default function TeamTable({
   rawJson: Json;
   scores: number[];
 }) {
-  const result = isVictorious ? "Victory" : "Defeat";
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const rawParticipants = (rawJson as unknown as RawJson).participants;
 
   return (
@@ -46,33 +49,28 @@ export default function TeamTable({
         <col className="w-[195px]" />
       </colgroup>
       <TableHeader>
-        <TableRow>
-          <TableHead
-            className={cn(
-              "text-xs font-semibold",
-              isVictorious ? "text-blue-600" : "text-red-600",
-            )}
-          >
-            {result} ({teamName})
+        <TableRow className="hover:bg-transparent">
+          <TableHead>
+            <span
+              className={cn(
+                "label-caps",
+                isVictorious ? "text-win" : "text-loss",
+              )}
+            >
+              {isVictorious ? t("victory") : t("defeat")}
+            </span>{" "}
+            <span className="label-caps">· {side}</span>
           </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            OP Score
+          <TableHead className="label-caps text-center">
+            {t("opScore")}
           </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            KDA
+          <TableHead className="label-caps text-center">{t("kda")}</TableHead>
+          <TableHead className="label-caps text-center">
+            {t("damage")}
           </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            Damage
-          </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            Wards
-          </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            CS
-          </TableHead>
-          <TableHead className="text-center text-xs text-muted-foreground">
-            Items
-          </TableHead>
+          <TableHead className="label-caps text-center">{t("wards")}</TableHead>
+          <TableHead className="label-caps text-center">{t("cs")}</TableHead>
+          <TableHead className="label-caps text-center">{t("items")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
