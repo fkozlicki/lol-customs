@@ -7,12 +7,7 @@ export default function MatchCardSkeleton({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-sm border-l-[6px] border-border bg-background",
-        className,
-      )}
-    >
+    <div className={cn("border border-l-4 bg-card", className)}>
       <div className="flex px-3 py-1 justify-between">
         <div className="space-y-2">
           <Skeleton className="h-6 w-28" />

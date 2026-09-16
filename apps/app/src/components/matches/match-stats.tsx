@@ -1,40 +1,54 @@
-import { Progress } from "@v1/ui/progress";
+"use client";
+
+import { useScopedI18n } from "@/locales/client";
 
 interface MatchStatsProps {
-  blueTeamKills: number;
-  redTeamKills: number;
+  blueKills: number;
+  redKills: number;
   blueGold: number;
-  totalGold: number;
+  redGold: number;
 }
 
+/** Blue side on the left, red side on the right; neutral tones because sides carry no colour. */
 export function MatchStats({
-  blueTeamKills,
-  redTeamKills,
+  blueKills,
+  redKills,
   blueGold,
-  totalGold,
+  redGold,
 }: MatchStatsProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
+
   return (
-    <div className="flex-1 space-y-1">
-      <div className="relative">
-        <div className="absolute top-0 left-0 bottom-0 right-0 z-10 flex justify-between text-[11px] text-white font-semibold px-1">
-          <span>{blueTeamKills}</span>
-          <span>Total Kills</span>
-          <span>{redTeamKills}</span>
-        </div>
-        <Progress
-          value={(blueTeamKills / (blueTeamKills + redTeamKills)) * 100}
-          className="w-full h-4 rounded-none [&>div]:bg-red-400 bg-blue-400"
-        />
+    <div className="flex-1 space-y-2">
+      <ComparisonBar label={t("kills")} blue={blueKills} red={redKills} />
+      <ComparisonBar label={t("gold")} blue={blueGold} red={redGold} />
+    </div>
+  );
+}
+
+function ComparisonBar({
+  label,
+  blue,
+  red,
+}: {
+  label: string;
+  blue: number;
+  red: number;
+}) {
+  const total = blue + red;
+  const bluePercent = total > 0 ? (blue / total) * 100 : 50;
+
+  return (
+    <div className="space-y-1">
+      <div className="num flex justify-between text-[11px]">
+        <span>{blue.toLocaleString()}</span>
+        <span className="label-caps">{label}</span>
+        <span>{red.toLocaleString()}</span>
       </div>
-      <div className="relative">
-        <div className="absolute top-0 left-0 bottom-0 right-0 z-10 flex justify-between text-[11px] text-white font-semibold px-1">
-          <span>{blueGold}</span>
-          <span>Total Gold</span>
-          <span>{totalGold}</span>
-        </div>
-        <Progress
-          value={(blueGold / totalGold) * 100}
-          className="w-full h-4 rounded-none [&>div]:bg-red-400 bg-blue-400"
+      <div className="flex h-1.5 bg-foreground/15">
+        <div
+          className="h-full bg-foreground/80"
+          style={{ width: `${bluePercent}%` }}
         />
       </div>
     </div>

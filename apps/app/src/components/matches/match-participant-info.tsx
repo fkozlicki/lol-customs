@@ -26,28 +26,18 @@ export default function MatchParticipantInfo({
           championId={p.champion_id}
           width={32}
           height={32}
-          className="rounded-full shrink-0"
+          className="size-8 shrink-0"
         />
-        <div className="absolute bottom-0 right-0 text-[10px] size-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-medium">
+        <span className="num absolute -right-1 -bottom-1 bg-foreground px-0.5 text-[9px] leading-3.5 text-background">
           {p.champ_level}
-        </div>
+        </span>
       </div>
       <div className="flex flex-col gap-0.5">
         {rawData?.spell1Id != null && rawData.spell1Id !== 0 && (
-          <SpellImage
-            spellId={rawData.spell1Id}
-            width={16}
-            height={16}
-            className="rounded-sm"
-          />
+          <SpellImage spellId={rawData.spell1Id} width={16} height={16} />
         )}
         {rawData?.spell2Id != null && rawData.spell2Id !== 0 && (
-          <SpellImage
-            spellId={rawData.spell2Id}
-            width={16}
-            height={16}
-            className="rounded-sm"
-          />
+          <SpellImage spellId={rawData.spell2Id} width={16} height={16} />
         )}
       </div>
       <div className="flex flex-col gap-0.5">
@@ -58,7 +48,7 @@ export default function MatchParticipantInfo({
               : "#",
             season,
           )}
-          className="text-muted-foreground text-xs max-w-[90px] truncate hover:underline underline-offset-2"
+          className="max-w-[90px] truncate text-xs font-medium underline-offset-2 hover:underline"
         >
           {p.players.game_name}
         </Link>

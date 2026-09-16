@@ -38,10 +38,10 @@ export function TeamRow({
     <TableRow
       key={p.puuid}
       className={cn(
-        "border-none",
+        "border-b last:border-b-0",
         isVictorious
-          ? "bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/50 dark:hover:bg-blue-800/50"
-          : "bg-red-50 hover:bg-red-100 dark:bg-red-900/50 dark:hover:bg-red-800/50",
+          ? "bg-win/[0.06] hover:bg-win/[0.12]"
+          : "bg-loss/[0.06] hover:bg-loss/[0.12]",
       )}
     >
       <TableCell className="p-1">
@@ -67,7 +67,7 @@ export function TeamRow({
         <MatchParticipantCS p={p} duration={duration} />
       </TableCell>
       <TableCell>
-        <MatchParticipantItems rawData={rawData} isVictorious={isVictorious} />
+        <MatchParticipantItems rawData={rawData} />
       </TableCell>
     </TableRow>
   );

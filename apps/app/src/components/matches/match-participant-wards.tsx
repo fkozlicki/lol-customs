@@ -8,7 +8,7 @@ export default function MatchParticipantWards({
   p,
 }: MatchParticipantWardsProps) {
   return (
-    <span className="text-xs">
+    <span className="num text-xs">
       {p.wards_placed ?? 0} / {p.wards_killed ?? 0}
     </span>
   );
