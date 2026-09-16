@@ -8,6 +8,7 @@ import {
   ChartTooltipContent,
 } from "@v1/ui/chart";
 import { format } from "date-fns";
+import { useReducedMotion } from "motion/react";
 import {
   CartesianGrid,
   Line,
@@ -19,6 +20,7 @@ import {
 import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
+import { DURATION } from "@/utils/motion";
 
 interface RatingHistoryChartProps {
   puuid: string;
@@ -40,6 +42,7 @@ export function RatingHistoryChart({
   seasonStarts = [],
 }: RatingHistoryChartProps) {
   const t = useScopedI18n("dashboard.pages.player");
+  const reduceMotion = useReducedMotion();
   const trpc = useTRPC();
   const { data: history } = useSuspenseQuery(
     trpc.players.ratingHistory.queryOptions({ puuid, season }),
@@ -135,7 +138,8 @@ export function RatingHistoryChart({
             stroke="var(--color-rating)"
             strokeWidth={1.5}
             dot={false}
-            animationDuration={800}
+            isAnimationActive={!reduceMotion}
+            animationDuration={DURATION.slow * 1000}
             activeDot={{
               r: 5,
               stroke: "var(--color-rating)",

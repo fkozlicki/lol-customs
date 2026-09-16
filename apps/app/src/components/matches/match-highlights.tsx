@@ -21,16 +21,13 @@ export function MatchHighlights({
       <div className="flex flex-col gap-1">
         <span className="label-caps">{t("winner")}</span>
         <span className="text-sm font-semibold uppercase tracking-[0.08em]">
-          {blueWon ? "Blue" : "Red"}
+          {blueWon ? t("sideBlue") : t("sideRed")}
         </span>
       </div>
-      <Highlight participant={mvp} label={t("mvp")} tone="mvp" />
-      <Highlight
-        participant={ace}
-        label={t("ace")}
-        tone="ace"
-        className="hidden sm:flex"
-      />
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:gap-8">
+        <Highlight participant={mvp} label={t("mvp")} tone="mvp" />
+        <Highlight participant={ace} label={t("ace")} tone="ace" />
+      </div>
     </div>
   );
 }

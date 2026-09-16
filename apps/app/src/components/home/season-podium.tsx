@@ -70,7 +70,11 @@ function PodiumPlace({
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: contentDelay, duration: DURATION.slow }}
+        transition={{
+          inherit: true,
+          delay: contentDelay,
+          duration: DURATION.slow,
+        }}
         className="flex min-w-0 flex-col items-start gap-2 pb-3 sm:gap-3 sm:pb-4"
       >
         {row ? (
@@ -145,7 +149,11 @@ function PodiumPlace({
       <motion.div
         initial={{ scaleY: 0 }}
         animate={{ scaleY: 1 }}
-        transition={{ delay: riseDelay, duration: DURATION.slow }}
+        transition={{
+          inherit: true,
+          delay: riseDelay,
+          duration: DURATION.slow,
+        }}
         style={{ originY: 1 }}
         className={cn(
           "relative flex items-start border-t-2 px-2 pt-2 sm:px-3",

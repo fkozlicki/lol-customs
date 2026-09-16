@@ -41,6 +41,7 @@ export default function LeaderboardRow({
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
+        inherit: true,
         delay: Math.min(index, 15) * STAGGER,
         duration: DURATION.base,
       }}

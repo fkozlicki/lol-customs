@@ -56,7 +56,7 @@ export function PlayerMetadata({
           <span className="num text-base font-semibold">
             {participant.kills ?? 0}
             <span className="text-muted-foreground"> / </span>
-            <span className="text-loss">{participant.deaths ?? 0}</span>
+            <span>{participant.deaths ?? 0}</span>
             <span className="text-muted-foreground"> / </span>
             {participant.assists ?? 0}
           </span>
