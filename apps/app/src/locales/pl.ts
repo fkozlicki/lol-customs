@@ -397,7 +397,7 @@ export default {
         title: "Sala sław",
         description: "Kto trzyma najlepsze i najgorsze rekordy laddera.",
         sections: {
-          headline: "Najważniejsze",
+          headline: "Ranking",
           form: "Forma",
           fighting: "Walka",
           multikills: "Multikille",
