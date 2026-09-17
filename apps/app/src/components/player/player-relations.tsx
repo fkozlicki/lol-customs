@@ -100,7 +100,7 @@ function RelationRow({
     return (
       <li className="flex h-14 flex-col justify-center">
         <span className="label-caps">{label}</span>
-        <span className="truncate text-sm text-muted-foreground">
+        <span className="truncate text-xs text-muted-foreground">
           {emptyLabel ?? t("noRelation")}
         </span>
       </li>
