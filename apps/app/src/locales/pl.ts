@@ -452,7 +452,7 @@ export default {
             description: "Najwyższe KDA",
           },
           no_cc: {
-            title: "Wolna amerykanka",
+            title: "Głaskacz",
             description: "Najmniej CC na mecz",
           },
           worst_farm: {
@@ -556,7 +556,7 @@ export default {
             description: "CS na mecz",
           },
           jungle_clearer: {
-            title: "Tarzan",
+            title: "Gospodarz dżungli",
             description: "Jungle CS na mecz jako jungler",
           },
           gold_hoarder: {
