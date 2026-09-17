@@ -420,12 +420,10 @@ export default {
           kills: "kills / match",
           assists: "assists / match",
           damage: "damage / match",
-          damageTaken: "damage taken / match",
           deaths: "deaths / match",
           ccTime: "CC seconds / match",
           kda: "KDA",
           pentakills: "pentakills",
-          quadrakills: "quadrakills",
           cs: "CS / match",
           jungleCs: "jungle CS / match",
           gold: "gold / match",
@@ -435,6 +433,26 @@ export default {
           turrets: "turrets / match",
         },
         cards: {
+          fewest_deaths: {
+            title: "Immortal",
+            description: "Fewest deaths per match",
+          },
+          best_kda: {
+            title: "Flawless",
+            description: "Highest KDA",
+          },
+          no_cc: {
+            title: "No CC",
+            description: "Least crowd control per match",
+          },
+          worst_farm: {
+            title: "Vegetarian",
+            description: "Lowest CS per match",
+          },
+          jungle_tourist: {
+            title: "Jungle Tourist",
+            description: "Least jungle CS per match",
+          },
           mvp: {
             title: "MVP",
             description: "Matches as MVP",
@@ -499,10 +517,6 @@ export default {
             title: "Peashooter",
             description: "Least damage to champions per match",
           },
-          tank: {
-            title: "Tank",
-            description: "Damage taken per match",
-          },
           cannon_fodder: {
             title: "Cannon Fodder",
             description: "Deaths per match",
@@ -518,10 +532,6 @@ export default {
           penta_hunter: {
             title: "Penta Hunter",
             description: "Pentakills",
-          },
-          quadra_killer: {
-            title: "Quadra Killer",
-            description: "Quadrakills",
           },
           best_farm: {
             title: "Best Farm",
