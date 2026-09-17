@@ -16,14 +16,17 @@ export type HofTitleId =
   | "lone_wolf"
   | "damage_dealer"
   | "peashooter"
-  | "tank"
+  | "fewest_deaths"
   | "cannon_fodder"
-  | "cc_king"
+  | "best_kda"
   | "feeder"
+  | "cc_king"
+  | "no_cc"
   | "penta_hunter"
-  | "quadra_killer"
   | "best_farm"
+  | "worst_farm"
   | "jungle_clearer"
+  | "jungle_tourist"
   | "gold_hoarder"
   | "broke"
   | "level_lead"
@@ -48,12 +51,10 @@ export type HofStatId =
   | "kills"
   | "assists"
   | "damage"
-  | "damageTaken"
   | "deaths"
   | "ccTime"
   | "kda"
   | "pentakills"
-  | "quadrakills"
   | "cs"
   | "jungleCs"
   | "gold"
@@ -101,10 +102,7 @@ function worst(
 export interface HofSection {
   id: HofSectionId;
   pairs: HofPair[];
-  /**
-   * Titles without a counterpart on the same stat. Listed best with best and worst with worst so two
-   * neighbours never read as a pair.
-   */
+  /** Titles without a counterpart on the same stat, shown full width after the pairs. */
   singles?: HofTitle[];
 }
 
@@ -154,15 +152,20 @@ export const HOF_SECTIONS: HofSection[] = [
         best: best("damage_dealer", "damage", 0),
         worst: worst("peashooter", "damage", 0),
       },
+      {
+        best: best("fewest_deaths", "deaths", 1),
+        worst: worst("cannon_fodder", "deaths", 1),
+      },
+      {
+        best: best("best_kda", "kda", 2),
+        worst: worst("feeder", "kda", 2),
+      },
+      {
+        best: best("cc_king", "ccTime", 0),
+        worst: worst("no_cc", "ccTime", 0),
+      },
     ],
-    singles: [
-      best("tank", "damageTaken", 0),
-      best("cc_king", "ccTime", 0),
-      best("penta_hunter", "pentakills", 0),
-      best("quadra_killer", "quadrakills", 0),
-      worst("cannon_fodder", "deaths", 1),
-      worst("feeder", "kda", 2),
-    ],
+    singles: [best("penta_hunter", "pentakills", 0)],
   },
   {
     id: "farm",
@@ -175,10 +178,14 @@ export const HOF_SECTIONS: HofSection[] = [
         best: best("level_lead", "level", 1),
         worst: worst("behind", "level", 1),
       },
-    ],
-    singles: [
-      best("best_farm", "cs", 1),
-      best("jungle_clearer", "jungleCs", 1),
+      {
+        best: best("best_farm", "cs", 1),
+        worst: worst("worst_farm", "cs", 1),
+      },
+      {
+        best: best("jungle_clearer", "jungleCs", 1),
+        worst: worst("jungle_tourist", "jungleCs", 1),
+      },
     ],
   },
   {

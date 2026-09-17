@@ -422,12 +422,10 @@ export default {
           kills: "zabójstwa / mecz",
           assists: "asysty / mecz",
           damage: "obrażenia / mecz",
-          damageTaken: "otrzymane obrażenia / mecz",
           deaths: "zgony / mecz",
           ccTime: "sekundy CC / mecz",
           kda: "KDA",
           pentakills: "pentakille",
-          quadrakills: "quadrakille",
           cs: "CS / mecz",
           jungleCs: "jungle CS / mecz",
           gold: "złoto / mecz",
@@ -437,6 +435,26 @@ export default {
           turrets: "wieże / mecz",
         },
         cards: {
+          fewest_deaths: {
+            title: "Nieśmiertelny",
+            description: "Najmniej zgonów na mecz",
+          },
+          best_kda: {
+            title: "Bez skazy",
+            description: "Najwyższe KDA",
+          },
+          no_cc: {
+            title: "Bez CC",
+            description: "Najmniej CC na mecz",
+          },
+          worst_farm: {
+            title: "Wegetarianin",
+            description: "Najniższe CS na mecz",
+          },
+          jungle_tourist: {
+            title: "Turysta w dżungli",
+            description: "Najmniej jungle CS na mecz",
+          },
           mvp: {
             title: "MVP",
             description: "Mecze jako MVP",
@@ -501,10 +519,6 @@ export default {
             title: "Pukawka",
             description: "Najmniej obrażeń do championów na mecz",
           },
-          tank: {
-            title: "Czołg",
-            description: "Otrzymane obrażenia na mecz",
-          },
           cannon_fodder: {
             title: "Mięso armatnie",
             description: "Zgony na mecz",
@@ -520,10 +534,6 @@ export default {
           penta_hunter: {
             title: "Łowca pent",
             description: "Pentakille",
-          },
-          quadra_killer: {
-            title: "Quadra killer",
-            description: "Quadrakille",
           },
           best_farm: {
             title: "Rolnik",

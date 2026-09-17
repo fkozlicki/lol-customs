@@ -126,7 +126,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Unpaired titles nobody holds on this track are noise, so they are left out. */
+/** Unpaired titles run full width under the pairs; ones nobody holds on this track are left out. */
 function SingleTitles({
   singles,
   data,
@@ -137,12 +137,17 @@ function SingleTitles({
   const held = singles.filter((entry) => (data[entry.id]?.length ?? 0) > 0);
   if (held.length === 0) return null;
 
-  return <TitleRows rows={chunkPairs(held)} data={data} className="mt-8" />;
-}
-
-function chunkPairs(entries: HofTitle[]): HofTitle[][] {
-  return entries.flatMap((_, index) =>
-    index % 2 === 0 ? [entries.slice(index, index + 2)] : [],
+  return (
+    <div className="divide-y border-t">
+      {held.map((entry) => (
+        <TitleCell
+          key={entry.id}
+          entry={entry}
+          holders={data[entry.id] ?? []}
+          className="md:max-w-none"
+        />
+      ))}
+    </div>
   );
 }
 
