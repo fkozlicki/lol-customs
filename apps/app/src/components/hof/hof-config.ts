@@ -5,7 +5,7 @@ export type HofTitleId =
   | "ace"
   | "never_ace"
   | "op_score"
-  | "bottom_of_ladder"
+  | "worst_op_score"
   | "best_win_rate"
   | "worst_win_rate"
   | "best_streak"
@@ -42,7 +42,6 @@ export type HofStatId =
   | "aceMatches"
   | "matchesWithoutAce"
   | "opScore"
-  | "rating"
   | "winRate"
   | "winStreak"
   | "loseStreak"
@@ -102,8 +101,6 @@ function worst(
 export interface HofSection {
   id: HofSectionId;
   pairs: HofPair[];
-  /** Titles without a counterpart that still belong to the section, shown full width. */
-  singles?: HofTitle[];
 }
 
 export const HOF_SECTIONS: HofSection[] = [
@@ -118,10 +115,10 @@ export const HOF_SECTIONS: HofSection[] = [
         best: best("ace", "aceMatches", 0),
         worst: worst("never_ace", "matchesWithoutAce", 0),
       },
-    ],
-    singles: [
-      best("op_score", "opScore", 2),
-      worst("bottom_of_ladder", "rating", 0),
+      {
+        best: best("op_score", "opScore", 2),
+        worst: worst("worst_op_score", "opScore", 2),
+      },
     ],
   },
   {
@@ -199,10 +196,9 @@ export const HOF_OTHER_RECORDS: HofTitle[] = [
 ];
 
 export const HOF_TITLES: HofTitle[] = [
-  ...HOF_SECTIONS.flatMap((section) => [
-    ...section.pairs.flatMap((pair) => [pair.best, pair.worst]),
-    ...(section.singles ?? []),
-  ]),
+  ...HOF_SECTIONS.flatMap((section) =>
+    section.pairs.flatMap((pair) => [pair.best, pair.worst]),
+  ),
   ...HOF_OTHER_RECORDS,
 ];
 

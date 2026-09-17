@@ -54,7 +54,7 @@ _Avoid_: HoF, records
 
 **Title**:
 A Hall of Fame record, such as most kills per match or longest losing streak, and the qualified players
-who hold it. Players tied on the value share the title; the next value makes the runner-up.
+who hold it. Players tied on the value share the title.
 _Avoid_: Award, badge, achievement
 
 ### Seasons

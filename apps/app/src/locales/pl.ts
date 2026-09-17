@@ -403,9 +403,6 @@ export default {
           farm: "Farma i złoto",
           map: "Mapa",
         },
-        best: "Najlepsi",
-        worst: "Najgorsi",
-        runnerUp: "2.",
         noHolder: "Brak",
         otherRecords: "Pozostałe rekordy",
         mostBest: "Najwięcej najlepszych",
@@ -413,14 +410,12 @@ export default {
         emptyTitle: "Sala sław czeka",
         emptyHint: "Tytuły pojawią się, gdy gracze rozegrają {count} meczów.",
         showSeason: "Zobacz Sezon {number}",
-        playersTied: "{count} graczy",
         stats: {
           mvpMatches: "mecze jako MVP",
           matchesWithoutMvp: "mecze bez MVP",
           aceMatches: "mecze jako ACE",
           matchesWithoutAce: "mecze bez ACE",
           opScore: "OP score / mecz",
-          rating: "punkty",
           winRate: "win rate",
           winStreak: "wygrane z rzędu",
           loseStreak: "porażki z rzędu",
@@ -462,9 +457,9 @@ export default {
             title: "OP Score",
             description: "Średni OP score",
           },
-          bottom_of_ladder: {
-            title: "Dno laddera",
-            description: "Najniższy rating",
+          worst_op_score: {
+            title: "Balast",
+            description: "Najniższy średni OP score",
           },
           best_win_rate: {
             title: "Zwycięzca",
