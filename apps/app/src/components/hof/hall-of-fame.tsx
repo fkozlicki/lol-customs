@@ -2,6 +2,8 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
+import { ALL_TIME_SEASON, QUALIFICATION_MATCHES } from "@v1/api/season";
+import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Skeleton } from "@v1/ui/skeleton";
 import Link from "next/link";
@@ -11,7 +13,7 @@ import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { playerHref } from "@/utils/riot-id";
-import { withSeason } from "@/utils/season";
+import { ALL_TIME_PARAM, SEASON_PARAM, withSeason } from "@/utils/season";
 import {
   formatHofValue,
   HOF_OTHER_RECORDS,
@@ -30,6 +32,11 @@ export function HallOfFame({ season }: { season: number }) {
   const { data } = useSuspenseQuery(
     trpc.riftRank.hallOfFame.queryOptions({ season }),
   );
+
+  const hasHolders = HOF_TITLES.some(
+    (entry) => (data[entry.id]?.holders.length ?? 0) > 0,
+  );
+  if (!hasHolders) return <HallOfFameEmpty season={season} />;
 
   return (
     <div className="space-y-14">
@@ -57,6 +64,13 @@ export function HallOfFame({ season }: { season: number }) {
                 />
               </div>
             ))}
+            {section.singles?.map((entry) => (
+              <TitleCell
+                key={entry.id}
+                entry={entry}
+                standing={data[entry.id]}
+              />
+            ))}
           </div>
         </section>
       ))}
@@ -78,10 +92,48 @@ export function HallOfFame({ season }: { season: number }) {
   );
 }
 
-/** Who holds the most titles: the page's opening story. */
+/** Early in a season nobody is qualified yet; point to a track that has titles instead of empty tables. */
+function HallOfFameEmpty({ season }: { season: number }) {
+  const t = useScopedI18n("dashboard.pages.hallOfFame");
+  const tSeason = useScopedI18n("dashboard.season");
+  const trpc = useTRPC();
+  const { data: seasons } = useSuspenseQuery(trpc.seasons.list.queryOptions());
+  const index = seasons.findIndex((s) => s.id === season);
+  const previous = index > 0 ? seasons[index - 1] : undefined;
+
+  return (
+    <section className="flex flex-col items-start gap-5 py-6">
+      <div className="space-y-2">
+        <p className="text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+          {t("emptyTitle")}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {t("emptyHint", { count: QUALIFICATION_MATCHES })}
+        </p>
+      </div>
+      {season !== ALL_TIME_SEASON && (
+        <div className="flex flex-wrap gap-2">
+          {previous && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`?${SEASON_PARAM}=${previous.id}`}>
+                {t("showSeason", { number: previous.number })}
+              </Link>
+            </Button>
+          )}
+          <Button asChild variant="ghost" size="sm">
+            <Link href={`?${SEASON_PARAM}=${ALL_TIME_PARAM}`}>
+              {tSeason("showAllTime")}
+            </Link>
+          </Button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Who collects the most best and the most worst titles: the page's opening story. */
 function TitleCounts({ data }: { data: HallOfFameData }) {
   const t = useScopedI18n("dashboard.pages.hallOfFame");
-  const season = useSeasonParam();
 
   const counts = new Map<
     string,
@@ -94,27 +146,44 @@ function TitleCounts({ data }: { data: HallOfFameData }) {
       counts.set(player.puuid, count);
     }
   }
-  const ranked = [...counts.values()].sort(
-    (a, b) =>
-      b.best + b.worst - (a.best + a.worst) ||
-      b.best - a.best ||
-      (a.player.game_name ?? "").localeCompare(b.player.game_name ?? ""),
-  );
+  const top = (kind: "best" | "worst") =>
+    [...counts.values()]
+      .filter((count) => count[kind] > 0)
+      .sort(
+        (a, b) =>
+          b[kind] - a[kind] ||
+          (a.player.game_name ?? "").localeCompare(b.player.game_name ?? ""),
+      )
+      .slice(0, 3)
+      .map((count) => ({ player: count.player, titles: count[kind] }));
 
-  if (ranked.length === 0) return null;
+  return (
+    <div className="grid gap-10 md:grid-cols-2 md:gap-12">
+      <CollectorList label={t("mostBest")} rows={top("best")} filled />
+      <CollectorList label={t("mostWorst")} rows={top("worst")} />
+    </div>
+  );
+}
+
+const MAX_PIPS = 12;
+
+function CollectorList({
+  label,
+  rows,
+  filled = false,
+}: {
+  label: string;
+  rows: { player: HofPlayer; titles: number }[];
+  filled?: boolean;
+}) {
+  const season = useSeasonParam();
 
   return (
     <section>
-      <div className="flex items-center justify-between border-t pt-3 pb-3">
-        <h2 className="label-caps text-foreground">{t("titleCounts")}</h2>
-        <div className="flex items-center gap-3">
-          <Legend filled label={t("bestTitles")} />
-          <Legend label={t("worstTitles")} />
-        </div>
-      </div>
-      <ol className="grid border-t sm:grid-cols-2 sm:gap-x-12 lg:grid-cols-3">
-        {ranked.map(({ player, best, worst }, index) => (
-          <li key={player.puuid} className="border-b">
+      <h2 className="label-caps pb-3 text-foreground">{label}</h2>
+      <ol className="divide-y border-y">
+        {rows.map(({ player, titles }) => (
+          <li key={player.puuid}>
             <Link
               href={withSeason(
                 playerHref(player.game_name, player.tag_line),
@@ -122,9 +191,6 @@ function TitleCounts({ data }: { data: HallOfFameData }) {
               )}
               className="group flex h-12 items-center gap-3"
             >
-              <span className="num w-5 text-xs text-muted-foreground">
-                {index + 1}
-              </span>
               <ProfileIcon
                 iconId={player.profile_icon}
                 name={player.game_name ?? "?"}
@@ -135,17 +201,13 @@ function TitleCounts({ data }: { data: HallOfFameData }) {
               <span className="min-w-0 flex-1 truncate text-sm font-medium underline-offset-4 group-hover:underline">
                 {player.game_name ?? player.puuid.slice(0, 8)}
               </span>
-              <span className="flex shrink-0 items-center gap-0.5">
-                {Array.from({ length: best }, (_, i) => (
-                  <Pip key={`b${i}`} filled />
-                ))}
-                {Array.from({ length: worst }, (_, i) => (
-                  <Pip key={`w${i}`} />
+              <span className="flex w-28 shrink-0 items-center gap-0.5">
+                {Array.from({ length: Math.min(titles, MAX_PIPS) }, (_, i) => (
+                  <Pip key={i} filled={filled} />
                 ))}
               </span>
-              <span className="num w-10 shrink-0 text-right text-xs">
-                {best}
-                <span className="text-muted-foreground">·{worst}</span>
+              <span className="num w-6 shrink-0 text-right text-sm font-semibold">
+                {titles}
               </span>
             </Link>
           </li>
@@ -278,21 +340,6 @@ function Pip({ filled = false }: { filled?: boolean }) {
         filled ? "bg-foreground" : "border border-muted-foreground",
       )}
     />
-  );
-}
-
-function Legend({
-  filled = false,
-  label,
-}: {
-  filled?: boolean;
-  label: string;
-}) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <Pip filled={filled} />
-      <span className="label-caps">{label}</span>
-    </span>
   );
 }
 
