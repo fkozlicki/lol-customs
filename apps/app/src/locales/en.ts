@@ -424,6 +424,8 @@ export default {
           ccTime: "CC seconds / match",
           kda: "KDA",
           pentakills: "pentakills",
+          quadrakills: "quadrakills",
+          triplekills: "triple kills",
           cs: "CS / match",
           jungleCs: "jungle CS as jungler",
           gold: "gold / match",
@@ -532,6 +534,14 @@ export default {
           penta_hunter: {
             title: "Penta Hunter",
             description: "Pentakills",
+          },
+          quadra_killer: {
+            title: "Quadra Killer",
+            description: "Most quadrakills",
+          },
+          triple_threat: {
+            title: "Triple Threat",
+            description: "Most triple kills",
           },
           best_farm: {
             title: "Best Farm",

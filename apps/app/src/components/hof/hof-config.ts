@@ -23,6 +23,8 @@ export type HofTitleId =
   | "cc_king"
   | "no_cc"
   | "penta_hunter"
+  | "quadra_killer"
+  | "triple_threat"
   | "best_farm"
   | "worst_farm"
   | "jungle_clearer"
@@ -55,6 +57,8 @@ export type HofStatId =
   | "ccTime"
   | "kda"
   | "pentakills"
+  | "quadrakills"
+  | "triplekills"
   | "cs"
   | "jungleCs"
   | "gold"
@@ -165,7 +169,11 @@ export const HOF_SECTIONS: HofSection[] = [
         worst: worst("no_cc", "ccTime", 0),
       },
     ],
-    singles: [best("penta_hunter", "pentakills", 0)],
+    singles: [
+      best("penta_hunter", "pentakills", 0),
+      best("quadra_killer", "quadrakills", 0),
+      best("triple_threat", "triplekills", 0),
+    ],
   },
   {
     id: "farm",
