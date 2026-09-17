@@ -22,9 +22,10 @@ export type HofTitleId =
   | "feeder"
   | "cc_king"
   | "no_cc"
-  | "penta_hunter"
-  | "quadra_killer"
+  | "double_trouble"
   | "triple_threat"
+  | "quadra_killer"
+  | "penta_hunter"
   | "best_farm"
   | "worst_farm"
   | "jungle_clearer"
@@ -56,9 +57,10 @@ export type HofStatId =
   | "deaths"
   | "ccTime"
   | "kda"
-  | "pentakills"
-  | "quadrakills"
+  | "doublekills"
   | "triplekills"
+  | "quadrakills"
+  | "pentakills"
   | "cs"
   | "jungleCs"
   | "gold"
@@ -83,7 +85,13 @@ export interface HofPair {
   worst: HofTitle;
 }
 
-export type HofSectionId = "headline" | "form" | "fighting" | "farm" | "map";
+export type HofSectionId =
+  | "headline"
+  | "form"
+  | "fighting"
+  | "multikills"
+  | "farm"
+  | "map";
 
 function best(
   id: HofTitleId,
@@ -169,10 +177,15 @@ export const HOF_SECTIONS: HofSection[] = [
         worst: worst("no_cc", "ccTime", 0),
       },
     ],
+  },
+  {
+    id: "multikills",
+    pairs: [],
     singles: [
-      best("penta_hunter", "pentakills", 0),
-      best("quadra_killer", "quadrakills", 0),
+      best("double_trouble", "doublekills", 0),
       best("triple_threat", "triplekills", 0),
+      best("quadra_killer", "quadrakills", 0),
+      best("penta_hunter", "pentakills", 0),
     ],
   },
   {

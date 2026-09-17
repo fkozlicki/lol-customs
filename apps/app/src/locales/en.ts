@@ -398,6 +398,7 @@ export default {
           headline: "Headline",
           form: "Form",
           fighting: "Fighting",
+          multikills: "Multikills",
           farm: "Farm & gold",
           map: "Map & utility",
         },
@@ -423,6 +424,7 @@ export default {
           deaths: "deaths / match",
           ccTime: "CC seconds / match",
           kda: "KDA",
+          doublekills: "double kills",
           pentakills: "pentakills",
           quadrakills: "quadrakills",
           triplekills: "triple kills",
@@ -435,6 +437,10 @@ export default {
           turrets: "turrets / match",
         },
         cards: {
+          double_trouble: {
+            title: "Double Trouble",
+            description: "Most double kills",
+          },
           fewest_deaths: {
             title: "Immortal",
             description: "Fewest deaths per match",

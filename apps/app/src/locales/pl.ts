@@ -400,6 +400,7 @@ export default {
           headline: "Najważniejsze",
           form: "Forma",
           fighting: "Walka",
+          multikills: "Multikille",
           farm: "Farma i złoto",
           map: "Mapa",
         },
@@ -425,6 +426,7 @@ export default {
           deaths: "zgony / mecz",
           ccTime: "sekundy CC / mecz",
           kda: "KDA",
+          doublekills: "double kille",
           pentakills: "pentakille",
           quadrakills: "quadrakille",
           triplekills: "triple kille",
@@ -437,6 +439,10 @@ export default {
           turrets: "wieże / mecz",
         },
         cards: {
+          double_trouble: {
+            title: "Dublet",
+            description: "Najwięcej double killi",
+          },
           fewest_deaths: {
             title: "Nieśmiertelny",
             description: "Najmniej zgonów na mecz",
