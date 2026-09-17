@@ -101,6 +101,11 @@ function worst(
 export interface HofSection {
   id: HofSectionId;
   pairs: HofPair[];
+  /**
+   * Titles without a counterpart on the same stat. Listed best with best and worst with worst so two
+   * neighbours never read as a pair.
+   */
+  singles?: HofTitle[];
 }
 
 export const HOF_SECTIONS: HofSection[] = [
@@ -150,6 +155,14 @@ export const HOF_SECTIONS: HofSection[] = [
         worst: worst("peashooter", "damage", 0),
       },
     ],
+    singles: [
+      best("tank", "damageTaken", 0),
+      best("cc_king", "ccTime", 0),
+      best("penta_hunter", "pentakills", 0),
+      best("quadra_killer", "quadrakills", 0),
+      worst("cannon_fodder", "deaths", 1),
+      worst("feeder", "kda", 2),
+    ],
   },
   {
     id: "farm",
@@ -162,6 +175,10 @@ export const HOF_SECTIONS: HofSection[] = [
         best: best("level_lead", "level", 1),
         worst: worst("behind", "level", 1),
       },
+    ],
+    singles: [
+      best("best_farm", "cs", 1),
+      best("jungle_clearer", "jungleCs", 1),
     ],
   },
   {
@@ -183,24 +200,10 @@ export const HOF_SECTIONS: HofSection[] = [
   },
 ];
 
-/** Titles without a counterpart on the same stat. */
-export const HOF_OTHER_RECORDS: HofTitle[] = [
-  best("tank", "damageTaken", 0),
-  worst("cannon_fodder", "deaths", 1),
-  best("cc_king", "ccTime", 0),
-  worst("feeder", "kda", 2),
-  best("penta_hunter", "pentakills", 0),
-  best("quadra_killer", "quadrakills", 0),
-  best("best_farm", "cs", 1),
-  best("jungle_clearer", "jungleCs", 1),
-];
-
-export const HOF_TITLES: HofTitle[] = [
-  ...HOF_SECTIONS.flatMap((section) =>
-    section.pairs.flatMap((pair) => [pair.best, pair.worst]),
-  ),
-  ...HOF_OTHER_RECORDS,
-];
+export const HOF_TITLES: HofTitle[] = HOF_SECTIONS.flatMap((section) => [
+  ...section.pairs.flatMap((pair) => [pair.best, pair.worst]),
+  ...(section.singles ?? []),
+]);
 
 export function formatHofValue(
   entry: HofTitle,
