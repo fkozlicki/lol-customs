@@ -46,6 +46,11 @@ export default {
       installerExe: "Instalator (.exe)",
       zipPortable: "ZIP (przenośna)",
     },
+    preferences: {
+      menuLabel: "Konto i ustawienia",
+      theme: "Motyw",
+      language: "Język",
+    },
     theme: {
       toggleLabel: "Przełącz motyw",
       system: "System",

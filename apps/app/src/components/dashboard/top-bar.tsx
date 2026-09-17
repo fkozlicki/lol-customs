@@ -16,18 +16,14 @@ import { useScopedI18n } from "@/locales/client";
 import { DURATION } from "@/utils/motion";
 import { withSeason } from "@/utils/season";
 import { AccountMenu } from "./account-menu";
-import { LocaleSwitcher } from "./locale-switcher";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
 import { SeasonSelector } from "./season-selector";
-import { ThemeSwitcher } from "./theme-switcher";
-import { useDownloadDialog } from "./use-download-dialog";
 import { useSeasonParam } from "./use-season-param";
 
 export function TopBar() {
   const t = useScopedI18n("dashboard");
   const pathname = usePathname();
   const season = useSeasonParam();
-  const [, setDownloadOpen] = useDownloadDialog();
   const toolsActive = TOOL_PATHS.some(({ path }) =>
     isActivePath(pathname, path),
   );
@@ -87,21 +83,8 @@ export function TopBar() {
           </NavLink>
         </nav>
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-2">
           <SeasonSelector />
-          <div className="hidden items-center gap-1 md:flex">
-            <button
-              type="button"
-              onClick={() => setDownloadOpen(true)}
-              className="inline-flex size-7 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-              aria-label={t("sidebar.downloadDesktopApp")}
-              title={t("sidebar.downloadDesktopApp")}
-            >
-              <Icons.Download className="size-4" />
-            </button>
-            <ThemeSwitcher />
-            <LocaleSwitcher />
-          </div>
           <AccountMenu />
         </div>
       </div>

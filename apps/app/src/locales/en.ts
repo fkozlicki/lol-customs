@@ -45,6 +45,11 @@ export default {
       installerExe: "Installer (.exe)",
       zipPortable: "ZIP (portable)",
     },
+    preferences: {
+      menuLabel: "Account and settings",
+      theme: "Theme",
+      language: "Language",
+    },
     theme: {
       toggleLabel: "Toggle theme",
       system: "System",

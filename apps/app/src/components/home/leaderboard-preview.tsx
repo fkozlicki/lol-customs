@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { cn } from "@v1/ui/cn";
 import { motion } from "motion/react";
+import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { DURATION } from "@/utils/motion";
@@ -86,9 +87,10 @@ export function Leaderboard({
       <section className="space-y-4">
         {historyPicker}
         {leaderboard.length === 0 ? (
-          <p className="border-t py-10 text-sm text-muted-foreground">
-            {t("noMatchesYet")}
-          </p>
+          <div className="flex flex-col items-start gap-4 border-t py-10">
+            <p className="text-sm text-muted-foreground">{t("noMatchesYet")}</p>
+            <DownloadAppButton />
+          </div>
         ) : (
           <div className="-mx-4 overflow-x-auto sm:mx-0">
             <table className="w-full min-w-[20rem] border-collapse text-sm">
