@@ -34,6 +34,58 @@ values
   (91, 'hof-p2', 9930000002, 990, 3, 3, 2),
   (91, 'hof-p3', 9930000001, 900, 1, 5, 1);
 
+-- Jungle titles read roles from matches. Season 91 starts in 2091 so these matches land on track 91; the
+-- rating triggers are off so the aggregates above stay as inserted.
+alter table public.match_participants disable trigger trg_update_ratings;
+alter table public.match_participants disable trigger trg_compute_op_scores;
+
+insert into public.seasons (id, number, starts_at) values (91, 91, '2091-01-01T00:00:00Z');
+
+insert into public.players (puuid, game_name, tag_line)
+select 'hof-f' || n, 'HofFiller' || n, 'EUW'
+from generate_series(1, 8) n;
+
+-- Participant 2 and 7 are the junglers of a ten-player Summoner's Rift lobby.
+create function tests.seed_jungle_match(
+  p_match_id bigint,
+  p_day integer,
+  p_slots text[],
+  p_neutral integer[]
+)
+returns void
+language plpgsql
+as $$
+begin
+  insert into public.matches (match_id, platform_id, game_creation, duration, map_id, raw_json)
+  values (p_match_id, 'EUN1', '2091-01-01T12:00:00Z'::timestamptz + make_interval(days => p_day), 1800, 11, '{}'::jsonb);
+
+  insert into public.match_participants (match_id, puuid, participant_id, team_id, win, neutral_minions_killed)
+  select p_match_id, p_slots[n], n, case when n <= 5 then 100 else 200 end, n <= 5, p_neutral[n]
+  from generate_series(1, 10) n;
+end;
+$$;
+
+-- p1 and p2 jungle three times. p3 supports with no jungle CS, then jungles only twice. p4 jungles
+-- three times but is still qualifying.
+select tests.seed_jungle_match(9930000011, 1,
+  array['hof-f1','hof-p1','hof-f2','hof-f3','hof-p3','hof-f4','hof-p2','hof-f5','hof-f6','hof-f7'],
+  array[0,150,0,0,0, 0,100,0,0,0]);
+select tests.seed_jungle_match(9930000012, 2,
+  array['hof-f1','hof-p1','hof-f2','hof-f3','hof-p3','hof-f4','hof-p2','hof-f5','hof-f6','hof-f7'],
+  array[0,150,0,0,0, 0,100,0,0,0]);
+select tests.seed_jungle_match(9930000013, 3,
+  array['hof-f1','hof-p1','hof-f2','hof-f3','hof-p3','hof-f4','hof-p2','hof-f5','hof-f6','hof-f7'],
+  array[0,150,0,0,0, 0,100,0,0,0]);
+select tests.seed_jungle_match(9930000014, 4,
+  array['hof-f1','hof-p3','hof-f2','hof-f3','hof-f8','hof-f4','hof-p4','hof-f5','hof-f6','hof-f7'],
+  array[0,10,0,0,0, 0,5,0,0,0]);
+select tests.seed_jungle_match(9930000015, 5,
+  array['hof-f1','hof-p3','hof-f2','hof-f3','hof-f8','hof-f4','hof-p4','hof-f5','hof-f6','hof-f7'],
+  array[0,10,0,0,0, 0,5,0,0,0]);
+select tests.seed_jungle_match(9930000016, 6,
+  array['hof-f1','hof-p1','hof-f2','hof-f3','hof-f8','hof-f4','hof-p4','hof-f5','hof-f6','hof-f7'],
+  array[0,150,0,0,0, 0,5,0,0,0]);
+
 create function tests.hof(p_track integer, p_title text)
 returns text
 language sql
@@ -44,7 +96,7 @@ as $$
   where title = p_title;
 $$;
 
-select plan(14);
+select plan(16);
 
 select is(
   tests.hof(91, 'most_kills'),
@@ -109,6 +161,16 @@ select is(
   tests.hof(91, 'worst_op_score'),
   'hof-p1=3.2',
   'worst OP score is the lowest average OP score'
+);
+select is(
+  (select string_agg(puuid || '=' || round(value, 1), ',') from public.hall_of_fame(91) where title = 'jungle_clearer'),
+  'hof-p1=150.0',
+  'jungle clearer averages jungle CS over matches played as jungler'
+);
+select is(
+  (select string_agg(puuid || '=' || round(value, 1), ',') from public.hall_of_fame(91) where title = 'jungle_tourist'),
+  'hof-p2=100.0',
+  'jungle tourist ignores supports and players with fewer than three jungle matches'
 );
 select ok(
   not exists (

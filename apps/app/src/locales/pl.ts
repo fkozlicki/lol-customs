@@ -427,7 +427,7 @@ export default {
           kda: "KDA",
           pentakills: "pentakille",
           cs: "CS / mecz",
-          jungleCs: "jungle CS / mecz",
+          jungleCs: "jungle CS jako jungler",
           gold: "złoto / mecz",
           level: "level na koniec",
           vision: "wizja / mecz",
@@ -453,7 +453,7 @@ export default {
           },
           jungle_tourist: {
             title: "Turysta w dżungli",
-            description: "Najmniej jungle CS na mecz",
+            description: "Najmniej jungle CS na mecz jako jungler",
           },
           mvp: {
             title: "MVP",
@@ -541,7 +541,7 @@ export default {
           },
           jungle_clearer: {
             title: "Czyszczacz dżungli",
-            description: "Jungle CS na mecz",
+            description: "Jungle CS na mecz jako jungler",
           },
           gold_hoarder: {
             title: "Skarbnik",
