@@ -2,7 +2,7 @@
 --
 -- Returns every holder per title; players tied on the value share it. Only qualified players take
 -- part. Counting titles (MVPs, pentakills, streaks) need a value above zero, so nobody holds "most
--- pentakills" with none.
+-- pentakills" with none. Jungle titles only count matches played as jungler, and need at least three.
 
 DROP FUNCTION IF EXISTS "public"."hall_of_fame"(integer);
 
@@ -27,10 +27,35 @@ AS $$
     WHERE rh.ladder_season_id = p_track
     GROUP BY rh.puuid
   ),
+  -- Role per participant, the same way OP score assigns it.
+  jungle AS (
+    SELECT j.puuid, avg(j.neutral_minions_killed) AS avg_jungle_cs
+    FROM (
+      SELECT
+        mp.puuid,
+        mp.neutral_minions_killed,
+        public._op_effective_role_bucket(
+          m.map_id,
+          count(*) OVER (PARTITION BY mp.match_id),
+          mp.participant_id,
+          mp.role,
+          mp.lane,
+          mp.total_minions_killed,
+          mp.neutral_minions_killed
+        ) AS role_bucket
+      FROM match_participants mp
+      JOIN matches m ON m.match_id = mp.match_id
+      WHERE p_track = 0 OR m.ladder_season_id = p_track
+    ) j
+    WHERE j.role_bucket = 'JUNGLE'
+    GROUP BY j.puuid
+    HAVING count(*) >= 3
+  ),
   candidates AS (
     SELECT q.puuid, t.title, t.value, t.highest_wins
     FROM qualified q
     LEFT JOIN longest_lose_streak l ON l.puuid = q.puuid
+    LEFT JOIN jungle jg ON jg.puuid = q.puuid
     CROSS JOIN LATERAL (
       VALUES
         -- Headline
@@ -62,8 +87,8 @@ AS $$
         -- Farm and gold
         ('best_farm', q.avg_cs, true),
         ('worst_farm', q.avg_cs, false),
-        ('jungle_clearer', q.avg_neutral_minions, true),
-        ('jungle_tourist', q.avg_neutral_minions, false),
+        ('jungle_clearer', jg.avg_jungle_cs, true),
+        ('jungle_tourist', jg.avg_jungle_cs, false),
         ('gold_hoarder', q.avg_gold_earned, true),
         ('broke', q.avg_gold_earned, false),
         ('level_lead', q.avg_champ_level, true),
