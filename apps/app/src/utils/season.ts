@@ -43,13 +43,7 @@ export function withSeason(href: string, raw: string | null | undefined) {
   return `${href}${separator}${SEASON_PARAM}=${encodeURIComponent(raw)}`;
 }
 
-export const SEASON_SCOPED_PATHS = [
-  "/",
-  "/matches",
-  "/hof",
-  "/duos",
-  "/players",
-];
+export const SEASON_SCOPED_PATHS = ["/", "/matches", "/hof", "/players"];
 
 export function isSeasonScopedPath(pathname: string): boolean {
   return SEASON_SCOPED_PATHS.some((path) =>

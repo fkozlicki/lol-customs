@@ -16,7 +16,8 @@ export function MobileNav() {
   const pathname = usePathname();
   const season = useSeasonParam();
   const [moreOpen, setMoreOpen] = useState(false);
-  const secondaryPaths = [...TOOL_PATHS, FORUM_PATH];
+  const tabPaths = [...PRIMARY_PATHS, FORUM_PATH];
+  const secondaryPaths = TOOL_PATHS;
   const moreActive = secondaryPaths.some(({ path }) =>
     isActivePath(pathname, path),
   );
@@ -25,7 +26,7 @@ export function MobileNav() {
     <>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
         <div className="grid h-14 grid-cols-5">
-          {PRIMARY_PATHS.map(({ path, label, Icon, seasonScoped }) => (
+          {tabPaths.map(({ path, label, Icon, seasonScoped }) => (
             <TabLink
               key={path}
               href={seasonScoped ? withSeason(path, season) : path}
