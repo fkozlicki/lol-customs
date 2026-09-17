@@ -51,11 +51,24 @@ AS $$
     GROUP BY j.puuid
     HAVING count(*) >= 3
   ),
+  multikills AS (
+    SELECT
+      mp.puuid,
+      sum(coalesce(mp.double_kills, 0)) AS doubles,
+      sum(coalesce(mp.triple_kills, 0)) AS triples,
+      sum(coalesce(mp.quadra_kills, 0)) AS quadras,
+      sum(coalesce(mp.penta_kills, 0)) AS pentas
+    FROM match_participants mp
+    JOIN matches m ON m.match_id = mp.match_id
+    WHERE p_track = 0 OR m.ladder_season_id = p_track
+    GROUP BY mp.puuid
+  ),
   candidates AS (
     SELECT q.puuid, t.title, t.value, t.highest_wins
     FROM qualified q
     LEFT JOIN longest_lose_streak l ON l.puuid = q.puuid
     LEFT JOIN jungle jg ON jg.puuid = q.puuid
+    LEFT JOIN multikills mk ON mk.puuid = q.puuid
     CROSS JOIN LATERAL (
       VALUES
         -- Headline
@@ -83,9 +96,12 @@ AS $$
         ('feeder', q.avg_kda, false),
         ('cc_king', q.avg_cc_time, true),
         ('no_cc', q.avg_cc_time, false),
-        ('penta_hunter', nullif(q.total_penta_kills, 0)::numeric, true),
-        ('quadra_killer', nullif(q.total_quadra_kills, 0)::numeric, true),
-        ('triple_threat', nullif(q.total_triple_kills, 0)::numeric, true),
+
+        -- Multikills
+        ('double_trouble', nullif(mk.doubles, 0), true),
+        ('triple_threat', nullif(mk.triples, 0), true),
+        ('quadra_killer', nullif(mk.quadras, 0), true),
+        ('penta_hunter', nullif(mk.pentas, 0), true),
         -- Farm and gold
         ('best_farm', q.avg_cs, true),
         ('worst_farm', q.avg_cs, false),

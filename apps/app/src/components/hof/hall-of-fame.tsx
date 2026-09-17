@@ -37,6 +37,15 @@ export function HallOfFame({ season }: { season: number }) {
   );
   if (!hasHolders) return <HallOfFameEmpty season={season} />;
 
+  // A section made only of unpaired titles disappears when nobody holds any of them.
+  const sections = HOF_SECTIONS.filter(
+    (section) =>
+      section.pairs.length > 0 ||
+      (section.singles ?? []).some(
+        (entry) => (data[entry.id]?.length ?? 0) > 0,
+      ),
+  );
+
   return (
     <div className="space-y-16">
       <div className="space-y-8">
@@ -45,7 +54,7 @@ export function HallOfFame({ season }: { season: number }) {
           aria-label={t("jumpTo")}
           className="flex flex-wrap gap-x-5 gap-y-2 md:hidden"
         >
-          {HOF_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <a
               key={section.id}
               href={`#hof-${section.id}`}
@@ -57,19 +66,25 @@ export function HallOfFame({ season }: { season: number }) {
         </nav>
       </div>
 
-      {HOF_SECTIONS.map((section) => (
+      {sections.map((section) => (
         <section
           key={section.id}
           id={`hof-${section.id}`}
           className="scroll-mt-20"
         >
           <SectionHeading>{t(`sections.${section.id}`)}</SectionHeading>
-          <TitleRows
-            rows={section.pairs.map((pair) => [pair.best, pair.worst])}
-            data={data}
-            paired
-          />
-          <SingleTitles singles={section.singles ?? []} data={data} />
+          {section.pairs.length > 0 ? (
+            <>
+              <TitleRows
+                rows={section.pairs.map((pair) => [pair.best, pair.worst])}
+                data={data}
+                paired
+              />
+              <SingleTitles singles={section.singles ?? []} data={data} />
+            </>
+          ) : (
+            <TitleGrid singles={section.singles ?? []} data={data} />
+          )}
         </section>
       ))}
     </div>
@@ -139,6 +154,30 @@ function SingleTitles({
 
   return (
     <div className="divide-y border-t">
+      {held.map((entry) => (
+        <TitleCell
+          key={entry.id}
+          entry={entry}
+          holders={data[entry.id] ?? []}
+          className="md:max-w-none"
+        />
+      ))}
+    </div>
+  );
+}
+
+/** A section of unpaired titles only: side by side on wider screens, since nothing here reads as a pair. */
+function TitleGrid({
+  singles,
+  data,
+}: {
+  singles: HofTitle[];
+  data: HallOfFameData;
+}) {
+  const held = singles.filter((entry) => (data[entry.id]?.length ?? 0) > 0);
+
+  return (
+    <div className="grid divide-y sm:grid-cols-2 sm:gap-x-12 sm:divide-y-0 lg:grid-cols-4">
       {held.map((entry) => (
         <TitleCell
           key={entry.id}

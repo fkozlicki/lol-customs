@@ -10,15 +10,15 @@ from generate_series(1, 5) n;
 -- Aggregates are inserted directly: the function only reads ratings and rating history. Tracks 91 and
 -- 92 keep the fixtures apart from any real data in the database.
 insert into public.ratings
-  (ladder_season_id, puuid, rating, wins, losses, avg_kills, avg_deaths, avg_op_score, mvp_games, best_streak, lose_streak, total_triple_kills)
+  (ladder_season_id, puuid, rating, wins, losses, avg_kills, avg_deaths, avg_op_score, mvp_games, best_streak, lose_streak)
 values
-  (91, 'hof-p1', 1100, 6, 2, 9.0, 5.0, 3.2, 3, 4, 0, 2),
-  (91, 'hof-p2',  990, 3, 3, 9.0, 3.0, null, 0, 2, 2, 1),
-  (91, 'hof-p3',  900, 1, 5, 2.0, 8.0, 5.0, 0, 1, 1, 0),
+  (91, 'hof-p1', 1100, 6, 2, 9.0, 5.0, 3.2, 3, 4, 0),
+  (91, 'hof-p2',  990, 3, 3, 9.0, 3.0, null, 0, 2, 2),
+  (91, 'hof-p3',  900, 1, 5, 2.0, 8.0, 5.0, 0, 1, 1),
   -- still qualifying: four matches
-  (91, 'hof-p4', 1300, 2, 2, 20.0, 0.5, 9.9, 0, 2, 0, 9),
+  (91, 'hof-p4', 1300, 2, 2, 20.0, 0.5, 9.9, 0, 2, 0),
   -- only on the other track
-  (92, 'hof-p5', 1050, 5, 0, 50.0, 1.0, 1.0, 0, 5, 0, 0);
+  (92, 'hof-p5', 1050, 5, 0, 50.0, 1.0, 1.0, 0, 5, 0);
 
 insert into public.matches (match_id, platform_id, game_creation, duration, raw_json)
 values
@@ -85,6 +85,14 @@ select tests.seed_jungle_match(9930000015, 5,
 select tests.seed_jungle_match(9930000016, 6,
   array['hof-f1','hof-p1','hof-f2','hof-f3','hof-f8','hof-f4','hof-p4','hof-f5','hof-f6','hof-f7'],
   array[0,150,0,0,0, 0,5,0,0,0]);
+
+-- Multikills are summed over the matches on the track. p4 has the most but is still qualifying.
+update public.match_participants set triple_kills = 1
+where puuid = 'hof-p1' and match_id in (9930000011, 9930000012);
+update public.match_participants set triple_kills = 1
+where puuid = 'hof-p2' and match_id = 9930000011;
+update public.match_participants set triple_kills = 3
+where puuid = 'hof-p4';
 
 create function tests.hof(p_track integer, p_title text)
 returns text
