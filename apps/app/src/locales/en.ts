@@ -395,7 +395,7 @@ export default {
         title: "Hall of Fame",
         description: "Who holds the ladder's best and worst records.",
         sections: {
-          headline: "Headline",
+          headline: "Ranking",
           form: "Form",
           fighting: "Fighting",
           multikills: "Multikills",
