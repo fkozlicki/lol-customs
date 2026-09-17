@@ -4,6 +4,8 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 export type SeasonOption = RouterOutputs["seasons"]["list"][number];
 
 export const SEASON_PARAM = "season";
+/** Remembers an explicitly chosen season across visits; absent means the current season. */
+export const SEASON_COOKIE = "derby-season";
 export const ALL_TIME_PARAM = "all";
 
 /** Maps the `?season=` value to a rating track; missing or unknown values fall back to the current season. */
