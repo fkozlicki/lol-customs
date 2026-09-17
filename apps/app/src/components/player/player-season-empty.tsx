@@ -9,7 +9,7 @@ export function PlayerSeasonEmpty({ seasonNumber }: { seasonNumber: number }) {
   const t = useScopedI18n("dashboard.season");
 
   return (
-    <section className="flex flex-col items-start gap-3 border-t pt-6">
+    <section className="flex flex-col items-start gap-3">
       <p className="text-2xl font-semibold uppercase tracking-[-0.02em]">
         {t("emptyPlayerTitle", { number: seasonNumber })}
       </p>

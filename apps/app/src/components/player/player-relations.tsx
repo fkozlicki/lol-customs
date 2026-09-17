@@ -32,7 +32,7 @@ export function PlayerRelations({ puuid, season }: PlayerRelationsProps) {
     <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-1">
       <section>
         <SectionHeading>{t("teammates")}</SectionHeading>
-        <ul className="divide-y border-b">
+        <ul className="divide-y">
           <RelationRow
             label={t("mostMatchesWith")}
             relation={teammates.mostMatches}
@@ -53,7 +53,7 @@ export function PlayerRelations({ puuid, season }: PlayerRelationsProps) {
 
       <section>
         <SectionHeading>{t("rivals")}</SectionHeading>
-        <ul className="divide-y border-b">
+        <ul className="divide-y">
           <RelationRow
             label={t("bestRecord")}
             relation={rivals.bestRecord}
