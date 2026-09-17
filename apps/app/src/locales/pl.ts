@@ -452,7 +452,7 @@ export default {
             description: "Najwyższe KDA",
           },
           no_cc: {
-            title: "Bez CC",
+            title: "Wolna amerykanka",
             description: "Najmniej CC na mecz",
           },
           worst_farm: {
@@ -480,7 +480,7 @@ export default {
             description: "Mecze bez ACE",
           },
           op_score: {
-            title: "OP Score",
+            title: "Carry",
             description: "Średni OP score",
           },
           worst_op_score: {
@@ -492,7 +492,7 @@ export default {
             description: "Najwyższy win rate",
           },
           worst_win_rate: {
-            title: "Najgorszy WR",
+            title: "Przegryw",
             description: "Najniższy win rate",
           },
           best_streak: {
@@ -500,7 +500,7 @@ export default {
             description: "Najdłuższa seria wygranych",
           },
           tilted: {
-            title: "Wypalony",
+            title: "Na tilcie",
             description: "Najdłuższa seria porażek",
           },
           most_kills: {
@@ -520,7 +520,7 @@ export default {
             description: "Najmniej asyst na mecz",
           },
           damage_dealer: {
-            title: "Dealer obrażeń",
+            title: "Armata",
             description: "Obrażenia do championów na mecz",
           },
           peashooter: {
@@ -544,11 +544,11 @@ export default {
             description: "Pentakille",
           },
           quadra_killer: {
-            title: "Quadra killer",
+            title: "Kareta",
             description: "Najwięcej quadrakilli",
           },
           triple_threat: {
-            title: "Triple threat",
+            title: "Hat-trick",
             description: "Najwięcej triple killi",
           },
           best_farm: {
@@ -556,31 +556,31 @@ export default {
             description: "CS na mecz",
           },
           jungle_clearer: {
-            title: "Czyszczacz dżungli",
+            title: "Tarzan",
             description: "Jungle CS na mecz jako jungler",
           },
           gold_hoarder: {
-            title: "Skarbnik",
+            title: "Midas",
             description: "Zdobyte złoto na mecz",
           },
           broke: {
-            title: "Goły",
+            title: "Bankrut",
             description: "Najmniej złota na mecz",
           },
           level_lead: {
-            title: "Przodownik leveli",
+            title: "Wymaksowany",
             description: "Level na koniec meczu",
           },
           behind: {
-            title: "W tyle",
+            title: "Żółtodziób",
             description: "Najniższy level na koniec meczu",
           },
           vision_master: {
-            title: "Mistrz wizji",
+            title: "Sokole oko",
             description: "Vision score na mecz",
           },
           blind: {
-            title: "Ślepy",
+            title: "Kret",
             description: "Najniższy vision score na mecz",
           },
           life_saver: {
@@ -588,15 +588,15 @@ export default {
             description: "Leczenie na mecz",
           },
           no_heals: {
-            title: "Bez healów",
+            title: "Znachor",
             description: "Najmniej leczenia na mecz",
           },
           tower_crusher: {
-            title: "Niszczyciel wież",
+            title: "Burzyciel",
             description: "Wieże na mecz",
           },
           tower_hugger: {
-            title: "Przytulacz wież",
+            title: "Konserwator zabytków",
             description: "Najmniej wież na mecz",
           },
         },
