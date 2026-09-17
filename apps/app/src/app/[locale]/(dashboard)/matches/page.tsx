@@ -1,5 +1,6 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
 import { Suspense } from "react";
+import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
 import MatchHistorySkeleton from "@/components/matches/match-history-skeleton";
 import { PageHeader } from "@/components/page-header";
@@ -40,7 +41,9 @@ export default async function MatchHistoryPage({
           }
           title={t("title")}
           description={t("description")}
-        />
+        >
+          <DownloadAppButton />
+        </PageHeader>
         <Suspense fallback={<MatchHistorySkeleton />} key={season}>
           <MatchHistoryList season={season} />
         </Suspense>

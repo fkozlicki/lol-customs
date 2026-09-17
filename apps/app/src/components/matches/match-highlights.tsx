@@ -54,7 +54,7 @@ function Highlight({
         className="size-9 shrink-0 object-cover sm:size-10"
       />
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="label-caps">
+        <span className="label-caps whitespace-nowrap">
           <span className={tone === "mvp" ? "text-mvp" : "text-ace"}>
             {label}
           </span>

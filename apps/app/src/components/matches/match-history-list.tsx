@@ -3,6 +3,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
 import { useCallback, useState } from "react";
+import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
@@ -58,7 +59,10 @@ export function MatchHistoryList({ season }: { season: number }) {
 
   if (!matches.length) {
     return (
-      <p className="py-10 text-sm text-muted-foreground">{t("noMatchesYet")}</p>
+      <div className="flex flex-col items-start gap-4 py-10">
+        <p className="text-sm text-muted-foreground">{t("noMatchesYet")}</p>
+        <DownloadAppButton />
+      </div>
     );
   }
 

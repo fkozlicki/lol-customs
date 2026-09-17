@@ -8,10 +8,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
-import { LocaleSwitcher } from "./locale-switcher";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
-import { ThemeSwitcher } from "./theme-switcher";
-import { useDownloadDialog } from "./use-download-dialog";
 import { useSeasonParam } from "./use-season-param";
 
 export function MobileNav() {
@@ -19,7 +16,6 @@ export function MobileNav() {
   const pathname = usePathname();
   const season = useSeasonParam();
   const [moreOpen, setMoreOpen] = useState(false);
-  const [, setDownloadOpen] = useDownloadDialog();
   const secondaryPaths = [...TOOL_PATHS, FORUM_PATH];
   const moreActive = secondaryPaths.some(({ path }) =>
     isActivePath(pathname, path),
@@ -78,21 +74,6 @@ export function MobileNav() {
                 {t(label)}
               </Link>
             ))}
-            <button
-              type="button"
-              onClick={() => {
-                setMoreOpen(false);
-                setDownloadOpen(true);
-              }}
-              className="flex items-center gap-3 border-b px-4 py-3.5 text-left text-sm"
-            >
-              <Icons.Download className="size-4 text-muted-foreground" />
-              {t("sidebar.downloadDesktopApp")}
-            </button>
-            <div className="flex items-center gap-2 px-4 py-3">
-              <ThemeSwitcher />
-              <LocaleSwitcher />
-            </div>
           </div>
         </SheetContent>
       </Sheet>
