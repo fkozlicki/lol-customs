@@ -450,7 +450,7 @@ export default {
             description: "Highest KDA",
           },
           no_cc: {
-            title: "Free Pass",
+            title: "Gentle Touch",
             description: "Least crowd control per match",
           },
           worst_farm: {
@@ -554,7 +554,7 @@ export default {
             description: "CS per match",
           },
           jungle_clearer: {
-            title: "Tarzan",
+            title: "Jungle Local",
             description: "Jungle CS per match as jungler",
           },
           gold_hoarder: {
