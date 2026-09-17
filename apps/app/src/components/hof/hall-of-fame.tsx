@@ -23,8 +23,8 @@ import {
 } from "./hof-config";
 
 type HallOfFameData = RouterOutputs["riftRank"]["hallOfFame"];
-type HofStanding = HallOfFameData[string];
-type HofPlayer = HofStanding["holders"][number]["player"];
+type HofHolder = HallOfFameData[string][number];
+type HofPlayer = HofHolder["player"];
 
 export function HallOfFame({ season }: { season: number }) {
   const t = useScopedI18n("dashboard.pages.hallOfFame");
@@ -34,61 +34,55 @@ export function HallOfFame({ season }: { season: number }) {
   );
 
   const hasHolders = HOF_TITLES.some(
-    (entry) => (data[entry.id]?.holders.length ?? 0) > 0,
+    (entry) => (data[entry.id]?.length ?? 0) > 0,
   );
   if (!hasHolders) return <HallOfFameEmpty season={season} />;
 
+  const sections = [
+    ...HOF_SECTIONS.map((section) => ({
+      id: section.id,
+      label: t(`sections.${section.id}`),
+      rows: section.pairs.map((pair) => [pair.best, pair.worst]),
+    })),
+    {
+      id: "other",
+      label: t("otherRecords"),
+      rows: chunkPairs(HOF_OTHER_RECORDS),
+    },
+  ];
+
   return (
-    <div className="space-y-14">
+    <div className="space-y-16">
       <TitleCounts data={data} />
 
-      {HOF_SECTIONS.map((section) => (
+      {sections.map((section) => (
         <section key={section.id}>
-          <SectionTitle>{t(`sections.${section.id}`)}</SectionTitle>
-          <div className="hidden grid-cols-2 pb-2 md:grid">
-            <span className="label-caps">{t("best")}</span>
-            <span className="label-caps pl-6">{t("worst")}</span>
-          </div>
-          <div className="divide-y border-y">
-            {section.pairs.map((pair) => (
-              <div key={pair.best.id} className="grid md:grid-cols-2">
-                <TitleCell
-                  entry={pair.best}
-                  standing={data[pair.best.id]}
-                  className="md:pr-6"
-                />
-                <TitleCell
-                  entry={pair.worst}
-                  standing={data[pair.worst.id]}
-                  className="border-t md:border-t-0 md:border-l md:pl-6"
-                />
+          <h2 className="label-caps pb-2 text-foreground">{section.label}</h2>
+          <div className="divide-y">
+            {section.rows.map((row) => (
+              <div
+                key={row[0]?.id}
+                className="grid divide-y md:grid-cols-2 md:gap-12 md:divide-y-0"
+              >
+                {row.map((entry) => (
+                  <TitleCell
+                    key={entry.id}
+                    entry={entry}
+                    holders={data[entry.id] ?? []}
+                  />
+                ))}
               </div>
-            ))}
-            {section.singles?.map((entry) => (
-              <TitleCell
-                key={entry.id}
-                entry={entry}
-                standing={data[entry.id]}
-              />
             ))}
           </div>
         </section>
       ))}
-
-      <section>
-        <SectionTitle>{t("otherRecords")}</SectionTitle>
-        <div className="grid border-t md:grid-cols-2 md:gap-x-12">
-          {HOF_OTHER_RECORDS.map((entry) => (
-            <TitleCell
-              key={entry.id}
-              entry={entry}
-              standing={data[entry.id]}
-              className="border-b"
-            />
-          ))}
-        </div>
-      </section>
     </div>
+  );
+}
+
+function chunkPairs(entries: HofTitle[]): HofTitle[][] {
+  return entries.flatMap((_, index) =>
+    index % 2 === 0 ? [entries.slice(index, index + 2)] : [],
   );
 }
 
@@ -140,7 +134,7 @@ function TitleCounts({ data }: { data: HallOfFameData }) {
     { player: HofPlayer; best: number; worst: number }
   >();
   for (const entry of HOF_TITLES) {
-    for (const { player } of data[entry.id]?.holders ?? []) {
+    for (const { player } of data[entry.id] ?? []) {
       const count = counts.get(player.puuid) ?? { player, best: 0, worst: 0 };
       count[entry.kind] += 1;
       counts.set(player.puuid, count);
@@ -180,8 +174,8 @@ function CollectorList({
 
   return (
     <section>
-      <h2 className="label-caps pb-3 text-foreground">{label}</h2>
-      <ol className="divide-y border-y">
+      <h2 className="label-caps pb-2 text-foreground">{label}</h2>
+      <ol>
         {rows.map(({ player, titles }) => (
           <li key={player.puuid}>
             <Link
@@ -189,7 +183,7 @@ function CollectorList({
                 playerHref(player.game_name, player.tag_line),
                 season,
               )}
-              className="group flex h-12 items-center gap-3"
+              className="group flex h-11 items-center gap-3"
             >
               <ProfileIcon
                 iconId={player.profile_icon}
@@ -219,37 +213,24 @@ function CollectorList({
 
 function TitleCell({
   entry,
-  standing,
-  className,
+  holders,
 }: {
   entry: HofTitle;
-  standing: HofStanding | undefined;
-  className?: string;
+  holders: HofHolder[];
 }) {
   const t = useScopedI18n("dashboard.pages.hallOfFame");
   const locale = useCurrentLocale();
   const season = useSeasonParam();
-  const holders = standing?.holders ?? [];
-  const runnersUp = standing?.runnersUp ?? [];
   const holder = holders[0];
-  const runnerUp = runnersUp[0];
   const toneClass =
     entry.id === "mvp" ? "text-mvp" : entry.id === "ace" ? "text-ace" : null;
 
   return (
-    <div
-      className={cn("flex min-w-0 items-center gap-4 py-3 sm:py-4", className)}
-    >
+    <div className="flex min-w-0 items-center gap-4 py-4">
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <span className={cn("label-caps text-foreground", toneClass)}>
-          {entry.kind === "worst" && (
-            <span className="text-muted-foreground md:hidden">
-              {t("worst")} ·{" "}
-            </span>
-          )}
           {t(`cards.${entry.id}.title`)}
         </span>
-
         {holder ? (
           <div className="flex min-w-0 items-center gap-2">
             <div className="flex shrink-0 -space-x-1.5">
@@ -284,24 +265,6 @@ function TitleCell({
         ) : (
           <span className="text-sm text-muted-foreground">{t("noHolder")}</span>
         )}
-
-        {holder && runnerUp && (
-          <span className="num hidden truncate text-xs text-muted-foreground sm:block">
-            {t("runnerUp")}{" "}
-            {runnersUp.length > 1
-              ? t("playersTied", { count: runnersUp.length })
-              : (runnerUp.player.game_name ??
-                runnerUp.player.puuid.slice(0, 8))}
-            {" · "}
-            {formatHofValue(entry, runnerUp.value, locale)}
-            {" · Δ "}
-            {formatHofValue(
-              entry,
-              Math.abs(runnerUp.value - holder.value),
-              locale,
-            )}
-          </span>
-        )}
       </div>
 
       {holder && (
@@ -323,14 +286,6 @@ function TitleCell({
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="label-caps border-t pt-3 pb-3 text-foreground">
-      {children}
-    </h2>
-  );
-}
-
 /** One held title: filled for best, outlined for worst. */
 function Pip({ filled = false }: { filled?: boolean }) {
   return (
@@ -345,7 +300,7 @@ function Pip({ filled = false }: { filled?: boolean }) {
 
 export function HallOfFameSkeleton() {
   return (
-    <div className="space-y-14">
+    <div className="space-y-16">
       <Skeleton className="h-40 w-full" />
       {HOF_SECTIONS.slice(0, 2).map((section) => (
         <div key={section.id} className="space-y-px">

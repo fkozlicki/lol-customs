@@ -401,9 +401,6 @@ export default {
           farm: "Farm & gold",
           map: "Map & utility",
         },
-        best: "Best",
-        worst: "Worst",
-        runnerUp: "2nd",
         noHolder: "No holder yet",
         otherRecords: "Other records",
         mostBest: "Most best titles",
@@ -411,14 +408,12 @@ export default {
         emptyTitle: "The Hall of Fame is waiting",
         emptyHint: "Titles appear once players reach {count} matches.",
         showSeason: "See Season {number}",
-        playersTied: "{count} players",
         stats: {
           mvpMatches: "matches as MVP",
           matchesWithoutMvp: "matches, no MVP",
           aceMatches: "matches as ACE",
           matchesWithoutAce: "matches, no ACE",
           opScore: "OP score / match",
-          rating: "rating",
           winRate: "win rate",
           winStreak: "wins in a row",
           loseStreak: "losses in a row",
@@ -460,9 +455,9 @@ export default {
             title: "OP Score",
             description: "Average OP score",
           },
-          bottom_of_ladder: {
-            title: "Bottom of the Ladder",
-            description: "Lowest rating",
+          worst_op_score: {
+            title: "Dead Weight",
+            description: "Lowest average OP score",
           },
           best_win_rate: {
             title: "Winner",

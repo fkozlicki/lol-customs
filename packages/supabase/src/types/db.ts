@@ -1084,7 +1084,6 @@ export type Database = {
         Args: { p_track: number }
         Returns: {
           puuid: string
-          rank: number
           title: string
           value: number
         }[]

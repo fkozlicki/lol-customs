@@ -25,9 +25,7 @@ export function PlayerTitles({ puuid, season }: PlayerTitlesProps) {
   );
 
   const held = HOF_TITLES.flatMap((entry) => {
-    const holder = data[entry.id]?.holders.find(
-      ({ player }) => player.puuid === puuid,
-    );
+    const holder = data[entry.id]?.find(({ player }) => player.puuid === puuid);
     return holder ? [{ entry, value: holder.value }] : [];
   });
 

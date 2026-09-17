@@ -1,13 +1,14 @@
 -- Hall of Fame titles for one rating track.
 --
--- Returns every holder (rank 1, ties share the title) and runner-up (rank 2, the next distinct value)
--- per title. Only qualified players take part. Counting titles (MVPs, pentakills, streaks) need a value
--- above zero, so nobody holds "most pentakills" with none.
+-- Returns every holder per title; players tied on the value share it. Only qualified players take
+-- part. Counting titles (MVPs, pentakills, streaks) need a value above zero, so nobody holds "most
+-- pentakills" with none.
 
-CREATE OR REPLACE FUNCTION "public"."hall_of_fame"(p_track integer)
+DROP FUNCTION IF EXISTS "public"."hall_of_fame"(integer);
+
+CREATE FUNCTION "public"."hall_of_fame"(p_track integer)
 RETURNS TABLE (
   title text,
-  rank integer,
   puuid text,
   value numeric
 )
@@ -38,7 +39,7 @@ AS $$
         ('ace', nullif(q.ace_games, 0)::numeric, true),
         ('never_ace', CASE WHEN q.ace_games = 0 THEN q.matches_played END::numeric, true),
         ('op_score', q.avg_op_score, true),
-        ('bottom_of_ladder', q.rating::numeric, false),
+        ('worst_op_score', q.avg_op_score, false),
         -- Form
         ('best_win_rate', q.wins::numeric / nullif(q.matches_played, 0), true),
         ('worst_win_rate', q.wins::numeric / nullif(q.matches_played, 0), false),
@@ -85,9 +86,9 @@ AS $$
       )::integer AS rank
     FROM candidates c
   )
-  SELECT ranked.title, ranked.rank, ranked.puuid, ranked.value
+  SELECT ranked.title, ranked.puuid, ranked.value
   FROM ranked
-  WHERE ranked.rank <= 2;
+  WHERE ranked.rank = 1;
 $$;
 
 GRANT EXECUTE ON FUNCTION "public"."hall_of_fame"(integer) TO "anon";

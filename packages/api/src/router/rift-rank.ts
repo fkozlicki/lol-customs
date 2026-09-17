@@ -174,7 +174,7 @@ export const riftRankRouter = createTRPCRouter({
         });
     }),
 
-  /** Hall of Fame titles on a track: every holder (ties share) and every runner-up, qualified players only. */
+  /** Hall of Fame titles on a track: every holder, tied players share a title; qualified players only. */
   hallOfFame: publicProcedure
     .input(z.object({ season: seasonInput }))
     .query(async ({ ctx, input }) => {
@@ -204,13 +204,7 @@ export const riftRankRouter = createTRPCRouter({
       }
 
       const playerByPuuid = new Map(players.map((p) => [p.puuid, p]));
-      const titles = new Map<
-        string,
-        {
-          holders: HallOfFameEntry[];
-          runnersUp: HallOfFameEntry[];
-        }
-      >();
+      const titles = new Map<string, HallOfFameEntry[]>();
 
       for (const row of rows) {
         const entry = {
@@ -222,9 +216,7 @@ export const riftRankRouter = createTRPCRouter({
           },
           value: Number(row.value),
         };
-        const title = titles.get(row.title) ?? { holders: [], runnersUp: [] };
-        (row.rank === 1 ? title.holders : title.runnersUp).push(entry);
-        titles.set(row.title, title);
+        titles.set(row.title, [...(titles.get(row.title) ?? []), entry]);
       }
 
       return Object.fromEntries(titles);

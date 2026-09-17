@@ -34,30 +34,25 @@ values
   (91, 'hof-p2', 9930000002, 990, 3, 3, 2),
   (91, 'hof-p3', 9930000001, 900, 1, 5, 1);
 
-create function tests.hof(p_track integer, p_title text, p_rank integer)
+create function tests.hof(p_track integer, p_title text)
 returns text
 language sql
 stable
 as $$
   select string_agg(puuid || '=' || value::text, ',' order by puuid)
   from public.hall_of_fame(p_track)
-  where title = p_title and rank = p_rank;
+  where title = p_title;
 $$;
 
-select plan(13);
+select plan(12);
 
 select is(
-  tests.hof(91, 'most_kills', 1),
+  tests.hof(91, 'most_kills'),
   'hof-p1=9.0,hof-p2=9.0',
-  'players tied on the best value share the title'
+  'players tied on the best value share the title, and only holders are returned'
 );
 select is(
-  tests.hof(91, 'most_kills', 2),
-  'hof-p3=2.0',
-  'the runner-up is the next distinct value'
-);
-select is(
-  tests.hof(91, 'pacifist', 1),
+  tests.hof(91, 'pacifist'),
   'hof-p3=2.0',
   'worst titles rank the lowest value first'
 );
@@ -66,49 +61,49 @@ select ok(
   'only players qualified on the track can hold or chase a title'
 );
 select is(
-  tests.hof(91, 'tilted', 1),
+  tests.hof(91, 'tilted'),
   'hof-p1=4',
   'tilted is the longest losing streak on the track, not the current one'
 );
 select is(
-  tests.hof(91, 'best_streak', 1),
+  tests.hof(91, 'best_streak'),
   'hof-p1=4',
   'best streak is the longest win streak'
 );
 select is(
-  tests.hof(91, 'never_mvp', 1),
+  tests.hof(91, 'never_mvp'),
   'hof-p2=6,hof-p3=6',
   'never MVP ranks players without an MVP by matches played'
 );
 select is(
-  tests.hof(91, 'best_win_rate', 1),
+  tests.hof(91, 'best_win_rate'),
   'hof-p1=0.75000000000000000000',
   'best win rate is wins over matches played'
 );
 select is(
-  tests.hof(91, 'worst_win_rate', 1),
+  tests.hof(91, 'worst_win_rate'),
   'hof-p3=0.16666666666666666667',
   'worst win rate is the lowest share of wins'
 );
 select is(
-  tests.hof(91, 'op_score', 1),
+  tests.hof(91, 'op_score'),
   'hof-p3=5.0',
   'a missing value never holds a title'
 );
 select is(
-  tests.hof(92, 'most_kills', 1),
+  tests.hof(92, 'most_kills'),
   'hof-p5=50.0',
   'each rating track has its own titles'
 );
 select is(
-  (select max(rank) from public.hall_of_fame(91)),
-  2,
-  'only holders and runners-up are returned'
+  tests.hof(91, 'worst_op_score'),
+  'hof-p1=3.2',
+  'worst OP score is the lowest average OP score'
 );
 select ok(
   not exists (
     select 1 from public.hall_of_fame(91)
-    where title in ('big_spender', 'hoarder', 'cold', 'veteran_of_defeat', 'triple_threat')
+    where title in ('big_spender', 'hoarder', 'cold', 'veteran_of_defeat', 'triple_threat', 'bottom_of_ladder')
   ),
   'retired titles are gone'
 );
