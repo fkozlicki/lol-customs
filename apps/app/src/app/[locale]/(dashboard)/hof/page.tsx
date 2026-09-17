@@ -1,7 +1,10 @@
+import { ALL_TIME_SEASON } from "@v1/api/season";
 import { Suspense } from "react";
-import { HofGrid, HofGridSkeleton } from "@/components/hof/hof-grid";
+import { HallOfFame, HallOfFameSkeleton } from "@/components/hof/hall-of-fame";
+import { PageHeader } from "@/components/page-header";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
 
 interface HallOfFamePageProps {
@@ -12,20 +15,28 @@ export default async function HallOfFamePage({
   searchParams,
 }: HallOfFamePageProps) {
   const t = await getScopedI18n("dashboard.pages.hallOfFame");
-  const { season } = await getSeasonScope((await searchParams).season);
-  prefetch(trpc.riftRank.hofLeaders.queryOptions({ season }));
+  const tSeason = await getScopedI18n("dashboard.season");
+  const { season, seasons } = await getSeasonScope((await searchParams).season);
+  prefetch(trpc.riftRank.hallOfFame.queryOptions({ season }));
 
   return (
-    <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
-      <div>
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted-foreground">{t("description")}</p>
-      </div>
-      <HydrateClient>
-        <Suspense fallback={<HofGridSkeleton />} key={season}>
-          <HofGrid season={season} />
+    <HydrateClient>
+      <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+        <PageHeader
+          eyebrow={
+            season === ALL_TIME_SEASON
+              ? tSeason("allTime")
+              : tSeason("label", {
+                  number: seasonNumber(season, seasons) ?? season,
+                })
+          }
+          title={t("title")}
+          description={t("description")}
+        />
+        <Suspense fallback={<HallOfFameSkeleton />} key={season}>
+          <HallOfFame season={season} />
         </Suspense>
-      </HydrateClient>
-    </div>
+      </div>
+    </HydrateClient>
   );
 }

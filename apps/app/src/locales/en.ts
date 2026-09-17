@@ -393,134 +393,165 @@ export default {
       },
       hallOfFame: {
         title: "Hall of Fame",
-        description: "The best (and worst) of the ladder.",
+        description: "Who holds the ladder's best and worst records.",
+        sections: {
+          headline: "Headline",
+          form: "Form",
+          fighting: "Fighting",
+          farm: "Farm & gold",
+          map: "Map & utility",
+        },
+        best: "Best",
+        worst: "Worst",
+        runnerUp: "2nd",
+        noHolder: "No holder yet",
+        andMore: "and {count} more",
+        units: {
+          perMatch: "per match",
+          total: "total",
+          matches: "matches",
+          inARow: "in a row",
+          points: "pts",
+          winRate: "win rate",
+          ratio: "KDA",
+          secondsPerMatch: "s per match",
+        },
         cards: {
-          most_kills: {
-            title: "Most Kills",
-            description: "Highest kills per game.",
-          },
-          most_assists: {
-            title: "Most Assists",
-            description: "Top assists per game.",
-          },
-          best_farm: {
-            title: "Best Farm",
-            description: "Highest CS per game.",
-          },
-          cannon_fodder: {
-            title: "Cannon Fodder",
-            description: "Most deaths per game.",
-          },
-          mvp: { title: "MVP", description: "Most games as MVP." },
-          penta_hunter: {
-            title: "Penta Hunter",
-            description: "Most pentakills ever.",
-          },
-          vision_master: {
-            title: "Vision Master",
-            description: "Highest vision score per game.",
-          },
-          damage_dealer: {
-            title: "Damage Dealer",
-            description: "Most damage to champs per game.",
-          },
-          gold_hoarder: {
-            title: "Gold Hoarder",
-            description: "Most gold earned per game.",
-          },
-          ace: { title: "Ace", description: "Most Aces (carried the team)." },
-          quadra_killer: {
-            title: "Quadra Killer",
-            description: "Most quadrakills.",
-          },
-          triple_threat: {
-            title: "Triple Threat",
-            description: "Most triple kills.",
-          },
-          tank: { title: "Tank", description: "Most damage taken per game." },
-          life_saver: {
-            title: "Life Saver",
-            description: "Most healing per game.",
-          },
-          cc_king: {
-            title: "CC King",
-            description: "Most crowd control time per game.",
-          },
-          tower_crusher: {
-            title: "Tower Crusher",
-            description: "Most turrets per game.",
-          },
-          jungle_clearer: {
-            title: "Jungle Clearer",
-            description: "Most jungle CS per game.",
-          },
-          op_score: {
-            title: "OP Score",
-            description: "Highest OP score per game.",
-          },
-          big_spender: {
-            title: "Big Spender",
-            description: "Most gold spent per game.",
-          },
-          level_lead: {
-            title: "Level Lead",
-            description: "Highest average level.",
-          },
-          tilted: { title: "Tilted", description: "Longest losing streak." },
-          feeder: { title: "Feeder", description: "Lowest KDA." },
-          pacifist: {
-            title: "Pacifist",
-            description: "Fewest kills per game.",
-          },
-          lone_wolf: {
-            title: "Lone Wolf",
-            description: "Fewest assists per game.",
-          },
-          blind: {
-            title: "Blind",
-            description: "Lowest vision score per game.",
-          },
-          tower_hugger: {
-            title: "Tower Hugger",
-            description: "Rarely takes turrets.",
-          },
-          behind: {
-            title: "Behind",
-            description: "Consistently underleveled.",
-          },
-          broke: { title: "Broke", description: "Least gold earned per game." },
-          no_heals: {
-            title: "No Heals",
-            description: "Minimal healing per game.",
-          },
-          bottom_of_ladder: {
-            title: "Bottom of the Ladder",
-            description: "Lowest rating.",
-          },
-          cold: { title: "Cold", description: "Never had a win streak." },
-          veteran_of_defeat: {
-            title: "Veteran of Defeat",
-            description: "Most total losses.",
-          },
-          worst_win_rate: {
-            title: "Worst Win Rate",
-            description: "Lowest win rate (10+ games).",
+          mvp: {
+            title: "MVP",
+            description: "Matches as MVP",
           },
           never_mvp: {
             title: "Never MVP",
-            description: "Most games without ever being MVP.",
+            description: "Matches without an MVP",
+          },
+          ace: {
+            title: "Ace",
+            description: "Matches as ACE",
           },
           never_ace: {
             title: "Never Ace",
-            description: "Most games without ever getting an Ace.",
+            description: "Matches without an ACE",
+          },
+          op_score: {
+            title: "OP Score",
+            description: "Average OP score",
+          },
+          bottom_of_ladder: {
+            title: "Bottom of the Ladder",
+            description: "Lowest rating",
+          },
+          best_win_rate: {
+            title: "Winner",
+            description: "Highest win rate",
+          },
+          worst_win_rate: {
+            title: "Worst Win Rate",
+            description: "Lowest win rate",
+          },
+          best_streak: {
+            title: "On Fire",
+            description: "Longest winning streak",
+          },
+          tilted: {
+            title: "Tilted",
+            description: "Longest losing streak",
+          },
+          most_kills: {
+            title: "Most Kills",
+            description: "Kills per match",
+          },
+          pacifist: {
+            title: "Pacifist",
+            description: "Fewest kills per match",
+          },
+          most_assists: {
+            title: "Most Assists",
+            description: "Assists per match",
+          },
+          lone_wolf: {
+            title: "Lone Wolf",
+            description: "Fewest assists per match",
+          },
+          damage_dealer: {
+            title: "Damage Dealer",
+            description: "Damage to champions per match",
           },
           peashooter: {
             title: "Peashooter",
-            description: "Least damage to champs per game.",
+            description: "Least damage to champions per match",
           },
-          hoarder: {
-            title: "Hoarder",
-            description: "Least gold spent per game.",
+          tank: {
+            title: "Tank",
+            description: "Damage taken per match",
+          },
+          cannon_fodder: {
+            title: "Cannon Fodder",
+            description: "Deaths per match",
+          },
+          cc_king: {
+            title: "CC King",
+            description: "Crowd control time per match",
+          },
+          feeder: {
+            title: "Feeder",
+            description: "Lowest KDA",
+          },
+          penta_hunter: {
+            title: "Penta Hunter",
+            description: "Pentakills",
+          },
+          quadra_killer: {
+            title: "Quadra Killer",
+            description: "Quadrakills",
+          },
+          best_farm: {
+            title: "Best Farm",
+            description: "CS per match",
+          },
+          jungle_clearer: {
+            title: "Jungle Clearer",
+            description: "Jungle CS per match",
+          },
+          gold_hoarder: {
+            title: "Gold Hoarder",
+            description: "Gold earned per match",
+          },
+          broke: {
+            title: "Broke",
+            description: "Least gold earned per match",
+          },
+          level_lead: {
+            title: "Level Lead",
+            description: "Champion level at the end",
+          },
+          behind: {
+            title: "Behind",
+            description: "Lowest champion level at the end",
+          },
+          vision_master: {
+            title: "Vision Master",
+            description: "Vision score per match",
+          },
+          blind: {
+            title: "Blind",
+            description: "Lowest vision score per match",
+          },
+          life_saver: {
+            title: "Life Saver",
+            description: "Healing per match",
+          },
+          no_heals: {
+            title: "No Heals",
+            description: "Least healing per match",
+          },
+          tower_crusher: {
+            title: "Tower Crusher",
+            description: "Turrets per match",
+          },
+          tower_hugger: {
+            title: "Tower Hugger",
+            description: "Fewest turrets per match",
           },
         },
       },
