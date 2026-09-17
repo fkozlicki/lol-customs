@@ -404,7 +404,7 @@ export default {
           map: "Mapa",
         },
         noHolder: "Brak",
-        otherRecords: "Pozostałe rekordy",
+        jumpTo: "Przejdź do sekcji",
         mostBest: "Najwięcej najlepszych",
         mostWorst: "Najwięcej najgorszych",
         emptyTitle: "Sala sław czeka",
@@ -446,11 +446,11 @@ export default {
             description: "Mecze bez MVP",
           },
           ace: {
-            title: "As",
+            title: "ACE",
             description: "Mecze jako ACE",
           },
           never_ace: {
-            title: "Nigdy Ace",
+            title: "Nigdy ACE",
             description: "Mecze bez ACE",
           },
           op_score: {

@@ -402,7 +402,7 @@ export default {
           map: "Map & utility",
         },
         noHolder: "No holder yet",
-        otherRecords: "Other records",
+        jumpTo: "Jump to section",
         mostBest: "Most best titles",
         mostWorst: "Most worst titles",
         emptyTitle: "The Hall of Fame is waiting",
@@ -444,11 +444,11 @@ export default {
             description: "Matches without an MVP",
           },
           ace: {
-            title: "Ace",
+            title: "ACE",
             description: "Matches as ACE",
           },
           never_ace: {
-            title: "Never Ace",
+            title: "Never ACE",
             description: "Matches without an ACE",
           },
           op_score: {
