@@ -99,7 +99,14 @@ function worst(
   return { id, stat, kind: "worst", decimals, percent };
 }
 
-export const HOF_SECTIONS: { id: HofSectionId; pairs: HofPair[] }[] = [
+export interface HofSection {
+  id: HofSectionId;
+  pairs: HofPair[];
+  /** Titles without a counterpart that still belong to the section, shown full width. */
+  singles?: HofTitle[];
+}
+
+export const HOF_SECTIONS: HofSection[] = [
   {
     id: "headline",
     pairs: [
@@ -111,6 +118,10 @@ export const HOF_SECTIONS: { id: HofSectionId; pairs: HofPair[] }[] = [
         best: best("ace", "aceMatches", 0),
         worst: worst("never_ace", "matchesWithoutAce", 0),
       },
+    ],
+    singles: [
+      best("op_score", "opScore", 2),
+      worst("bottom_of_ladder", "rating", 0),
     ],
   },
   {
@@ -177,8 +188,6 @@ export const HOF_SECTIONS: { id: HofSectionId; pairs: HofPair[] }[] = [
 
 /** Titles without a counterpart on the same stat. */
 export const HOF_OTHER_RECORDS: HofTitle[] = [
-  best("op_score", "opScore", 2),
-  worst("bottom_of_ladder", "rating", 0),
   best("tank", "damageTaken", 0),
   worst("cannon_fodder", "deaths", 1),
   best("cc_king", "ccTime", 0),
@@ -190,9 +199,10 @@ export const HOF_OTHER_RECORDS: HofTitle[] = [
 ];
 
 export const HOF_TITLES: HofTitle[] = [
-  ...HOF_SECTIONS.flatMap((section) =>
-    section.pairs.flatMap((pair) => [pair.best, pair.worst]),
-  ),
+  ...HOF_SECTIONS.flatMap((section) => [
+    ...section.pairs.flatMap((pair) => [pair.best, pair.worst]),
+    ...(section.singles ?? []),
+  ]),
   ...HOF_OTHER_RECORDS,
 ];
 
