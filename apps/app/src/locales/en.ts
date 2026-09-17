@@ -450,7 +450,7 @@ export default {
             description: "Highest KDA",
           },
           no_cc: {
-            title: "No CC",
+            title: "Free Pass",
             description: "Least crowd control per match",
           },
           worst_farm: {
@@ -478,7 +478,7 @@ export default {
             description: "Matches without an ACE",
           },
           op_score: {
-            title: "OP Score",
+            title: "Carry",
             description: "Average OP score",
           },
           worst_op_score: {
@@ -490,7 +490,7 @@ export default {
             description: "Highest win rate",
           },
           worst_win_rate: {
-            title: "Worst Win Rate",
+            title: "Doormat",
             description: "Lowest win rate",
           },
           best_streak: {
@@ -502,7 +502,7 @@ export default {
             description: "Longest losing streak",
           },
           most_kills: {
-            title: "Most Kills",
+            title: "Butcher",
             description: "Kills per match",
           },
           pacifist: {
@@ -510,7 +510,7 @@ export default {
             description: "Fewest kills per match",
           },
           most_assists: {
-            title: "Most Assists",
+            title: "Playmaker",
             description: "Assists per match",
           },
           lone_wolf: {
@@ -518,7 +518,7 @@ export default {
             description: "Fewest assists per match",
           },
           damage_dealer: {
-            title: "Damage Dealer",
+            title: "Heavy Artillery",
             description: "Damage to champions per match",
           },
           peashooter: {
@@ -542,43 +542,43 @@ export default {
             description: "Pentakills",
           },
           quadra_killer: {
-            title: "Quadra Killer",
+            title: "Four of a Kind",
             description: "Most quadrakills",
           },
           triple_threat: {
-            title: "Triple Threat",
+            title: "Hat Trick",
             description: "Most triple kills",
           },
           best_farm: {
-            title: "Best Farm",
+            title: "Farmer",
             description: "CS per match",
           },
           jungle_clearer: {
-            title: "Jungle Clearer",
+            title: "Tarzan",
             description: "Jungle CS per match as jungler",
           },
           gold_hoarder: {
-            title: "Gold Hoarder",
+            title: "Midas",
             description: "Gold earned per match",
           },
           broke: {
-            title: "Broke",
+            title: "Bankrupt",
             description: "Least gold earned per match",
           },
           level_lead: {
-            title: "Level Lead",
+            title: "Maxed Out",
             description: "Champion level at the end",
           },
           behind: {
-            title: "Behind",
+            title: "Rookie",
             description: "Lowest champion level at the end",
           },
           vision_master: {
-            title: "Vision Master",
+            title: "Eagle Eye",
             description: "Vision score per match",
           },
           blind: {
-            title: "Blind",
+            title: "Mole",
             description: "Lowest vision score per match",
           },
           life_saver: {
@@ -586,15 +586,15 @@ export default {
             description: "Healing per match",
           },
           no_heals: {
-            title: "No Heals",
+            title: "Quack",
             description: "Least healing per match",
           },
           tower_crusher: {
-            title: "Tower Crusher",
+            title: "Wrecking Ball",
             description: "Turrets per match",
           },
           tower_hugger: {
-            title: "Tower Hugger",
+            title: "Preservationist",
             description: "Fewest turrets per match",
           },
         },
