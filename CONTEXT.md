@@ -49,9 +49,13 @@ The player with the highest OP score on the winning side of a match. The MVP nev
 The player with the highest OP score on the losing side of a match.
 
 **Hall of Fame**:
-A set of record categories, such as most MVPs or best streak, that rank players within one rating track:
-a season's or the all-time one.
+The set of titles on one rating track: a season's or the all-time one.
 _Avoid_: HoF, records
+
+**Title**:
+A Hall of Fame record, such as most kills per match or longest losing streak, and the qualified players
+who hold it. Players tied on the value share the title; the next value makes the runner-up.
+_Avoid_: Award, badge, achievement
 
 ### Seasons
 

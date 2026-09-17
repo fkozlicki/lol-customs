@@ -8,6 +8,7 @@ import { PlayerRelations } from "@/components/player/player-relations";
 import { PlayerSeasonEmpty } from "@/components/player/player-season-empty";
 import { PlayerSeasonSummaries } from "@/components/player/player-season-summaries";
 import { PlayerStatsCard } from "@/components/player/player-stats-card";
+import { PlayerTitles } from "@/components/player/player-titles";
 import { RatingHistoryChart } from "@/components/player/rating-history-chart";
 import { getScopedI18n } from "@/locales/server";
 import {
@@ -68,6 +69,7 @@ export default async function PlayerProfilePage({
   if (hasSeasonGames) {
     prefetch(trpc.players.ratingHistory.queryOptions({ puuid, season }));
     prefetch(trpc.players.relations.queryOptions({ puuid, season }));
+    prefetch(trpc.riftRank.hallOfFame.queryOptions({ season }));
     prefetch(
       trpc.players.mostPlayedChampions.queryOptions({
         puuid,
@@ -106,6 +108,7 @@ export default async function PlayerProfilePage({
           <div className="space-y-10">
             <div className="space-y-3">
               <p className="label-caps">{seasonLabel}</p>
+              <PlayerTitles puuid={puuid} season={season} />
               <PlayerStatsCard puuid={puuid} season={season} />
             </div>
             <RatingHistoryChart
