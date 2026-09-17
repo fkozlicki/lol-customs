@@ -4,6 +4,7 @@ import { SectionHeading } from "@/components/page-header";
 import { MostPlayedChampions } from "@/components/player/most-played-champions";
 import { PlayerMatchHistory } from "@/components/player/player-match-history";
 import { PlayerProfileHeader } from "@/components/player/player-profile-header";
+import { PlayerRelations } from "@/components/player/player-relations";
 import { PlayerSeasonEmpty } from "@/components/player/player-season-empty";
 import { PlayerSeasonSummaries } from "@/components/player/player-season-summaries";
 import { PlayerStatsCard } from "@/components/player/player-stats-card";
@@ -66,6 +67,7 @@ export default async function PlayerProfilePage({
   prefetch(trpc.players.seasonSummaries.queryOptions({ puuid }));
   if (hasSeasonGames) {
     prefetch(trpc.players.ratingHistory.queryOptions({ puuid, season }));
+    prefetch(trpc.players.relations.queryOptions({ puuid, season }));
     prefetch(
       trpc.players.mostPlayedChampions.queryOptions({
         puuid,
@@ -119,6 +121,7 @@ export default async function PlayerProfilePage({
                   : []
               }
             />
+            <PlayerRelations puuid={puuid} season={season} />
           </div>
         ) : (
           <PlayerSeasonEmpty

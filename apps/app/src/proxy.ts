@@ -16,9 +16,22 @@ const I18nMiddleware = createI18nMiddleware({
 const LOCALE_PREFIX = new RegExp(`^/(${SUPPORTED_LOCALES.join("|")})(?=/|$)`);
 
 export function proxy(request: NextRequest) {
+  const removed = redirectRemovedPage(request);
+  if (removed) return removed;
+
   const redirect = restoreRememberedSeason(request);
   if (redirect) return redirect;
   return I18nMiddleware(request);
+}
+
+/** The Rivalry page moved into player profiles. */
+function redirectRemovedPage(request: NextRequest) {
+  const pathname = request.nextUrl.pathname.replace(LOCALE_PREFIX, "") || "/";
+  if (pathname !== "/duos") return null;
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/";
+  return NextResponse.redirect(url, 308);
 }
 
 /** Season-scoped pages without `?season=` reopen the season the visitor last picked. */

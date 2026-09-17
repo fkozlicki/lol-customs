@@ -58,8 +58,8 @@ CI runs `bun run lint` and `bun run typecheck`. There are no JS unit tests; `bun
 
 - Code, comments, commit messages and docs are in English. Every user-facing string goes into both
   `apps/app/src/locales/en.ts` and `pl.ts`.
-- Some code still uses names from before the glossary: `duos` and `SquadGrid` mean **Rivalry**, and
-  Riot-derived `game_*` columns describe a **Match**. Riot's `season_id` is not the ladder season.
+- Some code still uses names from before the glossary: Riot-derived `game_*` columns describe a
+  **Match**. Riot's `season_id` is not the ladder season.
 - Imports: `@v1/*` across packages, `@/` inside `apps/app`. Never use relative paths between packages.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
   `useSuspenseQuery` inside a Suspense boundary with a skeleton.

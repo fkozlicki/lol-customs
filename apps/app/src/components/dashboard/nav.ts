@@ -1,6 +1,6 @@
 import { Icons } from "@v1/ui/icons";
 
-/** The four places people come to Derby for; always one tap away. */
+/** The places people come to Derby for; always one tap away. */
 export const PRIMARY_PATHS = [
   {
     path: "/",
@@ -18,12 +18,6 @@ export const PRIMARY_PATHS = [
     path: "/hof",
     label: "sidebar.hallOfFame",
     Icon: Icons.HOF,
-    seasonScoped: true,
-  },
-  {
-    path: "/duos",
-    label: "sidebar.duos",
-    Icon: Icons.Users2,
     seasonScoped: true,
   },
 ] as const;
