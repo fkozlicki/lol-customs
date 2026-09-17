@@ -48,6 +48,9 @@ export default async function DashboardHomePage({
   return (
     <HydrateClient>
       <div className="mx-auto w-full max-w-6xl px-4 pt-10 pb-16 sm:pt-16">
+        {/* TODO: rows should reorder smoothly when the season changes. Keying the boundary remounts
+            the standings, so they replay the entry stagger instead; animating a reorder needs the
+            previous rows kept (e.g. placeholder data) and `layout` on each row. */}
         <Suspense
           fallback={<LeaderboardSkeleton />}
           key={`${season}:${afterGames ?? "live"}`}
