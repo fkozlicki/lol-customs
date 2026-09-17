@@ -54,20 +54,18 @@ function Highlight({
         className="size-9 shrink-0 object-cover sm:size-10"
       />
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span
-          className={cn("label-caps", tone === "mvp" ? "text-mvp" : "text-ace")}
-        >
-          {label}
+        <span className="label-caps">
+          <span className={tone === "mvp" ? "text-mvp" : "text-ace"}>
+            {label}
+          </span>
+          {participant.op_score != null && (
+            <span className="num"> • {participant.op_score.toFixed(1)}</span>
+          )}
         </span>
         <span className="max-w-[7rem] truncate text-sm font-medium">
           {participant.players.game_name}
         </span>
       </div>
-      {participant.op_score != null && (
-        <span className="num hidden text-xs text-muted-foreground sm:inline">
-          {participant.op_score.toFixed(1)}
-        </span>
-      )}
     </div>
   );
 }
