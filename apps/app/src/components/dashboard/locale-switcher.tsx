@@ -19,7 +19,7 @@ import {
 export function LocaleSwitcher({ className }: { className?: string }) {
   const t = useScopedI18n("locale");
   const currentLocale = useCurrentLocale();
-  const changeLocale = useChangeLocale();
+  const changeLocale = useChangeLocale({ preserveSearchParams: true });
 
   return (
     <DropdownMenu>
