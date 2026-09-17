@@ -39,7 +39,7 @@ export function SectionHeading({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-t pt-3 pb-4">
+    <div className="flex items-center justify-between pb-3">
       <h2 className="label-caps text-foreground">{children}</h2>
       {action}
     </div>
