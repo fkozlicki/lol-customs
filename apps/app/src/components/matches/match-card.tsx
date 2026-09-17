@@ -54,8 +54,8 @@ export default function MatchCard({
     <div
       className={cn(
         "flex items-stretch border border-l-4 bg-card",
-        outcome === "win" && "border-l-win bg-win/[0.07]",
-        outcome === "loss" && "border-l-loss bg-loss/[0.07]",
+        outcome === "win" && "border-l-win bg-win/[0.1]",
+        outcome === "loss" && "border-l-loss bg-loss/[0.1]",
         !outcome && "border-l-foreground/40",
       )}
     >
