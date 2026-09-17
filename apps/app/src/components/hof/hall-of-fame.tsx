@@ -69,13 +69,7 @@ export function HallOfFame({ season }: { season: number }) {
             data={data}
             paired
           />
-          {section.singles && (
-            <TitleRows
-              rows={chunkPairs(section.singles)}
-              data={data}
-              className="mt-8"
-            />
-          )}
+          <SingleTitles singles={section.singles ?? []} data={data} />
         </section>
       ))}
     </div>
@@ -107,12 +101,15 @@ function TitleRows({
             !paired && "divide-y md:divide-y-0",
           )}
         >
-          {row.map((entry) => (
+          {row.map((entry, index) => (
             <TitleCell
               key={entry.id}
               entry={entry}
               holders={data[entry.id] ?? []}
-              className={cn(paired && "first:pb-2 md:first:pb-4")}
+              className={cn(
+                paired && "first:pb-2 md:first:pb-4",
+                index === 1 && "md:justify-self-end",
+              )}
             />
           ))}
         </div>
@@ -127,6 +124,20 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
       {children}
     </h2>
   );
+}
+
+/** Unpaired titles nobody holds on this track are noise, so they are left out. */
+function SingleTitles({
+  singles,
+  data,
+}: {
+  singles: HofTitle[];
+  data: HallOfFameData;
+}) {
+  const held = singles.filter((entry) => (data[entry.id]?.length ?? 0) > 0);
+  if (held.length === 0) return null;
+
+  return <TitleRows rows={chunkPairs(held)} data={data} className="mt-8" />;
 }
 
 function chunkPairs(entries: HofTitle[]): HofTitle[][] {
@@ -203,7 +214,11 @@ function TitleCounts({ data }: { data: HallOfFameData }) {
   return (
     <div className="grid gap-10 md:grid-cols-2 md:gap-12">
       <CollectorList label={t("mostBest")} rows={top("best")} filled />
-      <CollectorList label={t("mostWorst")} rows={top("worst")} />
+      <CollectorList
+        label={t("mostWorst")}
+        rows={top("worst")}
+        className="md:justify-self-end"
+      />
     </div>
   );
 }
@@ -214,15 +229,17 @@ function CollectorList({
   label,
   rows,
   filled = false,
+  className,
 }: {
   label: string;
   rows: { player: HofPlayer; titles: number }[];
   filled?: boolean;
+  className?: string;
 }) {
   const season = useSeasonParam();
 
   return (
-    <section>
+    <section className={cn("w-full md:max-w-md", className)}>
       <h2 className="pb-2 text-lg font-semibold uppercase leading-none tracking-[-0.02em] sm:text-xl">
         {label}
       </h2>
@@ -280,7 +297,7 @@ function TitleCell({
   return (
     <div
       className={cn(
-        "flex min-w-0 items-center gap-4 py-4 md:max-w-md",
+        "flex w-full min-w-0 items-center gap-4 py-4 md:max-w-md",
         className,
       )}
     >
