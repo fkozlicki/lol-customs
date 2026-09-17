@@ -1108,6 +1108,17 @@ export type Database = {
           wins: number
         }[]
       }
+      player_relations: {
+        Args: { p_puuid: string; p_track: number }
+        Returns: {
+          kills: number
+          losses: number
+          matches: number
+          other_puuid: string
+          relation: string
+          wins: number
+        }[]
+      }
       rating_changes: {
         Args: { p_match_ids: number[]; p_track: number }
         Returns: {

@@ -24,9 +24,18 @@ _Avoid_: Team
 Five players grouped before a match is played, for example by a shuffle.
 _Avoid_: Side, squad
 
-**Rivalry**:
-The shared record of two players across the matches they both played, as teammates or as opponents.
-_Avoid_: Duo (Riot's Solo/Duo queue), squad, crew
+**Teammate**:
+A player who was on the same side as a given player in a match.
+_Avoid_: Duo, partner, squad
+
+**Rival**:
+A player who was on the opposite side of a given player in a match.
+_Avoid_: Enemy, opponent
+
+**Head-to-head record**:
+A player's wins and losses in matches against one rival. It is only compared once the two have met in at
+least three matches.
+_Avoid_: Matchup, H2H
 
 ### Performance
 
@@ -73,7 +82,8 @@ season's track it starts from zero; on the all-time track it runs across season 
 
 **Qualified player**:
 A player with at least five matches on a rating track. Only qualified players hold a position in the
-standings and appear in Hall of Fame and Rivalry; the rest are still qualifying on that track.
+standings, appear in Hall of Fame, and are shown as someone's teammate or rival; the rest are still
+qualifying on that track.
 _Avoid_: Ranked player, active player
 
 **Rating change**:
