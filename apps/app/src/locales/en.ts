@@ -438,27 +438,27 @@ export default {
         },
         cards: {
           double_trouble: {
-            title: "Double Trouble",
+            title: "Double Kill!",
             description: "Most double kills",
           },
           fewest_deaths: {
-            title: "Immortal",
+            title: "Zhonya's",
             description: "Fewest deaths per match",
           },
           best_kda: {
-            title: "Flawless",
+            title: "Tryhard",
             description: "Highest KDA",
           },
           no_cc: {
-            title: "Gentle Touch",
+            title: "Master Yi",
             description: "Least crowd control per match",
           },
           worst_farm: {
-            title: "Vegetarian",
+            title: "Vegan",
             description: "Lowest CS per match",
           },
           jungle_tourist: {
-            title: "Jungle Tourist",
+            title: "Gank at 2:00",
             description: "Least jungle CS per match as jungler",
           },
           mvp: {
@@ -478,123 +478,123 @@ export default {
             description: "Matches without an ACE",
           },
           op_score: {
-            title: "Carry",
+            title: "Smurf",
             description: "Average OP score",
           },
           worst_op_score: {
-            title: "Dead Weight",
+            title: "Boosted",
             description: "Lowest average OP score",
           },
           best_win_rate: {
-            title: "Winner",
+            title: "Challenger",
             description: "Highest win rate",
           },
           worst_win_rate: {
-            title: "Doormat",
+            title: "Iron IV",
             description: "Lowest win rate",
           },
           best_streak: {
-            title: "On Fire",
+            title: "Legendary",
             description: "Longest winning streak",
           },
           tilted: {
-            title: "Tilted",
+            title: "FF at 15",
             description: "Longest losing streak",
           },
           most_kills: {
-            title: "Butcher",
+            title: "Godlike",
             description: "Kills per match",
           },
           pacifist: {
-            title: "Pacifist",
+            title: "Yuumi",
             description: "Fewest kills per match",
           },
           most_assists: {
-            title: "Playmaker",
+            title: "Shen R",
             description: "Assists per match",
           },
           lone_wolf: {
-            title: "Lone Wolf",
+            title: "Splitpusher",
             description: "Fewest assists per match",
           },
           damage_dealer: {
-            title: "Heavy Artillery",
+            title: "Hyper Carry",
             description: "Damage to champions per match",
           },
           peashooter: {
-            title: "Peashooter",
+            title: "Hits Like a Minion",
             description: "Least damage to champions per match",
           },
           cannon_fodder: {
-            title: "Cannon Fodder",
+            title: "Grey Screen",
             description: "Deaths per match",
           },
           cc_king: {
-            title: "CC King",
+            title: "Leona",
             description: "Crowd control time per match",
           },
           feeder: {
-            title: "Feeder",
+            title: "Inter",
             description: "Lowest KDA",
           },
           penta_hunter: {
-            title: "Penta Hunter",
+            title: "PENTAKILL!",
             description: "Pentakills",
           },
           quadra_killer: {
-            title: "Four of a Kind",
+            title: "Quadra Kill!",
             description: "Most quadrakills",
           },
           triple_threat: {
-            title: "Hat Trick",
+            title: "Triple Kill!",
             description: "Most triple kills",
           },
           best_farm: {
-            title: "Farmer",
+            title: "Minion Mower",
             description: "CS per match",
           },
           jungle_clearer: {
-            title: "Lumberjack",
+            title: "Full Clear",
             description: "Jungle CS per match as jungler",
           },
           gold_hoarder: {
-            title: "Midas",
+            title: "Full Build at 20",
             description: "Gold earned per match",
           },
           broke: {
-            title: "Bankrupt",
+            title: "Can't Afford BF Sword",
             description: "Least gold earned per match",
           },
           level_lead: {
-            title: "Maxed Out",
+            title: "Level 18",
             description: "Champion level at the end",
           },
           behind: {
-            title: "Rookie",
+            title: "Waiting for Ult",
             description: "Lowest champion level at the end",
           },
           vision_master: {
-            title: "Eagle Eye",
+            title: "Ward Bot",
             description: "Vision score per match",
           },
           blind: {
-            title: "Mole",
+            title: "Key 4 Is Broken",
             description: "Lowest vision score per match",
           },
           life_saver: {
-            title: "Life Saver",
+            title: "Soraka",
             description: "Healing per match",
           },
           no_heals: {
-            title: "Quack",
+            title: "Grievous Wounds",
             description: "Least healing per match",
           },
           tower_crusher: {
-            title: "Wrecking Ball",
+            title: "Demolish",
             description: "Turrets per match",
           },
           tower_hugger: {
-            title: "Preservationist",
+            title: "Where's the Nexus?",
             description: "Fewest turrets per match",
           },
         },

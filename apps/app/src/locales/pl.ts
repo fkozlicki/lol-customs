@@ -440,27 +440,27 @@ export default {
         },
         cards: {
           double_trouble: {
-            title: "Dublet",
+            title: "Double Kill!",
             description: "Najwięcej double killi",
           },
           fewest_deaths: {
-            title: "Nieśmiertelny",
+            title: "Zhonya",
             description: "Najmniej zgonów na mecz",
           },
           best_kda: {
-            title: "Bez skazy",
+            title: "Tryhard",
             description: "Najwyższe KDA",
           },
           no_cc: {
-            title: "Głaskacz",
+            title: "Master Yi",
             description: "Najmniej CC na mecz",
           },
           worst_farm: {
-            title: "Wegetarianin",
+            title: "Weganin",
             description: "Najniższe CS na mecz",
           },
           jungle_tourist: {
-            title: "Turysta w dżungli",
+            title: "Gank na 2:00",
             description: "Najmniej jungle CS na mecz jako jungler",
           },
           mvp: {
@@ -480,123 +480,123 @@ export default {
             description: "Mecze bez ACE",
           },
           op_score: {
-            title: "Carry",
+            title: "Smurf",
             description: "Średni OP score",
           },
           worst_op_score: {
-            title: "Balast",
+            title: "Boosted",
             description: "Najniższy średni OP score",
           },
           best_win_rate: {
-            title: "Zwycięzca",
+            title: "Challenger",
             description: "Najwyższy win rate",
           },
           worst_win_rate: {
-            title: "Przegryw",
+            title: "Iron IV",
             description: "Najniższy win rate",
           },
           best_streak: {
-            title: "W gazie",
+            title: "Legendary",
             description: "Najdłuższa seria wygranych",
           },
           tilted: {
-            title: "Na tilcie",
+            title: "FF na 15",
             description: "Najdłuższa seria porażek",
           },
           most_kills: {
-            title: "Rzeźnik",
+            title: "Godlike",
             description: "Zabójstwa na mecz",
           },
           pacifist: {
-            title: "Pacyfista",
+            title: "Yuumi",
             description: "Najmniej zabójstw na mecz",
           },
           most_assists: {
-            title: "Asystent roku",
+            title: "Shen R",
             description: "Asysty na mecz",
           },
           lone_wolf: {
-            title: "Samotny wilk",
+            title: "Splitpusher",
             description: "Najmniej asyst na mecz",
           },
           damage_dealer: {
-            title: "Armata",
+            title: "Hyper carry",
             description: "Obrażenia do championów na mecz",
           },
           peashooter: {
-            title: "Pukawka",
+            title: "Bije jak minion",
             description: "Najmniej obrażeń do championów na mecz",
           },
           cannon_fodder: {
-            title: "Mięso armatnie",
+            title: "Szary ekran",
             description: "Zgony na mecz",
           },
           cc_king: {
-            title: "Król CC",
+            title: "Leona",
             description: "Czas CC na mecz",
           },
           feeder: {
-            title: "Feeder",
+            title: "Inter",
             description: "Najniższe KDA",
           },
           penta_hunter: {
-            title: "Łowca pent",
+            title: "PENTAKILL!",
             description: "Pentakille",
           },
           quadra_killer: {
-            title: "Kareta",
+            title: "Quadra Kill!",
             description: "Najwięcej quadrakilli",
           },
           triple_threat: {
-            title: "Hat-trick",
+            title: "Triple Kill!",
             description: "Najwięcej triple killi",
           },
           best_farm: {
-            title: "Rolnik",
+            title: "Kosiarka minionów",
             description: "CS na mecz",
           },
           jungle_clearer: {
-            title: "Drwal",
+            title: "Full clear",
             description: "Jungle CS na mecz jako jungler",
           },
           gold_hoarder: {
-            title: "Midas",
+            title: "Full build w 20 min",
             description: "Zdobyte złoto na mecz",
           },
           broke: {
-            title: "Bankrut",
+            title: "Brak na BF Sword",
             description: "Najmniej złota na mecz",
           },
           level_lead: {
-            title: "Wymaksowany",
+            title: "Level 18",
             description: "Level na koniec meczu",
           },
           behind: {
-            title: "Żółtodziób",
+            title: "Czeka na ulta",
             description: "Najniższy level na koniec meczu",
           },
           vision_master: {
-            title: "Sokole oko",
+            title: "Ward-bot",
             description: "Vision score na mecz",
           },
           blind: {
-            title: "Kret",
+            title: "Klawisz 4 nie działa",
             description: "Najniższy vision score na mecz",
           },
           life_saver: {
-            title: "Ratownik",
+            title: "Soraka",
             description: "Leczenie na mecz",
           },
           no_heals: {
-            title: "Znachor",
+            title: "Grievous Wounds",
             description: "Najmniej leczenia na mecz",
           },
           tower_crusher: {
-            title: "Burzyciel",
+            title: "Demolish",
             description: "Wieże na mecz",
           },
           tower_hugger: {
-            title: "Konserwator zabytków",
+            title: "Nie wie, gdzie Nexus",
             description: "Najmniej wież na mecz",
           },
         },
