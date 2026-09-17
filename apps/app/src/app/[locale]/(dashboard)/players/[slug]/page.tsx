@@ -124,7 +124,6 @@ export default async function PlayerProfilePage({
                   : []
               }
             />
-            <PlayerRelations puuid={puuid} season={season} />
           </div>
         ) : (
           <PlayerSeasonEmpty
@@ -140,7 +139,10 @@ export default async function PlayerProfilePage({
               seasons={seasons}
             />
             {hasSeasonGames && (
-              <MostPlayedChampions puuid={puuid} season={season} />
+              <>
+                <MostPlayedChampions puuid={puuid} season={season} />
+                <PlayerRelations puuid={puuid} season={season} />
+              </>
             )}
           </aside>
           {hasSeasonGames && (

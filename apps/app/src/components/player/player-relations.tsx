@@ -29,7 +29,7 @@ export function PlayerRelations({ puuid, season }: PlayerRelationsProps) {
   const { teammates, rivals } = data;
 
   return (
-    <div className="grid gap-10 md:grid-cols-2">
+    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-1">
       <section>
         <SectionHeading>{t("teammates")}</SectionHeading>
         <ul className="divide-y border-b">
@@ -98,9 +98,9 @@ function RelationRow({
 
   if (!relation) {
     return (
-      <li className="flex h-14 items-center justify-between gap-3">
+      <li className="flex h-14 flex-col justify-center">
         <span className="label-caps">{label}</span>
-        <span className="text-xs text-muted-foreground">
+        <span className="truncate text-sm text-muted-foreground">
           {emptyLabel ?? t("noRelation")}
         </span>
       </li>
