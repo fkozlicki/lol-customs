@@ -1,4 +1,4 @@
-/** Hall of Fame layout. Ids match `hall_of_fame` titles; names and descriptions come from locales. */
+/** Hall of Fame layout. Ids match `hall_of_fame` titles; names and stat labels come from locales. */
 export type HofTitleId =
   | "mvp"
   | "never_mvp"
@@ -35,150 +35,178 @@ export type HofTitleId =
   | "tower_crusher"
   | "tower_hugger";
 
-export type HofUnit =
-  | "perMatch"
-  | "total"
-  | "matches"
-  | "inARow"
-  | "points"
+/** What a title's value measures; shown under the number. */
+export type HofStatId =
+  | "mvpMatches"
+  | "matchesWithoutMvp"
+  | "aceMatches"
+  | "matchesWithoutAce"
+  | "opScore"
+  | "rating"
   | "winRate"
-  | "ratio"
-  | "secondsPerMatch";
+  | "winStreak"
+  | "loseStreak"
+  | "kills"
+  | "assists"
+  | "damage"
+  | "damageTaken"
+  | "deaths"
+  | "ccTime"
+  | "kda"
+  | "pentakills"
+  | "quadrakills"
+  | "cs"
+  | "jungleCs"
+  | "gold"
+  | "level"
+  | "vision"
+  | "healing"
+  | "turrets";
+
+export type HofKind = "best" | "worst";
 
 export interface HofTitle {
   id: HofTitleId;
-  unit: HofUnit;
-  /** Decimal places shown for the value. */
+  stat: HofStatId;
+  kind: HofKind;
   decimals: 0 | 1 | 2;
+  percent?: boolean;
 }
 
-/** One stat: the best title on the left, the worst on the right; either side may be missing. */
-export interface HofRow {
-  best?: HofTitle;
-  worst?: HofTitle;
+/** The best and worst title on the same stat. */
+export interface HofPair {
+  best: HofTitle;
+  worst: HofTitle;
 }
 
 export type HofSectionId = "headline" | "form" | "fighting" | "farm" | "map";
 
-export interface HofSection {
-  id: HofSectionId;
-  rows: HofRow[];
+function best(
+  id: HofTitleId,
+  stat: HofStatId,
+  decimals: 0 | 1 | 2,
+  percent = false,
+): HofTitle {
+  return { id, stat, kind: "best", decimals, percent };
 }
 
-function title(id: HofTitleId, unit: HofUnit, decimals: 0 | 1 | 2): HofTitle {
-  return { id, unit, decimals };
+function worst(
+  id: HofTitleId,
+  stat: HofStatId,
+  decimals: 0 | 1 | 2,
+  percent = false,
+): HofTitle {
+  return { id, stat, kind: "worst", decimals, percent };
 }
 
-export const HOF_SECTIONS: HofSection[] = [
+export const HOF_SECTIONS: { id: HofSectionId; pairs: HofPair[] }[] = [
   {
     id: "headline",
-    rows: [
+    pairs: [
       {
-        best: title("mvp", "total", 0),
-        worst: title("never_mvp", "matches", 0),
+        best: best("mvp", "mvpMatches", 0),
+        worst: worst("never_mvp", "matchesWithoutMvp", 0),
       },
       {
-        best: title("ace", "total", 0),
-        worst: title("never_ace", "matches", 0),
-      },
-      {
-        best: title("op_score", "perMatch", 2),
-        worst: title("bottom_of_ladder", "points", 0),
+        best: best("ace", "aceMatches", 0),
+        worst: worst("never_ace", "matchesWithoutAce", 0),
       },
     ],
   },
   {
     id: "form",
-    rows: [
+    pairs: [
       {
-        best: title("best_win_rate", "winRate", 0),
-        worst: title("worst_win_rate", "winRate", 0),
+        best: best("best_win_rate", "winRate", 0, true),
+        worst: worst("worst_win_rate", "winRate", 0, true),
       },
       {
-        best: title("best_streak", "inARow", 0),
-        worst: title("tilted", "inARow", 0),
+        best: best("best_streak", "winStreak", 0),
+        worst: worst("tilted", "loseStreak", 0),
       },
     ],
   },
   {
     id: "fighting",
-    rows: [
+    pairs: [
       {
-        best: title("most_kills", "perMatch", 1),
-        worst: title("pacifist", "perMatch", 1),
+        best: best("most_kills", "kills", 1),
+        worst: worst("pacifist", "kills", 1),
       },
       {
-        best: title("most_assists", "perMatch", 1),
-        worst: title("lone_wolf", "perMatch", 1),
+        best: best("most_assists", "assists", 1),
+        worst: worst("lone_wolf", "assists", 1),
       },
       {
-        best: title("damage_dealer", "perMatch", 0),
-        worst: title("peashooter", "perMatch", 0),
-      },
-      {
-        best: title("tank", "perMatch", 0),
-        worst: title("cannon_fodder", "perMatch", 1),
-      },
-      {
-        best: title("cc_king", "secondsPerMatch", 0),
-        worst: title("feeder", "ratio", 2),
-      },
-      {
-        best: title("penta_hunter", "total", 0),
-      },
-      {
-        best: title("quadra_killer", "total", 0),
+        best: best("damage_dealer", "damage", 0),
+        worst: worst("peashooter", "damage", 0),
       },
     ],
   },
   {
     id: "farm",
-    rows: [
+    pairs: [
       {
-        best: title("best_farm", "perMatch", 1),
+        best: best("gold_hoarder", "gold", 0),
+        worst: worst("broke", "gold", 0),
       },
       {
-        best: title("jungle_clearer", "perMatch", 1),
-      },
-      {
-        best: title("gold_hoarder", "perMatch", 0),
-        worst: title("broke", "perMatch", 0),
-      },
-      {
-        best: title("level_lead", "perMatch", 1),
-        worst: title("behind", "perMatch", 1),
+        best: best("level_lead", "level", 1),
+        worst: worst("behind", "level", 1),
       },
     ],
   },
   {
     id: "map",
-    rows: [
+    pairs: [
       {
-        best: title("vision_master", "perMatch", 1),
-        worst: title("blind", "perMatch", 1),
+        best: best("vision_master", "vision", 1),
+        worst: worst("blind", "vision", 1),
       },
       {
-        best: title("life_saver", "perMatch", 0),
-        worst: title("no_heals", "perMatch", 0),
+        best: best("life_saver", "healing", 0),
+        worst: worst("no_heals", "healing", 0),
       },
       {
-        best: title("tower_crusher", "perMatch", 2),
-        worst: title("tower_hugger", "perMatch", 2),
+        best: best("tower_crusher", "turrets", 2),
+        worst: worst("tower_hugger", "turrets", 2),
       },
     ],
   },
 ];
 
-export const HOF_TITLES: HofTitle[] = HOF_SECTIONS.flatMap((section) =>
-  section.rows.flatMap((row) => [row.best, row.worst]),
-).filter((entry): entry is HofTitle => entry != null);
+/** Titles without a counterpart on the same stat. */
+export const HOF_OTHER_RECORDS: HofTitle[] = [
+  best("op_score", "opScore", 2),
+  worst("bottom_of_ladder", "rating", 0),
+  best("tank", "damageTaken", 0),
+  worst("cannon_fodder", "deaths", 1),
+  best("cc_king", "ccTime", 0),
+  worst("feeder", "kda", 2),
+  best("penta_hunter", "pentakills", 0),
+  best("quadra_killer", "quadrakills", 0),
+  best("best_farm", "cs", 1),
+  best("jungle_clearer", "jungleCs", 1),
+];
 
-/** Formats a title value in its unit's scale: win rates are shares, everything else is shown as-is. */
-export function formatHofValue(entry: HofTitle, value: number): string {
-  const scaled = entry.unit === "winRate" ? value * 100 : value;
-  const text = scaled.toLocaleString("en-US", {
-    minimumFractionDigits: entry.decimals,
-    maximumFractionDigits: entry.decimals,
-  });
-  return entry.unit === "winRate" ? `${text}%` : text;
+export const HOF_TITLES: HofTitle[] = [
+  ...HOF_SECTIONS.flatMap((section) =>
+    section.pairs.flatMap((pair) => [pair.best, pair.worst]),
+  ),
+  ...HOF_OTHER_RECORDS,
+];
+
+export function formatHofValue(
+  entry: HofTitle,
+  value: number,
+  locale: string,
+): string {
+  const text = (entry.percent ? value * 100 : value).toLocaleString(
+    locale === "pl" ? "pl-PL" : "en-US",
+    {
+      minimumFractionDigits: entry.decimals,
+      maximumFractionDigits: entry.decimals,
+    },
+  );
+  return entry.percent ? `${text}%` : text;
 }
