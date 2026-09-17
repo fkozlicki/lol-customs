@@ -84,6 +84,8 @@ AS $$
         ('cc_king', q.avg_cc_time, true),
         ('no_cc', q.avg_cc_time, false),
         ('penta_hunter', nullif(q.total_penta_kills, 0)::numeric, true),
+        ('quadra_killer', nullif(q.total_quadra_kills, 0)::numeric, true),
+        ('triple_threat', nullif(q.total_triple_kills, 0)::numeric, true),
         -- Farm and gold
         ('best_farm', q.avg_cs, true),
         ('worst_farm', q.avg_cs, false),

@@ -10,15 +10,15 @@ from generate_series(1, 5) n;
 -- Aggregates are inserted directly: the function only reads ratings and rating history. Tracks 91 and
 -- 92 keep the fixtures apart from any real data in the database.
 insert into public.ratings
-  (ladder_season_id, puuid, rating, wins, losses, avg_kills, avg_deaths, avg_op_score, mvp_games, best_streak, lose_streak)
+  (ladder_season_id, puuid, rating, wins, losses, avg_kills, avg_deaths, avg_op_score, mvp_games, best_streak, lose_streak, total_triple_kills)
 values
-  (91, 'hof-p1', 1100, 6, 2, 9.0, 5.0, 3.2, 3, 4, 0),
-  (91, 'hof-p2',  990, 3, 3, 9.0, 3.0, null, 0, 2, 2),
-  (91, 'hof-p3',  900, 1, 5, 2.0, 8.0, 5.0, 0, 1, 1),
+  (91, 'hof-p1', 1100, 6, 2, 9.0, 5.0, 3.2, 3, 4, 0, 2),
+  (91, 'hof-p2',  990, 3, 3, 9.0, 3.0, null, 0, 2, 2, 1),
+  (91, 'hof-p3',  900, 1, 5, 2.0, 8.0, 5.0, 0, 1, 1, 0),
   -- still qualifying: four matches
-  (91, 'hof-p4', 1300, 2, 2, 20.0, 0.5, 9.9, 0, 2, 0),
+  (91, 'hof-p4', 1300, 2, 2, 20.0, 0.5, 9.9, 0, 2, 0, 9),
   -- only on the other track
-  (92, 'hof-p5', 1050, 5, 0, 50.0, 1.0, 1.0, 0, 5, 0);
+  (92, 'hof-p5', 1050, 5, 0, 50.0, 1.0, 1.0, 0, 5, 0, 0);
 
 insert into public.matches (match_id, platform_id, game_creation, duration, raw_json)
 values
@@ -96,7 +96,7 @@ as $$
   where title = p_title;
 $$;
 
-select plan(16);
+select plan(18);
 
 select is(
   tests.hof(91, 'most_kills'),
@@ -172,10 +172,20 @@ select is(
   'hof-p2=100.0',
   'jungle tourist ignores supports and players with fewer than three jungle matches'
 );
+select is(
+  tests.hof(91, 'triple_threat'),
+  'hof-p1=2',
+  'triple threat is the most triple kills'
+);
+select is(
+  tests.hof(91, 'quadra_killer'),
+  null,
+  'nobody holds a counting title when every value is zero'
+);
 select ok(
   not exists (
     select 1 from public.hall_of_fame(91)
-    where title in ('big_spender', 'hoarder', 'cold', 'veteran_of_defeat', 'triple_threat', 'bottom_of_ladder', 'tank', 'quadra_killer')
+    where title in ('big_spender', 'hoarder', 'cold', 'veteran_of_defeat', 'bottom_of_ladder', 'tank')
   ),
   'retired titles are gone'
 );

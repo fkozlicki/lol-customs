@@ -426,6 +426,8 @@ export default {
           ccTime: "sekundy CC / mecz",
           kda: "KDA",
           pentakills: "pentakille",
+          quadrakills: "quadrakille",
+          triplekills: "triple kille",
           cs: "CS / mecz",
           jungleCs: "jungle CS jako jungler",
           gold: "złoto / mecz",
@@ -534,6 +536,14 @@ export default {
           penta_hunter: {
             title: "Łowca pent",
             description: "Pentakille",
+          },
+          quadra_killer: {
+            title: "Quadra killer",
+            description: "Najwięcej quadrakilli",
+          },
+          triple_threat: {
+            title: "Triple threat",
+            description: "Najwięcej triple killi",
           },
           best_farm: {
             title: "Rolnik",
