@@ -554,7 +554,7 @@ export default {
             description: "CS per match",
           },
           jungle_clearer: {
-            title: "Jungle Local",
+            title: "Lumberjack",
             description: "Jungle CS per match as jungler",
           },
           gold_hoarder: {

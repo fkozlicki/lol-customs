@@ -556,7 +556,7 @@ export default {
             description: "CS na mecz",
           },
           jungle_clearer: {
-            title: "Gospodarz dżungli",
+            title: "Drwal",
             description: "Jungle CS na mecz jako jungler",
           },
           gold_hoarder: {
