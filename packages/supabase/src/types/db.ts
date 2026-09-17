@@ -1080,6 +1080,15 @@ export type Database = {
           win_streak: number
         }[]
       }
+      hall_of_fame: {
+        Args: { p_track: number }
+        Returns: {
+          puuid: string
+          rank: number
+          title: string
+          value: number
+        }[]
+      }
       is_qualified: {
         Args: { p_losses: number; p_wins: number }
         Returns: boolean
