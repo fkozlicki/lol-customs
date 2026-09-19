@@ -113,7 +113,7 @@ export default function RandomTeamsTool() {
   const isFull = roster.length === ROSTER_SIZE;
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-10">
       {teams && (
         <section className="grid gap-10 md:grid-cols-2 md:gap-16">
           <TeamColumn title={t("teamA")} team={teams.teamA} t={t} />
@@ -121,7 +121,7 @@ export default function RandomTeamsTool() {
         </section>
       )}
 
-      <div className="sticky top-14 z-20 -mx-4 flex items-center justify-between gap-4 border-b bg-background/90 px-4 py-3 backdrop-blur">
+      <div className="sticky top-14 z-20 flex items-center justify-between gap-4 border-b bg-background/90 py-4 backdrop-blur">
         <div className="flex items-baseline gap-4">
           <span className="num text-xl font-semibold">
             {roster.length}/{ROSTER_SIZE}

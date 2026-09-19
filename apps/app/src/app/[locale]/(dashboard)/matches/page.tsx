@@ -30,7 +30,7 @@ export default async function MatchHistoryPage({
 
   return (
     <HydrateClient>
-      <div className="mx-auto w-full max-w-5xl space-y-6 px-4 pt-10 pb-16 sm:pt-16">
+      <div className="mx-auto w-full max-w-5xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
         <PageHeader
           eyebrow={
             season === ALL_TIME_SEASON
