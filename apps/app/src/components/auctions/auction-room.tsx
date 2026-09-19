@@ -65,7 +65,7 @@ function TeamRoster({
         )}
       </div>
 
-      <ol className="divide-y border-t">
+      <ol className="divide-y border-b">
         {slots.map((player, index) => (
           <li
             key={player?.id ?? `empty-${side}-${index}`}
@@ -149,7 +149,7 @@ function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
       {room.events.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("feed.empty")}</p>
       ) : (
-        <ol className="max-h-[420px] divide-y overflow-y-auto border-t">
+        <ol className="max-h-[420px] divide-y overflow-y-auto">
           {[...room.events].reverse().map((event) => (
             <li key={event.id} className="flex items-baseline gap-3 py-2.5">
               <time className="num shrink-0 text-[11px] text-muted-foreground">

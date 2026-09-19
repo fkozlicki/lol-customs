@@ -121,25 +121,39 @@ export default function RandomTeamsTool() {
         </section>
       )}
 
+      <div className="sticky top-14 z-20 -mx-4 flex items-center justify-between gap-4 border-b bg-background/90 px-4 py-3 backdrop-blur">
+        <div className="flex items-baseline gap-4">
+          <span className="num text-xl font-semibold">
+            {roster.length}/{ROSTER_SIZE}
+          </span>
+          {roster.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setRoster([]);
+                setTeams(null);
+              }}
+              className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t("clearRoster")}
+            </button>
+          )}
+        </div>
+        <Button
+          type="button"
+          disabled={!isFull}
+          onClick={() => setTeams(buildRandomTeams(roster))}
+        >
+          <Icons.RandomTeams className="size-4" />
+          {teams ? t("reroll") : t("generate")}
+        </Button>
+      </div>
+
       <div className="grid gap-10 md:grid-cols-2 md:gap-16">
         <section>
-          <div className="flex items-center justify-between pb-3">
-            <h2 className="label-caps text-foreground">
-              {t("rosterHeading", { count: roster.length })}
-            </h2>
-            {roster.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  setRoster([]);
-                  setTeams(null);
-                }}
-                className="label-caps underline-offset-4 hover:text-foreground hover:underline"
-              >
-                {t("clearRoster")}
-              </button>
-            )}
-          </div>
+          <h2 className="label-caps pb-3 text-foreground">
+            {t("rosterTitle")}
+          </h2>
 
           {roster.length === 0 ? (
             <p className="py-4 text-sm text-muted-foreground">
@@ -172,17 +186,6 @@ export default function RandomTeamsTool() {
               ))}
             </ul>
           )}
-
-          <Button
-            type="button"
-            size="lg"
-            className="mt-6 gap-2"
-            disabled={!isFull}
-            onClick={() => setTeams(buildRandomTeams(roster))}
-          >
-            <Icons.RandomTeams className="size-4" />
-            {teams ? t("reroll") : t("generate")}
-          </Button>
         </section>
 
         <section>
