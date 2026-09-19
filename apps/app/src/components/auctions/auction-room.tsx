@@ -38,9 +38,7 @@ function TeamRoster({
   const players = playersFor(room, side);
   const spent = room.budget - (captain?.budgetRemaining ?? room.budget);
   return (
-    <Card
-      className={side === "A" ? "border-blue-500/20" : "border-rose-500/20"}
-    >
+    <Card>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -52,13 +50,11 @@ function TeamRoster({
             </p>
           </div>
           <div className="text-right">
-            <p className="font-mono text-xl font-black text-amber-500">
+            <p className="num text-xl font-semibold">
               ${captain?.budgetRemaining ?? room.budget}
             </p>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {t("room.remaining")}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="label-caps">{t("room.remaining")}</p>
+            <p className="text-[11px] text-muted-foreground">
               {t("room.spent", { amount: spent })}
             </p>
           </div>
@@ -70,7 +66,7 @@ function TeamRoster({
           return (
             <div
               key={player.id}
-              className="flex items-center gap-2 rounded-lg border bg-background/60 p-2.5"
+              className="flex items-center gap-2 border-b py-2.5 last:border-b-0"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
@@ -78,7 +74,7 @@ function TeamRoster({
                     {riotId(player)}
                   </span>
                   {isCaptain && (
-                    <Icons.Captain className="size-3.5 shrink-0 text-amber-500" />
+                    <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
                   )}
                 </div>
                 <AuctionRank
@@ -87,7 +83,7 @@ function TeamRoster({
                 />
               </div>
               {!isCaptain && player.purchasePrice != null && (
-                <Badge variant="secondary" className="font-mono">
+                <Badge variant="secondary" className="num">
                   ${player.purchasePrice}
                 </Badge>
               )}
@@ -98,7 +94,7 @@ function TeamRoster({
           (_, index) => (
             <div
               key={`empty-${side}-${index}`}
-              className="h-12 rounded-lg border border-dashed bg-muted/20"
+              className="h-12 border-b border-dashed last:border-b-0"
             />
           ),
         )}
@@ -153,12 +149,9 @@ function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
       <CardContent>
         <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
           {[...room.events].reverse().map((event) => (
-            <div
-              key={event.id}
-              className="border-l-2 border-amber-500/30 pl-3 text-sm"
-            >
+            <div key={event.id} className="border-l border-border pl-3 text-sm">
               <p>{eventText(event)}</p>
-              <time className="text-[10px] text-muted-foreground">
+              <time className="label-caps">
                 {new Date(event.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -191,9 +184,7 @@ function ActiveStage({
   const mySide = room.permissions.mySide;
   const myCaptain = mySide ? captainFor(room, mySide) : undefined;
   const opponentSide = mySide === "A" ? "B" : "A";
-  const opponentCaptain = mySide
-    ? captainFor(room, opponentSide)
-    : undefined;
+  const opponentCaptain = mySide ? captainFor(room, opponentSide) : undefined;
   const myBudget = myCaptain?.budgetRemaining ?? 0;
   const opponentBudget = opponentCaptain?.budgetRemaining ?? 0;
   const minimumBid = (room.currentBid ?? 0) + 1;
@@ -236,26 +227,24 @@ function ActiveStage({
       : t("room.passHint");
   const isOpening = room.phase === "awaiting_opening_bid";
   const myPassFlag = mySide ? (mySide === "A" ? "a" : "b") : null;
-  const opponentPassFlag =
-    mySide === "A" ? "b" : mySide === "B" ? "a" : null;
+  const opponentPassFlag = mySide === "A" ? "b" : mySide === "B" ? "a" : null;
   const myPassed = myPassFlag ? room.openingPass[myPassFlag] : false;
   const opponentPassed = opponentPassFlag
     ? room.openingPass[opponentPassFlag]
     : false;
 
   return (
-    <Card className="relative overflow-hidden border-amber-500/30 bg-[radial-gradient(circle_at_50%_0%,color-mix(in_oklab,var(--color-amber-500)_14%,transparent),transparent_52%)] shadow-xl">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+    <Card className="relative overflow-hidden">
       <CardContent className="flex min-h-[430px] flex-col items-center justify-center p-5 text-center sm:p-8">
-        <Badge variant="outline" className="mb-4 uppercase tracking-[0.18em]">
+        <Badge variant="outline" className="label-caps mb-4 text-foreground">
           {t(`phase.${room.phase ?? "awaiting_opening_bid"}`)}
         </Badge>
         {current ? (
           <>
-            <h2 className="max-w-full truncate text-3xl font-black tracking-tight sm:text-5xl">
+            <h2 className="max-w-full truncate text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
               {current.gameName}
             </h2>
-            <p className="mt-1 font-mono text-sm text-muted-foreground">
+            <p className="num mt-1 text-sm text-muted-foreground">
               #{current.tagLine}
             </p>
             <div className="mt-2">
@@ -265,10 +254,8 @@ function ActiveStage({
               />
             </div>
             <div className="my-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                {t("room.currentPrice")}
-              </p>
-              <p className="font-mono text-6xl font-black text-amber-500 sm:text-8xl">
+              <p className="label-caps">{t("room.currentPrice")}</p>
+              <p className="num text-6xl font-semibold sm:text-8xl">
                 ${room.currentBid ?? 0}
               </p>
               {room.currentLeaderSide && (
@@ -289,24 +276,22 @@ function ActiveStage({
               />
             ) : room.phase === "awaiting_opening_bid" ? (
               <div className="space-y-1.5">
-                <p className="rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {t("room.waitingFirstBid")}
                 </p>
                 {opponentPassed && (
-                  <p className="rounded-full bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600">
+                  <p className="label-caps text-foreground">
                     {t("room.opponentPassed")}
                   </p>
                 )}
               </div>
             ) : (
-              <p className="text-lg font-semibold text-amber-500">
-                {t("room.soldPause")}
-              </p>
+              <p className="text-lg font-semibold">{t("room.soldPause")}</p>
             )}
             {mySide && room.phase !== "sold_pause" && (
-              <div className="mt-6 w-full max-w-md space-y-3 rounded-xl border bg-background/85 p-3 backdrop-blur">
+              <div className="mt-6 w-full max-w-md space-y-3 border-t pt-4">
                 {isOpening && myPassed && (
-                  <p className="flex items-center justify-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-600">
+                  <p className="label-caps flex items-center justify-center gap-2 text-foreground">
                     <Icons.Check className="size-4" />
                     {t("room.myPassed")}
                   </p>
@@ -359,7 +344,9 @@ function ActiveStage({
                       </Button>
                       <Button
                         variant="secondary"
-                        disabled={!canBid || bid.isPending || minimumBid > maxBid}
+                        disabled={
+                          !canBid || bid.isPending || minimumBid > maxBid
+                        }
                         onClick={() =>
                           bid.mutate({ id: room.id, amount: minimumBid })
                         }
@@ -472,14 +459,14 @@ function Lobby({
   }
 
   return (
-    <Card className="border-amber-500/20">
+    <Card>
       <CardHeader>
         <CardTitle>
           {room.status === "countdown" ? t("lobby.starting") : t("lobby.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/20 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-y py-3">
           <p className="text-sm text-muted-foreground">{t("lobby.invite")}</p>
           <Button variant="outline" size="sm" onClick={copyInviteLink}>
             <Icons.Copy className="size-4" />
@@ -497,7 +484,7 @@ function Lobby({
           {(["A", "B"] as const).map((side) => {
             const captain = captainFor(room, side);
             return (
-              <div key={side} className="rounded-xl border p-4">
+              <div key={side} className="border p-4">
                 <div className="flex justify-between gap-2">
                   <div>
                     <p className="font-semibold">
@@ -524,7 +511,7 @@ function Lobby({
           })}
         </div>
         {room.permissions.canJoin && (
-          <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+          <div className="space-y-3 border p-4">
             <h3 className="font-semibold">{t("lobby.joinTitle")}</h3>
             <Label>{t("lobby.chooseYourself")}</Label>
             <div className="grid max-h-48 gap-2 overflow-y-auto sm:grid-cols-2">
@@ -533,7 +520,7 @@ function Lobby({
                   type="button"
                   key={player.id}
                   onClick={() => setSelectedPlayer(player.id)}
-                  className={`rounded-lg border p-2 text-left text-sm ${selectedPlayer === player.id ? "border-amber-500 bg-amber-500/10" : ""}`}
+                  className={`border p-2 text-left text-sm ${selectedPlayer === player.id ? "bg-foreground text-background" : ""}`}
                 >
                   {riotId(player)}
                 </button>
@@ -562,7 +549,7 @@ function Lobby({
           </div>
         )}
         {me && (
-          <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+          <div className="space-y-3  border bg-muted/20 p-4">
             <Label>{t("lobby.teamName")}</Label>
             <div className="flex gap-2">
               <Input
@@ -660,16 +647,18 @@ export function AuctionRoom({ id }: { id: string }) {
   const teamA = captainFor(room, "A");
   const teamB = captainFor(room, "B");
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-4 p-3 sm:p-5">
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background/80 p-4">
+    <div className="mx-auto w-full max-w-[1500px] space-y-6 px-4 pt-10 pb-16 sm:pt-12">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{t(`status.${room.status}`)}</Badge>
+          <div className="flex items-center gap-4">
+            <span className="label-caps text-foreground">
+              {t(`status.${room.status}`)}
+            </span>
             <ConnectionBadge state={connection} />
           </div>
-          <h1 className="mt-2 truncate text-xl font-black sm:text-2xl">
+          <h1 className="mt-2 truncate text-2xl font-semibold uppercase tracking-[-0.03em] sm:text-4xl">
             {teamA?.teamName ?? t("room.teamA")}{" "}
-            <span className="text-amber-500">vs</span>{" "}
+            <span className="text-muted-foreground">vs</span>{" "}
             {teamB?.teamName ?? t("room.teamB")}
           </h1>
         </div>
@@ -685,10 +674,10 @@ export function AuctionRoom({ id }: { id: string }) {
       </header>
 
       {room.status === "completed" && (
-        <Card className="border-amber-500/30">
+        <Card>
           <CardContent className="py-8 text-center">
-            <Icons.Trophy className="mx-auto mb-3 size-10 text-amber-500" />
-            <h2 className="text-2xl font-black">
+            <Icons.Trophy className="mx-auto mb-3 size-10 text-muted-foreground" />
+            <h2 className="text-2xl font-semibold">
               {t("terminal.completedTitle")}
             </h2>
             <p className="text-muted-foreground">
@@ -752,7 +741,7 @@ export function AuctionRoom({ id }: { id: string }) {
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
           <div>
             {room.permissions.canEditLobby && (
-              <details className="rounded-xl border bg-background p-4">
+              <details className="border p-4">
                 <summary className="cursor-pointer font-semibold">
                   {t("lobby.edit")}
                 </summary>
@@ -789,11 +778,11 @@ export function AuctionRoom({ id }: { id: string }) {
 export function AuctionRoomSkeleton() {
   return (
     <div className="mx-auto max-w-[1500px] space-y-4 p-4">
-      <Skeleton className="h-24 rounded-xl" />
+      <Skeleton className="h-24 " />
       <div className="grid gap-4 lg:grid-cols-[280px_1fr_280px]">
-        <Skeleton className="h-96 rounded-xl" />
-        <Skeleton className="h-[520px] rounded-xl" />
-        <Skeleton className="h-96 rounded-xl" />
+        <Skeleton className="h-96 " />
+        <Skeleton className="h-[520px] " />
+        <Skeleton className="h-96 " />
       </div>
     </div>
   );

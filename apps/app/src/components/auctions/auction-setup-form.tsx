@@ -257,12 +257,12 @@ export function AuctionSetupForm({
               <div
                 key={player.key}
                 className={cn(
-                  "group flex min-w-0 items-center gap-3 rounded-xl border p-3 transition-colors",
+                  "group flex min-w-0 items-center gap-3  border p-3 transition-colors",
                   captainKey === player.key &&
-                    "border-amber-500/60 bg-amber-500/8",
+                    "border-foreground bg-foreground/[0.06]",
                 )}
               >
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted font-mono text-xs">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted num text-xs">
                   {index + 1}
                 </span>
                 <button
@@ -281,7 +281,7 @@ export function AuctionSetupForm({
                   </span>
                 </button>
                 {captainKey === player.key && (
-                  <Icons.Captain className="size-4 shrink-0 text-amber-500" />
+                  <Icons.Captain className="size-4 shrink-0 text-muted-foreground" />
                 )}
                 <Button
                   type="button"
@@ -298,7 +298,7 @@ export function AuctionSetupForm({
           </div>
 
           {players.length === 0 && (
-            <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+            <div className=" border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
               {t("creator.rosterHint")}
             </div>
           )}
@@ -341,7 +341,7 @@ export function AuctionSetupForm({
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("creator.search")}
             />
-            <div className="max-h-52 overflow-y-auto rounded-lg border">
+            <div className="max-h-52 overflow-y-auto  border">
               {availablePlayers.length === 0 ? (
                 <p className="p-4 text-center text-sm text-muted-foreground">
                   {t("creator.noResults")}
@@ -435,7 +435,7 @@ export function AuctionSetupForm({
               type="button"
               onClick={() => setRevealOrder((value) => !value)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors",
+                "flex w-full items-center gap-3  border p-3 text-left transition-colors",
                 revealOrder && "border-primary/40 bg-primary/5",
               )}
             >
