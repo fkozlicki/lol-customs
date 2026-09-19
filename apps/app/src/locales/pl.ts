@@ -219,6 +219,7 @@ export default {
           create: "Utwórz aukcję",
           watch: "Wejdź do pokoju",
           onStage: "Na scenie",
+          price: "Cena",
           starting: "Aukcja zaraz ruszy",
           emptyTitle: "Brak aukcji na żywo",
           emptyDescription:
@@ -266,6 +267,7 @@ export default {
           teamB: "Team B",
           rosterCount: "{count}/5 graczy",
           remaining: "pozostało",
+          leadingShort: "Prowadzi",
           spent: "wydano $ {amount}",
           unranked: "Bez rangi",
           currentPrice: "Aktualna cena",

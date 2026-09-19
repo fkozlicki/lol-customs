@@ -36,70 +36,75 @@ function TeamRoster({
   const t = useScopedI18n("dashboard.pages.auctions");
   const captain = captainFor(room, side);
   const players = playersFor(room, side);
-  const spent = room.budget - (captain?.budgetRemaining ?? room.budget);
+  const remaining = captain?.budgetRemaining ?? room.budget;
+  const spent = room.budget - remaining;
+  const isLeading = room.currentLeaderSide === side;
+  const slots = Array.from({ length: 5 }, (_, index) => players[index] ?? null);
+
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <CardTitle className="truncate text-base">
-              {captain?.teamName ?? t(`room.team${side}`)}
-            </CardTitle>
-            <p className="text-xs text-muted-foreground">
-              {t("room.rosterCount", { count: players.length })}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="num text-xl font-semibold">
-              ${captain?.budgetRemaining ?? room.budget}
-            </p>
-            <p className="label-caps">{t("room.remaining")}</p>
-            <p className="text-[11px] text-muted-foreground">
-              {t("room.spent", { amount: spent })}
-            </p>
-          </div>
+    <section className="space-y-4">
+      <div className="space-y-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="min-w-0 truncate text-xl font-semibold uppercase tracking-[-0.02em]">
+            {captain?.teamName ?? t(`room.team${side}`)}
+          </h2>
+          <span className="num shrink-0 text-2xl font-semibold">
+            ${remaining}
+          </span>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {players.map((player) => {
-          const isCaptain = captain?.playerId === player.id;
-          return (
-            <div
-              key={player.id}
-              className="flex items-center gap-2 border-b py-2.5 last:border-b-0"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="truncate text-sm font-semibold">
-                    {riotId(player)}
+        <div className="flex h-1 bg-foreground/15">
+          <div
+            className="bg-foreground"
+            style={{ width: `${(spent / room.budget) * 100}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="label-caps">
+            {isLeading ? t("room.leadingShort") : t("room.remaining")}
+          </span>
+          <span className="label-caps">
+            {t("room.spent", { amount: spent })}
+          </span>
+        </div>
+      </div>
+
+      <ol className="divide-y border-t">
+        {slots.map((player, index) => (
+          <li
+            key={player?.id ?? `empty-${side}-${index}`}
+            className="flex h-14 items-center gap-3"
+          >
+            <span className="num w-4 shrink-0 text-xs text-muted-foreground">
+              {index + 1}
+            </span>
+            {player ? (
+              <>
+                <div className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5 truncate text-sm font-medium">
+                    {player.gameName}
+                    {captain?.playerId === player.id && (
+                      <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
+                    )}
                   </span>
-                  {isCaptain && (
-                    <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
-                  )}
+                  <AuctionRank
+                    tier={player.soloTier}
+                    label={player.soloRankLabel}
+                  />
                 </div>
-                <AuctionRank
-                  tier={player.soloTier}
-                  label={player.soloRankLabel}
-                />
-              </div>
-              {!isCaptain && player.purchasePrice != null && (
-                <Badge variant="secondary" className="num">
-                  ${player.purchasePrice}
-                </Badge>
-              )}
-            </div>
-          );
-        })}
-        {Array.from({ length: Math.max(0, 5 - players.length) }).map(
-          (_, index) => (
-            <div
-              key={`empty-${side}-${index}`}
-              className="h-12 border-b border-dashed last:border-b-0"
-            />
-          ),
-        )}
-      </CardContent>
-    </Card>
+                {captain?.playerId !== player.id &&
+                  player.purchasePrice != null && (
+                    <span className="num shrink-0 text-sm">
+                      ${player.purchasePrice}
+                    </span>
+                  )}
+              </>
+            ) : (
+              <span className="flex-1 border-b border-dashed" />
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
@@ -109,7 +114,7 @@ function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
 
   function eventText(event: AuctionEvent) {
     const player = event.playerId ? playerById.get(event.playerId) : undefined;
-    const name = player ? riotId(player) : t("feed.player");
+    const name = player ? player.gameName : t("feed.player");
     const team = event.side
       ? (captainFor(room, event.side)?.teamName ?? event.side)
       : "";
@@ -142,30 +147,26 @@ function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t("feed.title")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+    <section>
+      <h2 className="label-caps pb-2 text-foreground">{t("feed.title")}</h2>
+      {room.events.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("feed.empty")}</p>
+      ) : (
+        <ol className="max-h-[420px] divide-y overflow-y-auto border-t">
           {[...room.events].reverse().map((event) => (
-            <div key={event.id} className="border-l border-border pl-3 text-sm">
-              <p>{eventText(event)}</p>
-              <time className="label-caps">
+            <li key={event.id} className="flex items-baseline gap-3 py-2.5">
+              <time className="num shrink-0 text-[11px] text-muted-foreground">
                 {new Date(event.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
-                  second: "2-digit",
                 })}
               </time>
-            </div>
+              <p className="text-sm">{eventText(event)}</p>
+            </li>
           ))}
-          {!room.events.length && (
-            <p className="text-sm text-muted-foreground">{t("feed.empty")}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </ol>
+      )}
+    </section>
   );
 }
 
@@ -234,160 +235,172 @@ function ActiveStage({
     : false;
 
   return (
-    <Card className="relative overflow-hidden">
-      <CardContent className="flex min-h-[430px] flex-col items-center justify-center p-5 text-center sm:p-8">
-        <Badge variant="outline" className="label-caps mb-4 text-foreground">
+    <section className="flex min-h-[26rem] flex-col justify-between gap-8 border-y py-8">
+      <div className="flex items-start justify-between gap-4">
+        <span className="label-caps text-foreground">
           {t(`phase.${room.phase ?? "awaiting_opening_bid"}`)}
-        </Badge>
-        {current ? (
-          <>
-            <h2 className="max-w-full truncate text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
+        </span>
+        {room.currentLeaderSide && (
+          <span className="label-caps bg-foreground px-2 py-1 text-background">
+            {t("room.leading", {
+              team:
+                captainFor(room, room.currentLeaderSide)?.teamName ??
+                room.currentLeaderSide,
+            })}
+          </span>
+        )}
+      </div>
+
+      {current ? (
+        <>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h2 className="max-w-full truncate text-4xl font-semibold tracking-[-0.04em] sm:text-6xl">
               {current.gameName}
             </h2>
-            <p className="num mt-1 text-sm text-muted-foreground">
-              #{current.tagLine}
-            </p>
-            <div className="mt-2">
-              <AuctionRank
-                tier={current.soloTier}
-                label={current.soloRankLabel}
-              />
-            </div>
-            <div className="my-5">
+            <AuctionRank
+              tier={current.soloTier}
+              label={current.soloRankLabel}
+            />
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 sm:items-end">
+            <div>
               <p className="label-caps">{t("room.currentPrice")}</p>
-              <p className="num text-6xl font-semibold sm:text-8xl">
+              <p className="num text-6xl font-semibold leading-none sm:text-7xl">
                 ${room.currentBid ?? 0}
               </p>
-              {room.currentLeaderSide && (
-                <p className="text-sm text-muted-foreground">
-                  {t("room.leading", {
-                    team:
-                      captainFor(room, room.currentLeaderSide)?.teamName ??
-                      room.currentLeaderSide,
-                  })}
+            </div>
+            <div className="sm:text-right">
+              {room.phaseEndsAt && room.phase === "bidding" ? (
+                <AuctionCountdown
+                  deadline={room.phaseEndsAt}
+                  serverNow={room.serverNow}
+                  durationSeconds={room.bidSeconds}
+                />
+              ) : room.phase === "awaiting_opening_bid" ? (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">
+                    {t("room.waitingFirstBid")}
+                  </p>
+                  {opponentPassed && (
+                    <p className="label-caps text-foreground">
+                      {t("room.opponentPassed")}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-lg font-semibold uppercase tracking-[-0.02em]">
+                  {t("room.soldPause")}
                 </p>
               )}
             </div>
-            {room.phaseEndsAt && room.phase === "bidding" ? (
-              <AuctionCountdown
-                deadline={room.phaseEndsAt}
-                serverNow={room.serverNow}
-                durationSeconds={room.bidSeconds}
-              />
-            ) : room.phase === "awaiting_opening_bid" ? (
-              <div className="space-y-1.5">
-                <p className="text-sm text-muted-foreground">
-                  {t("room.waitingFirstBid")}
+          </div>
+
+          {mySide && room.phase !== "sold_pause" && (
+            <div className="space-y-3 border-t pt-6">
+              {isOpening && myPassed && (
+                <p className="label-caps flex items-center gap-2 text-foreground">
+                  <Icons.Check className="size-4" />
+                  {t("room.myPassed")}
                 </p>
-                {opponentPassed && (
-                  <p className="label-caps text-foreground">
-                    {t("room.opponentPassed")}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="text-lg font-semibold">{t("room.soldPause")}</p>
-            )}
-            {mySide && room.phase !== "sold_pause" && (
-              <div className="mt-6 w-full max-w-md space-y-3 border-t pt-4">
-                {isOpening && myPassed && (
-                  <p className="label-caps flex items-center justify-center gap-2 text-foreground">
-                    <Icons.Check className="size-4" />
-                    {t("room.myPassed")}
-                  </p>
-                )}
-                {moneyDecision ? (
-                  <div className="grid grid-cols-2 gap-2">
+              )}
+              {moneyDecision ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button
+                    size="lg"
+                    disabled={!canBid || bid.isPending}
+                    onClick={() =>
+                      bid.mutate({ id: room.id, amount: minimumBid })
+                    }
+                  >
+                    {t("actions.takeForOne")}
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    disabled={!canPass || pass.isPending}
+                    onClick={() => pass.mutate({ id: room.id })}
+                  >
+                    {t("actions.sendBack")}
+                  </Button>
+                </div>
+              ) : iAmBroke ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("room.iAmBroke")}
+                </p>
+              ) : (
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min={minimumBid}
+                      max={maxBid}
+                      value={Number.isNaN(amount) ? "" : amount}
+                      onChange={(event) =>
+                        setAmount(event.target.valueAsNumber)
+                      }
+                      aria-label={t("actions.customBid")}
+                      className="num h-11 w-24 text-lg"
+                    />
                     <Button
-                      disabled={!canBid || bid.isPending}
+                      size="lg"
+                      className="flex-1"
+                      disabled={
+                        !canBid ||
+                        bid.isPending ||
+                        amount < minimumBid ||
+                        amount > maxBid
+                      }
+                      onClick={() => bid.mutate({ id: room.id, amount })}
+                    >
+                      {t("actions.bid")} ${Number.isNaN(amount) ? "" : amount}
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      disabled={!canBid || bid.isPending || minimumBid > maxBid}
                       onClick={() =>
                         bid.mutate({ id: room.id, amount: minimumBid })
                       }
                     >
-                      {t("actions.takeForOne")}
+                      +1
                     </Button>
                     <Button
-                      variant="secondary"
+                      size="lg"
+                      variant="outline"
+                      disabled={
+                        !canBid ||
+                        bid.isPending ||
+                        allIn < minimumBid ||
+                        allIn > maxBid
+                      }
+                      onClick={() => bid.mutate({ id: room.id, amount: allIn })}
+                    >
+                      {t("actions.allIn")}
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="ghost"
                       disabled={!canPass || pass.isPending}
                       onClick={() => pass.mutate({ id: room.id })}
                     >
-                      {t("actions.sendBack")}
+                      {passLabel}
                     </Button>
                   </div>
-                ) : iAmBroke ? (
-                  <p className="text-xs text-muted-foreground">
-                    {t("room.iAmBroke")}
-                  </p>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-2">
-                      <Input
-                        type="number"
-                        min={minimumBid}
-                        max={maxBid}
-                        value={Number.isNaN(amount) ? "" : amount}
-                        onChange={(event) =>
-                          setAmount(event.target.valueAsNumber)
-                        }
-                        aria-label={t("actions.customBid")}
-                      />
-                      <Button
-                        disabled={
-                          !canBid ||
-                          bid.isPending ||
-                          amount < minimumBid ||
-                          amount > maxBid
-                        }
-                        onClick={() => bid.mutate({ id: room.id, amount })}
-                      >
-                        {t("actions.bid")}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        disabled={
-                          !canBid || bid.isPending || minimumBid > maxBid
-                        }
-                        onClick={() =>
-                          bid.mutate({ id: room.id, amount: minimumBid })
-                        }
-                      >
-                        +1
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="destructive"
-                        disabled={
-                          !canBid ||
-                          bid.isPending ||
-                          allIn < minimumBid ||
-                          allIn > maxBid
-                        }
-                        onClick={() =>
-                          bid.mutate({ id: room.id, amount: allIn })
-                        }
-                      >
-                        {t("actions.allIn")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        disabled={!canPass || pass.isPending}
-                        onClick={() => pass.mutate({ id: room.id })}
-                      >
-                        {passLabel}
-                      </Button>
-                    </div>
-                  </>
-                )}
-                <p className="text-xs text-muted-foreground">{passHint}</p>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-muted-foreground">{t("room.preparingPlayer")}</p>
-        )}
-      </CardContent>
-    </Card>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">{passHint}</p>
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="text-center text-muted-foreground">
+          {t("room.preparingPlayer")}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -691,18 +704,18 @@ export function AuctionRoom({ id }: { id: string }) {
       )}
 
       {room.status === "active" && (
-        <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_280px] xl:grid-cols-[310px_minmax(420px,1fr)_310px]">
-          <div className="order-2 space-y-4 lg:order-1">
+        <div className="grid gap-10 lg:grid-cols-[minmax(200px,240px)_minmax(0,1fr)_minmax(200px,240px)] lg:gap-12">
+          <div className="order-2 lg:order-1">
             <TeamRoster room={room} side="A" />
           </div>
-          <div className="order-1 space-y-4 lg:order-2">
+          <div className="order-1 space-y-8 lg:order-2">
             <ActiveStage room={room} refresh={refresh} />
             {room.showOrder && (
-              <Card>
-                <CardContent className="flex flex-wrap gap-2 p-4">
-                  <span className="w-full text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {t("room.upcoming")}
-                  </span>
+              <section>
+                <h2 className="label-caps pb-2 text-foreground">
+                  {t("room.upcoming")}
+                </h2>
+                <ol className="num flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   {room.players
                     .filter(
                       (p) =>
@@ -714,15 +727,13 @@ export function AuctionRoom({ id }: { id: string }) {
                       (a, b) => (a.drawPosition ?? 0) - (b.drawPosition ?? 0),
                     )
                     .map((p) => (
-                      <Badge key={p.id} variant="outline">
-                        {riotId(p)}
-                      </Badge>
+                      <li key={p.id}>{p.gameName}</li>
                     ))}
-                </CardContent>
-              </Card>
+                </ol>
+              </section>
             )}
           </div>
-          <div className="order-3 space-y-4">
+          <div className="order-3 space-y-10">
             <TeamRoster room={room} side="B" />
             <EventFeed room={room} />
           </div>

@@ -77,56 +77,76 @@ export function AuctionList() {
           </Button>
         </div>
       ) : query.data?.length ? (
-        <ul className="divide-y border-y">
+        <ul className="space-y-12">
           {query.data.map((room) => (
             <li key={room.id}>
-              <Link
-                href={`/auctions/${room.id}`}
-                className="group grid gap-4 py-5 sm:grid-cols-[1fr_auto] sm:items-center"
-              >
-                <div className="min-w-0 space-y-2">
-                  <span className="label-caps">
+              <Link href={`/auctions/${room.id}`} className="group block">
+                <div className="flex items-center gap-3 pb-4">
+                  <span
+                    className={cn(
+                      "size-1.5",
+                      room.status === "active"
+                        ? "animate-pulse bg-foreground"
+                        : "bg-muted-foreground",
+                    )}
+                  />
+                  <span className="label-caps text-foreground">
                     {t(`status.${room.status}`)}
                   </span>
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="text-xl font-semibold underline-offset-4 group-hover:underline sm:text-2xl">
-                      {room.teamA.teamName}
-                    </span>
-                    <span className="label-caps">vs</span>
-                    <span className="text-xl font-semibold underline-offset-4 group-hover:underline sm:text-2xl">
-                      {room.teamB.teamName}
-                    </span>
-                  </div>
-                  <p className="num truncate text-xs text-muted-foreground">
-                    {riotId(room.teamA)} · {riotId(room.teamB)}
-                  </p>
                 </div>
 
-                <div className="flex items-center gap-6 sm:justify-end">
-                  <div className="flex flex-col sm:items-end">
-                    <span className="label-caps">{t("list.onStage")}</span>
-                    <span className="truncate text-sm font-medium">
-                      {room.currentPlayer
-                        ? riotId(room.currentPlayer)
-                        : t("list.starting")}
+                <div className="grid gap-6 border-t pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                  <div className="min-w-0 space-y-2">
+                    <h2 className="text-3xl font-semibold uppercase leading-[0.95] tracking-[-0.03em] sm:text-5xl">
+                      {room.teamA.teamName}
+                      <span className="text-muted-foreground"> vs </span>
+                      {room.teamB.teamName}
+                    </h2>
+                    <p className="num truncate text-xs text-muted-foreground">
+                      {riotId(room.teamA)} · {riotId(room.teamB)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-end gap-8 sm:justify-end">
+                    <div className="min-w-0">
+                      <p className="label-caps">{t("list.onStage")}</p>
+                      <p className="truncate text-sm font-medium">
+                        {room.currentPlayer
+                          ? room.currentPlayer.gameName
+                          : t("list.starting")}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="label-caps">{t("list.price")}</p>
+                      <p className="num text-4xl font-semibold leading-none">
+                        ${room.currentBid ?? 0}
+                      </p>
+                    </div>
+                    <span className="label-caps hidden text-foreground underline-offset-4 group-hover:underline sm:block">
+                      {t("list.watch")} →
                     </span>
                   </div>
-                  <span className="num text-2xl font-semibold">
-                    ${room.currentBid ?? 0}
-                  </span>
                 </div>
               </Link>
             </li>
           ))}
         </ul>
       ) : (
-        <div className="flex flex-col items-start gap-2 py-10">
-          <p className="text-xl font-semibold tracking-[-0.02em]">
+        <div className="flex flex-col items-start gap-4 border-t pt-10">
+          <p className="text-2xl font-semibold uppercase tracking-[-0.03em] sm:text-3xl">
             {t("list.emptyTitle")}
           </p>
           <p className="max-w-md text-sm text-muted-foreground">
             {t("list.emptyDescription")}
           </p>
+          <Button
+            variant="outline"
+            onClick={createAuction}
+            disabled={userLoading}
+          >
+            <Icons.Auction className="size-4" />
+            {t("list.create")}
+          </Button>
         </div>
       )}
     </div>

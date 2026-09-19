@@ -218,6 +218,7 @@ export default {
           create: "Create auction",
           watch: "Enter room",
           onStage: "On the stage",
+          price: "Price",
           starting: "Auction starting",
           emptyTitle: "No auctions are live",
           emptyDescription:
@@ -264,6 +265,7 @@ export default {
           teamB: "Team B",
           rosterCount: "{count}/5 players",
           remaining: "remaining",
+          leadingShort: "Leading",
           spent: "$ {amount} spent",
           unranked: "Unranked",
           currentPrice: "Current price",
