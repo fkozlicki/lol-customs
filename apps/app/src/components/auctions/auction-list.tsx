@@ -95,7 +95,7 @@ export function AuctionList() {
                   </span>
                 </div>
 
-                <div className="grid gap-6 border-t pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
                   <div className="min-w-0 space-y-2">
                     <h2 className="text-3xl font-semibold uppercase leading-[0.95] tracking-[-0.03em] sm:text-5xl">
                       {room.teamA.teamName}
