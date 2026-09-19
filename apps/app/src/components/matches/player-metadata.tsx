@@ -1,7 +1,8 @@
-import { cn } from "@v1/ui/cn";
+"use client";
+
+import { useScopedI18n } from "@/locales/client";
 import { formatKdaRatio } from "@/utils/stats";
 import { ChampionImage } from "../game-assets/champion-image";
-import { AverageRank } from "./average-rank";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";
 import MatchParticipantItems from "./match-participant-items";
 import MatchParticipantScore from "./match-participant-score";
@@ -11,8 +12,6 @@ interface PlayerMetadataProps {
   rawData: RawParticipant | undefined;
   scores: number[];
   totalKills: number;
-  participants: MatchParticipant[];
-  isVictorious: boolean;
 }
 
 export function PlayerMetadata({
@@ -20,71 +19,63 @@ export function PlayerMetadata({
   rawData,
   scores,
   totalKills,
-  participants,
-  isVictorious,
 }: PlayerMetadataProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const kdaRatio = formatKdaRatio(
     participant.kills,
     participant.deaths,
     participant.assists,
   );
-
-  const slash = () => (
-    <span className="text-lg font-medium text-muted-foreground">/</span>
-  );
-
-  const killParticipation = Math.round(
-    (((participant.kills ?? 0) + (participant.assists ?? 0)) / totalKills) *
-      100,
-  );
+  const killParticipation =
+    totalKills > 0
+      ? Math.round(
+          (((participant.kills ?? 0) + (participant.assists ?? 0)) /
+            totalKills) *
+            100,
+        )
+      : 0;
   const cs =
     (participant.total_minions_killed ?? 0) +
     (participant.neutral_minions_killed ?? 0);
 
   return (
-    <div className="flex-1  grid place-items-center">
-      <div className="space-y-2">
-        <div className="flex">
-          <div className="flex items-center gap-2 border-r pr-4 mr-4">
-            <ChampionImage
-              championId={participant.champion_id}
-              width={48}
-              height={48}
-              className="rounded-full shrink-0 object-cover"
-            />
-            <div className="flex flex-col gap-0.5">
-              {/* kda */}
-              <span className="font-bold">
-                {participant.kills ?? 0} {slash()}{" "}
-                <span className="text-red-500">{participant.deaths ?? 0}</span>{" "}
-                {slash()} {participant.assists ?? 0}
-              </span>
-              <span
-                className={cn("text-xs text-muted-foreground font-medium", {
-                  "text-amber-500 font-semibold": kdaRatio === "Perfect",
-                })}
-              >
-                {kdaRatio} KDA
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-muted-foreground font-medium">
-              CS {cs}
-            </span>
-            <span className="text-xs text-muted-foreground font-medium">
-              P/KILL {killParticipation}%
-            </span>
-            <AverageRank participants={participants} hideLabel />
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <MatchParticipantItems
-            rawData={rawData}
-            isVictorious={isVictorious}
+    <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+      <div className="flex items-center gap-3 sm:gap-5">
+        <div className="relative shrink-0">
+          <ChampionImage
+            championId={participant.champion_id}
+            width={48}
+            height={48}
+            className="size-11 object-cover sm:size-12"
           />
-          <MatchParticipantScore p={participant} scores={scores} hideScore />
+          <span className="num absolute -right-1 -bottom-1 bg-foreground px-1 text-[10px] leading-4 text-background">
+            {participant.champ_level}
+          </span>
         </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="num text-base font-semibold">
+            {participant.kills ?? 0}
+            <span className="text-muted-foreground"> / </span>
+            <span>{participant.deaths ?? 0}</span>
+            <span className="text-muted-foreground"> / </span>
+            {participant.assists ?? 0}
+          </span>
+          <span className="num text-xs text-muted-foreground">
+            {kdaRatio === "Perfect" ? t("perfect") : kdaRatio} {t("kda")}
+          </span>
+        </div>
+        <div className="num hidden flex-col gap-0.5 text-xs text-muted-foreground sm:flex">
+          <span>
+            {t("cs")} {cs}
+          </span>
+          <span>
+            {t("killParticipation")} {killParticipation}%
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <MatchParticipantItems rawData={rawData} />
+        <MatchParticipantScore p={participant} scores={scores} hideScore />
       </div>
     </div>
   );

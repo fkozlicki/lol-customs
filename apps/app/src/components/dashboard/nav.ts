@@ -1,6 +1,7 @@
 import { Icons } from "@v1/ui/icons";
 
-export const PATHS = [
+/** The places people come to Derby for; always one tap away. */
+export const PRIMARY_PATHS = [
   {
     path: "/",
     label: "sidebar.leaderboard",
@@ -10,7 +11,7 @@ export const PATHS = [
   {
     path: "/matches",
     label: "sidebar.matchHistory",
-    Icon: Icons.Calendar,
+    Icon: Icons.Matches,
     seasonScoped: true,
   },
   {
@@ -19,18 +20,10 @@ export const PATHS = [
     Icon: Icons.HOF,
     seasonScoped: true,
   },
-  {
-    path: "/duos",
-    label: "sidebar.duos",
-    Icon: Icons.Users2,
-    seasonScoped: true,
-  },
-  {
-    path: "/posts",
-    label: "sidebar.posts",
-    Icon: Icons.MessageSquare,
-    seasonScoped: false,
-  },
+] as const;
+
+/** Pre-game tools, grouped under one menu. */
+export const TOOL_PATHS = [
   {
     path: "/shuffle",
     label: "sidebar.shuffle",
@@ -44,3 +37,15 @@ export const PATHS = [
     seasonScoped: false,
   },
 ] as const;
+
+export const FORUM_PATH = {
+  path: "/posts",
+  label: "sidebar.posts",
+  Icon: Icons.MessageSquare,
+  seasonScoped: false,
+} as const;
+
+export function isActivePath(pathname: string, path: string): boolean {
+  if (path === "/") return pathname === "/";
+  return pathname.startsWith(path);
+}

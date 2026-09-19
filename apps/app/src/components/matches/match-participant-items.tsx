@@ -3,15 +3,13 @@ import type { RawParticipant } from "./match-history-list";
 
 interface MatchParticipantItemsProps {
   rawData: RawParticipant | undefined;
-  isVictorious: boolean;
 }
 
 export default function MatchParticipantItems({
   rawData,
-  isVictorious,
 }: MatchParticipantItemsProps) {
   return (
-    <div className="flex gap-0.5 items-center">
+    <div className="flex items-center gap-0.5">
       {[
         rawData?.stats.item0,
         rawData?.stats.item1,
@@ -26,8 +24,6 @@ export default function MatchParticipantItems({
           itemId={itemId ?? null}
           width={22}
           height={22}
-          className="rounded-sm"
-          isVictorious={isVictorious}
         />
       ))}
     </div>

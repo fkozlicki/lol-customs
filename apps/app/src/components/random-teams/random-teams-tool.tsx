@@ -1,163 +1,33 @@
 "use client";
 
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
 import { Button } from "@v1/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
-import { Label } from "@v1/ui/label";
-import { Separator } from "@v1/ui/separator";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { positionRoleIconUrl } from "@/utils/asset-urls";
-import type { EnrichedRosterPlayer } from "@/utils/random-teams";
 import {
   buildRandomTeams,
-  enrichPlayersFromRankLoad,
+  formatRank,
   type RandomTeamsResult,
   type RandomTeamsTeam,
+  type RandomTeamsTeamPlayer,
+  type RosterPlayer,
 } from "@/utils/random-teams";
 import { parseRiotId, riotIdKey } from "@/utils/riot-id";
 
-const DEFAULT_PLATFORM_ID = "eun1";
+const ROSTER_SIZE = 10;
 
 type DbPlayer = RouterOutputs["players"]["all"][number];
-
-interface RosterEntry {
-  key: string;
-  gameName: string;
-  tagLine: string;
-}
-
-function newRosterKey(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-type TeamResult = RandomTeamsTeam;
-
-function roleLabel(
-  t: ReturnType<typeof useScopedI18n<"dashboard.pages.shuffle">>,
-  role: string,
-): string {
-  if (role === "TOP") return t("roles.TOP");
-  if (role === "JUNGLE") return t("roles.JUNGLE");
-  if (role === "MID") return t("roles.MID");
-  if (role === "ADC") return t("roles.ADC");
-  if (role === "SUPPORT") return t("roles.SUPPORT");
-  return role;
-}
-
-type TeamPlayer = TeamResult["players"][number];
-
-function SoloRankDisplay({
-  soloTier,
-  soloRankLabel,
-  unrankedLabel,
-}: {
-  soloTier: string | null | undefined;
-  soloRankLabel: string;
-  unrankedLabel: string;
-}) {
-  const hasTier = Boolean(soloTier?.trim());
-  const label = hasTier ? soloRankLabel : unrankedLabel;
-  const crestTier = hasTier && soloTier?.trim() ? soloTier : null;
-  return (
-    <div className="flex items-center gap-2">
-      <RankCrest tier={crestTier} width={18} height={18} className="shrink-0" />
-      <span className="text-muted-foreground text-sm leading-tight">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function RoleIcon({ role, label }: { role: string; label: string }) {
-  return (
-    <Image
-      src={positionRoleIconUrl(role)}
-      alt={label}
-      width={20}
-      height={20}
-      className="block object-contain"
-      title={label}
-      unoptimized
-    />
-  );
-}
-
-function TeamTable({
-  title,
-  team,
-  t,
-}: {
-  title: string;
-  team: TeamResult;
-  t: ReturnType<typeof useScopedI18n<"dashboard.pages.shuffle">>;
-}) {
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-lg font-medium">{title}</div>
-        <span className="text-foreground inline-flex items-center gap-1.5 font-medium">
-          <RankCrest
-            tier={team.avgSoloTier}
-            width={24}
-            height={24}
-            className="shrink-0"
-          />
-          <span className="capitalize text-sm">{team.avgSoloRank}</span>
-        </span>
-      </div>
-      <div className="space-y-2">
-        {team.players.map((p: TeamPlayer) => (
-          <div
-            key={`${p.gameName}-${p.tagLine}-${p.role}`}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl border-border/50 border"
-          >
-            <div className="flex items-center gap-2">
-              <RoleIcon role={p.role} label={roleLabel(t, p.role)} />
-            </div>
-
-            <div className="inline-flex items-center gap-1.5 flex-1">
-              <span className="text-foreground font-medium">{p.gameName}</span>
-              {p.isCaptain && (
-                <Icons.Captain className="size-4 text-amber-500" />
-              )}
-            </div>
-
-            <SoloRankDisplay
-              soloTier={p.soloTier}
-              soloRankLabel={p.soloRankLabel}
-              unrankedLabel={t("unranked")}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function RandomTeamsToolSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Skeleton className="h-64 rounded-lg" />
-        <Skeleton className="h-64 rounded-lg" />
-      </div>
-      <Skeleton className="h-10 w-48" />
-    </div>
-  );
-}
+type ShuffleCopy = ReturnType<typeof useScopedI18n<"dashboard.pages.shuffle">>;
 
 export default function RandomTeamsTool() {
   const t = useScopedI18n("dashboard.pages.shuffle");
@@ -167,282 +37,325 @@ export default function RandomTeamsTool() {
   );
 
   const [search, setSearch] = useState("");
-  const [roster, setRoster] = useState<RosterEntry[]>([]);
   const [manualRiotId, setManualRiotId] = useState("");
-  const [enrichedRoster, setEnrichedRoster] = useState<
-    EnrichedRosterPlayer[] | null
-  >(null);
+  const [roster, setRoster] = useState<RosterPlayer[]>([]);
   const [teams, setTeams] = useState<RandomTeamsResult | null>(null);
 
-  const rosterKeys = useMemo(() => new Set(roster.map(riotIdKey)), [roster]);
+  const rosterKeys = useMemo(
+    () => new Set(roster.map((entry) => riotIdKey(entry))),
+    [roster],
+  );
 
   const ladderPlayers = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return (allPlayers as DbPlayer[]).filter((p) => {
-      if (!p.game_name || !p.tag_line) return false;
+    const query = search.trim().toLowerCase();
+    return allPlayers.filter((player) => {
+      if (!player.game_name || !player.tag_line) return false;
       if (
         rosterKeys.has(
-          riotIdKey({ gameName: p.game_name, tagLine: p.tag_line }),
+          riotIdKey({ gameName: player.game_name, tagLine: player.tag_line }),
         )
-      )
+      ) {
         return false;
-      if (!q) return true;
-      return p.game_name.toLowerCase().includes(q);
+      }
+      return !query || player.game_name.toLowerCase().includes(query);
     });
   }, [allPlayers, rosterKeys, search]);
 
-  const loadRanksMutationOpts = useMemo(
-    () =>
-      trpc.riot.loadRosterRanks.mutationOptions({
-        onError: (err) => {
-          toast.error(err.message);
-        },
-      }),
-    [trpc],
-  );
-  const loadRanks = useMutation(loadRanksMutationOpts);
-
-  const loadRequest = useMemo(() => {
-    if (roster.length !== 10) return null;
-    const players = [...roster]
-      .map((r) => ({
-        gameName: r.gameName.trim(),
-        tagLine: r.tagLine.trim(),
-        platformId: DEFAULT_PLATFORM_ID,
-      }))
-      .sort((a, b) =>
-        `${a.gameName}#${a.tagLine}`.localeCompare(
-          `${b.gameName}#${b.tagLine}`,
-        ),
-      );
-    const key = players
-      .map((p) => `${p.gameName}#${p.tagLine}@${p.platformId}`)
-      .join("|");
-    return { key, players };
-  }, [roster]);
-
-  const loadRequestRef = useRef(loadRequest);
-  loadRequestRef.current = loadRequest;
-  const rankFetchGen = useRef(0);
-
-  // deps: roster fingerprint only — do not add loadRanks (unstable across renders).
-  useEffect(() => {
-    const key = loadRequest?.key;
-    if (key == null || key === "") return;
-
-    const req = loadRequestRef.current;
-    if (!req || req.key !== key) return;
-
-    rankFetchGen.current += 1;
-    const gen = rankFetchGen.current;
-    const expectedKey = key;
-
-    loadRanks.mutate(
-      { players: req.players },
-      {
-        onSuccess: (data) => {
-          if (gen !== rankFetchGen.current) return;
-          const latest = loadRequestRef.current;
-          if (!latest || latest.key !== expectedKey) return;
-          setEnrichedRoster(enrichPlayersFromRankLoad(data));
-          setTeams(null);
-        },
-      },
-    );
-  }, [loadRequest?.key]);
-
-  function addToRoster(entry: Omit<RosterEntry, "key">): boolean {
-    const key = riotIdKey(entry);
-    if (rosterKeys.has(key)) {
+  function addPlayer(entry: RosterPlayer): boolean {
+    if (rosterKeys.has(riotIdKey(entry))) {
       toast.error(t("toastDuplicate"));
       return false;
     }
-    if (roster.length >= 10) {
-      return false;
-    }
-    setRoster((prev) => [...prev, { ...entry, key: newRosterKey() }]);
-    setEnrichedRoster(null);
+    if (roster.length >= ROSTER_SIZE) return false;
+    setRoster((prev) => [...prev, entry]);
     setTeams(null);
     return true;
   }
 
-  function removeFromRoster(key: string) {
-    setRoster((prev) => prev.filter((r) => r.key !== key));
-    setEnrichedRoster(null);
-    setTeams(null);
-  }
-
-  function addFromDb(p: DbPlayer) {
-    if (!p.game_name || !p.tag_line) return;
-    addToRoster({
-      gameName: p.game_name,
-      tagLine: p.tag_line,
+  function addFromLadder(player: DbPlayer) {
+    if (!player.game_name || !player.tag_line) return;
+    addPlayer({
+      gameName: player.game_name,
+      tagLine: player.tag_line,
+      rankTier: player.rank_tier,
+      rankDivision: player.rank_division,
     });
   }
 
-  function addManual() {
+  function addFromRiotId() {
     const parsed = parseRiotId(manualRiotId);
     if (!parsed) {
       toast.error(t("toastInvalidRiot"));
       return;
     }
-    if (
-      addToRoster({
-        gameName: parsed.gameName,
-        tagLine: parsed.tagLine,
-      })
-    ) {
-      setManualRiotId("");
-    }
+    const known = allPlayers.find(
+      (player) =>
+        player.game_name &&
+        player.tag_line &&
+        riotIdKey({
+          gameName: player.game_name,
+          tagLine: player.tag_line,
+        }) === riotIdKey(parsed),
+    );
+    const added = addPlayer({
+      ...parsed,
+      rankTier: known?.rank_tier ?? null,
+      rankDivision: known?.rank_division ?? null,
+    });
+    if (added) setManualRiotId("");
   }
 
-  function handleRollTeams() {
-    if (!enrichedRoster) {
-      return;
-    }
-    setTeams(buildRandomTeams(enrichedRoster));
+  function removePlayer(entry: RosterPlayer) {
+    setRoster((prev) => prev.filter((r) => riotIdKey(r) !== riotIdKey(entry)));
+    setTeams(null);
   }
+
+  const isFull = roster.length === ROSTER_SIZE;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {teams && (
-        <div className="grid grid-cols-[1fr_1px_1fr] gap-6 items-center bg-background rounded-xl border overflow-hidden p-6">
-          <TeamTable title={t("teamA")} team={teams.teamA} t={t} />
-          <Separator orientation="vertical" />
-          <TeamTable title={t("teamB")} team={teams.teamB} t={t} />
-        </div>
+        <section className="grid gap-10 md:grid-cols-2 md:gap-16">
+          <TeamColumn title={t("teamA")} team={teams.teamA} t={t} />
+          <TeamColumn title={t("teamB")} team={teams.teamB} t={t} />
+        </section>
       )}
-      <div className="flex gap-6 w-full">
-        <Card className="flex-3/5">
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("rosterHeading", { count: roster.length })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {roster.length === 0 ? (
-              <p className="text-muted-foreground text-sm">{t("rosterHint")}</p>
-            ) : (
-              <ul className="flex flex-wrap gap-2">
-                {roster.map((r) => (
-                  <li
-                    key={r.key}
-                    className="bg-muted/50 flex items-center gap-2 rounded-full px-3 py-1 text-sm"
-                  >
-                    <span>{r.gameName}</span>
-                    <Button
-                      type="button"
-                      size="icon-xs"
-                      variant="ghost"
-                      className="shrink-0 rounded-full"
-                      onClick={() => removeFromRoster(r.key)}
-                      aria-label={t("removePlayer")}
-                    >
-                      <Icons.X className="size-3.5" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
 
+      <div className="sticky top-14 z-20 flex items-center justify-between gap-4 border-b bg-background/90 py-4 backdrop-blur">
+        <div className="flex items-baseline gap-4">
+          <span className="num text-xl font-semibold">
+            {roster.length}/{ROSTER_SIZE}
+          </span>
+          {roster.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setRoster([]);
+                setTeams(null);
+              }}
+              className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t("clearRoster")}
+            </button>
+          )}
+        </div>
+        <Button
+          type="button"
+          disabled={!isFull}
+          onClick={() => setTeams(buildRandomTeams(roster))}
+        >
+          <Icons.RandomTeams className="size-4" />
+          {teams ? t("reroll") : t("generate")}
+        </Button>
+      </div>
+
+      <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+        <section>
+          <h2 className="label-caps pb-3 text-foreground">
+            {t("rosterTitle")}
+          </h2>
+
+          {roster.length === 0 ? (
+            <p className="py-4 text-sm text-muted-foreground">
+              {t("rosterHint")}
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {roster.map((entry) => (
+                <li
+                  key={riotIdKey(entry)}
+                  className="flex h-12 items-center gap-3"
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                    {entry.gameName}
+                  </span>
+                  <RankTag
+                    tier={entry.rankTier}
+                    division={entry.rankDivision}
+                    unrankedLabel={t("unranked")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePlayer(entry)}
+                    aria-label={t("removePlayer")}
+                    className="text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Icons.X className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section>
+          <h2 className="label-caps pb-3 text-foreground">{t("fromLadder")}</h2>
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchPlaceholder")}
+          />
+
+          <ul className="mt-2 max-h-72 divide-y overflow-y-auto">
+            {ladderPlayers.length === 0 ? (
+              <li className="py-4 text-sm text-muted-foreground">
+                {search.trim() ? t("noSearchResults") : t("rosterHint")}
+              </li>
+            ) : (
+              ladderPlayers.slice(0, 80).map((player) => (
+                <li
+                  key={player.puuid}
+                  className="flex h-12 items-center gap-3 pr-1"
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                    {player.game_name}
+                  </span>
+                  <RankTag
+                    tier={player.rank_tier}
+                    division={player.rank_division}
+                    unrankedLabel={t("unranked")}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={isFull}
+                    onClick={() => addFromLadder(player)}
+                  >
+                    {t("addPlayer")}
+                  </Button>
+                </li>
+              ))
+            )}
+          </ul>
+
+          <div className="mt-6 space-y-2">
+            <label htmlFor="shuffle-riot-id" className="label-caps">
+              {t("riotIdLabel")}
+            </label>
             <div className="flex items-center gap-2">
+              <Input
+                id="shuffle-riot-id"
+                value={manualRiotId}
+                onChange={(event) => setManualRiotId(event.target.value)}
+                placeholder={t("riotIdPlaceholder")}
+                autoComplete="off"
+              />
               <Button
                 type="button"
-                size="lg"
-                className="gap-2"
-                disabled={
-                  roster.length !== 10 || loadRanks.isPending || !enrichedRoster
-                }
-                onClick={handleRollTeams}
+                variant="outline"
+                onClick={addFromRiotId}
+                disabled={isFull}
               >
-                <Icons.RandomTeams className="size-4" />
-                {teams ? t("reroll") : t("generate")}
+                {t("addPlayer")}
               </Button>
-              {roster.length === 10 &&
-                loadRanks.isPending &&
-                !enrichedRoster && (
-                  <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <Icons.Loader className="size-4 animate-spin shrink-0" />
-                    {t("loadingRanks")}
-                  </p>
-                )}
-              {enrichedRoster && (
-                <p className="text-muted-foreground text-sm">
-                  {t("ranksLoaded")}
-                </p>
-              )}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="basis-2/5">
-          <CardHeader>
-            <CardTitle className="text-base">{t("fromLadder")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              aria-label={t("searchPlaceholder")}
-            />
-            <div
-              className={cn(
-                "max-h-56 overflow-y-auto rounded-md border",
-                "text-sm",
-              )}
-            >
-              {ladderPlayers.length === 0 ? (
-                <p className="text-muted-foreground p-3 text-center text-sm">
-                  {search.trim() ? t("noSearchResults") : t("rosterHint")}
-                </p>
-              ) : (
-                <ul className="divide-y">
-                  {ladderPlayers.slice(0, 80).map((p) => (
-                    <li
-                      key={p.puuid}
-                      className="flex items-center justify-between gap-2 px-3 py-2"
-                    >
-                      <span className="min-w-0 truncate font-medium">
-                        {p.game_name}
-                      </span>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={roster.length >= 10}
-                        onClick={() => addFromDb(p)}
-                      >
-                        {t("addPlayer")}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="rt-riot-id">{t("riotIdLabel")}</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="rt-riot-id"
-                  value={manualRiotId}
-                  onChange={(e) => setManualRiotId(e.target.value)}
-                  placeholder={t("riotIdPlaceholder")}
-                  autoComplete="off"
-                />
-                <Button
-                  type="button"
-                  onClick={addManual}
-                  disabled={roster.length >= 10}
-                >
-                  {t("addPlayer")}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
+    </div>
+  );
+}
+
+function TeamColumn({
+  title,
+  team,
+  t,
+}: {
+  title: string;
+  team: RandomTeamsTeam;
+  t: ShuffleCopy;
+}) {
+  return (
+    <section>
+      <div className="flex items-baseline justify-between pb-3">
+        <h2 className="text-2xl font-semibold uppercase leading-none tracking-[-0.03em] sm:text-3xl">
+          {title}
+        </h2>
+        <span className="flex items-center gap-1.5">
+          <RankCrest
+            tier={team.avgRankTier}
+            width={18}
+            height={18}
+            className="shrink-0"
+          />
+          <span className="label-caps">
+            {t("avgSolo")} {team.avgRankLabel}
+          </span>
+        </span>
+      </div>
+      <ul className="divide-y border-t">
+        {team.players.map((player) => (
+          <TeamRow key={riotIdKey(player)} player={player} t={t} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function TeamRow({
+  player,
+  t,
+}: {
+  player: RandomTeamsTeamPlayer;
+  t: ShuffleCopy;
+}) {
+  const roleLabel = t(`roles.${player.role}` as "roles.TOP");
+
+  return (
+    <li className="flex h-14 items-center gap-3">
+      <Image
+        src={positionRoleIconUrl(player.role)}
+        alt={roleLabel}
+        title={roleLabel}
+        width={20}
+        height={20}
+        className="shrink-0 object-contain"
+        unoptimized
+      />
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+        {player.gameName}
+        {player.isCaptain && (
+          <span className="label-caps ml-2">{t("captain")}</span>
+        )}
+      </span>
+      <RankTag
+        tier={player.rankTier}
+        division={player.rankDivision}
+        unrankedLabel={t("unranked")}
+      />
+    </li>
+  );
+}
+
+/** Last rank recorded for the player in a ladder match. */
+function RankTag({
+  tier,
+  division,
+  unrankedLabel,
+  className,
+}: {
+  tier: string | null;
+  division: string | null;
+  unrankedLabel: string;
+  className?: string;
+}) {
+  const label = formatRank(tier, division);
+
+  return (
+    <span className={cn("flex shrink-0 items-center gap-1.5", className)}>
+      <RankCrest tier={tier} width={16} height={16} className="shrink-0" />
+      <span className="label-caps">{label ?? unrankedLabel}</span>
+    </span>
+  );
+}
+
+export function RandomTeamsToolSkeleton() {
+  return (
+    <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+      <Skeleton className="h-96 w-full" />
+      <Skeleton className="h-96 w-full" />
     </div>
   );
 }

@@ -23,3 +23,12 @@ export function parseRiotId(raw: string): RiotId | null {
 export function formatRiotId(riotId: RiotId): string {
   return `${riotId.gameName}#${riotId.tagLine}`;
 }
+
+/** Profile URL for a player, or "#" when the Riot ID is unknown. */
+export function playerHref(
+  gameName: string | null | undefined,
+  tagLine: string | null | undefined,
+): string {
+  if (!gameName || !tagLine) return "#";
+  return `/players/${encodeURIComponent(gameName)}-${encodeURIComponent(tagLine)}`;
+}

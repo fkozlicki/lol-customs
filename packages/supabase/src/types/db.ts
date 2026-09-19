@@ -753,8 +753,10 @@ export type Database = {
           ladder_season_id: number
           lose_streak: number | null
           losses: number | null
+          matches_played: number | null
           mvp_games: number
           puuid: string
+          qualified: boolean | null
           rating: number | null
           total_penta_kills: number
           total_quadra_kills: number
@@ -785,8 +787,10 @@ export type Database = {
           ladder_season_id: number
           lose_streak?: number | null
           losses?: number | null
+          matches_played?: number | null
           mvp_games?: number
           puuid: string
+          qualified?: boolean | null
           rating?: number | null
           total_penta_kills?: number
           total_quadra_kills?: number
@@ -817,8 +821,10 @@ export type Database = {
           ladder_season_id?: number
           lose_streak?: number | null
           losses?: number | null
+          matches_played?: number | null
           mvp_games?: number
           puuid?: string
+          qualified?: boolean | null
           rating?: number | null
           total_penta_kills?: number
           total_quadra_kills?: number
@@ -1074,6 +1080,18 @@ export type Database = {
           win_streak: number
         }[]
       }
+      hall_of_fame: {
+        Args: { p_track: number }
+        Returns: {
+          puuid: string
+          title: string
+          value: number
+        }[]
+      }
+      is_qualified: {
+        Args: { p_losses: number; p_wins: number }
+        Returns: boolean
+      }
       ladder_season_for: { Args: { p_at: string }; Returns: number }
       leaderboard_at: {
         Args: { p_at: string; p_limit?: number; p_track: number }
@@ -1090,12 +1108,44 @@ export type Database = {
           platform_id: string
           profile_icon: number
           puuid: string
+          qualified: boolean
           rating: number
           tag_line: string
           updated_at: string
           win_streak: number
           wins: number
         }[]
+      }
+      player_latest_ranks: {
+        Args: never
+        Returns: {
+          puuid: string
+          rank_division: string
+          rank_tier: string
+        }[]
+      }
+      player_relations: {
+        Args: { p_puuid: string; p_track: number }
+        Returns: {
+          kills: number
+          losses: number
+          matches: number
+          other_puuid: string
+          relation: string
+          wins: number
+        }[]
+      }
+      rating_changes: {
+        Args: { p_match_ids: number[]; p_track: number }
+        Returns: {
+          match_id: number
+          puuid: string
+          rating_change: number
+        }[]
+      }
+      standings_position: {
+        Args: { p_puuid: string; p_track: number }
+        Returns: number
       }
     }
     Enums: {

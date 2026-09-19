@@ -1,14 +1,12 @@
 "use client";
 
-import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
-import { AverageRank } from "./average-rank";
+import { useScopedI18n } from "@/locales/client";
+import { MatchHighlights } from "./match-highlights";
 import type { Match, RawJson } from "./match-history-list";
 import { MatchMetadata } from "./match-metadata";
-import { MatchResult } from "./match-result";
 import MatchTeam from "./match-team";
-import { MVPPlayer } from "./mvp-player";
 import { PlayerMetadata } from "./player-metadata";
 
 interface MatchCardProps {
@@ -24,45 +22,45 @@ export default function MatchCard({
   onToggleExpand,
   puuid,
 }: MatchCardProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const participants = match.match_participants ?? [];
   const rawParticipants = (match.raw_json as unknown as RawJson).participants;
-  const blueTeamParticipants = participants.filter((t) => t.team_id === 100);
-  const redTeamParticipants = participants.filter((t) => t.team_id === 200);
-  const blueWon = blueTeamParticipants[0]?.win === true;
-  const participantWithMVP = participants.find((p) => p.is_mvp);
+  const blueTeamParticipants = participants.filter((p) => p.team_id === 100);
+  const redTeamParticipants = participants.filter((p) => p.team_id === 200);
   const scores = participants
     .map((p) => p.op_score)
     .filter((opScore): opScore is number => opScore != null)
     .sort((a, b) => b - a);
 
   const playerParticipant = participants.find((p) => p.puuid === puuid);
-  const isVictorious = playerParticipant?.win === true;
   const rawData = rawParticipants.find(
     (par) => par.participantId === playerParticipant?.participant_id,
   );
-  const participantTeamId = playerParticipant?.team_id;
-
   const participantTeam =
-    participantTeamId === 100 ? blueTeamParticipants : redTeamParticipants;
+    playerParticipant?.team_id === 100
+      ? blueTeamParticipants
+      : redTeamParticipants;
   const totalKills = participantTeam.reduce(
     (acc, p) => acc + (p.kills ?? 0),
     0,
   );
+  const outcome = playerParticipant
+    ? playerParticipant.win
+      ? "win"
+      : "loss"
+    : null;
 
   return (
     <div
       className={cn(
-        "rounded-sm border-l-[6px] border-border bg-background overflow-hidden flex items-stretch",
-        playerParticipant && {
-          "border-blue-600/80 bg-blue-600/10 dark:border-blue-400/80 dark:bg-blue-400/20":
-            isVictorious,
-          "border-red-500/80 bg-red-500/10 dark:border-red-400/80 dark:bg-red-400/10":
-            !isVictorious,
-        },
+        "flex items-stretch border border-l-4 bg-card",
+        outcome === "win" && "border-l-win bg-win/[0.1]",
+        outcome === "loss" && "border-l-loss bg-loss/[0.1]",
+        !outcome && "border-l-foreground/40",
       )}
     >
-      <div className="flex px-3 py-1 flex-1">
-        <MatchMetadata match={match} />
+      <div className="flex min-w-0 flex-1 items-center gap-4 px-3 py-3 sm:gap-6 sm:px-4">
+        <MatchMetadata match={match} participant={playerParticipant} />
 
         {playerParticipant ? (
           <PlayerMetadata
@@ -70,71 +68,39 @@ export default function MatchCard({
             rawData={rawData}
             scores={scores}
             totalKills={totalKills}
-            participants={participants}
-            isVictorious={isVictorious}
           />
         ) : (
-          <div className="flex justify-evenly items-center flex-1">
-            <div className="flex flex-col gap-2">
-              <MatchResult blueWon={blueWon} />
-              <AverageRank participants={participants} />
-            </div>
-
-            <MVPPlayer
-              championId={participantWithMVP?.champion_id}
-              participant={participantWithMVP}
-            />
-          </div>
+          <MatchHighlights participants={participants} />
         )}
 
-        <div className="items-center gap-4 hidden lg:flex">
-          {/* Blue team */}
+        <div className="hidden shrink-0 items-center gap-4 lg:flex">
           <MatchTeam
             team={blueTeamParticipants}
-            teamName="blue"
+            side="blue"
             playerParticipant={playerParticipant}
           />
-
-          <span className="text-muted-foreground text-xs font-medium shrink-0 hidden sm:inline self-center">
-            vs
-          </span>
-
-          {/* Red team */}
           <MatchTeam
             team={redTeamParticipants}
-            teamName="red"
+            side="red"
             playerParticipant={playerParticipant}
           />
         </div>
       </div>
 
-      {/* Expand */}
-      <div>
-        <Button
-          size="icon"
-          variant="ghost"
+      <button
+        type="button"
+        onClick={onToggleExpand}
+        aria-expanded={isExpanded}
+        aria-label={t("expand")}
+        className="flex w-9 shrink-0 items-end justify-center border-l pb-3 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <Icons.ChevronDown
           className={cn(
-            "h-full min-h-full rounded-none border-none",
-            playerParticipant && {
-              "bg-blue-600/10 dark:bg-blue-400/20 hover:bg-blue-600/20 dark:hover:bg-blue-400/30":
-                isVictorious,
-              "bg-red-500/10 dark:bg-red-400/10 hover:bg-red-500/20 dark:hover:bg-red-400/20":
-                !isVictorious,
-            },
+            "size-4 transition-transform duration-200 ease-(--ease-derby)",
+            isExpanded && "rotate-180",
           )}
-          onClick={onToggleExpand}
-          aria-label={
-            isExpanded ? "Collapse match details" : "Expand match details"
-          }
-        >
-          <Icons.ChevronDown
-            className={cn(
-              "h-5 w-5 transition-transform",
-              isExpanded && "rotate-180",
-            )}
-          />
-        </Button>
-      </div>
+        />
+      </button>
     </div>
   );
 }

@@ -13,9 +13,9 @@ export default function MatchParticipantCS({
   const csPerMin = cs / (duration / 60);
 
   return (
-    <div className="flex flex-col gap-0.5 items-center">
-      <span className="text-xs">{cs}</span>
-      <span className="text-xs">{csPerMin.toFixed(1)}/m</span>
+    <div className="num flex flex-col items-center gap-0.5 text-xs">
+      <span>{cs}</span>
+      <span className="text-muted-foreground">{csPerMin.toFixed(1)}/m</span>
     </div>
   );
 }

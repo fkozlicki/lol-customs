@@ -68,6 +68,14 @@ For each player, with their team’s expected score \( E \) and their scaled act
 
 So the change is capped at ±24 points per game.
 
+### Rating change shown on a match
+
+The rating change of a match is \( \text{rating}_{\text{after}} \) minus the rating the player had after their previous match on the same rating track (1000 for their first match there). Snapshots are paired by matches played, not by date, so a late upload is compared with the rating it was actually applied to.
+
+### Qualification and standings position
+
+A player is **qualified** on a rating track after **5 matches** on that track (each season and the all-time track count separately). Only qualified players hold a standings position and appear in Hall of Fame (every category, including win rate) and Rivalry. The position is \( 1 + \) the number of qualified players with a strictly higher rating, so tied ratings share a position.
+
 ---
 
 ## OP Score formula

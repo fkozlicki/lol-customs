@@ -70,31 +70,29 @@ export default function NewPostPage() {
   if (isLoading || !profile) return null;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4 py-6">
-      <Button variant="outline" asChild>
-        <Link href="/posts">
-          <Icons.ChevronLeft className="size-4" /> {t("backToPosts")}
-        </Link>
-      </Button>
-
-      <div>
-        <h1 className="text-xl font-semibold">{t("newPostPage.title")}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t("newPostPage.description")}
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-3xl space-y-8 px-4 pt-10 pb-16 sm:pt-16">
+      <Link
+        href="/posts"
+        className="label-caps inline-flex items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"
+      >
+        <Icons.ChevronLeft className="size-3.5" />
+        {t("backToPosts")}
+      </Link>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("newPostPage.titleLabel")}</FormLabel>
+              <FormItem className="space-y-2 border-b pb-6">
+                <FormLabel className="label-caps">
+                  {t("newPostPage.titleLabel")}
+                </FormLabel>
                 <FormControl>
                   <Input
                     placeholder={t("newPostPage.titlePlaceholder")}
+                    className="h-auto border-0 bg-transparent px-0 py-2 text-3xl font-semibold tracking-[-0.03em] shadow-none focus-visible:ring-0 sm:text-4xl md:text-4xl dark:bg-transparent"
                     {...field}
                   />
                 </FormControl>
@@ -107,8 +105,10 @@ export default function NewPostPage() {
             control={form.control}
             name="content"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("newPostPage.contentLabel")}</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className="label-caps">
+                  {t("newPostPage.contentLabel")}
+                </FormLabel>
                 <FormControl>
                   <RichTextEditor
                     onChange={field.onChange}
@@ -121,11 +121,14 @@ export default function NewPostPage() {
             )}
           />
 
-          <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="outline" asChild>
-              <Link href="/posts">{t("newPostPage.cancel")}</Link>
-            </Button>
-            <Button type="submit" disabled={createPost.isPending}>
+          <div className="flex items-center justify-between gap-3 border-t pt-6">
+            <Link
+              href="/posts"
+              className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t("newPostPage.cancel")}
+            </Link>
+            <Button type="submit" size="lg" disabled={createPost.isPending}>
               {createPost.isPending
                 ? t("newPostPage.publishing")
                 : t("newPostPage.publish")}

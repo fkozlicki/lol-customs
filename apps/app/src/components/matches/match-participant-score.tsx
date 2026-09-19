@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@v1/ui/cn";
+import { useScopedI18n } from "@/locales/client";
 import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantScoreProps {
@@ -12,6 +15,7 @@ export default function MatchParticipantScore({
   scores,
   hideScore = false,
 }: MatchParticipantScoreProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const opScore = p.op_score;
 
   if (!opScore) {
@@ -20,45 +24,21 @@ export default function MatchParticipantScore({
 
   const place = 1 + scores.filter((s) => s > opScore).length;
 
-  const placeText =
-    place === 1
-      ? "1st"
-      : place === 2
-        ? "2nd"
-        : place === 3
-          ? "3rd"
-          : `${place}th`;
-
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="flex items-center justify-center gap-1.5">
       {!hideScore && (
-        <span className="text-xs font-bold">{opScore.toFixed(1)}</span>
+        <span className="num text-xs font-semibold">{opScore.toFixed(1)}</span>
       )}
-      {p.is_mvp && (
-        <span
-          className={cn(
-            "text-xs font-semibold px-2 py-0.5 rounded-full",
-            "bg-amber-500 text-white",
-          )}
-        >
-          MVP
-        </span>
-      )}
-      {p.is_ace && (
-        <span
-          className={cn(
-            "text-xs font-semibold px-2 py-0.5 rounded-full",
-            "bg-indigo-600/70 text-white",
-          )}
-        >
-          ACE
-        </span>
-      )}
-      {!p.is_mvp && !p.is_ace && (
-        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-400 dark:bg-slate-500 text-white">
-          {placeText}
-        </span>
-      )}
+      <span
+        className={cn(
+          "num px-1.5 text-[10px] uppercase leading-5 tracking-[0.08em]",
+          p.is_mvp && "bg-mvp font-semibold text-mvp-foreground",
+          p.is_ace && "bg-ace font-semibold text-ace-foreground",
+          !p.is_mvp && !p.is_ace && "bg-muted text-muted-foreground",
+        )}
+      >
+        {p.is_mvp ? t("mvp") : p.is_ace ? t("ace") : `#${place}`}
+      </span>
     </div>
   );
 }

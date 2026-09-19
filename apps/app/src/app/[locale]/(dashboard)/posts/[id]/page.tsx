@@ -19,7 +19,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <HydrateClient>
-      <div className="p-4 max-w-3xl mx-auto w-full pb-12">
+      <div className="mx-auto w-full max-w-3xl px-4 pt-10 pb-16 sm:pt-16">
         <Suspense fallback={<PostDetailsSkeleton />}>
           <PostDetails postId={id} />
         </Suspense>

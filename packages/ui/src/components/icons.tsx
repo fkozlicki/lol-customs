@@ -8,6 +8,7 @@ import {
   Copy,
   Crown,
   Download,
+  Ellipsis,
   EyeOff,
   Flame,
   Folder,
@@ -29,6 +30,7 @@ import {
   Shuffle,
   Square,
   Sun,
+  Swords,
   ThumbsDown,
   ThumbsUp,
   Trophy,
@@ -76,6 +78,8 @@ export const Icons = {
   Image,
   Locale: Globe,
   Captain: Crown,
+  More: Ellipsis,
+  Matches: Swords,
 };
 
 export type { LucideIcon } from "lucide-react";

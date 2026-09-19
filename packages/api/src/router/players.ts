@@ -4,13 +4,34 @@ import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const playersRouter = createTRPCRouter({
+  /** Every known player with their last recorded Solo/Duo rank. */
   all: publicProcedure.query(async ({ ctx }) => {
-    const { data, error } = await ctx.supabase
-      .from("players")
-      .select("*")
-      .order("last_seen_at", { ascending: false });
-    if (error) throw error;
-    return data;
+    const [players, ranks] = await Promise.all([
+      ctx.supabase
+        .from("players")
+        .select("*")
+        .order("last_seen_at", { ascending: false }),
+      ctx.supabase.rpc("player_latest_ranks"),
+    ]);
+    if (players.error) throw players.error;
+    if (ranks.error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ranks.error.message,
+      });
+    }
+
+    const rankByPuuid = new Map(
+      (ranks.data ?? []).map((row) => [row.puuid, row]),
+    );
+    return players.data.map((player) => {
+      const rank = rankByPuuid.get(player.puuid);
+      return {
+        ...player,
+        rank_tier: rank?.rank_tier ?? null,
+        rank_division: rank?.rank_division ?? null,
+      };
+    });
   }),
 
   getByPuuid: publicProcedure
@@ -64,7 +85,24 @@ export const playersRouter = createTRPCRouter({
           message: error.message,
         });
       }
-      return data;
+
+      const { data: position, error: positionError } = await ctx.supabase.rpc(
+        "standings_position",
+        { p_puuid: input.puuid, p_track: input.season },
+      );
+      if (positionError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: positionError.message,
+        });
+      }
+
+      return {
+        ...data,
+        matches_played: data.matches_played ?? 0,
+        qualified: data.qualified ?? false,
+        position: position ?? null,
+      };
     }),
 
   ratingHistory: publicProcedure
@@ -122,6 +160,76 @@ export const playersRouter = createTRPCRouter({
           losses: row.losses ?? 0,
         }))
         .sort((a, b) => a.seasonId - b.seasonId);
+    }),
+
+  /** Teammates and rivals on a rating track; only qualified players are named. */
+  relations: publicProcedure
+    .input(z.object({ puuid: z.string().min(1), season: seasonInput }))
+    .query(async ({ ctx, input }) => {
+      const { data: rows, error } = await ctx.supabase.rpc("player_relations", {
+        p_puuid: input.puuid,
+        p_track: input.season,
+      });
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+      }
+
+      const puuids = [...new Set(rows.map((row) => row.other_puuid))];
+      const { data: players, error: playersError } =
+        puuids.length > 0
+          ? await ctx.supabase
+              .from("players")
+              .select("puuid, game_name, tag_line, profile_icon")
+              .in("puuid", puuids)
+          : { data: [], error: null };
+      if (playersError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: playersError.message,
+        });
+      }
+
+      const playerByPuuid = new Map(players.map((p) => [p.puuid, p]));
+      const relation = (name: string) => {
+        const row = rows.find((r) => r.relation === name);
+        if (!row) return null;
+        return {
+          player: playerByPuuid.get(row.other_puuid) ?? {
+            puuid: row.other_puuid,
+            game_name: null,
+            tag_line: null,
+            profile_icon: null,
+          },
+          matches: row.matches,
+          wins: row.wins,
+          losses: row.losses,
+          kills: row.kills,
+        };
+      };
+
+      const bestRecord = relation("best_head_to_head");
+      const worstRecord = relation("worst_head_to_head");
+
+      return {
+        teammates: {
+          mostMatches: relation("most_matches_with"),
+          mostWins: relation("most_wins_with"),
+          mostLosses: relation("most_losses_with"),
+        },
+        rivals: {
+          bestRecord,
+          // With a single eligible rival, the best and worst record are the same player.
+          worstRecord:
+            worstRecord?.player.puuid === bestRecord?.player.puuid
+              ? null
+              : worstRecord,
+          mostKilled: relation("most_killed"),
+          mostKilledBy: relation("most_killed_by"),
+        },
+      };
     }),
 
   mostPlayedChampions: publicProcedure

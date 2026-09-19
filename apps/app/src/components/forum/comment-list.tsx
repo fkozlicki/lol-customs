@@ -3,8 +3,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import { Button } from "@v1/ui/button";
-import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
+import { RelativeTime } from "@/components/relative-time";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { CommentForm } from "./comment-form";
@@ -24,26 +24,28 @@ export function CommentList({ postId }: CommentListProps) {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div className="space-y-4">
-      {showForm ? (
+    <section className="space-y-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="label-caps text-foreground">
+          {t("comments.title", { count: data.items.length })}
+        </h2>
+        {!showForm && (
+          <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
+            {t("comments.joinConversation")}
+          </Button>
+        )}
+      </div>
+
+      {showForm && (
         <CommentForm postId={postId} onCancel={() => setShowForm(false)} />
-      ) : (
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => setShowForm(true)}
-          className="w-full"
-        >
-          {t("comments.joinConversation")}
-        </Button>
       )}
 
       {data.items.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-4 text-center">
+        <p className="text-sm text-muted-foreground">
           {t("comments.noComments")}
         </p>
       ) : (
-        <div className="space-y-4">
+        <ol className="divide-y border-t">
           {data.items.map((comment) => {
             const author = Array.isArray(comment.author)
               ? comment.author[0]
@@ -52,42 +54,40 @@ export function CommentList({ postId }: CommentListProps) {
               ? comment.reactions
               : [];
             return (
-              <div key={comment.id} className="flex gap-3">
-                <Avatar className="size-7 shrink-0 mt-0.5">
-                  <AvatarImage src={author?.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-xs">
-                    {author?.nickname?.[0]?.toUpperCase() ?? "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="text-sm font-medium">
-                      {author?.nickname ?? t("unknown")}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(comment.created_at), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  </div>
-                  <div className="mt-1">
-                    <TipTapRenderer
-                      content={comment.content as Record<string, unknown>}
+              <li key={comment.id} className="space-y-2 py-5">
+                <div className="flex items-center gap-2">
+                  <Avatar className="size-5 shrink-0 rounded-none">
+                    <AvatarImage
+                      src={author?.avatar_url ?? undefined}
+                      className="rounded-none"
                     />
-                  </div>
-                  <CommentReactionButtons
-                    commentId={comment.id}
-                    postId={postId}
-                    likes={comment.likes}
-                    dislikes={comment.dislikes}
-                    reactions={reactions}
+                    <AvatarFallback className="rounded-none text-[10px] font-semibold">
+                      {author?.nickname?.[0]?.toUpperCase() ?? "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="label-caps text-foreground">
+                    {author?.nickname ?? t("unknown")}
+                  </span>
+                  <RelativeTime
+                    date={comment.created_at}
+                    className="label-caps"
                   />
                 </div>
-              </div>
+                <TipTapRenderer
+                  content={comment.content as Record<string, unknown>}
+                />
+                <CommentReactionButtons
+                  commentId={comment.id}
+                  postId={postId}
+                  likes={comment.likes}
+                  dislikes={comment.dislikes}
+                  reactions={reactions}
+                />
+              </li>
             );
           })}
-        </div>
+        </ol>
       )}
-    </div>
+    </section>
   );
 }

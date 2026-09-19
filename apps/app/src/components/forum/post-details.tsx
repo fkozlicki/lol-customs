@@ -2,11 +2,9 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
-import { Button } from "@v1/ui/button";
 import { Icons } from "@v1/ui/icons";
-import { Separator } from "@v1/ui/separator";
-import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import { RelativeTime } from "@/components/relative-time";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { CommentList } from "./comment-list";
@@ -29,42 +27,41 @@ export function PostDetails({ postId }: PostDetailProps) {
   const author = Array.isArray(post.author) ? post.author[0] : post.author;
 
   return (
-    <div className="space-y-6">
-      <Button variant="outline" asChild>
-        <Link href="/posts">
-          <Icons.ChevronLeft className="size-4" /> {t("backToPosts")}
-        </Link>
-      </Button>
-      {/* Post header */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 mt-2">
-          <Avatar className="size-8">
-            <AvatarImage src={author?.avatar_url ?? undefined} />
-            <AvatarFallback className="text-xs">
+    <article className="space-y-8">
+      <Link
+        href="/posts"
+        className="label-caps inline-flex items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"
+      >
+        <Icons.ChevronLeft className="size-3.5" />
+        {t("backToPosts")}
+      </Link>
+
+      <header className="space-y-4 border-b pb-8">
+        <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-5xl">
+          {post.title}
+        </h1>
+        <div className="flex items-center gap-2">
+          <Avatar className="size-6 shrink-0 rounded-none">
+            <AvatarImage
+              src={author?.avatar_url ?? undefined}
+              className="rounded-none"
+            />
+            <AvatarFallback className="rounded-none text-[10px] font-semibold">
               {author?.nickname?.[0]?.toUpperCase() ?? "?"}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">
-              {author?.nickname ?? t("unknown")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(post.created_at), {
-                addSuffix: true,
-              })}
-            </span>
-          </div>
+          <span className="label-caps text-foreground">
+            {author?.nickname ?? t("unknown")}
+          </span>
+          <RelativeTime date={post.created_at} className="label-caps" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">{post.title}</h1>
-      </div>
+      </header>
 
-      {/* Post content */}
       {post.content && Object.keys(post.content).length > 0 && (
         <TipTapRenderer content={post.content as Record<string, unknown>} />
       )}
 
-      {/* Reactions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 border-b pb-8">
         <ReactionButtons
           postId={post.id}
           likes={post.likes}
@@ -73,10 +70,7 @@ export function PostDetails({ postId }: PostDetailProps) {
         />
       </div>
 
-      <Separator />
-
-      {/* Comments */}
       <CommentList postId={postId} />
-    </div>
+    </article>
   );
 }

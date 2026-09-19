@@ -19,6 +19,7 @@ import { useTRPC } from "@/trpc/react";
 import {
   isSeasonScopedPath,
   resolveSeason,
+  SEASON_COOKIE,
   SEASON_PARAM,
   seasonNumber,
   seasonToParam,
@@ -45,8 +46,11 @@ export function SeasonSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <Icons.Calendar className="size-3.5" />
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em]"
+        >
           {label}
           <Icons.ChevronDown className="size-3.5 text-muted-foreground" />
         </Button>
@@ -54,9 +58,13 @@ export function SeasonSelector() {
       <DropdownMenuContent align="end" className="w-44">
         <DropdownMenuRadioGroup
           value={seasonToParam(season)}
-          onValueChange={(value) =>
-            setParams({ [SEASON_PARAM]: value, after: null })
-          }
+          onValueChange={(value) => {
+            rememberSeason(
+              value,
+              seasons.find((s) => s.isCurrent)?.id === Number(value),
+            );
+            setParams({ [SEASON_PARAM]: value, after: null });
+          }}
         >
           {[...seasons].reverse().map((s) => (
             <DropdownMenuRadioItem key={s.id} value={seasonToParam(s.id)}>
@@ -76,4 +84,10 @@ export function SeasonSelector() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+/** Picking the current season forgets the choice, so a new season shows up once it starts. */
+function rememberSeason(value: string, isCurrent: boolean) {
+  const maxAge = isCurrent ? 0 : 60 * 60 * 24 * 365;
+  document.cookie = `${SEASON_COOKIE}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; samesite=lax`;
 }

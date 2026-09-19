@@ -1,10 +1,10 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { useCallback, useState } from "react";
 import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
 import MatchHistoryCard from "@/components/matches/match-history-card";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface PlayerMatchHistoryProps {
@@ -13,6 +13,7 @@ interface PlayerMatchHistoryProps {
 }
 
 export function PlayerMatchHistory({ puuid, season }: PlayerMatchHistoryProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const trpc = useTRPC();
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 
@@ -34,16 +35,7 @@ export function PlayerMatchHistory({ puuid, season }: PlayerMatchHistoryProps) {
 
   if (!matches.length) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Match History
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">No matches found.</p>
-        </CardContent>
-      </Card>
+      <p className="py-10 text-sm text-muted-foreground">{t("noMatchesYet")}</p>
     );
   }
 

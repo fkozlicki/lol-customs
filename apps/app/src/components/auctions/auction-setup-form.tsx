@@ -2,9 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
-import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
@@ -238,77 +236,139 @@ export function AuctionSetupForm({
     bidSeconds >= 10 &&
     bidSeconds <= 60;
 
+  const slots = Array.from(
+    { length: 10 },
+    (_, index) => players[index] ?? null,
+  );
+  const validated = validatedKey === rosterFingerprint;
+
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)]">
-      <Card className="overflow-hidden border-border/70">
-        <CardHeader className="border-b bg-muted/30">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle>
-              {t("creator.roster", { count: players.length })}
-            </CardTitle>
-            <Badge variant={players.length === 10 ? "default" : "secondary"}>
-              {players.length}/10
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-5 pt-5">
-          <div className="grid gap-2 sm:grid-cols-2">
-            {players.map((player, index) => (
-              <div
-                key={player.key}
-                className={cn(
-                  "group flex min-w-0 items-center gap-3 rounded-xl border p-3 transition-colors",
-                  captainKey === player.key &&
-                    "border-amber-500/60 bg-amber-500/8",
-                )}
-              >
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted font-mono text-xs">
-                  {index + 1}
-                </span>
-                <button
-                  type="button"
-                  className="min-w-0 flex-1 text-left"
-                  disabled={Boolean(roomId)}
-                  onClick={() => setCaptainKey(player.key)}
-                >
-                  <span className="block truncate text-sm font-semibold">
+    <div className="space-y-14">
+      <section>
+        <StepHeading
+          step="1"
+          title={t("creator.roster", { count: players.length })}
+        >
+          <span className="num label-caps text-foreground">
+            {players.length}/10
+          </span>
+        </StepHeading>
+
+        <ol className="grid gap-x-12 sm:grid-cols-2">
+          {slots.map((player, index) => (
+            <li
+              key={player?.key ?? `slot-${index}`}
+              className="flex h-14 items-center gap-3 border-b"
+            >
+              <span className="num w-5 shrink-0 text-xs text-muted-foreground">
+                {index + 1}
+              </span>
+              {player ? (
+                <>
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {formatRiotId(player)}
                   </span>
-                  <span className="text-muted-foreground text-xs">
-                    {captainKey === player.key
-                      ? t("creator.youCaptain")
-                      : t("creator.chooseAsYou")}
-                  </span>
-                </button>
-                {captainKey === player.key && (
-                  <Icons.Captain className="size-4 shrink-0 text-amber-500" />
-                )}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  aria-label={t("creator.remove")}
-                  onClick={() => removePlayer(player.key)}
-                  disabled={lockedPlayerKeys.includes(player.key)}
-                >
-                  <Icons.X className="size-4" />
-                </Button>
-              </div>
-            ))}
+                  {captainKey === player.key ? (
+                    <span className="label-caps flex items-center gap-1.5 text-foreground">
+                      <Icons.Captain className="size-3.5" />
+                      {t("creator.youCaptain")}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={Boolean(roomId)}
+                      onClick={() => setCaptainKey(player.key)}
+                      className="label-caps underline-offset-4 hover:text-foreground hover:underline disabled:opacity-40"
+                    >
+                      {t("creator.chooseAsYou")}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    aria-label={t("creator.remove")}
+                    onClick={() => removePlayer(player.key)}
+                    disabled={lockedPlayerKeys.includes(player.key)}
+                    className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    <Icons.X className="size-4" />
+                  </button>
+                </>
+              ) : (
+                <span className="flex-1 border-b border-dashed" />
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section>
+        <StepHeading step="2" title={t("creator.addPlayers")} />
+
+        <div className="grid gap-10 md:grid-cols-2 md:gap-12">
+          <div>
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("creator.search")}
+              aria-label={t("creator.search")}
+            />
+            <ul className="mt-2 max-h-60 divide-y overflow-y-auto">
+              {availablePlayers.length === 0 ? (
+                <li className="py-4 text-sm text-muted-foreground">
+                  {t("creator.noResults")}
+                </li>
+              ) : (
+                availablePlayers.slice(0, 80).map((player) => (
+                  <li key={player.puuid}>
+                    <button
+                      type="button"
+                      disabled={players.length >= 10}
+                      onClick={() => addFromDb(player)}
+                      className="flex h-12 w-full items-center justify-between gap-3 text-left text-sm disabled:opacity-40"
+                    >
+                      <span className="truncate font-medium">
+                        {player.game_name}
+                      </span>
+                      <span className="label-caps">{t("creator.add")}</span>
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
           </div>
 
-          {players.length === 0 && (
-            <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-              {t("creator.rosterHint")}
+          <div className="space-y-2">
+            <Label htmlFor="auction-riot-id" className="label-caps">
+              {t("creator.manual")}
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="auction-riot-id"
+                value={manualRiotId}
+                onChange={(event) => setManualRiotId(event.target.value)}
+                placeholder={t("creator.riotIdPlaceholder")}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addManual();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addManual}
+                disabled={players.length >= 10}
+              >
+                {t("creator.add")}
+              </Button>
             </div>
-          )}
-
-          <div className="flex flex-wrap items-center gap-3 border-t pt-5">
+            <p className="pt-4 text-xs text-muted-foreground">
+              {t("creator.validationHint")}
+            </p>
             <Button
               type="button"
-              variant={
-                validatedKey === rosterFingerprint ? "secondary" : "default"
-              }
+              variant={validated ? "ghost" : "outline"}
               onClick={validateRoster}
               disabled={players.length !== 10 || loadRanks.isPending}
             >
@@ -317,163 +377,129 @@ export function AuctionSetupForm({
               )}
               {loadRanks.isPending
                 ? t("creator.validating")
-                : validatedKey === rosterFingerprint
+                : validated
                   ? t("creator.validated")
                   : t("creator.validate")}
             </Button>
-            <p className="text-xs text-muted-foreground">
-              {t("creator.validationHint")}
-            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
-      <div className="space-y-5">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("creator.addPlayers")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <section>
+        <StepHeading step="3" title={t("creator.rules")} />
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="auction-team-name" className="label-caps">
+              {t("creator.teamName")}
+            </Label>
             <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("creator.search")}
+              id="auction-team-name"
+              value={teamName}
+              maxLength={100}
+              onChange={(event) => setTeamName(event.target.value)}
             />
-            <div className="max-h-52 overflow-y-auto rounded-lg border">
-              {availablePlayers.length === 0 ? (
-                <p className="p-4 text-center text-sm text-muted-foreground">
-                  {t("creator.noResults")}
-                </p>
-              ) : (
-                availablePlayers.slice(0, 80).map((player) => (
-                  <button
-                    type="button"
-                    key={player.puuid}
-                    disabled={players.length >= 10}
-                    onClick={() => addFromDb(player)}
-                    className="flex w-full items-center justify-between border-b px-3 py-2.5 text-left text-sm last:border-0 hover:bg-muted/60 disabled:opacity-40"
-                  >
-                    <span className="truncate font-medium">
-                      {player.game_name}#{player.tag_line}
-                    </span>
-                    <span className="text-muted-foreground">+</span>
-                  </button>
-                ))
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="auction-riot-id">{t("creator.manual")}</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="auction-riot-id"
-                  value={manualRiotId}
-                  onChange={(event) => setManualRiotId(event.target.value)}
-                  placeholder={t("creator.riotIdPlaceholder")}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      addManual();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={addManual}
-                  disabled={players.length >= 10}
-                >
-                  {t("creator.add")}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="auction-budget" className="label-caps">
+              {t("creator.budget")}
+            </Label>
+            <Input
+              id="auction-budget"
+              type="number"
+              min={4}
+              max={100}
+              value={budget}
+              onChange={(event) => setBudget(event.target.valueAsNumber)}
+              className="num"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="auction-timer" className="label-caps">
+              {t("creator.timer")}
+            </Label>
+            <Input
+              id="auction-timer"
+              type="number"
+              min={10}
+              max={60}
+              value={bidSeconds}
+              onChange={(event) => setBidSeconds(event.target.valueAsNumber)}
+              className="num"
+            />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("creator.rules")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="auction-team-name">{t("creator.teamName")}</Label>
-              <Input
-                id="auction-team-name"
-                value={teamName}
-                maxLength={100}
-                onChange={(event) => setTeamName(event.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="auction-budget">{t("creator.budget")}</Label>
-                <Input
-                  id="auction-budget"
-                  type="number"
-                  min={4}
-                  max={100}
-                  value={budget}
-                  onChange={(event) => setBudget(event.target.valueAsNumber)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="auction-timer">{t("creator.timer")}</Label>
-                <Input
-                  id="auction-timer"
-                  type="number"
-                  min={10}
-                  max={60}
-                  value={bidSeconds}
-                  onChange={(event) =>
-                    setBidSeconds(event.target.valueAsNumber)
-                  }
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setRevealOrder((value) => !value)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors",
-                revealOrder && "border-primary/40 bg-primary/5",
-              )}
-            >
-              <span
-                className={cn(
-                  "flex size-5 items-center justify-center rounded border",
-                  revealOrder &&
-                    "border-primary bg-primary text-primary-foreground",
-                )}
-              >
-                {revealOrder && <Icons.Check className="size-3.5" />}
-              </span>
-              <span>
-                <span className="block text-sm font-medium">
-                  {t("creator.revealOrder")}
-                </span>
-                <span className="block text-xs text-muted-foreground">
-                  {t("creator.revealOrderHint")}
-                </span>
-              </span>
-            </button>
-            <Button
-              type="button"
-              size="lg"
-              className="w-full"
-              disabled={!valid || pending || (!roomId && !profile)}
-              onClick={submit}
-            >
-              {pending && <Icons.Loader className="size-4 animate-spin" />}
-              {pending
-                ? t("creator.saving")
-                : roomId
-                  ? t("creator.save")
-                  : t("creator.create")}
-            </Button>
-          </CardContent>
-        </Card>
+        <button
+          type="button"
+          onClick={() => setRevealOrder((value) => !value)}
+          className="mt-6 flex w-full items-center gap-3 border-t pt-4 text-left"
+        >
+          <span
+            className={cn(
+              "flex size-5 shrink-0 items-center justify-center border",
+              revealOrder && "border-foreground bg-foreground text-background",
+            )}
+          >
+            {revealOrder && <Icons.Check className="size-3.5" />}
+          </span>
+          <span>
+            <span className="block text-sm font-medium">
+              {t("creator.revealOrder")}
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              {t("creator.revealOrderHint")}
+            </span>
+          </span>
+        </button>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t pt-6">
+        <p className="text-xs text-muted-foreground">
+          {players.length !== 10
+            ? t("creator.needTen")
+            : !captainKey
+              ? t("creator.rosterHint")
+              : !validated
+                ? t("creator.validationHint")
+                : ""}
+        </p>
+        <Button
+          type="button"
+          size="lg"
+          disabled={!valid || pending || (!roomId && !profile)}
+          onClick={submit}
+        >
+          {pending && <Icons.Loader className="size-4 animate-spin" />}
+          {pending
+            ? t("creator.saving")
+            : roomId
+              ? t("creator.save")
+              : t("creator.create")}
+        </Button>
       </div>
+    </div>
+  );
+}
+
+function StepHeading({
+  step,
+  title,
+  children,
+}: {
+  step: string;
+  title: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 pb-4">
+      <h2 className="flex items-baseline gap-3">
+        <span className="num text-sm text-muted-foreground">{step}</span>
+        <span className="text-xl font-semibold uppercase tracking-[-0.02em] sm:text-2xl">
+          {title}
+        </span>
+      </h2>
+      {children}
     </div>
   );
 }
@@ -486,9 +512,10 @@ export function AuctionRank({
   label: string | null;
 }) {
   const t = useScopedI18n("dashboard.pages.auctions");
+
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-      <RankCrest tier={tier} width={20} height={20} />
+    <span className="label-caps inline-flex items-center gap-1.5">
+      <RankCrest tier={tier} width={16} height={16} />
       {label || t("room.unranked")}
     </span>
   );
