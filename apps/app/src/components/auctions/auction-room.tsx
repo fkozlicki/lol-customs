@@ -58,14 +58,11 @@ function TeamRoster({
             style={{ width: `${(spent / room.budget) * 100}%` }}
           />
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="label-caps">
-            {isLeading ? t("room.leadingShort") : t("room.remaining")}
+        {isLeading && (
+          <span className="label-caps block text-foreground">
+            {t("room.leadingShort")}
           </span>
-          <span className="label-caps">
-            {t("room.spent", { amount: spent })}
-          </span>
-        </div>
+        )}
       </div>
 
       <ol className="divide-y border-t">
@@ -235,7 +232,7 @@ function ActiveStage({
     : false;
 
   return (
-    <section className="flex min-h-[26rem] flex-col justify-between gap-8 border-y py-8">
+    <section className="flex min-h-[26rem] flex-col justify-between gap-8 border-b pb-8">
       <div className="flex items-start justify-between gap-4">
         <span className="label-caps text-foreground">
           {t(`phase.${room.phase ?? "awaiting_opening_bid"}`)}
@@ -704,7 +701,7 @@ export function AuctionRoom({ id }: { id: string }) {
       )}
 
       {room.status === "active" && (
-        <div className="grid gap-10 lg:grid-cols-[minmax(200px,240px)_minmax(0,1fr)_minmax(200px,240px)] lg:gap-12">
+        <div className="grid gap-10 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)_minmax(260px,320px)] lg:gap-12">
           <div className="order-2 lg:order-1">
             <TeamRoster room={room} side="A" />
           </div>
