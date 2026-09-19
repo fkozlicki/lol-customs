@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { PostList } from "@/components/forum/post-list";
 import PostListSkeleton from "@/components/forum/post-list-skeleton";
+import { PageHeader } from "@/components/page-header";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
@@ -15,11 +16,8 @@ export default async function PostsPage() {
 
   return (
     <HydrateClient>
-      <div className="space-y-6 p-4 max-w-3xl mx-auto w-full">
-        <div>
-          <h1 className="text-2xl font-semibold ">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("description")}</p>
-        </div>
+      <div className="mx-auto w-full max-w-3xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+        <PageHeader title={t("title")} description={t("description")} />
         <Suspense fallback={<PostListSkeleton />}>
           <PostList />
         </Suspense>
