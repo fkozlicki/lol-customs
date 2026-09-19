@@ -40,21 +40,19 @@ export function AuctionCountdown({
   const percent = Math.min(100, (remaining / (durationSeconds * 1000)) * 100);
 
   if (compact) {
-    return (
-      <span className="font-mono tabular-nums">{seconds.toFixed(1)}s</span>
-    );
+    return <span className="num">{seconds.toFixed(1)}s</span>;
   }
 
   return (
     <div className="w-full space-y-2" aria-live="polite">
       <div
-        className={`font-mono text-5xl font-black tabular-nums tracking-tight sm:text-7xl ${seconds <= 5 ? "text-destructive" : "text-foreground"}`}
+        className={`num text-5xl font-semibold sm:text-7xl ${seconds <= 5 ? "text-loss" : "text-foreground"}`}
       >
         {seconds.toFixed(1)}
       </div>
       <Progress
         value={percent}
-        className={`h-2.5 bg-black/10 dark:bg-white/10 ${seconds <= 5 ? "[&_[data-slot=progress-indicator]]:bg-destructive" : "[&_[data-slot=progress-indicator]]:bg-amber-500"}`}
+        className={`h-1.5 bg-foreground/15 ${seconds <= 5 ? "[&_[data-slot=progress-indicator]]:bg-loss" : "[&_[data-slot=progress-indicator]]:bg-foreground"}`}
       />
     </div>
   );
