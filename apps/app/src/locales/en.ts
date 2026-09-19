@@ -357,9 +357,10 @@ export default {
         errors: { load: "The live auctions could not be loaded." },
       },
       posts: {
-        title: "Posts",
-        description: "Community posts and discussions.",
+        title: "Forum",
+        description: "Where the group talks about matches, auctions and the season.",
         newPost: "New post",
+        postCount: "Posts: {count}",
         noPosts: "No posts yet. Be the first to post!",
         loadMore: "Load more",
         loading: "Loading...",
@@ -380,6 +381,7 @@ export default {
           },
         },
         comments: {
+          title: "Comments ({count})",
           joinConversation: "Join the conversation",
           noComments: "No comments yet. Be the first!",
           placeholder: "Write a comment...",

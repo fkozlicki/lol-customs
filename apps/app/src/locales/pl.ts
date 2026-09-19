@@ -357,9 +357,10 @@ export default {
         errors: { load: "Nie udało się pobrać aukcji live." },
       },
       posts: {
-        title: "Posty",
-        description: "Posty i dyskusje społeczności.",
+        title: "Forum",
+        description: "Rozmowy grupy: mecze, aukcje i plany na sezon.",
         newPost: "Nowy post",
+        postCount: "Posty: {count}",
         noPosts: "Brak postów. Bądź pierwszy!",
         loadMore: "Załaduj więcej",
         loading: "Ładowanie...",
@@ -380,6 +381,7 @@ export default {
           },
         },
         comments: {
+          title: "Komentarze ({count})",
           joinConversation: "Dołącz do rozmowy",
           noComments: "Brak komentarzy. Bądź pierwszy!",
           placeholder: "Napisz komentarz...",
