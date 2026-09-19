@@ -4,13 +4,34 @@ import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const playersRouter = createTRPCRouter({
+  /** Every known player with their last recorded Solo/Duo rank. */
   all: publicProcedure.query(async ({ ctx }) => {
-    const { data, error } = await ctx.supabase
-      .from("players")
-      .select("*")
-      .order("last_seen_at", { ascending: false });
-    if (error) throw error;
-    return data;
+    const [players, ranks] = await Promise.all([
+      ctx.supabase
+        .from("players")
+        .select("*")
+        .order("last_seen_at", { ascending: false }),
+      ctx.supabase.rpc("player_latest_ranks"),
+    ]);
+    if (players.error) throw players.error;
+    if (ranks.error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: ranks.error.message,
+      });
+    }
+
+    const rankByPuuid = new Map(
+      (ranks.data ?? []).map((row) => [row.puuid, row]),
+    );
+    return players.data.map((player) => {
+      const rank = rankByPuuid.get(player.puuid);
+      return {
+        ...player,
+        rank_tier: rank?.rank_tier ?? null,
+        rank_division: rank?.rank_division ?? null,
+      };
+    });
   }),
 
   getByPuuid: publicProcedure

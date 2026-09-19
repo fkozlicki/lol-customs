@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { PageHeader } from "@/components/page-header";
 import RandomTeamsTool, {
   RandomTeamsToolSkeleton,
 } from "@/components/random-teams/random-teams-tool";
@@ -10,16 +11,13 @@ export default async function ShufflePage() {
   prefetch(trpc.players.all.queryOptions());
 
   return (
-    <div className="space-y-6 p-4 max-w-5xl mx-auto w-full">
-      <div>
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted-foreground">{t("description")}</p>
-      </div>
-      <HydrateClient>
+    <HydrateClient>
+      <div className="mx-auto w-full max-w-5xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+        <PageHeader title={t("title")} description={t("description")} />
         <Suspense fallback={<RandomTeamsToolSkeleton />}>
           <RandomTeamsTool />
         </Suspense>
-      </HydrateClient>
-    </div>
+      </div>
+    </HydrateClient>
   );
 }
