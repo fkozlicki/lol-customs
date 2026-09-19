@@ -1116,6 +1116,14 @@ export type Database = {
           wins: number
         }[]
       }
+      player_latest_ranks: {
+        Args: never
+        Returns: {
+          puuid: string
+          rank_division: string
+          rank_tier: string
+        }[]
+      }
       player_relations: {
         Args: { p_puuid: string; p_track: number }
         Returns: {
