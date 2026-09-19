@@ -160,6 +160,7 @@ export default {
         description:
           "Wybierz dziesięciu graczy i losuj drużyny. Strony, role i kapitanowie są losowe.",
         rosterHeading: "Skład ({count} / 10)",
+        rosterTitle: "Skład",
         rosterHint: "Dodaj dziesięciu graczy z listy obok albo po Riot ID.",
         fromLadder: "Z rankingu",
         searchPlaceholder: "Szukaj po nicku w grze…",

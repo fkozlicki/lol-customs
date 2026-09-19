@@ -159,6 +159,7 @@ export default {
         description:
           "Pick ten players and draw the teams. Sides, roles and captains are random.",
         rosterHeading: "Roster ({count} / 10)",
+        rosterTitle: "Roster",
         rosterHint: "Add ten players from the list or by Riot ID.",
         fromLadder: "From ladder",
         searchPlaceholder: "Search by summoner name…",
