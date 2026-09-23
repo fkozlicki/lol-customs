@@ -1,4 +1,5 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
+import { parsePlayerSlug } from "@v1/domain/riot-id";
 import { notFound } from "next/navigation";
 import { SectionHeading } from "@/components/page-header";
 import { MostPlayedChampions } from "@/components/player/most-played-champions";
@@ -26,16 +27,6 @@ interface PlayerPageProps {
   searchParams: Promise<{ season?: string }>;
 }
 
-function parseSlug(slug: string): { gameName: string; tagLine: string } {
-  const decoded = decodeURIComponent(slug);
-  const lastDash = decoded.lastIndexOf("-");
-  if (lastDash === -1) return { gameName: decoded, tagLine: "" };
-  return {
-    gameName: decoded.slice(0, lastDash),
-    tagLine: decoded.slice(lastDash + 1),
-  };
-}
-
 export default async function PlayerProfilePage({
   params,
   searchParams,
@@ -44,9 +35,12 @@ export default async function PlayerProfilePage({
   const t = await getScopedI18n("dashboard.pages.player");
   const tSeason = await getScopedI18n("dashboard.season");
   const { season, seasons } = await getSeasonScope((await searchParams).season);
-  const { gameName, tagLine } = parseSlug(slug);
+  const riotId = parsePlayerSlug(slug);
 
-  const player = await caller.players.getByRiotId({ gameName, tagLine });
+  if (!riotId) notFound();
+
+  const { gameName, tagLine } = riotId;
+  const player = await caller.players.getByRiotId(riotId);
 
   if (!player) notFound();
 

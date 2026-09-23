@@ -1,0 +1,9 @@
+{
+  "extends": "@v1/typescript/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["bun"]
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}

@@ -1,13 +1,13 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import Link from "next/link";
 import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { SEASON_PARAM, type SeasonOption } from "@/utils/season";
-import { formatWinrate } from "@/utils/stats";
 
 interface PlayerSeasonSummariesProps {
   puuid: string;

@@ -17,3 +17,5 @@ jobs:
         run: bun run lint
       - name: 🪐 Check TypeScript
         run: bun run typecheck
+      - name: 🧪 Run tests
+        run: bun run test

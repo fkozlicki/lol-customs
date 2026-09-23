@@ -2,6 +2,16 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
+import { formatRank } from "@v1/domain/rank";
+import { parseRiotId, riotIdKey } from "@v1/domain/riot-id";
+import {
+  buildRandomTeams,
+  type RandomTeamsResult,
+  type RandomTeamsTeam,
+  type RandomTeamsTeamPlayer,
+  ROSTER_SIZE,
+  type RosterPlayer,
+} from "@v1/domain/shuffle";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
@@ -14,17 +24,6 @@ import { RankCrest } from "@/components/game-assets/rank-crest";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { positionRoleIconUrl } from "@/utils/asset-urls";
-import {
-  buildRandomTeams,
-  formatRank,
-  type RandomTeamsResult,
-  type RandomTeamsTeam,
-  type RandomTeamsTeamPlayer,
-  type RosterPlayer,
-} from "@/utils/random-teams";
-import { parseRiotId, riotIdKey } from "@/utils/riot-id";
-
-const ROSTER_SIZE = 10;
 
 type DbPlayer = RouterOutputs["players"]["all"][number];
 type ShuffleCopy = ReturnType<typeof useScopedI18n<"dashboard.pages.shuffle">>;

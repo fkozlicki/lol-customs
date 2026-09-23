@@ -1,4 +1,4 @@
-import { formatKdaRatio } from "@/utils/stats";
+import { formatKdaRatio } from "@v1/domain/stats";
 import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantKDAProps {

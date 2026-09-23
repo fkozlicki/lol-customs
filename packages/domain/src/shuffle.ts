@@ -1,4 +1,4 @@
-import { averageSoloRankMeta } from "@/utils/rank";
+import { averageSoloRankMeta } from "./rank";
 
 const TEAM_ROLES = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"] as const;
 
@@ -26,17 +26,6 @@ export interface RandomTeamsResult {
   teamB: RandomTeamsTeam;
 }
 
-const APEX_TIERS = ["MASTER", "GRANDMASTER", "CHALLENGER"];
-
-export function formatRank(
-  tier: string | null,
-  division: string | null,
-): string | null {
-  if (!tier?.trim()) return null;
-  if (APEX_TIERS.includes(tier.toUpperCase()) || !division?.trim()) return tier;
-  return `${tier} ${division}`;
-}
-
 function shuffleArray<T>(items: readonly T[]): T[] {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -48,8 +37,18 @@ function shuffleArray<T>(items: readonly T[]): T[] {
   return copy;
 }
 
+/** A draw needs two full sides. */
+export const ROSTER_SIZE = 10;
+const TEAM_SIZE = ROSTER_SIZE / 2;
+
 /** Plain draw: sides, roles and captains are random, nothing is balanced. */
 export function buildRandomTeams(roster: RosterPlayer[]): RandomTeamsResult {
+  if (roster.length !== ROSTER_SIZE) {
+    throw new Error(
+      `A draw needs exactly ${ROSTER_SIZE} players, got ${roster.length}.`,
+    );
+  }
+
   const shuffled = shuffleArray(roster);
 
   const buildTeam = (members: RosterPlayer[]): RandomTeamsTeam => {
@@ -77,7 +76,7 @@ export function buildRandomTeams(roster: RosterPlayer[]): RandomTeamsResult {
   };
 
   return {
-    teamA: buildTeam(shuffled.slice(0, 5)),
-    teamB: buildTeam(shuffled.slice(5, 10)),
+    teamA: buildTeam(shuffled.slice(0, TEAM_SIZE)),
+    teamB: buildTeam(shuffled.slice(TEAM_SIZE, ROSTER_SIZE)),
   };
 }

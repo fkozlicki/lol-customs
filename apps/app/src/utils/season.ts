@@ -1,33 +1,19 @@
 import type { RouterOutputs } from "@v1/api";
-import { ALL_TIME_SEASON } from "@v1/api/season";
 
 export type SeasonOption = RouterOutputs["seasons"]["list"][number];
 
 export const SEASON_PARAM = "season";
 /** Remembers an explicitly chosen season across visits; absent means the current season. */
 export const SEASON_COOKIE = "derby-season";
-export const ALL_TIME_PARAM = "all";
 
-/** Maps the `?season=` value to a rating track; missing or unknown values fall back to the current season. */
-export function resolveSeason(
-  raw: string | null | undefined,
-  seasons: SeasonOption[],
-): number {
-  if (raw === ALL_TIME_PARAM) return ALL_TIME_SEASON;
-  const parsed = Number(raw);
-  if (raw && Number.isInteger(parsed) && seasons.some((s) => s.id === parsed)) {
-    return parsed;
-  }
-  return (
-    seasons.find((s) => s.isCurrent)?.id ??
-    seasons.at(-1)?.id ??
-    ALL_TIME_SEASON
-  );
-}
-
-export function seasonToParam(season: number): string {
-  return season === ALL_TIME_SEASON ? ALL_TIME_PARAM : String(season);
-}
+/** Season semantics live in the domain package; re-exported so pages have one import. */
+export {
+  ALL_TIME_PARAM,
+  ALL_TIME_SEASON,
+  resolveSeason,
+  seasonToParam,
+} from "@v1/domain/season";
+export type { SeasonChoice } from "@v1/domain/season";
 
 export function seasonNumber(
   season: number,

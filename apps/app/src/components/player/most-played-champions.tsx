@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { formatKda, formatWinrate } from "@v1/domain/stats";
 import { ChampionImage } from "@/components/game-assets/champion-image";
 import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
@@ -9,24 +10,6 @@ import { useTRPC } from "@/trpc/react";
 interface MostPlayedChampionsProps {
   puuid: string;
   season: number;
-}
-
-function winrate(wins: number, games: number): string {
-  if (games === 0) return "0%";
-  return `${Math.round((wins / games) * 100)}%`;
-}
-
-function kda(
-  kills: number,
-  deaths: number,
-  assists: number,
-  games: number,
-): string {
-  if (games === 0) return "—";
-  const k = (kills / games).toFixed(1);
-  const d = (deaths / games).toFixed(1);
-  const a = (assists / games).toFixed(1);
-  return `${k} / ${d} / ${a}`;
 }
 
 export function MostPlayedChampions({
@@ -64,12 +47,16 @@ export function MostPlayedChampions({
                     <span className="label-caps">{t("matchesLabel")}</span>
                   </span>
                   <span className="num truncate text-xs text-muted-foreground">
-                    {kda(champ.kills, champ.deaths, champ.assists, champ.games)}
+                    {formatKda(
+                      champ.kills / champ.games,
+                      champ.deaths / champ.games,
+                      champ.assists / champ.games,
+                    )}
                   </span>
                 </div>
                 <div className="num flex shrink-0 flex-col items-end">
                   <span className="text-sm font-semibold">
-                    {winrate(champ.wins, champ.games)}
+                    {formatWinrate(champ.wins, champ.games - champ.wins)}
                   </span>
                   <span className="text-xs">
                     <span className="text-win">{champ.wins}</span>–

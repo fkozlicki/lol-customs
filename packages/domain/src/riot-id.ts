@@ -1,3 +1,4 @@
+/** A player's Riot ID: the name before the "#" and the tag after it. */
 export interface RiotId {
   gameName: string;
   tagLine: string;
@@ -31,4 +32,17 @@ export function playerHref(
 ): string {
   if (!gameName || !tagLine) return "#";
   return `/players/${encodeURIComponent(gameName)}-${encodeURIComponent(tagLine)}`;
+}
+
+/** Inverse of `playerHref`: the slug a profile route carries, back into a Riot ID. */
+export function parsePlayerSlug(slug: string): RiotId | null {
+  const decoded = decodeURIComponent(slug).trim();
+  const separator = decoded.lastIndexOf("-");
+  if (separator <= 0 || separator >= decoded.length - 1) return null;
+
+  const gameName = decoded.slice(0, separator).trim();
+  const tagLine = decoded.slice(separator + 1).trim();
+  if (!gameName || !tagLine) return null;
+
+  return { gameName, tagLine };
 }

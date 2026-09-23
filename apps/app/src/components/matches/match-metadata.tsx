@@ -1,17 +1,12 @@
 "use client";
 
+import { formatDuration } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import { formatDistanceToNowStrict } from "date-fns";
 import { enUS, pl } from "date-fns/locale";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import type { Match, MatchParticipant } from "./match-history-list";
 import { RatingChange } from "./rating-change";
-
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
 
 interface MatchMetadataProps {
   match: Match;

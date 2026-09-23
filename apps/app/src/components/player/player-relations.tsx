@@ -2,13 +2,13 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
+import { playerHref } from "@v1/domain/riot-id";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { playerHref } from "@/utils/riot-id";
 import { withSeason } from "@/utils/season";
 
 type Relations = RouterOutputs["players"]["relations"];

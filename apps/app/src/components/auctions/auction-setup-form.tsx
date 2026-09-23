@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
+import { formatRiotId, parseRiotId, riotIdKey } from "@v1/domain/riot-id";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
@@ -14,7 +15,6 @@ import { useUser } from "@/components/auth/user-context";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { formatRiotId, parseRiotId, riotIdKey } from "@/utils/riot-id";
 import { DEFAULT_PLATFORM_ID } from "./auction-contract";
 
 type DbPlayer = RouterOutputs["players"]["all"][number];

@@ -2,11 +2,11 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QUALIFICATION_MATCHES } from "@v1/api/season";
+import { formatKda, formatKdaRatio, formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import CurrentStreak from "@/components/home/current-streak";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { formatKda, formatKdaRatio, formatWinrate } from "@/utils/stats";
 
 interface PlayerStatsCardProps {
   puuid: string;

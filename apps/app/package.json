@@ -25,6 +25,7 @@
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
     "@v1/api": "workspace:*",
+    "@v1/domain": "workspace:*",
     "@v1/logger": "workspace:*",
     "@v1/supabase": "workspace:*",
     "@v1/ui": "workspace:*",

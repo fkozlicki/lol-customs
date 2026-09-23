@@ -2,6 +2,8 @@
 
 import type { RouterOutputs } from "@v1/api";
 import { QUALIFICATION_MATCHES } from "@v1/api/season";
+import { playerHref } from "@v1/domain/riot-id";
+import { formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -10,9 +12,7 @@ import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { AnimatedNumber } from "@/components/motion/animated-number";
 import { useScopedI18n } from "@/locales/client";
 import { DURATION } from "@/utils/motion";
-import { playerHref } from "@/utils/riot-id";
 import { withSeason } from "@/utils/season";
-import { formatWinrate } from "@/utils/stats";
 
 type StandingsRow = RouterOutputs["riftRank"]["leaderboard"][number];
 
