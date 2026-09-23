@@ -19,7 +19,7 @@ type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
 interface LeaderboardRowProps {
   row: LeaderboardRow;
   /** Standings position; absent while the player is still qualifying. */
-  position?: number;
+  position?: number | null;
   index: number;
 }
 

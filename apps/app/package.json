@@ -6,7 +6,7 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "clean": "git clean -xdf .next .turbo node_modules",
-    "lint": "biome lint && bun run scripts/check-design.ts",
+    "lint": "biome lint && bun run scripts/check-design.ts && bun run scripts/check-locales.ts",
     "format": "biome format --write .",
     "start": "next start",
     "typecheck": "tsc --noEmit"

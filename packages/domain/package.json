@@ -8,6 +8,7 @@
     "./riot-id": "./src/riot-id.ts",
     "./season": "./src/season.ts",
     "./shuffle": "./src/shuffle.ts",
+    "./standings": "./src/standings.ts",
     "./stats": "./src/stats.ts"
   },
   "scripts": {

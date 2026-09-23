@@ -1,10 +1,12 @@
 "use client";
 
+import { formatRank } from "@v1/domain/rank";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ChampionImage } from "@/components/game-assets/champion-image";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { SpellImage } from "@/components/game-assets/spell-image";
+import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";
 
@@ -17,6 +19,7 @@ export default function MatchParticipantInfo({
   p,
   rawData,
 }: MatchParticipantInfoProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const season = useSeasonParam();
 
   return (
@@ -59,7 +62,8 @@ export default function MatchParticipantInfo({
             height={14}
             className="shrink-0"
           />
-          {p.rank_tier?.toLowerCase() ?? "Unranked"} {p.rank_division ?? ""}
+          {formatRank(p.rank_tier?.toLowerCase() ?? null, p.rank_division) ??
+            t("unranked")}
         </span>
       </div>
     </div>

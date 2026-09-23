@@ -122,12 +122,7 @@ export function Leaderboard({
                   <LeaderboardRow
                     key={row.puuid}
                     row={row}
-                    position={
-                      1 +
-                      qualified.filter(
-                        (other) => (other.rating ?? 0) > (row.rating ?? 0),
-                      ).length
-                    }
+                    position={row.position}
                     index={index}
                   />
                 ))}

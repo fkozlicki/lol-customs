@@ -152,6 +152,7 @@ export default {
         killParticipation: "KP",
         expand: "Show match details",
         perfect: "Perfect",
+        unranked: "Unranked",
         sideBlue: "Blue",
         sideRed: "Red",
       },
@@ -368,6 +369,15 @@ export default {
         loading: "Loading...",
         backToPosts: "Back to posts",
         unknown: "Unknown",
+        reactionFailed: "Could not save your reaction.",
+        editor: {
+          bold: "Bold",
+          italic: "Italic",
+          heading: "Heading",
+          bulletList: "Bullet list",
+          orderedList: "Ordered list",
+          image: "Insert image",
+        },
         newPostPage: {
           title: "New post",
           description: "Share something with the community.",
