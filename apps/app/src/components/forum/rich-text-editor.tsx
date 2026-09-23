@@ -11,6 +11,7 @@ import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { toast } from "@v1/ui/sonner";
 import { forwardRef, useImperativeHandle, useRef } from "react";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 export interface RichTextEditorHandle {
@@ -44,6 +45,7 @@ export const RichTextEditor = forwardRef<
   { onChange, placeholder = "Write something...", userId },
   ref,
 ) {
+  const t = useScopedI18n("dashboard.pages.posts");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
 
@@ -127,14 +129,14 @@ export const RichTextEditor = forwardRef<
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive("bold")}
-          aria-label="Bold"
+          aria-label={t("editor.bold")}
         >
           <Icons.Bold className="size-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           active={editor.isActive("italic")}
-          aria-label="Italic"
+          aria-label={t("editor.italic")}
         >
           <Icons.Italic className="size-4" />
         </ToolbarButton>
@@ -143,7 +145,7 @@ export const RichTextEditor = forwardRef<
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
           active={editor.isActive("heading", { level: 2 })}
-          aria-label="Heading"
+          aria-label={t("editor.heading")}
         >
           <Icons.Heading2 className="size-4" />
         </ToolbarButton>
@@ -151,21 +153,21 @@ export const RichTextEditor = forwardRef<
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive("bulletList")}
-          aria-label="Bullet list"
+          aria-label={t("editor.bulletList")}
         >
           <Icons.List className="size-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           active={editor.isActive("orderedList")}
-          aria-label="Ordered list"
+          aria-label={t("editor.orderedList")}
         >
           <Icons.ListOrdered className="size-4" />
         </ToolbarButton>
         <div className="mx-1 h-4 w-px bg-border" />
         <ToolbarButton
           onClick={() => fileInputRef.current?.click()}
-          aria-label="Insert image"
+          aria-label={t("editor.image")}
         >
           <Icons.Image className="size-4" />
         </ToolbarButton>

@@ -153,6 +153,7 @@ export default {
         killParticipation: "Udział",
         expand: "Pokaż szczegóły meczu",
         perfect: "Perfect",
+        unranked: "Bez rangi",
         sideBlue: "Niebiescy",
         sideRed: "Czerwoni",
       },
@@ -367,6 +368,15 @@ export default {
         loading: "Ładowanie...",
         backToPosts: "Wróć do postów",
         unknown: "Nieznany",
+        reactionFailed: "Nie udało się zapisać reakcji.",
+        editor: {
+          bold: "Pogrubienie",
+          italic: "Kursywa",
+          heading: "Nagłówek",
+          bulletList: "Lista punktowana",
+          orderedList: "Lista numerowana",
+          image: "Wstaw obraz",
+        },
         newPostPage: {
           title: "Nowy post",
           description: "Podziel się czymś ze społecznością.",

@@ -6,6 +6,7 @@ export const SEASON_PARAM = "season";
 /** Remembers an explicitly chosen season across visits; absent means the current season. */
 export const SEASON_COOKIE = "derby-season";
 
+export type { SeasonChoice } from "@v1/domain/season";
 /** Season semantics live in the domain package; re-exported so pages have one import. */
 export {
   ALL_TIME_PARAM,
@@ -13,7 +14,6 @@ export {
   resolveSeason,
   seasonToParam,
 } from "@v1/domain/season";
-export type { SeasonChoice } from "@v1/domain/season";
 
 export function seasonNumber(
   season: number,

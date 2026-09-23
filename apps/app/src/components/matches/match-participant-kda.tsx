@@ -1,4 +1,7 @@
+"use client";
+
 import { formatKdaRatio } from "@v1/domain/stats";
+import { useScopedI18n } from "@/locales/client";
 import type { MatchParticipant } from "./match-history-list";
 
 interface MatchParticipantKDAProps {
@@ -10,6 +13,7 @@ export default function MatchParticipantKDA({
   p,
   totalKills,
 }: MatchParticipantKDAProps) {
+  const t = useScopedI18n("dashboard.pages.matchHistory");
   const killParticipation =
     totalKills > 0
       ? Math.round((((p.kills ?? 0) + (p.assists ?? 0)) / totalKills) * 100)
@@ -22,7 +26,9 @@ export default function MatchParticipantKDA({
         {p.kills ?? 0}/{p.deaths ?? 0}/{p.assists ?? 0}{" "}
         <span className="text-muted-foreground">({killParticipation}%)</span>
       </span>
-      <span className="text-muted-foreground">{kdaRatio}</span>
+      <span className="text-muted-foreground">
+        {kdaRatio === "Perfect" ? t("perfect") : kdaRatio}
+      </span>
     </div>
   );
 }

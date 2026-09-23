@@ -6,6 +6,7 @@ import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/icons";
 import { toast } from "@v1/ui/sonner";
 import { useUser } from "@/components/auth/user-context";
+import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface ReactionButtonsProps {
@@ -21,6 +22,7 @@ export function ReactionButtons({
   dislikes: initialDislikes,
   reactions,
 }: ReactionButtonsProps) {
+  const t = useScopedI18n("dashboard.pages.posts");
   const { profile, openSignInDialog } = useUser();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -66,7 +68,7 @@ export function ReactionButtons({
             context.prev,
           );
         }
-        toast.error("Failed to update reaction");
+        toast.error(t("reactionFailed"));
       },
       onSettled: () => {
         queryClient.invalidateQueries(
