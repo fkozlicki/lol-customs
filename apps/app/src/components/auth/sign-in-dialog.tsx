@@ -152,36 +152,46 @@ export function SignInDialog() {
       }}
     >
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
+        <DialogHeader className="gap-1.5">
+          <DialogTitle className="text-2xl font-semibold uppercase tracking-[-0.02em]">
+            {t("title")}
+          </DialogTitle>
           <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Avatar picker */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="group relative size-20 rounded-full overflow-hidden cursor-pointer border-2 border-dashed border-border hover:border-primary transition-colors"
-                aria-label="Upload avatar"
+                className="group relative size-16 shrink-0 cursor-pointer border border-dashed border-border transition-colors duration-150 ease-(--ease-derby) hover:border-foreground"
+                aria-label={t("uploadHint")}
               >
-                <Avatar className="size-full">
-                  <AvatarImage src={avatarPreview ?? undefined} />
-                  <AvatarFallback className="text-2xl font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+                <Avatar className="size-full rounded-none">
+                  <AvatarImage
+                    src={avatarPreview ?? undefined}
+                    className="rounded-none"
+                  />
+                  <AvatarFallback className="rounded-none bg-transparent text-xl font-semibold text-muted-foreground transition-colors duration-150 ease-(--ease-derby) group-hover:text-foreground">
                     {nickname ? (
                       nickname[0]?.toUpperCase()
                     ) : (
-                      <Icons.Camera className="size-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      <Icons.Camera className="size-5" />
                     )}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                  <Icons.Camera className="size-5 text-white" />
-                </div>
+                <span className="absolute inset-0 flex items-center justify-center bg-foreground/60 text-background opacity-0 transition-opacity duration-150 ease-(--ease-derby) group-hover:opacity-100">
+                  <Icons.Camera className="size-5" />
+                </span>
               </button>
-              <p className="text-xs text-muted-foreground">{t("uploadHint")}</p>
+              <div className="min-w-0 space-y-1">
+                <p className="label-caps">{t("avatarLabel")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("uploadHint")}
+                </p>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -195,8 +205,10 @@ export function SignInDialog() {
               control={form.control}
               name="nickname"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("nicknameLabel")}</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="label-caps">
+                    {t("nicknameLabel")}
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder={t("nicknamePlaceholder")} {...field} />
                   </FormControl>
@@ -207,6 +219,7 @@ export function SignInDialog() {
 
             <Button
               type="submit"
+              size="lg"
               className="w-full"
               disabled={isSubmitting || setupProfile.isPending}
             >

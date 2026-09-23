@@ -10,9 +10,10 @@ export default {
       signOut: "Sign out",
       anonymousUser: "Anonymous user",
       profile: {
-        title: "Create your profile",
+        title: "Join Derby",
         description: "Pick a nickname and an optional avatar to get started.",
-        uploadHint: "Click to upload avatar (optional)",
+        avatarLabel: "Avatar",
+        uploadHint: "Click to upload. Optional.",
         nicknameLabel: "Nickname",
         nicknamePlaceholder: "e.g. Sutokopter",
         settingUp: "Setting up...",
@@ -358,7 +359,8 @@ export default {
       },
       posts: {
         title: "Forum",
-        description: "Where the group talks about matches, auctions and the season.",
+        description:
+          "Where the group talks about matches, auctions and the season.",
         newPost: "New post",
         postCount: "Posts: {count}",
         noPosts: "No posts yet. Be the first to post!",

@@ -10,9 +10,10 @@ export default {
       signOut: "Wyloguj się",
       anonymousUser: "Użytkownik anonimowy",
       profile: {
-        title: "Utwórz profil",
+        title: "Dołącz do Derby",
         description: "Wybierz nick i opcjonalny awatar, aby zacząć.",
-        uploadHint: "Kliknij, aby przesłać awatar (opcjonalne)",
+        avatarLabel: "Awatar",
+        uploadHint: "Kliknij, aby przesłać. Opcjonalne.",
         nicknameLabel: "Nick",
         nicknamePlaceholder: "np. Sutokopter",
         settingUp: "Tworzenie...",
