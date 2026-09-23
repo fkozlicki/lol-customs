@@ -48,7 +48,7 @@ export function PlayerMetadata({
             height={48}
             className="size-11 object-cover sm:size-12"
           />
-          <span className="num absolute -right-1 -bottom-1 bg-foreground px-1 text-[10px] leading-4 text-background">
+          <span className="num absolute -right-1 -bottom-1 bg-foreground size-4 grid place-items-center text-[10px] leading-4 text-background">
             {participant.champ_level}
           </span>
         </div>

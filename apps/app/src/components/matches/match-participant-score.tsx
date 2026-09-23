@@ -32,8 +32,8 @@ export default function MatchParticipantScore({
       <span
         className={cn(
           "num px-1.5 text-[10px] uppercase leading-5 tracking-[0.08em]",
-          p.is_mvp && "bg-mvp font-semibold text-mvp-foreground",
-          p.is_ace && "bg-ace font-semibold text-ace-foreground",
+          p.is_mvp && "bg-mvp-surface font-semibold text-mvp-foreground",
+          p.is_ace && "bg-ace-surface font-semibold text-ace-foreground",
           !p.is_mvp && !p.is_ace && "bg-muted text-muted-foreground",
         )}
       >

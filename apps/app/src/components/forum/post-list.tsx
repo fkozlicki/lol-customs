@@ -50,7 +50,7 @@ export function PostList() {
 
   return (
     <div>
-      <div className="flex items-center justify-between border-b pb-3">
+      <div className="flex items-center justify-between">
         <p className="label-caps">
           {isLoading ? "" : t("postCount", { count: posts.length })}
         </p>

@@ -56,7 +56,7 @@ export function AuctionList() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
       <PageHeader title={t("title")} description={t("description")}>
         <div className="flex items-center gap-4">
           <ConnectionBadge state={connection} />
@@ -132,7 +132,7 @@ export function AuctionList() {
           ))}
         </ul>
       ) : (
-        <div className="flex flex-col items-start gap-4 border-t pt-10">
+        <div className="flex flex-col items-start gap-4">
           <p className="text-2xl font-semibold uppercase tracking-[-0.03em] sm:text-3xl">
             {t("list.emptyTitle")}
           </p>

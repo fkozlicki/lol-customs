@@ -55,7 +55,7 @@ export function PostCard({ post }: { post: Post }) {
           <RelativeTime date={post.created_at} className="label-caps" />
         </div>
 
-        <h2 className="text-2xl font-semibold leading-tight tracking-[-0.02em] underline-offset-4 group-hover:underline sm:text-3xl">
+        <h2 className="text-2xl font-semibold leading-tight tracking-[-0.02em] underline-offset-4 group-hover:underline">
           {post.title}
         </h2>
 

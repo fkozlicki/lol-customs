@@ -121,7 +121,7 @@ export default function RandomTeamsTool() {
         </section>
       )}
 
-      <div className="sticky top-14 z-20 flex items-center justify-between gap-4 border-b bg-background/90 py-4 backdrop-blur">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-4">
           <span className="num text-xl font-semibold">
             {roster.length}/{ROSTER_SIZE}

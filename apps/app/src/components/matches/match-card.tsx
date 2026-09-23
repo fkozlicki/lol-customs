@@ -92,7 +92,12 @@ export default function MatchCard({
         onClick={onToggleExpand}
         aria-expanded={isExpanded}
         aria-label={t("expand")}
-        className="flex w-9 shrink-0 items-end justify-center border-l pb-3 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className={cn(
+          "flex w-9 shrink-0 items-end justify-center border-l pb-3 text-muted-foreground transition-colors hover:text-foreground",
+          outcome === "win" && "hover:bg-win/[0.18]",
+          outcome === "loss" && "hover:bg-loss/[0.18]",
+          !outcome && "hover:bg-muted",
+        )}
       >
         <Icons.ChevronDown
           className={cn(
