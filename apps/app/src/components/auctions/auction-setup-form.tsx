@@ -12,6 +12,7 @@ import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { DerbyIcons } from "@/components/derby-icons";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
@@ -270,7 +271,7 @@ export function AuctionSetupForm({
                   </span>
                   {captainKey === player.key ? (
                     <span className="label-caps flex items-center gap-1.5 text-foreground">
-                      <Icons.Captain className="size-3.5" />
+                      <DerbyIcons.Captain className="size-3.5" />
                       {t("creator.youCaptain")}
                     </span>
                   ) : (

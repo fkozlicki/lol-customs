@@ -11,6 +11,7 @@ import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { DerbyIcons } from "@/components/derby-icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {
@@ -80,7 +81,7 @@ function TeamRoster({
                   <span className="flex items-center gap-1.5 truncate text-sm font-medium">
                     {player.gameName}
                     {captain?.playerId === player.id && (
-                      <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
+                      <DerbyIcons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
                     )}
                   </span>
                   <AuctionRank
@@ -642,7 +643,7 @@ export function AuctionRoom({ id }: { id: string }) {
       <div className="mx-auto max-w-xl p-6">
         <Card>
           <CardContent className="py-16 text-center">
-            <Icons.Auction className="mx-auto mb-4 size-10 text-muted-foreground" />
+            <DerbyIcons.Auction className="mx-auto mb-4 size-10 text-muted-foreground" />
             <h1 className="text-xl font-semibold">
               {t(`terminal.${room.status}Title`)}
             </h1>

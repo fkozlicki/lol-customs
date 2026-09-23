@@ -5,14 +5,14 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles/tokens.css",
+    "css": "../../packages/ui/src/styles/tokens.css",
     "baseColor": "gray",
     "cssVariables": true
   },
   "aliases": {
-    "components": "@v1/ui",
-    "hooks": "@v1/ui/hooks",
-    "lib": "@v1/ui",
+    "components": "@/components",
+    "hooks": "@/hooks",
+    "lib": "@/utils",
     "ui": "@v1/ui",
     "utils": "@v1/ui/cn"
   }

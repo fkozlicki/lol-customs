@@ -20,6 +20,7 @@ import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { DerbyIcons } from "@/components/derby-icons";
 import { RankCrest } from "@/components/game-assets/rank-crest";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
@@ -143,7 +144,7 @@ export default function RandomTeamsTool() {
           disabled={!isFull}
           onClick={() => setTeams(buildRandomTeams(roster))}
         >
-          <Icons.RandomTeams className="size-4" />
+          <DerbyIcons.Shuffle className="size-4" />
           {teams ? t("reroll") : t("generate")}
         </Button>
       </div>
