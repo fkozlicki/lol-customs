@@ -6,9 +6,6 @@ const CDRAGON_PROFILE_ICONS =
 const CDRAGON_RANK_CRESTS =
   "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/";
 
-const CDRAGON_RANK_EMBLEMS =
-  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-emblem/";
-
 const CDRAGON_POSITION_ICONS =
   "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/";
 
@@ -56,14 +53,6 @@ export function rankCrestUrl(tier: string | null): string {
   return RANK_TIERS.has(normalized)
     ? `${CDRAGON_RANK_CRESTS}${normalized}.svg`
     : `${CDRAGON_RANK_CRESTS}unranked.svg`;
-}
-
-export function rankEmblemUrl(tier: string | null): string {
-  if (!tier?.trim()) return `${CDRAGON_RANK_EMBLEMS}emblem-unranked.png`;
-  const normalized = tier.toLowerCase();
-  return RANK_TIERS.has(normalized)
-    ? `${CDRAGON_RANK_EMBLEMS}emblem-${normalized}.png`
-    : `${CDRAGON_RANK_EMBLEMS}emblem-unranked.png`;
 }
 
 /** Clash position-selector icons (top / jungle / middle / bottom / utility). */

@@ -34,21 +34,6 @@ export const playersRouter = createTRPCRouter({
     });
   }),
 
-  getByPuuid: publicProcedure
-    .input(z.object({ puuid: z.string().min(1) }))
-    .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
-        .from("players")
-        .select("*")
-        .eq("puuid", input.puuid)
-        .single();
-      if (error) {
-        if (error.code === "PGRST116") return null;
-        throw error;
-      }
-      return data;
-    }),
-
   getByRiotId: publicProcedure
     .input(
       z.object({ gameName: z.string().min(1), tagLine: z.string().min(1) }),

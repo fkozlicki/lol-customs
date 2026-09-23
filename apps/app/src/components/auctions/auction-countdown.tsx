@@ -7,12 +7,10 @@ export function AuctionCountdown({
   deadline,
   serverNow,
   durationSeconds,
-  compact = false,
 }: {
   deadline: string;
   serverNow: string;
   durationSeconds: number;
-  compact?: boolean;
 }) {
   // Server/client clock offset is captured once per snapshot. Using the raw
   // serverNow on every tick would cancel out the elapsed local time, pausing
@@ -38,10 +36,6 @@ export function AuctionCountdown({
 
   const seconds = remaining / 1000;
   const percent = Math.min(100, (remaining / (durationSeconds * 1000)) * 100);
-
-  if (compact) {
-    return <span className="num">{seconds.toFixed(1)}s</span>;
-  }
 
   return (
     <div className="w-full space-y-2" aria-live="polite">
