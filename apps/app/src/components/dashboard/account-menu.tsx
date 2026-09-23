@@ -48,9 +48,8 @@ export function AccountMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon-sm"
-          className="p-0"
           aria-label={t("preferences.menuLabel")}
         >
           {profile ? (
@@ -58,16 +57,13 @@ export function AccountMenu() {
               <AvatarImage
                 src={profile.avatar_url ?? undefined}
                 alt={profile.nickname}
-                className="rounded-none"
               />
               <AvatarFallback className="rounded-none text-xs font-semibold">
                 {profile.nickname[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
           ) : (
-            <span className="flex size-7 items-center justify-center border">
-              <Icons.User className="size-4" />
-            </span>
+            <Icons.User className="size-4" />
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -82,7 +78,7 @@ export function AccountMenu() {
             <DropdownMenuItem
               disabled={isLoading}
               onSelect={openSignInDialog}
-              className="justify-center bg-foreground py-2 text-background focus:bg-foreground/90 focus:text-background"
+              className="justify-center bg-foreground text-background focus:bg-foreground/90 focus:text-background"
             >
               {t("auth.signIn")}
             </DropdownMenuItem>
