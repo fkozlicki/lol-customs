@@ -36,7 +36,7 @@ export function PostDetails({ postId }: PostDetailProps) {
         {t("backToPosts")}
       </Link>
 
-      <header className="space-y-4 border-b pb-8">
+      <header className="space-y-4">
         <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-5xl">
           {post.title}
         </h1>
@@ -61,7 +61,7 @@ export function PostDetails({ postId }: PostDetailProps) {
         <TipTapRenderer content={post.content as Record<string, unknown>} />
       )}
 
-      <div className="flex items-center gap-2 border-b pb-8">
+      <div className="flex items-center gap-2">
         <ReactionButtons
           postId={post.id}
           likes={post.likes}

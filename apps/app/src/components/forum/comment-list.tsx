@@ -45,7 +45,7 @@ export function CommentList({ postId }: CommentListProps) {
           {t("comments.noComments")}
         </p>
       ) : (
-        <ol className="divide-y border-t">
+        <ol className="divide-y border-b">
           {data.items.map((comment) => {
             const author = Array.isArray(comment.author)
               ? comment.author[0]

@@ -3,7 +3,7 @@ import { RandomTeamsToolSkeleton } from "@/components/random-teams/random-teams-
 
 export default function ShuffleLoading() {
   return (
-    <div className="space-y-6 p-4 max-w-5xl mx-auto w-full">
+    <div className="space-y-6 p-4 max-w-6xl mx-auto w-full">
       <div className="space-y-2">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 max-w-xl" />

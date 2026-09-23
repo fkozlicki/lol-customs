@@ -24,11 +24,11 @@ export default function MatchParticipantInfo({
       <div className="relative">
         <ChampionImage
           championId={p.champion_id}
-          width={32}
-          height={32}
-          className="size-8 shrink-0"
+          width={34}
+          height={34}
+          className="size-8.5 shrink-0"
         />
-        <span className="num absolute -right-1 -bottom-1 bg-foreground px-0.5 text-[9px] leading-3.5 text-background">
+        <span className="num absolute right-0 bottom-0 bg-foreground size-3.5 text-[9px] text-background grid place-items-center">
           {p.champ_level}
         </span>
       </div>
