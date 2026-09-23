@@ -10,6 +10,7 @@ See [README.md](README.md) for setup.
 - [docs/adr/](docs/adr/): accepted decisions. Don't re-litigate them without saying so.
 - [docs/formulas.md](docs/formulas.md): rating and OP score formulas. Keep
   [docs/formulas-pl.md](docs/formulas-pl.md) in sync when changing either.
+- [DESIGN.md](DESIGN.md): how `apps/app` looks and why. Read it before building a page there.
 - [.cursorrules](.cursorrules): detailed code conventions for the app, tRPC, forms and UI.
 
 ## Layout
@@ -38,7 +39,9 @@ bun generate:types   # regenerate packages/supabase/src/types/db.ts from the loc
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```
 
-CI runs `bun run lint` and `bun run typecheck`. There are no JS unit tests; `bun test` does nothing.
+CI runs `bun run lint` and `bun run typecheck`. `bun lint` also runs the design check in
+`apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
+[DESIGN.md](DESIGN.md)). There are no JS unit tests; `bun test` does nothing.
 
 ## Constraints
 

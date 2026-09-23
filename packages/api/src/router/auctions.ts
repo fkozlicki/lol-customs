@@ -136,10 +136,6 @@ function riotIdKey(player: { gameName: string; tagLine: string }): string {
   return `${player.gameName.trim().toLowerCase()}#${player.tagLine.trim().toLowerCase()}`;
 }
 
-function otherSide(side: AuctionSide | null): AuctionSide {
-  return side === "A" ? "B" : "A";
-}
-
 interface RawCaptain {
   side: AuctionSide;
   teamName: string;
@@ -256,20 +252,9 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
   const myBudget =
     raw.captains.find((captain) => captain.side === mySide)?.budgetRemaining ??
     null;
-  const opponentBudget =
-    raw.captains.find((captain) => captain.side === otherSide(mySide))
-      ?.budgetRemaining ?? null;
   const inActiveBidding =
     raw.status === "active" &&
     (raw.phase === "awaiting_opening_bid" || raw.phase === "bidding");
-  const myPassed =
-    mySide !== null &&
-    raw.phase === "awaiting_opening_bid" &&
-    (mySide === "A" ? raw.openingPass.a : raw.openingPass.b);
-  const opponentPassed =
-    mySide !== null &&
-    raw.phase === "awaiting_opening_bid" &&
-    (mySide === "A" ? raw.openingPass.b : raw.openingPass.a);
   return {
     id: raw.id,
     status: raw.status,
@@ -323,13 +308,11 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
       canEditLobby: raw.permissions.canEditLobby,
       canReady:
         mySide !== null && ["waiting", "countdown"].includes(raw.status),
-      canBid:
-        inActiveBidding && myBudget !== null && myBudget > 0,
+      canBid: inActiveBidding && myBudget !== null && myBudget > 0,
       canPass:
         mySide !== null &&
         raw.status === "active" &&
-        ((raw.phase === "awaiting_opening_bid" &&
-          raw.leadingSide === null) ||
+        ((raw.phase === "awaiting_opening_bid" && raw.leadingSide === null) ||
           (raw.phase === "bidding" && raw.leadingSide !== mySide)),
       canCancel: raw.permissions.canCancel,
     },
