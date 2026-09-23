@@ -91,26 +91,32 @@ export function CommentReactionButtons({
       <Button
         variant="ghost"
         size="sm"
+        aria-pressed={myReaction === "like"}
         className={cn(
-          "gap-1.5 h-7 px-2",
-          myReaction === "like" && "text-green-500 hover:text-green-500",
+          "gap-1.5 h-7 px-2 text-muted-foreground hover:text-foreground",
+          myReaction === "like" && "text-foreground",
         )}
         onClick={() => handleReaction("like")}
       >
-        <Icons.ThumbsUp className="size-3.5" />
-        <span className="text-xs tabular-nums">{initialLikes}</span>
+        <Icons.ThumbsUp
+          className={cn("size-3.5", myReaction === "like" && "fill-current")}
+        />
+        <span className="num text-xs">{initialLikes}</span>
       </Button>
       <Button
         variant="ghost"
         size="sm"
+        aria-pressed={myReaction === "dislike"}
         className={cn(
-          "gap-1.5 h-7 px-2",
-          myReaction === "dislike" && "text-red-500 hover:text-red-500",
+          "gap-1.5 h-7 px-2 text-muted-foreground hover:text-foreground",
+          myReaction === "dislike" && "text-foreground",
         )}
         onClick={() => handleReaction("dislike")}
       >
-        <Icons.ThumbsDown className="size-3.5" />
-        <span className="text-xs tabular-nums">{initialDislikes}</span>
+        <Icons.ThumbsDown
+          className={cn("size-3.5", myReaction === "dislike" && "fill-current")}
+        />
+        <span className="num text-xs">{initialDislikes}</span>
       </Button>
     </div>
   );
