@@ -1,0 +1,25 @@
+{
+  "name": "@v1/domain",
+  "version": "0.1.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    "./rank": "./src/rank.ts",
+    "./riot-id": "./src/riot-id.ts",
+    "./season": "./src/season.ts",
+    "./shuffle": "./src/shuffle.ts",
+    "./stats": "./src/stats.ts"
+  },
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.5",
+    "@v1/typescript": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

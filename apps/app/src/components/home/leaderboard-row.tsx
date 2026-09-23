@@ -2,6 +2,8 @@
 
 import type { RouterOutputs } from "@v1/api";
 import { QUALIFICATION_MATCHES } from "@v1/api/season";
+import { playerHref } from "@v1/domain/riot-id";
+import { formatKda, formatKdaRatio, formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -9,9 +11,7 @@ import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import { DURATION, STAGGER } from "@/utils/motion";
-import { playerHref } from "@/utils/riot-id";
 import { withSeason } from "@/utils/season";
-import { formatKda, formatKdaRatio, formatWinrate } from "@/utils/stats";
 import CurrentStreak from "./current-streak";
 
 type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];

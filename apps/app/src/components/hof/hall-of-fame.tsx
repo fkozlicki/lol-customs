@@ -3,6 +3,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
 import { ALL_TIME_SEASON, QUALIFICATION_MATCHES } from "@v1/api/season";
+import { playerHref } from "@v1/domain/riot-id";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Skeleton } from "@v1/ui/skeleton";
@@ -12,7 +13,6 @@ import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { playerHref } from "@/utils/riot-id";
 import { ALL_TIME_PARAM, SEASON_PARAM, withSeason } from "@/utils/season";
 import {
   formatHofValue,

@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@trpc/server": "^11.8.1",
+    "@v1/domain": "workspace:*",
     "@v1/logger": "workspace:*",
     "@v1/supabase": "workspace:*",
     "superjson": "^2.2.6",

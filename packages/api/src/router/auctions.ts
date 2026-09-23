@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
+import { riotIdKey } from "@v1/domain/riot-id";
 import type { Json } from "@v1/supabase/types";
 import { z } from "zod";
 import type {
@@ -130,10 +131,6 @@ async function requireProfile(userId: string, client: unknown) {
       message: "Create a profile before joining an auction.",
     });
   }
-}
-
-function riotIdKey(player: { gameName: string; tagLine: string }): string {
-  return `${player.gameName.trim().toLowerCase()}#${player.tagLine.trim().toLowerCase()}`;
 }
 
 interface RawCaptain {

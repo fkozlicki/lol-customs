@@ -1,7 +1,7 @@
 "use client";
 
+import { formatKdaRatio } from "@v1/domain/stats";
 import { useScopedI18n } from "@/locales/client";
-import { formatKdaRatio } from "@/utils/stats";
 import { ChampionImage } from "../game-assets/champion-image";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";
 import MatchParticipantItems from "./match-participant-items";

@@ -1,3 +1,4 @@
+import { formatRank } from "@v1/domain/rank";
 import {
   getAccountByRiotId,
   getRankedEntriesByPuuid,
@@ -26,14 +27,6 @@ const rosterCache = new Map<
   string,
   { loadedAt: number; snapshot: AuctionRosterSnapshot }
 >();
-
-function rankLabel(tier: string | null, division: string | null): string {
-  if (!tier) return "";
-  if (["MASTER", "GRANDMASTER", "CHALLENGER"].includes(tier.toUpperCase())) {
-    return tier;
-  }
-  return division ? `${tier} ${division}` : tier;
-}
 
 export async function loadAuctionRoster(
   roster: AuctionRosterInput[],
@@ -70,7 +63,7 @@ export async function loadAuctionRoster(
       platformId,
       soloTier,
       soloDivision,
-      soloRankLabel: rankLabel(soloTier, soloDivision),
+      soloRankLabel: formatRank(soloTier, soloDivision) ?? "",
     };
     rosterCache.set(cacheKey, { loadedAt: Date.now(), snapshot });
     return { ...snapshot };
