@@ -370,6 +370,8 @@ export default {
         backToPosts: "Back to posts",
         unknown: "Unknown",
         reactionFailed: "Could not save your reaction.",
+        like: "Like",
+        dislike: "Dislike",
         editor: {
           bold: "Bold",
           italic: "Italic",

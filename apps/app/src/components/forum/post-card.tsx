@@ -1,11 +1,10 @@
 "use client";
 
 import type { RouterOutputs } from "@v1/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
-import { RelativeTime } from "@/components/relative-time";
 import { useScopedI18n } from "@/locales/client";
+import { AuthorLine } from "./author-line";
 
 type Post = RouterOutputs["forum"]["posts"]["list"]["items"][number];
 
@@ -39,21 +38,11 @@ export function PostCard({ post }: { post: Post }) {
   return (
     <article>
       <Link href={`/posts/${post.id}`} className="group block space-y-3 py-6">
-        <div className="flex items-center gap-2">
-          <Avatar className="size-5 shrink-0 rounded-none">
-            <AvatarImage
-              src={author?.avatar_url ?? undefined}
-              className="rounded-none"
-            />
-            <AvatarFallback className="rounded-none text-[10px] font-semibold">
-              {author?.nickname?.[0]?.toUpperCase() ?? "?"}
-            </AvatarFallback>
-          </Avatar>
-          <span className="label-caps text-foreground">
-            {author?.nickname ?? t("unknown")}
-          </span>
-          <RelativeTime date={post.created_at} className="label-caps" />
-        </div>
+        <AuthorLine
+          name={author?.nickname ?? t("unknown")}
+          avatarUrl={author?.avatar_url}
+          date={post.created_at}
+        />
 
         <h2 className="text-2xl font-semibold leading-tight tracking-[-0.02em] underline-offset-4 group-hover:underline">
           {post.title}

@@ -13,7 +13,6 @@ import {
   type RosterPlayer,
 } from "@v1/domain/shuffle";
 import { Button } from "@v1/ui/button";
-import { cn } from "@v1/ui/cn";
 import { Input } from "@v1/ui/input";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";

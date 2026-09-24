@@ -369,6 +369,8 @@ export default {
         backToPosts: "Wróć do postów",
         unknown: "Nieznany",
         reactionFailed: "Nie udało się zapisać reakcji.",
+        like: "Polub",
+        dislike: "Nie podoba mi się",
         editor: {
           bold: "Pogrubienie",
           italic: "Kursywa",
