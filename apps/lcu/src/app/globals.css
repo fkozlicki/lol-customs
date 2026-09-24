@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@source "../../../../packages/ui/src/components/*.{ts,tsx}";
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
 
 @theme inline {
   --radius: 0.5rem;

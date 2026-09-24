@@ -11,8 +11,6 @@
   },
   "aliases": {
     "components": "@v1/ui",
-    "hooks": "@v1/ui/hooks",
-    "lib": "@v1/ui",
     "ui": "@v1/ui",
     "utils": "@v1/ui/cn"
   }
