@@ -102,12 +102,24 @@ for (const locale of SUPPORTED_LOCALES) {
     // Give effects and any suspended boundary a moment to settle before judging the result.
     await page.waitForTimeout(400);
 
-    const rendered = await page.evaluate(
-      () => document.getElementById("storybook-root")?.innerHTML.trim() ?? "",
+    // A dialog, sheet or menu renders into a portal on <body>, outside the story root, so both count.
+    // Storybook's own nodes do not — including its error screen, which would otherwise pass for
+    // content when a story throws.
+    const rendered = await page.evaluate(() =>
+      Array.from(document.body.children).some((node) => {
+        if (
+          ["SCRIPT", "STYLE", "TEMPLATE", "NOSCRIPT"].includes(node.tagName)
+        ) {
+          return false;
+        }
+        const isStorybook =
+          (node.id.startsWith("storybook-") && node.id !== "storybook-root") ||
+          Array.from(node.classList).some((c) => c.startsWith("sb-"));
+        return !isStorybook && node.innerHTML.trim() !== "";
+      }),
     );
 
-    const reason =
-      problems[0] ?? (rendered === "" ? "rendered nothing" : undefined);
+    const reason = problems[0] ?? (rendered ? undefined : "rendered nothing");
     if (reason) {
       failures.push({
         id,
