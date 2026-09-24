@@ -38,12 +38,12 @@ bun format
 bun db:reset         # rebuild the local Supabase DB from migrations
 bun generate:types   # regenerate packages/supabase/src/types/db.ts from the local DB
 bun run --cwd apps/app generate:game-data   # refresh the champion list after a champion release
-bun run --cwd apps/app test:stories   # renders every story; needs build-storybook first
+bun run --cwd apps/app test:stories   # renders every story; needs build-storybook first, not run in CI
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```
 
-CI runs `bun run lint`, `bun run typecheck`, `bun run test`, and a second job that builds Storybook
-and renders every story. `bun lint` also runs the design check in
+CI runs `bun run lint`, `bun run typecheck` and `bun run test`. Stories are not rendered in CI; run
+`test:stories` locally after touching a story or anything a story renders. `bun lint` also runs the design check in
 `apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
 [DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain` and `apps/app` — pure logic only, no
 component tests; components are covered by their stories.
