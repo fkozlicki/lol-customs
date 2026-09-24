@@ -11,14 +11,12 @@ interface PlayerProfileHeaderProps {
   puuid: string;
   gameName: string;
   tagLine: string;
-  platformId: string;
 }
 
 export function PlayerProfileHeader({
   puuid,
   gameName,
   tagLine,
-  platformId,
 }: PlayerProfileHeaderProps) {
   const trpc = useTRPC();
   const { data: stats } = useSuspenseQuery(
@@ -47,11 +45,7 @@ export function PlayerProfileHeader({
           <span className="font-normal text-muted-foreground"> #{tag}</span>
         </h1>
         <Suspense fallback={null}>
-          <PlayerSoloRank
-            gameName={gameName}
-            tagLine={tagLine}
-            platformId={platformId}
-          />
+          <PlayerSoloRank puuid={puuid} />
         </Suspense>
       </div>
     </div>

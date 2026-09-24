@@ -34,6 +34,32 @@ export const playersRouter = createTRPCRouter({
     });
   }),
 
+  /**
+   * A player's Solo/Duo rank as of their latest match that carried one. Derby Sync records it with
+   * every match, so a profile reads it here instead of calling the Riot API on every page view. It
+   * is the rank at that match, not now: a player who has not played for a month shows a month-old
+   * rank, and there is no LP.
+   */
+  soloRank: publicProcedure
+    .input(z.object({ puuid: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      // player_latest_ranks() is a plain SQL function, so Postgres inlines it and applies the
+      // filter inside it rather than ranking every player and discarding all but one.
+      const { data, error } = await ctx.supabase
+        .rpc("player_latest_ranks")
+        .eq("puuid", input.puuid)
+        .maybeSingle();
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+      }
+      return data
+        ? { tier: data.rank_tier, division: data.rank_division }
+        : null;
+    }),
+
   getByRiotId: publicProcedure
     .input(
       z.object({ gameName: z.string().min(1), tagLine: z.string().min(1) }),

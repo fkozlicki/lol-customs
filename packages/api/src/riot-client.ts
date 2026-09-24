@@ -6,9 +6,6 @@
 const RIOT_PLATFORM_BASE = "https://{platform}.api.riotgames.com";
 const RIOT_REGIONAL_BASE = "https://{region}.api.riotgames.com";
 
-const RANK_CACHE_TTL_MS = 60_000;
-const rankCache = new Map<string, { at: number; data: RiotLeagueEntry[] }>();
-
 /** Account API (regional: europe, americas, asia, sea) */
 export type RiotRegion = "europe" | "americas" | "asia" | "sea";
 
@@ -166,14 +163,6 @@ export async function mapWithConcurrency<T, R>(
   return results;
 }
 
-function rankCacheKey(
-  gameName: string,
-  tagLine: string,
-  platformId: string,
-): string {
-  return `${gameName.trim().toLowerCase()}#${tagLine.trim().toLowerCase()}@${platformId.trim().toLowerCase()}`;
-}
-
 /**
  * Get Riot account by game name + tag line (Riot ID). Uses regional Account API.
  */
@@ -202,50 +191,4 @@ export async function getRankedEntriesByPuuid(
     `/lol/league/v4/entries/by-puuid/${encodeURIComponent(puuid)}`,
   );
   return entries ?? [];
-}
-
-async function fetchPlayerRankByRiotIdFromApi(
-  gameName: string,
-  tagLine: string,
-  options?: {
-    region?: RiotRegion;
-    platformId?: string;
-  },
-): Promise<RiotLeagueEntry[]> {
-  const platformId = options?.platformId ?? "eun1";
-  const region = options?.region ?? platformIdToRegion(platformId);
-
-  const account = await getAccountByRiotId(region, gameName, tagLine);
-  if (!account) return [];
-
-  return getRankedEntriesByPuuid(account.puuid, platformId);
-}
-
-/**
- * Get ranked entries for a player by Riot ID (gameName#tagLine).
- * 1. riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine} → puuid
- * 2. lol/league/v4/entries/by-puuid/{puuid} → entries
- *
- * Short in-memory TTL cache to reduce duplicate Riot calls (same process).
- */
-export async function getPlayerRankByRiotId(
-  gameName: string,
-  tagLine: string,
-  options?: {
-    region?: RiotRegion;
-    platformId?: string;
-  },
-): Promise<RiotLeagueEntry[]> {
-  const platformId = (options?.platformId ?? "eun1").trim().toLowerCase();
-  const key = rankCacheKey(gameName, tagLine, platformId);
-  const hit = rankCache.get(key);
-  if (hit && Date.now() - hit.at < RANK_CACHE_TTL_MS) {
-    return hit.data.slice();
-  }
-  const data = await fetchPlayerRankByRiotIdFromApi(gameName, tagLine, {
-    ...options,
-    platformId,
-  });
-  rankCache.set(key, { at: Date.now(), data: data.slice() });
-  return data.slice();
 }
