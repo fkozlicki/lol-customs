@@ -4,32 +4,10 @@ import type { RouterOutputs } from "@v1/api";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
+import { postExcerpt, type TipTapNode } from "@/utils/post-excerpt";
 import { AuthorLine } from "./author-line";
 
 type Post = RouterOutputs["forum"]["posts"]["list"]["items"][number];
-
-type TipTapNode = {
-  type?: string;
-  text?: string;
-  content?: TipTapNode[];
-};
-
-function extractPlainText(node: TipTapNode): string {
-  if (node.text) return node.text;
-  if (Array.isArray(node.content)) {
-    return node.content.map(extractPlainText).join(" ");
-  }
-  return "";
-}
-
-function getContentPreview(
-  content: Record<string, unknown>,
-  maxLength = 160,
-): string {
-  const text = extractPlainText(content as TipTapNode).trim();
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength).trimEnd()}…`;
-}
 
 export function PostCard({ post }: { post: Post }) {
   const t = useScopedI18n("dashboard.pages.posts");
@@ -50,7 +28,7 @@ export function PostCard({ post }: { post: Post }) {
 
         {post.content && Object.keys(post.content).length > 0 && (
           <p className="line-clamp-2 max-w-2xl text-sm text-muted-foreground">
-            {getContentPreview(post.content as Record<string, unknown>)}
+            {postExcerpt(post.content as TipTapNode)}
           </p>
         )}
 
