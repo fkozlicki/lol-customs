@@ -7,6 +7,7 @@ import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { Geist, Geist_Mono } from "next/font/google";
 // The same internal the framework's own router decorator uses; see `withLocale`.
 import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
+import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { useEffect } from "react";
 import { I18nProviderClient } from "@/locales/client";
 import "../src/app/[locale]/styles.css";
@@ -57,10 +58,26 @@ const withLocale: Decorator = (Story, context) => {
   );
 };
 
+/**
+ * The app keeps UI state in the query string through nuqs — the season, the history picker, whether
+ * the download dialog is open. The testing adapter gives each story its own URL, so a story sets
+ * `parameters.searchParams` to put a component in the state it wants to show, and `hasMemory` lets a
+ * control that writes to the URL read its own write back.
+ */
+const withUrlState: Decorator = (Story, context) => (
+  <NuqsTestingAdapter
+    searchParams={context.parameters.searchParams ?? {}}
+    hasMemory
+  >
+    <Story />
+  </NuqsTestingAdapter>
+);
+
 const preview: Preview = {
   decorators: [
     withGeist,
     withLocale,
+    withUrlState,
     withThemeByClassName({
       themes: { dark: "dark", light: "light" },
       defaultTheme: "dark",
@@ -85,8 +102,9 @@ const preview: Preview = {
     layout: "centered",
     controls: { expanded: true },
     /**
-     * The app is App Router, so `next/navigation` is what its components import. `withLocale`
-     * replaces `navigation` on every render; this is the floor for a story that renders before it.
+     * The app is App Router, so `next/navigation` is what its components import and this switches the
+     * framework to those mocks. The route segment the locale lives in comes from `withLocale`, which
+     * follows the toolbar; this is only the pathname a story starts on.
      */
     nextjs: {
       appDirectory: true,
