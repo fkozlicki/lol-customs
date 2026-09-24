@@ -9,6 +9,11 @@ rated, and players are ranked per season and across all seasons.
 The desktop app a player installs to upload their matches from the League client.
 _Avoid_: Niunio, LCU app
 
+**Game asset**:
+Art from League of Legends shown in the app: champion portraits, item and spell icons, profile icons,
+rank crests, and role and objective icons. It is Riot's, and the app shows it as Riot publishes it.
+_Avoid_: Sprite, image, icon (alone)
+
 ### Matches
 
 **Match**:
@@ -21,8 +26,13 @@ One of the two groups of five players within a match, blue or red.
 _Avoid_: Team
 
 **Team**:
-Five players grouped before a match is played, for example by a shuffle.
+Five players grouped before a match is played, for example by a draw.
 _Avoid_: Side, squad
+
+**Draw**:
+Splitting ten players into two teams at random, with each team's side, roles and captain also random.
+Nothing is balanced. A draw produces teams, not a match; the match exists only once it is played.
+_Avoid_: Roll, random teams
 
 **Teammate**:
 A player who was on the same side as a given player in a match.
@@ -70,6 +80,17 @@ The season that began most recently. It is what the app shows unless another sea
 **All seasons**:
 The view covering every match regardless of season, ranked on the all-time rating track.
 _Avoid_: Overall, lifetime
+
+**Rating**:
+A player's Elo score on one rating track: the ladder's own measure, earned only through matches. Everyone
+starts a track at 1000.
+_Avoid_: Rank, MMR, Elo, LP
+
+**Rank**:
+A player's tier and division in Riot's Solo/Duo queue, recorded with every match they play. Unless said
+otherwise it means the rank from their latest match, which can be months old. It carries no LP and plays
+no part in rating.
+_Avoid_: Rating, Elo, MMR
 
 **Rating track**:
 An independent Elo progression. Each season has its own track on which everyone starts at 1000; the
