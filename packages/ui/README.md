@@ -19,6 +19,14 @@ The icon map names icons after what they depict (`Gavel`, `Crown`, `Swords`), be
 draws from the same set for its own purposes. `apps/app/src/components/icons.ts` spreads this map and
 adds the Derby names on top, so a component in the app imports icons once.
 
+**`empty`, `separator` and `tooltip` are here on purpose and nothing imports them.** They were kept
+on the assumption that the app's hand-rolled versions would be replaced by them; that did not
+happen. `empty` is centred, boxed and dashed, where Derby's empty states are left-aligned inline
+notes, so adopting it would contradict DESIGN.md rule 7 rather than fix a drift. `tooltip` has no
+candidate in the app at all. `separator` has exactly one — the rule in the editor toolbar. They stay
+because a shadcn primitive costs nothing to keep and one `npx shadcn add` to get back wrongly. Don't
+delete them as dead code without reading this line first.
+
 ## Stories
 
 `bun dev:storybook` runs one Storybook for both tiers; the runner lives in `apps/app` because the
