@@ -1,10 +1,9 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "@v1/ui/cn";
 import Image from "next/image";
-import { useTRPC } from "@/trpc/react";
 import { itemImageUrl } from "@/utils/asset-urls";
+import { useGamePatch } from "./game-patch";
 
 interface ItemImageProps {
   itemId: number | null;
@@ -19,10 +18,7 @@ export function ItemImage({
   height,
   className,
 }: ItemImageProps) {
-  const trpc = useTRPC();
-  const { data: patch } = useSuspenseQuery(
-    trpc.datadragon.currentPatch.queryOptions(),
-  );
+  const patch = useGamePatch();
 
   if (!itemId) {
     return (

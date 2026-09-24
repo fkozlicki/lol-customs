@@ -811,3 +811,43 @@ export const MATCH = {
     },
   ],
 } satisfies Match;
+
+/**
+ * What the match components derive from a match, computed the way `MatchDetails` and `MatchCard`
+ * compute it, so a story of one piece gets the same numbers the whole card would pass it.
+ */
+function derive(match: typeof MATCH) {
+  const participants = match.match_participants;
+  const blue = participants.filter((p) => p.team_id === 100);
+  const red = participants.filter((p) => p.team_id === 200);
+  const kills = (side: typeof participants) =>
+    side.reduce((sum, p) => sum + (p.kills ?? 0), 0);
+  const raw = match.raw_json.participants;
+
+  return {
+    participants,
+    blue,
+    red,
+    blueKills: kills(blue),
+    redKills: kills(red),
+    raw,
+    rawFor: (p: (typeof participants)[number]) =>
+      raw.find((r) => r.participantId === p.participant_id),
+    scores: participants
+      .map((p) => p.op_score)
+      .filter((score): score is number => score != null)
+      .sort((a, b) => b - a),
+    highestDamageDealt: Math.max(
+      ...participants.map((p) => p.total_damage_dealt_to_champions ?? 0),
+    ),
+    highestDamageTaken: Math.max(
+      ...participants.map((p) => p.total_damage_taken ?? 0),
+    ),
+    /** The winning side's MVP, for stories told from one player's point of view. */
+    mvp: participants.find((p) => p.is_mvp) ?? participants[0]!,
+    /** The losing side's ACE. */
+    ace: participants.find((p) => p.is_ace) ?? participants[5]!,
+  };
+}
+
+export const MATCH_VIEW = derive(MATCH);

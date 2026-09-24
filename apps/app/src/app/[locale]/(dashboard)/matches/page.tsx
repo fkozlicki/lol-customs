@@ -26,8 +26,6 @@ export default async function MatchHistoryPage({
       { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined },
     ),
   );
-  prefetch(trpc.datadragon.currentPatch.queryOptions());
-  prefetch(trpc.datadragon.championMap.queryOptions());
 
   return (
     <HydrateClient>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "@v1/ui/cn";
 import Image from "next/image";
-import { useTRPC } from "@/trpc/react";
+import { CHAMPIONS } from "@/game-data/champions";
 import { championImageUrl } from "@/utils/asset-urls";
+import { useGamePatch } from "./game-patch";
 
 interface ChampionImageProps {
   championId: number | null;
@@ -19,15 +19,9 @@ export function ChampionImage({
   height,
   className,
 }: ChampionImageProps) {
-  const trpc = useTRPC();
-  const { data: patch } = useSuspenseQuery(
-    trpc.datadragon.currentPatch.queryOptions(),
-  );
-  const { data: championMap } = useSuspenseQuery(
-    trpc.datadragon.championMap.queryOptions(),
-  );
-
-  const champion = championId != null ? championMap[String(championId)] : null;
+  const patch = useGamePatch();
+  // A champion released after champions.ts was generated falls through to the placeholder.
+  const champion = championId != null ? CHAMPIONS[championId] : undefined;
 
   if (!champion) {
     return (
@@ -40,7 +34,7 @@ export function ChampionImage({
 
   return (
     <Image
-      src={championImageUrl(patch, champion.imageFull)}
+      src={championImageUrl(patch, champion.image)}
       alt={champion.name}
       width={width}
       height={height}
