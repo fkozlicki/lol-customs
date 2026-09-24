@@ -6,14 +6,15 @@ import { getScopedI18n } from "@/locales/server";
  * on their games and data. The wording is Riot's, verbatim, with the product name filled in.
  *
  * Small muted prose rather than `label-caps`: it is two sentences, not a label, and DESIGN.md keeps
- * prose in Geist Sans. The bottom padding clears the fixed mobile navigation.
+ * prose in Geist Sans. The rule runs the full width of the window, like the top bar's; the text runs
+ * the width of the page. The bottom padding clears the fixed mobile navigation.
  */
 export async function SiteFooter() {
   const t = await getScopedI18n("dashboard.footer");
 
   return (
-    <footer className="mx-auto w-full max-w-6xl px-4 pb-24 md:pb-10">
-      <p className="max-w-prose border-t pt-6 text-xs text-muted-foreground">
+    <footer className="border-t">
+      <p className="mx-auto w-full max-w-6xl px-4 pt-6 pb-24 text-xs text-muted-foreground md:pb-10">
         {t("riotNotice")}
       </p>
     </footer>
