@@ -31,6 +31,7 @@ Bun workspaces with Turborepo. Run from the repo root:
 ```sh
 bun dev:app          # dashboard on :3000
 bun dev:lcu          # desktop app (Next on :3001 + Electron)
+bun dev:storybook    # design system + app components on :6006
 bun lint             # biome via turbo, plus sherif for workspace hygiene
 bun typecheck
 bun format

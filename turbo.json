@@ -31,6 +31,16 @@
         "release/**"
       ]
     },
+    "build-storybook": {
+      "dependsOn": ["^topo"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "SKIP_ENV_VALIDATION"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "outputs": ["storybook-static/**"]
+    },
     "start": {
       "cache": false
     },

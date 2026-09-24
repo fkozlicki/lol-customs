@@ -19,6 +19,14 @@ The icon map names icons after what they depict (`Gavel`, `Crown`, `Swords`), be
 draws from the same set for its own purposes. `apps/app/src/components/icons.ts` spreads this map and
 adds the Derby names on top, so a component in the app imports icons once.
 
+## Stories
+
+`bun dev:storybook` runs one Storybook for both tiers; the runner lives in `apps/app` because the
+app's components need Next, but the stories live next to the components they document, in whichever
+package owns them. A story file names only the component — `title: "Button"` — and
+`.storybook/main.ts` prepends the section, so a primitive cannot accidentally file itself under
+*App*. Group by folder when there are enough of them: `title: "Components/Button"`.
+
 ## Tokens
 
 `src/styles/tokens.css` is the contract. These components name `bg-card`, `text-muted-foreground`,

@@ -2,9 +2,13 @@
  * Fails when a file hardcodes a colour instead of using a design token.
  *
  * See DESIGN.md: colour only ever carries domain meaning, and every colour in the app comes from a
- * token in src/app/[locale]/styles.css so that both themes stay in sync. This is a grep, not a design
- * review — it covers the colour rules only. Put `design-check-ignore` in a comment on a line that is a
- * false positive, with a reason.
+ * token in packages/ui/src/styles/tokens.css so that both themes stay in sync. This is a grep, not a
+ * design review — it covers the colour rules only. Put `design-check-ignore` in a comment on a line
+ * that is a false positive, with a reason.
+ *
+ * It scans apps/app only. The shared primitives in packages/ui still carry eight violations of their
+ * own — shadcn's `bg-black/10` overlays, a `text-white` badge — and widening the walk is worth doing
+ * once those are settled, because fixing them is a design decision, not a rename.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
