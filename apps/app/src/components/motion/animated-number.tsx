@@ -1,24 +1,29 @@
 "use client";
 
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-} from "motion/react";
-import { useEffect } from "react";
+import { animate, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { DURATION, EASE } from "@/utils/motion";
 
 interface AnimatedNumberProps {
   value: number;
-  /** Where the count starts on first render. */
+  /** Where the count starts on first render, on the server and the client alike. */
   from?: number;
   delay?: number;
   className?: string;
 }
 
-/** Counts up to `value` once it enters, and to every later value it changes to. */
+/**
+ * Counts up to `value` once it enters, and to every later value it changes to.
+ *
+ * The first render is always `from`. The server cannot know `prefers-reduced-motion`, so choosing
+ * the starting number from it rendered `from` on the server and `value` on a reduced-motion client —
+ * a hydration mismatch that made React throw the podium away and rebuild it. Reduced motion is
+ * honoured after mount instead, by jumping straight to `value`.
+ *
+ * The number is React state rather than a motion value rendered as a child: that child only updates
+ * on a change event, and a remount (StrictMode does one in development) re-subscribes without
+ * re-reading, so a value set once before it could stay on screen as `from`.
+ */
 export function AnimatedNumber({
   value,
   from = 0,
@@ -26,21 +31,27 @@ export function AnimatedNumber({
   className,
 }: AnimatedNumberProps) {
   const reduceMotion = useReducedMotion();
-  const count = useMotionValue(reduceMotion ? value : from);
-  const rounded = useTransform(count, (latest) => Math.round(latest));
+  const [shown, setShown] = useState(from);
+  // Where the count currently is, so a new value animates on from there rather than from `from`.
+  const current = useRef(from);
 
   useEffect(() => {
     if (reduceMotion) {
-      count.set(value);
+      current.current = value;
+      setShown(value);
       return;
     }
-    const controls = animate(count, value, {
+    const controls = animate(current.current, value, {
       duration: DURATION.count,
       ease: EASE,
       delay,
+      onUpdate: (latest) => {
+        current.current = latest;
+        setShown(Math.round(latest));
+      },
     });
     return () => controls.stop();
-  }, [count, value, delay, reduceMotion]);
+  }, [value, delay, reduceMotion]);
 
-  return <motion.span className={className}>{rounded}</motion.span>;
+  return <span className={className}>{shown}</span>;
 }
