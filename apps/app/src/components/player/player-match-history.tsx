@@ -3,6 +3,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
+import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import MatchHistoryCard from "@/components/matches/match-history-card";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
@@ -54,6 +55,13 @@ export function PlayerMatchHistory({ puuid, season }: PlayerMatchHistoryProps) {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={fetchNextPage}
+        loading={
+          <div className="space-y-2">
+            <MatchCardSkeleton />
+            <MatchCardSkeleton />
+            <MatchCardSkeleton />
+          </div>
+        }
       />
     </div>
   );

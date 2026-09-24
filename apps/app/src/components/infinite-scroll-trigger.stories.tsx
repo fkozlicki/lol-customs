@@ -1,17 +1,48 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { PostCardSkeleton } from "./forum/post-list-skeleton";
 import { InfiniteScrollTrigger } from "./infinite-scroll-trigger";
+import MatchCardSkeleton from "./matches/match-card-skeleton";
 
 const meta = {
   title: "Infinite scroll trigger",
   component: InfiniteScrollTrigger,
-  args: { hasNextPage: true, isFetchingNextPage: true, onLoadMore: () => {} },
+  parameters: { layout: "padded" },
+  args: {
+    hasNextPage: true,
+    isFetchingNextPage: true,
+    onLoadMore: () => {},
+    loading: null,
+  },
 } satisfies Meta<typeof InfiniteScrollTrigger>;
 
 export default meta;
 
+type Story = StoryObj<typeof meta>;
+
 /**
- * What shows while the next page loads. Worth knowing: this is a spinner, and DESIGN.md lists
- * "a spinner while data loads" as an anti-pattern — the fix it names is the matching skeleton.
- * The story exists so that is visible rather than buried in a list.
+ * The next page of matches, loading. The list grows by placeholders shaped like its own cards, so
+ * nothing jumps when the real ones land — DESIGN.md's answer to a spinner.
  */
-export const Loading: StoryObj<typeof meta> = {};
+export const Matches: Story = {
+  args: {
+    loading: (
+      <div className="space-y-2">
+        <MatchCardSkeleton />
+        <MatchCardSkeleton />
+        <MatchCardSkeleton />
+      </div>
+    ),
+  },
+};
+
+/** The forum's version: post rows, continuing the hairlines of the list above. */
+export const Posts: Story = {
+  args: {
+    loading: (
+      <div className="divide-y border-t">
+        <PostCardSkeleton />
+        <PostCardSkeleton />
+      </div>
+    ),
+  },
+};

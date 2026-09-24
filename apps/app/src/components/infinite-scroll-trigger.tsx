@@ -7,12 +7,19 @@ interface InfiniteScrollTriggerProps {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
+  /**
+   * What stands in for the next page while it loads — the list's own skeleton rows. DESIGN.md: the
+   * page should already show its shape, so a list grows by placeholders of its own items rather than
+   * by a spinner.
+   */
+  loading: React.ReactNode;
 }
 
 export function InfiniteScrollTrigger({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  loading,
 }: InfiniteScrollTriggerProps) {
   const { ref, inView } = useInView({ threshold: 0 });
 
@@ -24,11 +31,10 @@ export function InfiniteScrollTrigger({
 
   if (!hasNextPage) return null;
 
+  // Idle, the sentinel keeps a height so the observer has something to see come into view.
   return (
-    <div ref={ref} className="flex justify-center py-4">
-      {isFetchingNextPage && (
-        <div className="border-muted-foreground h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
-      )}
+    <div ref={ref} className={isFetchingNextPage ? undefined : "h-8"}>
+      {isFetchingNextPage && loading}
     </div>
   );
 }

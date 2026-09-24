@@ -7,7 +7,8 @@ import { useUser } from "@/components/auth/user-context";
 import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { InfiniteScrollTrigger } from "../infinite-scroll-trigger";
+import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
+import { PostCardSkeleton } from "./post-list-skeleton";
 import { PostCard } from "./post-card";
 
 export function PostList() {
@@ -70,6 +71,12 @@ export function PostList() {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={fetchNextPage}
+        loading={
+          <div className="divide-y border-t">
+            <PostCardSkeleton />
+            <PostCardSkeleton />
+          </div>
+        }
       />
     </div>
   );
