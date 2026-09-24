@@ -1,14 +1,13 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
 import { Button } from "@v1/ui/button";
 import { useState } from "react";
-import { RelativeTime } from "@/components/relative-time";
 import { useScopedI18n } from "@/locales/client";
+import { AuthorLine } from "./author-line";
 import { useTRPC } from "@/trpc/react";
 import { CommentForm } from "./comment-form";
-import { CommentReactionButtons } from "./comment-reaction-buttons";
+import { CommentReactions } from "./comment-reactions";
 import { TipTapRenderer } from "./tiptap-renderer";
 
 interface CommentListProps {
@@ -55,28 +54,15 @@ export function CommentList({ postId }: CommentListProps) {
               : [];
             return (
               <li key={comment.id} className="space-y-2 py-5">
-                <div className="flex items-center gap-2">
-                  <Avatar className="size-5 shrink-0 rounded-none">
-                    <AvatarImage
-                      src={author?.avatar_url ?? undefined}
-                      className="rounded-none"
-                    />
-                    <AvatarFallback className="rounded-none text-[10px] font-semibold">
-                      {author?.nickname?.[0]?.toUpperCase() ?? "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="label-caps text-foreground">
-                    {author?.nickname ?? t("unknown")}
-                  </span>
-                  <RelativeTime
-                    date={comment.created_at}
-                    className="label-caps"
-                  />
-                </div>
+                <AuthorLine
+                  name={author?.nickname ?? t("unknown")}
+                  avatarUrl={author?.avatar_url}
+                  date={comment.created_at}
+                />
                 <TipTapRenderer
                   content={comment.content as Record<string, unknown>}
                 />
-                <CommentReactionButtons
+                <CommentReactions
                   commentId={comment.id}
                   postId={postId}
                   likes={comment.likes}
