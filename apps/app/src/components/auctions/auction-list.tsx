@@ -13,7 +13,6 @@ import { PageHeader } from "@/components/page-header";
 import { PageShell } from "@/components/page-shell";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { riotId } from "./auction-contract";
 import { useAuctionRealtime } from "./use-auction-realtime";
 
 function ConnectionBadge({
@@ -103,8 +102,10 @@ export function AuctionList() {
                       <span className="text-muted-foreground"> vs </span>
                       {room.teamB.teamName}
                     </h2>
-                    <p className="num truncate text-xs text-muted-foreground">
-                      {riotId(room.teamA)} · {riotId(room.teamB)}
+                    <p className="truncate text-xs text-muted-foreground">
+                      {[room.teamA.captain, room.teamB.captain]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </p>
                   </div>
 

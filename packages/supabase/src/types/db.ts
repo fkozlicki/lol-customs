@@ -14,7 +14,6 @@ export type Database = {
           active_slot: boolean;
           budget_remaining: number;
           joined_at: string;
-          player_id: string;
           ready: boolean;
           room_id: string;
           side: string;
@@ -25,7 +24,6 @@ export type Database = {
           active_slot?: boolean;
           budget_remaining: number;
           joined_at?: string;
-          player_id: string;
           ready?: boolean;
           room_id: string;
           side: string;
@@ -36,7 +34,6 @@ export type Database = {
           active_slot?: boolean;
           budget_remaining?: number;
           joined_at?: string;
-          player_id?: string;
           ready?: boolean;
           room_id?: string;
           side?: string;
@@ -44,13 +41,6 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [
-          {
-            foreignKeyName: "auction_captains_player_id_fkey";
-            columns: ["player_id"];
-            isOneToOne: false;
-            referencedRelation: "auction_players";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "auction_captains_room_id_fkey";
             columns: ["room_id"];
@@ -121,7 +111,6 @@ export type Database = {
           draw_position: number | null;
           game_name: string;
           id: string;
-          is_captain: boolean;
           purchase_price: number | null;
           rank_snapshot: Json;
           revealed: boolean;
@@ -135,7 +124,6 @@ export type Database = {
           draw_position?: number | null;
           game_name: string;
           id?: string;
-          is_captain?: boolean;
           purchase_price?: number | null;
           rank_snapshot?: Json;
           revealed?: boolean;
@@ -149,7 +137,6 @@ export type Database = {
           draw_position?: number | null;
           game_name?: string;
           id?: string;
-          is_captain?: boolean;
           purchase_price?: number | null;
           rank_snapshot?: Json;
           revealed?: boolean;
@@ -176,14 +163,14 @@ export type Database = {
           creator_id: string;
           current_bid: number;
           current_player_id: string | null;
+          first_opener_side: string | null;
           id: string;
           last_activity_at: string;
           leading_side: string | null;
-          opening_passed_a: boolean;
-          opening_passed_b: boolean;
           order_visible: boolean;
           phase: string | null;
           phase_deadline: string | null;
+          round_number: number;
           starting_budget: number;
           state_version: number;
           status: string;
@@ -198,14 +185,14 @@ export type Database = {
           creator_id: string;
           current_bid?: number;
           current_player_id?: string | null;
+          first_opener_side?: string | null;
           id?: string;
           last_activity_at?: string;
           leading_side?: string | null;
-          opening_passed_a?: boolean;
-          opening_passed_b?: boolean;
           order_visible?: boolean;
           phase?: string | null;
           phase_deadline?: string | null;
+          round_number?: number;
           starting_budget?: number;
           state_version?: number;
           status?: string;
@@ -220,14 +207,14 @@ export type Database = {
           creator_id?: string;
           current_bid?: number;
           current_player_id?: string | null;
+          first_opener_side?: string | null;
           id?: string;
           last_activity_at?: string;
           leading_side?: string | null;
-          opening_passed_a?: boolean;
-          opening_passed_b?: boolean;
           order_visible?: boolean;
           phase?: string | null;
           phase_deadline?: string | null;
+          round_number?: number;
           starting_budget?: number;
           state_version?: number;
           status?: string;
@@ -942,6 +929,17 @@ export type Database = {
         Returns: undefined;
       };
       _auction_actor_id: { Args: never; Returns: string };
+      _auction_award_locked: {
+        Args: {
+          p_actor_user_id?: string;
+          p_amount: number;
+          p_reason: string;
+          p_request_id?: string;
+          p_room_id: string;
+          p_side: string;
+        };
+        Returns: undefined;
+      };
       _auction_fail: { Args: { p_code: string }; Returns: undefined };
       _auction_request_room: {
         Args: { p_actor_id: string; p_request_id: string };
@@ -959,7 +957,10 @@ export type Database = {
         Args: { p_room_id: string; p_status: string };
         Returns: undefined;
       };
-      _auction_skip_locked: { Args: { p_room_id: string }; Returns: undefined };
+      _auction_share_rest_locked: {
+        Args: { p_first_side: string; p_room_id: string };
+        Returns: undefined;
+      };
       _auction_snapshot: {
         Args: { p_room_id: string; p_viewer_id: string };
         Returns: Json;
@@ -1017,7 +1018,6 @@ export type Database = {
       auction_create_room: {
         Args: {
           p_bid_seconds: number;
-          p_captain_riot_id: string;
           p_order_visible: boolean;
           p_players: Json;
           p_request_id: string;
@@ -1028,12 +1028,7 @@ export type Database = {
       };
       auction_get_room: { Args: { p_room_id: string }; Returns: Json };
       auction_join_captain: {
-        Args: {
-          p_player_id: string;
-          p_request_id: string;
-          p_room_id: string;
-          p_team_name: string;
-        };
+        Args: { p_request_id: string; p_room_id: string; p_team_name: string };
         Returns: Json;
       };
       auction_leave_captain: {
@@ -1056,6 +1051,10 @@ export type Database = {
       };
       auction_set_ready: {
         Args: { p_ready: boolean; p_request_id: string; p_room_id: string };
+        Returns: Json;
+      };
+      auction_take: {
+        Args: { p_request_id: string; p_room_id: string };
         Returns: Json;
       };
       auction_tick: { Args: never; Returns: number };

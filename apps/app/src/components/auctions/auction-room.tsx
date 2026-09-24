@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
 import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
@@ -12,6 +13,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
 import { Icons } from "@/components/icons";
 import { PageShell } from "@/components/page-shell";
+import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {
@@ -20,11 +22,10 @@ import {
   type AuctionSide,
   captainFor,
   playersFor,
-  riotId,
 } from "./auction-contract";
 import { AuctionCountdown } from "./auction-countdown";
 import { ConnectionBadge } from "./auction-list";
-import { AuctionRank, AuctionSetupForm } from "./auction-setup-form";
+import { AuctionSetupForm } from "./auction-setup-form";
 import { useAuctionRealtime } from "./use-auction-realtime";
 
 function TeamRoster({
@@ -40,7 +41,7 @@ function TeamRoster({
   const remaining = captain?.budgetRemaining ?? room.budget;
   const spent = room.budget - remaining;
   const isLeading = room.currentLeaderSide === side;
-  const slots = Array.from({ length: 5 }, (_, index) => players[index] ?? null);
+  const slots = Array.from({ length: 4 }, (_, index) => players[index] ?? null);
 
   return (
     <section className="space-y-4">
@@ -67,34 +68,41 @@ function TeamRoster({
       </div>
 
       <ol className="divide-y border-b">
+        <li className="flex h-14 items-center gap-3">
+          <span className="num w-4 shrink-0 text-xs text-muted-foreground">
+            1
+          </span>
+          <div className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5 truncate text-sm font-medium">
+              {captain?.profileNickname ?? t("lobby.openSlot")}
+              <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
+            </span>
+            <span className="label-caps">{t("room.captain")}</span>
+          </div>
+        </li>
         {slots.map((player, index) => (
           <li
             key={player?.id ?? `empty-${side}-${index}`}
             className="flex h-14 items-center gap-3"
           >
             <span className="num w-4 shrink-0 text-xs text-muted-foreground">
-              {index + 1}
+              {index + 2}
             </span>
             {player ? (
               <>
                 <div className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1.5 truncate text-sm font-medium">
+                  <span className="block truncate text-sm font-medium">
                     {player.gameName}
-                    {captain?.playerId === player.id && (
-                      <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
-                    )}
                   </span>
-                  <AuctionRank
-                    tier={player.soloTier}
-                    label={player.soloRankLabel}
-                  />
+                  <RankTag tier={player.soloTier}>
+                    {player.soloRankLabel || t("room.unranked")}
+                  </RankTag>
                 </div>
-                {captain?.playerId !== player.id &&
-                  player.purchasePrice != null && (
-                    <span className="num shrink-0 text-sm">
-                      ${player.purchasePrice}
-                    </span>
-                  )}
+                {player.purchasePrice != null && (
+                  <span className="num shrink-0 text-sm">
+                    ${player.purchasePrice}
+                  </span>
+                )}
               </>
             ) : (
               <span className="flex-1 border-b border-dashed" />
@@ -118,9 +126,11 @@ function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
       : "";
     if (event.type === "bid")
       return t("feed.bid", { team, amount: event.amount ?? 0, player: name });
-    if (event.type === "pass") return t("feed.pass", { team });
-    if (event.type === "pass_skipped")
-      return t("feed.passSkipped", { team, player: name });
+    if (event.type === "opening_bid")
+      return t("feed.openingBid", { team, player: name });
+    if (event.type === "concede")
+      return t("feed.concede", { team, player: name });
+    if (event.type === "pass") return t("feed.pass", { team, player: name });
     if (event.type === "sold")
       return t("feed.sold", { team, amount: event.amount ?? 0, player: name });
     if (event.type === "auto_assigned")
@@ -176,68 +186,35 @@ function ActiveStage({
   refresh: () => void;
 }) {
   const t = useScopedI18n("dashboard.pages.auctions");
-  const trpc = useTRPC();
   const current = room.players.find(
     (player) => player.id === room.currentPlayerId,
   );
-  const mySide = room.permissions.mySide;
-  const myCaptain = mySide ? captainFor(room, mySide) : undefined;
-  const opponentSide = mySide === "A" ? "B" : "A";
-  const opponentCaptain = mySide ? captainFor(room, opponentSide) : undefined;
-  const myBudget = myCaptain?.budgetRemaining ?? 0;
-  const opponentBudget = opponentCaptain?.budgetRemaining ?? 0;
-  const minimumBid = (room.currentBid ?? 0) + 1;
-  // passive rule: against a broke opponent the active side may only bid "$1 over"
-  const maxBid = opponentBudget === 0 ? minimumBid : myBudget;
-  const allIn = myBudget;
-  const [amount, setAmount] = useState(minimumBid);
-  // keep a legally-entered higher bid instead of snapping back to the minimum
-  useEffect(() => {
-    setAmount((current) =>
-      current < minimumBid ? minimumBid : Math.min(current, maxBid),
+  const opening = [...room.events]
+    .reverse()
+    .find(
+      (event) =>
+        event.type === "opening_bid" && event.playerId === room.currentPlayerId,
     );
-  }, [minimumBid, maxBid]);
-  const failed = (error: { message: string }) => {
-    toast.error(error.message);
-    refresh();
-  };
-  const bid = useMutation(
-    trpc.auctions.bid.mutationOptions({ onSuccess: refresh, onError: failed }),
-  );
-  const pass = useMutation(
-    trpc.auctions.pass.mutationOptions({ onSuccess: refresh, onError: failed }),
-  );
-  const canBid =
-    room.permissions.canBid &&
-    room.currentLeaderSide !== mySide &&
-    myBudget >= minimumBid;
-  const canPass = room.permissions.canPass;
-  const opponentIsBroke = opponentBudget === 0;
-  const iAmBroke = myBudget === 0;
-  const moneyDecision =
-    room.phase === "awaiting_opening_bid" && opponentIsBroke && !iAmBroke;
-  const passLabel =
-    room.phase === "awaiting_opening_bid"
-      ? t("actions.passOpening")
-      : t("actions.pass");
-  const passHint =
-    room.phase === "awaiting_opening_bid"
-      ? t("room.passOpeningHint")
-      : t("room.passHint");
-  const isOpening = room.phase === "awaiting_opening_bid";
-  const myPassFlag = mySide ? (mySide === "A" ? "a" : "b") : null;
-  const opponentPassFlag = mySide === "A" ? "b" : mySide === "B" ? "a" : null;
-  const myPassed = myPassFlag ? room.openingPass[myPassFlag] : false;
-  const opponentPassed = opponentPassFlag
-    ? room.openingPass[opponentPassFlag]
-    : false;
+  const openerTeam = opening?.side
+    ? (captainFor(room, opening.side)?.teamName ?? opening.side)
+    : null;
 
   return (
     <section className="flex min-h-[26rem] flex-col justify-between gap-8 border-b pb-8">
       <div className="flex items-start justify-between gap-4">
-        <span className="label-caps text-foreground">
-          {t(`phase.${room.phase ?? "awaiting_opening_bid"}`)}
-        </span>
+        <div className="space-y-1">
+          <span className="label-caps block text-foreground">
+            {t(`phase.${room.phase ?? "bidding"}`)}
+          </span>
+          {room.roundNumber > 0 && (
+            <span className="label-caps block">
+              {t("room.round", {
+                round: room.roundNumber,
+                total: AUCTION_POOL_SIZE,
+              })}
+            </span>
+          )}
+        </div>
         {room.currentLeaderSide && (
           <span className="label-caps bg-foreground px-2 py-1 text-background">
             {t("room.leading", {
@@ -255,10 +232,9 @@ function ActiveStage({
             <h2 className="max-w-full truncate text-4xl font-semibold tracking-[-0.04em] sm:text-6xl">
               {current.gameName}
             </h2>
-            <AuctionRank
-              tier={current.soloTier}
-              label={current.soloRankLabel}
-            />
+            <RankTag tier={current.soloTier}>
+              {current.soloRankLabel || t("room.unranked")}
+            </RankTag>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 sm:items-end">
@@ -267,25 +243,19 @@ function ActiveStage({
               <p className="num text-6xl font-semibold leading-none sm:text-7xl">
                 ${room.currentBid ?? 0}
               </p>
+              {openerTeam && room.phase !== "sold_pause" && (
+                <p className="label-caps mt-2">
+                  {t("room.opened", { team: openerTeam })}
+                </p>
+              )}
             </div>
             <div className="sm:text-right">
-              {room.phaseEndsAt && room.phase === "bidding" ? (
+              {room.phaseEndsAt && room.phase !== "sold_pause" ? (
                 <AuctionCountdown
                   deadline={room.phaseEndsAt}
                   serverNow={room.serverNow}
                   durationSeconds={room.bidSeconds}
                 />
-              ) : room.phase === "awaiting_opening_bid" ? (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
-                    {t("room.waitingFirstBid")}
-                  </p>
-                  {opponentPassed && (
-                    <p className="label-caps text-foreground">
-                      {t("room.opponentPassed")}
-                    </p>
-                  )}
-                </div>
               ) : (
                 <p className="text-lg font-semibold uppercase tracking-[-0.02em]">
                   {t("room.soldPause")}
@@ -294,103 +264,12 @@ function ActiveStage({
             </div>
           </div>
 
-          {mySide && room.phase !== "sold_pause" && (
-            <div className="space-y-3 border-t pt-6">
-              {isOpening && myPassed && (
-                <p className="label-caps flex items-center gap-2 text-foreground">
-                  <Icons.Check className="size-4" />
-                  {t("room.myPassed")}
-                </p>
-              )}
-              {moneyDecision ? (
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Button
-                    size="lg"
-                    disabled={!canBid || bid.isPending}
-                    onClick={() =>
-                      bid.mutate({ id: room.id, amount: minimumBid })
-                    }
-                  >
-                    {t("actions.takeForOne")}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    disabled={!canPass || pass.isPending}
-                    onClick={() => pass.mutate({ id: room.id })}
-                  >
-                    {t("actions.sendBack")}
-                  </Button>
-                </div>
-              ) : iAmBroke ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("room.iAmBroke")}
-                </p>
-              ) : (
-                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      min={minimumBid}
-                      max={maxBid}
-                      value={Number.isNaN(amount) ? "" : amount}
-                      onChange={(event) =>
-                        setAmount(event.target.valueAsNumber)
-                      }
-                      aria-label={t("actions.customBid")}
-                      className="num h-11 w-24 text-lg"
-                    />
-                    <Button
-                      size="lg"
-                      className="flex-1"
-                      disabled={
-                        !canBid ||
-                        bid.isPending ||
-                        amount < minimumBid ||
-                        amount > maxBid
-                      }
-                      onClick={() => bid.mutate({ id: room.id, amount })}
-                    >
-                      {t("actions.bid")} ${Number.isNaN(amount) ? "" : amount}
-                    </Button>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      disabled={!canBid || bid.isPending || minimumBid > maxBid}
-                      onClick={() =>
-                        bid.mutate({ id: room.id, amount: minimumBid })
-                      }
-                    >
-                      +1
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      disabled={
-                        !canBid ||
-                        bid.isPending ||
-                        allIn < minimumBid ||
-                        allIn > maxBid
-                      }
-                      onClick={() => bid.mutate({ id: room.id, amount: allIn })}
-                    >
-                      {t("actions.allIn")}
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="ghost"
-                      disabled={!canPass || pass.isPending}
-                      onClick={() => pass.mutate({ id: room.id })}
-                    >
-                      {passLabel}
-                    </Button>
-                  </div>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">{passHint}</p>
-            </div>
+          {room.permissions.mySide && room.phase !== "sold_pause" && (
+            <RoundControls
+              key={room.currentPlayerId}
+              room={room}
+              refresh={refresh}
+            />
           )}
         </>
       ) : (
@@ -399,6 +278,134 @@ function ActiveStage({
         </p>
       )}
     </section>
+  );
+}
+
+/** Keyed by the current player, so the bid amount starts from the minimum every round. */
+function RoundControls({
+  room,
+  refresh,
+}: {
+  room: AuctionRoomSnapshot;
+  refresh: () => void;
+}) {
+  const t = useScopedI18n("dashboard.pages.auctions");
+  const trpc = useTRPC();
+  const mySide = room.permissions.mySide;
+  const myBudget = mySide
+    ? (captainFor(room, mySide)?.budgetRemaining ?? 0)
+    : 0;
+  const minimumBid = (room.currentBid ?? 0) + 1;
+  const [amount, setAmount] = useState(minimumBid);
+  // keep a legally-entered higher bid instead of snapping back to the minimum
+  useEffect(() => {
+    setAmount((current) =>
+      current < minimumBid ? minimumBid : Math.min(current, myBudget),
+    );
+  }, [minimumBid, myBudget]);
+
+  const failed = (error: { message: string }) => {
+    toast.error(error.message);
+    refresh();
+  };
+  const bid = useMutation(
+    trpc.auctions.bid.mutationOptions({ onSuccess: refresh, onError: failed }),
+  );
+  const pass = useMutation(
+    trpc.auctions.pass.mutationOptions({ onSuccess: refresh, onError: failed }),
+  );
+  const take = useMutation(
+    trpc.auctions.take.mutationOptions({ onSuccess: refresh, onError: failed }),
+  );
+  const { canBid, canConcede, canPass, canTake } = room.permissions;
+  const busy = bid.isPending || pass.isPending || take.isPending;
+
+  if (room.phase === "free_auction") {
+    return (
+      <div className="space-y-3 border-t pt-6">
+        {canTake ? (
+          <>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button
+                size="lg"
+                disabled={busy}
+                onClick={() => take.mutate({ id: room.id })}
+              >
+                {t("actions.takeForOne")}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                disabled={!canPass || busy}
+                onClick={() => pass.mutate({ id: room.id })}
+              >
+                {t("actions.pass")}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("room.freeAuctionHint")}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("room.iAmBroke")}</p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 border-t pt-6">
+      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            min={minimumBid}
+            max={myBudget}
+            value={Number.isNaN(amount) ? "" : amount}
+            onChange={(event) => setAmount(event.target.valueAsNumber)}
+            aria-label={t("actions.customBid")}
+            className="num h-11 w-24 text-lg"
+          />
+          <Button
+            size="lg"
+            className="flex-1"
+            disabled={
+              !canBid || busy || amount < minimumBid || amount > myBudget
+            }
+            onClick={() => bid.mutate({ id: room.id, amount })}
+          >
+            {t("actions.bid")} ${Number.isNaN(amount) ? "" : amount}
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="lg"
+            variant="outline"
+            disabled={!canBid || busy}
+            onClick={() => bid.mutate({ id: room.id, amount: minimumBid })}
+          >
+            +1
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            disabled={!canBid || busy}
+            onClick={() => bid.mutate({ id: room.id, amount: myBudget })}
+          >
+            {t("actions.allIn")}
+          </Button>
+          <Button
+            size="lg"
+            variant="ghost"
+            disabled={!canConcede || busy}
+            onClick={() => pass.mutate({ id: room.id })}
+          >
+            {t("actions.concede")}
+          </Button>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">{t("room.concedeHint")}</p>
+    </div>
   );
 }
 
@@ -412,15 +419,10 @@ function Lobby({
   const t = useScopedI18n("dashboard.pages.auctions");
   const trpc = useTRPC();
   const { profile, openSignInDialog } = useUser();
-  const [selectedPlayer, setSelectedPlayer] = useState("");
   const [teamName, setTeamName] = useState(
     room.permissions.mySide
       ? (captainFor(room, room.permissions.mySide)?.teamName ?? "")
       : "Team B",
-  );
-  const available = room.players.filter(
-    (player) =>
-      !room.captains.some((captain) => captain.playerId === player.id),
   );
   const failed = (error: { message: string }) => {
     toast.error(error.message);
@@ -502,13 +504,7 @@ function Lobby({
                       {captain?.teamName ?? t(`room.team${side}`)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {captain
-                        ? riotId(
-                            room.players.find(
-                              (p) => p.id === captain.playerId,
-                            )!,
-                          )
-                        : t("lobby.openSlot")}
+                      {captain?.profileNickname ?? t("lobby.openSlot")}
                     </p>
                   </div>
                   {captain && (
@@ -524,19 +520,6 @@ function Lobby({
         {room.permissions.canJoin && (
           <div className="space-y-3 border p-4">
             <h3 className="font-semibold">{t("lobby.joinTitle")}</h3>
-            <Label>{t("lobby.chooseYourself")}</Label>
-            <div className="grid max-h-48 gap-2 overflow-y-auto sm:grid-cols-2">
-              {available.map((player) => (
-                <button
-                  type="button"
-                  key={player.id}
-                  onClick={() => setSelectedPlayer(player.id)}
-                  className={`border p-2 text-left text-sm ${selectedPlayer === player.id ? "bg-foreground text-background" : ""}`}
-                >
-                  {riotId(player)}
-                </button>
-              ))}
-            </div>
             <Input
               value={teamName}
               maxLength={100}
@@ -544,14 +527,10 @@ function Lobby({
               placeholder={t("lobby.teamName")}
             />
             <Button
-              disabled={!selectedPlayer || !teamName.trim() || join.isPending}
+              disabled={!teamName.trim() || join.isPending}
               onClick={() =>
                 profile
-                  ? join.mutate({
-                      id: room.id,
-                      playerId: selectedPlayer,
-                      teamName,
-                    })
+                  ? join.mutate({ id: room.id, teamName })
                   : openSignInDialog()
               }
             >
@@ -758,19 +737,15 @@ export function AuctionRoom({ id }: { id: string }) {
                   <AuctionSetupForm
                     roomId={room.id}
                     initialPlayers={room.players.map((player) => ({
-                      key: player.id,
                       gameName: player.gameName,
                       tagLine: player.tagLine,
-                      platformId: player.platformId,
+                      rankTier: player.soloTier,
+                      rankDivision: player.soloDivision,
                     }))}
-                    initialCaptainKey={captainFor(room, "A")?.playerId}
                     initialTeamName={captainFor(room, "A")?.teamName}
                     initialBudget={room.budget}
                     initialBidSeconds={room.bidSeconds}
                     initialRevealOrder={room.showOrder}
-                    lockedPlayerKeys={room.captains.map(
-                      (captain) => captain.playerId,
-                    )}
                     onUpdated={refresh}
                   />
                 </div>
