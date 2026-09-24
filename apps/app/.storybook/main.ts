@@ -26,6 +26,8 @@ const config: StorybookConfig = {
     },
   ],
   addons: ["@storybook/addon-docs", "@storybook/addon-themes"],
+  // Rank crests, role and objective icons are self-hosted under public/game/, as in the app.
+  staticDirs: ["../public"],
 };
 
 export default config;

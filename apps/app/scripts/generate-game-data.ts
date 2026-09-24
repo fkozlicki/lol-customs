@@ -1,5 +1,6 @@
 /**
- * Writes src/game-data/champions.ts from Data Dragon.
+ * Writes src/game-data/champions.ts from Data Dragon, and downloads the self-hosted icons into
+ * public/game/.
  *
  * Match data names a champion by its numeric key; showing it needs the name and the image file.
  * Those used to come from a tRPC route that downloaded 846 KB of Data Dragon JSON every hour to
@@ -8,19 +9,21 @@
  *
  * Run it after a champion release: `bun run --cwd apps/app generate:game-data`. Until then a new
  * champion shows the placeholder rather than breaking the page.
+ *
+ * The icons — rank crests, role icons, objective icons — come from Community Dragon, pinned to the
+ * version matching the patch rather than `latest`, which is a moving alias. The list of files is
+ * `LOCAL_ASSETS` in src/utils/asset-urls.ts, the same module that hands their paths to components.
  */
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { LOCAL_ASSETS } from "../src/utils/asset-urls";
 
 const DD = "https://ddragon.leagueoflegends.com";
-const OUT = join(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "..",
-  "src",
-  "game-data",
-  "champions.ts",
-);
+const CDRAGON = "https://raw.communitydragon.org";
+const APP_DIR = join(fileURLToPath(new URL(".", import.meta.url)), "..");
+const OUT = join(APP_DIR, "src", "game-data", "champions.ts");
+const PUBLIC_DIR = join(APP_DIR, "public");
 
 interface ChampionJson {
   data: Record<string, { key: string; name: string; image: { full: string } }>;
@@ -73,3 +76,22 @@ ${lines.join("\n")}
 );
 
 console.log(`Wrote ${entries.length} champions from patch ${patch} to ${OUT}`);
+
+// Community Dragon names its versions major.minor, so 16.19.1 is 16.19.
+const assetVersion = patch.split(".").slice(0, 2).join(".");
+
+for (const asset of LOCAL_ASSETS) {
+  const url = `${CDRAGON}/${assetVersion}/${asset.source}`;
+  const response = await fetch(url);
+  const type = response.headers.get("content-type") ?? "";
+  if (!response.ok || !type.startsWith("image/")) {
+    throw new Error(`${response.status} ${type} ${url}`);
+  }
+  const file = join(PUBLIC_DIR, asset.path);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+}
+
+console.log(
+  `Wrote ${LOCAL_ASSETS.length} icons from Community Dragon ${assetVersion} to public/game/`,
+);

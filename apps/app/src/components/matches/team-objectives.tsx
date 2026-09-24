@@ -1,5 +1,6 @@
 import { cn } from "@v1/ui/cn";
 import Image from "next/image";
+import { objectiveIconUrl } from "@/utils/asset-urls";
 
 interface TeamObjectivesProps {
   baronKills: number;
@@ -11,25 +12,6 @@ interface TeamObjectivesProps {
   align?: "left" | "right";
 }
 
-const MATCH_HISTORY_ICONS_BASE =
-  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-match-history/global/default/";
-
-const OBJECTIVE_ICONS = {
-  baron: "baron-100.png",
-  dragon: "dragon-100.png",
-  herald: "herald-100.png",
-  inhibitor: "inhibitor-100.png",
-  tower: "tower-100.png",
-} as const;
-
-const OBJECTIVE_ICONS_RED = {
-  baron: "baron-200.png",
-  dragon: "dragon-200.png",
-  herald: "herald-200.png",
-  inhibitor: "inhibitor-200.png",
-  tower: "tower-200.png",
-} as const;
-
 export function TeamObjectives({
   baronKills,
   dragonKills,
@@ -39,15 +21,12 @@ export function TeamObjectives({
   teamName,
   align = "left",
 }: TeamObjectivesProps) {
-  const objectiveIcons =
-    teamName === "blue" ? OBJECTIVE_ICONS : OBJECTIVE_ICONS_RED;
-
   return (
     <div className="flex items-center gap-2 justify-center sm:block sm:space-y-1">
       <div className={cn("flex gap-2", align === "right" && "justify-end")}>
         <div className="flex items-center gap-1.5 text-xs">
           <Image
-            src={`${MATCH_HISTORY_ICONS_BASE}${objectiveIcons.baron}`}
+            src={objectiveIconUrl("baron", teamName)}
             alt=""
             width={16}
             height={16}
@@ -57,7 +36,7 @@ export function TeamObjectives({
         </div>
         <div className="flex items-center gap-1.5 text-xs">
           <Image
-            src={`${MATCH_HISTORY_ICONS_BASE}${objectiveIcons.dragon}`}
+            src={objectiveIconUrl("dragon", teamName)}
             alt=""
             width={16}
             height={16}
@@ -67,7 +46,7 @@ export function TeamObjectives({
         </div>
         <div className="flex items-center gap-1.5 text-xs">
           <Image
-            src={`${MATCH_HISTORY_ICONS_BASE}${objectiveIcons.herald}`}
+            src={objectiveIconUrl("herald", teamName)}
             alt=""
             width={16}
             height={16}
@@ -80,7 +59,7 @@ export function TeamObjectives({
       <div className={cn("flex gap-2", align === "right" && "justify-end")}>
         <div className="flex items-center gap-1.5 text-xs">
           <Image
-            src={`${MATCH_HISTORY_ICONS_BASE}${objectiveIcons.inhibitor}`}
+            src={objectiveIconUrl("inhibitor", teamName)}
             alt=""
             width={16}
             height={16}
@@ -90,7 +69,7 @@ export function TeamObjectives({
         </div>
         <div className="flex items-center gap-1.5 text-xs">
           <Image
-            src={`${MATCH_HISTORY_ICONS_BASE}${objectiveIcons.tower}`}
+            src={objectiveIconUrl("tower", teamName)}
             alt=""
             width={16}
             height={16}
