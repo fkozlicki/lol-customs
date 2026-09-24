@@ -34,6 +34,12 @@ jobs:
         run: bun install
       - name: Build Storybook
         run: bun x turbo build-storybook --filter=@v1/app
+        # `src/env.mjs` validates on import, in the browser bundle too, and `skipValidation` reads
+        # `process.env.CI`, which only exists on the Node side. Stories never reach Supabase, but any
+        # that import the env module need these defined, so the build gets placeholders.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: storybook-placeholder
       - name: Cache the browser
         uses: actions/cache@v4
         with:
