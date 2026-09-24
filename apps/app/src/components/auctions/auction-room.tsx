@@ -4,14 +4,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
-import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
 import { Label } from "@v1/ui/label";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { DerbyIcons } from "@/components/derby-icons";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {
@@ -81,7 +80,7 @@ function TeamRoster({
                   <span className="flex items-center gap-1.5 truncate text-sm font-medium">
                     {player.gameName}
                     {captain?.playerId === player.id && (
-                      <DerbyIcons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
+                      <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
                     )}
                   </span>
                   <AuctionRank
@@ -643,7 +642,7 @@ export function AuctionRoom({ id }: { id: string }) {
       <div className="mx-auto max-w-xl p-6">
         <Card>
           <CardContent className="py-16 text-center">
-            <DerbyIcons.Auction className="mx-auto mb-4 size-10 text-muted-foreground" />
+            <Icons.Auction className="mx-auto mb-4 size-10 text-muted-foreground" />
             <h1 className="text-xl font-semibold">
               {t(`terminal.${room.status}Title`)}
             </h1>

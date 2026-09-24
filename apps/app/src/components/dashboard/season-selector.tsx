@@ -11,9 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
-import { Icons } from "@v1/ui/icons";
 import { usePathname } from "next/navigation";
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {

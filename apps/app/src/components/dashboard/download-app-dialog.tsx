@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@v1/ui/dialog";
-import { Icons } from "@v1/ui/icons";
+import { Icons } from "@/components/icons";
 import { env } from "@/env.mjs";
 import { useScopedI18n } from "@/locales/client";
 import { useDownloadDialog } from "./use-download-dialog";

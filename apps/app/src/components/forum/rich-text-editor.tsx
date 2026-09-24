@@ -8,9 +8,9 @@ import StarterKit from "@tiptap/starter-kit";
 import { createClient } from "@v1/supabase/client";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
 import { toast } from "@v1/ui/sonner";
 import { forwardRef, useImperativeHandle, useRef } from "react";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 

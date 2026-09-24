@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { DerbyIcons } from "@/components/derby-icons";
+import { Icons } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
@@ -61,7 +61,7 @@ export function AuctionList() {
         <div className="flex items-center gap-4">
           <ConnectionBadge state={connection} />
           <Button onClick={createAuction} disabled={userLoading}>
-            <DerbyIcons.Auction className="size-4" />
+            <Icons.Auction className="size-4" />
             {t("list.create")}
           </Button>
         </div>
@@ -144,7 +144,7 @@ export function AuctionList() {
             onClick={createAuction}
             disabled={userLoading}
           >
-            <DerbyIcons.Auction className="size-4" />
+            <Icons.Auction className="size-4" />
             {t("list.create")}
           </Button>
         </div>

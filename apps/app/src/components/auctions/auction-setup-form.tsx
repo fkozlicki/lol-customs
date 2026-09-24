@@ -5,15 +5,14 @@ import type { RouterOutputs } from "@v1/api";
 import { formatRiotId, parseRiotId, riotIdKey } from "@v1/domain/riot-id";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
 import { Label } from "@v1/ui/label";
 import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { DerbyIcons } from "@/components/derby-icons";
 import { RankCrest } from "@/components/game-assets/rank-crest";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { DEFAULT_PLATFORM_ID } from "./auction-contract";
@@ -271,7 +270,7 @@ export function AuctionSetupForm({
                   </span>
                   {captainKey === player.key ? (
                     <span className="label-caps flex items-center gap-1.5 text-foreground">
-                      <DerbyIcons.Captain className="size-3.5" />
+                      <Icons.Captain className="size-3.5" />
                       {t("creator.youCaptain")}
                     </span>
                   ) : (

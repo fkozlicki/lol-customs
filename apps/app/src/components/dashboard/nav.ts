@@ -1,24 +1,23 @@
-import { Icons } from "@v1/ui/icons";
-import { DerbyIcons } from "@/components/derby-icons";
+import { Icons } from "@/components/icons";
 
 /** The places people come to Derby for; always one tap away. */
 export const PRIMARY_PATHS = [
   {
     path: "/",
     label: "sidebar.leaderboard",
-    Icon: DerbyIcons.Leaderboard,
+    Icon: Icons.Leaderboard,
     seasonScoped: true,
   },
   {
     path: "/matches",
     label: "sidebar.matchHistory",
-    Icon: DerbyIcons.Matches,
+    Icon: Icons.Matches,
     seasonScoped: true,
   },
   {
     path: "/hof",
     label: "sidebar.hallOfFame",
-    Icon: DerbyIcons.HallOfFame,
+    Icon: Icons.HallOfFame,
     seasonScoped: true,
   },
 ] as const;
@@ -28,13 +27,13 @@ export const TOOL_PATHS = [
   {
     path: "/shuffle",
     label: "sidebar.shuffle",
-    Icon: DerbyIcons.Shuffle,
+    Icon: Icons.Shuffle,
     seasonScoped: false,
   },
   {
     path: "/auctions",
     label: "sidebar.auctions",
-    Icon: DerbyIcons.Auction,
+    Icon: Icons.Auction,
     seasonScoped: false,
   },
 ] as const;

@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@v1/ui/sheet";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { DerbyIcons } from "@/components/derby-icons";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
@@ -44,7 +44,7 @@ export function MobileNav() {
               moreActive ? "text-foreground" : "text-muted-foreground",
             )}
           >
-            <DerbyIcons.More className="size-4" />
+            <Icons.More className="size-4" />
             <span className="font-mono text-[9px] uppercase tracking-[0.08em]">
               {t("sidebar.more")}
             </span>

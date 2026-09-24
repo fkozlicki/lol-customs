@@ -15,8 +15,9 @@ domain — a rank tag, a match card, a standings row — live in `apps/app/src/c
 shadcn's own split: `add button` lands in the package, the composed thing that uses it lands in the
 app.
 
-The icon map names icons after what they depict (`Gavel`, `Crown`, `Swords`). The mapping from a
-Derby term to a picture is in `apps/app/src/components/derby-icons.ts`.
+The icon map names icons after what they depict (`Gavel`, `Crown`, `Swords`), because Derby Sync
+draws from the same set for its own purposes. `apps/app/src/components/icons.ts` spreads this map and
+adds the Derby names on top, so a component in the app imports icons once.
 
 ## Tokens
 
