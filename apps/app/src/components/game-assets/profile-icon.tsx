@@ -30,7 +30,7 @@ export function ProfileIcon({
   const iconUrl = profileIconUrl(useGamePatch(), iconId);
   // Radix's Avatar renders its own <img> and switches to the fallback if it fails to load, which
   // next/image's component cannot do. getImageProps gives that <img> the optimised src and srcset.
-  const image = iconUrl
+  const imageProps = iconUrl
     ? getImageProps({
         src: iconUrl,
         alt: "",
@@ -41,10 +41,10 @@ export function ProfileIcon({
 
   return (
     <Avatar className={cn("shrink-0", avatarClassName)}>
-      {image ? (
+      {imageProps ? (
         <AvatarImage
-          src={image.src}
-          srcSet={image.srcSet}
+          src={imageProps.src}
+          srcSet={imageProps.srcSet}
           alt=""
           className="object-cover"
         />

@@ -1,6 +1,8 @@
 import { averageSoloRankMeta } from "./rank";
 
-const TEAM_ROLES = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"] as const;
+/** The five roles a drawn team fills, in the order a side is listed. */
+export const TEAM_ROLES = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"] as const;
+export type TeamRole = (typeof TEAM_ROLES)[number];
 
 /** A player on the shuffle roster; the rank is the last one recorded in a ladder match. */
 export interface RosterPlayer {
@@ -62,8 +64,8 @@ export function buildRandomTeams(roster: RosterPlayer[]): RandomTeamsResult {
       }))
       .sort(
         (a, b) =>
-          TEAM_ROLES.indexOf(a.role as (typeof TEAM_ROLES)[number]) -
-          TEAM_ROLES.indexOf(b.role as (typeof TEAM_ROLES)[number]),
+          TEAM_ROLES.indexOf(a.role as TeamRole) -
+          TEAM_ROLES.indexOf(b.role as TeamRole),
       );
     const average = averageSoloRankMeta(
       members.map((m) => ({ tier: m.rankTier, division: m.rankDivision })),

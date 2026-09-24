@@ -3,11 +3,11 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  LOCAL_ASSETS,
   objectiveIconUrl,
   positionRoleIconUrl,
   profileIconUrl,
   rankCrestUrl,
+  SELF_HOSTED_PATHS,
 } from "./asset-urls";
 
 const PUBLIC_DIR = join(
@@ -66,29 +66,25 @@ describe("objective icons", () => {
 });
 
 /**
- * The files are fetched by scripts/generate-game-data.ts. This is what keeps the two honest: any
- * path the module can hand a component has to exist, so an icon cannot be added in code and
- * forgotten in the download.
+ * The files are fetched by scripts/generate-game-data.ts from this same list. This is what keeps
+ * code and disk honest: an icon cannot be added in code and forgotten in the download.
  */
 describe("self-hosted files", () => {
   test("every path the module can produce exists in public/", () => {
-    const missing = LOCAL_ASSETS.map((asset) => asset.path).filter(
+    const missing = SELF_HOSTED_PATHS.filter(
       (path) => !existsSync(join(PUBLIC_DIR, path)),
     );
     expect(missing).toEqual([]);
   });
 
-  test("the list covers every crest, role and objective the module uses", () => {
-    const paths = new Set(LOCAL_ASSETS.map((asset) => asset.path));
-    for (const url of [
-      rankCrestUrl(null),
-      rankCrestUrl("challenger"),
-      positionRoleIconUrl("FILL"),
-      positionRoleIconUrl("JUNGLE"),
-      objectiveIconUrl("herald", "red"),
-      objectiveIconUrl("inhibitor", "blue"),
-    ]) {
-      expect(paths.has(url)).toBe(true);
-    }
+  test("lists each crest, role and objective once", () => {
+    // 10 tiers + unranked, 5 roles + the blank one, 5 objectives on 2 sides
+    expect(SELF_HOSTED_PATHS.length).toBe(11 + 6 + 10);
+    expect(new Set(SELF_HOSTED_PATHS).size).toBe(SELF_HOSTED_PATHS.length);
+  });
+
+  test("includes the fallbacks, which no real tier or role produces", () => {
+    expect(SELF_HOSTED_PATHS).toContain(rankCrestUrl(null));
+    expect(SELF_HOSTED_PATHS).toContain(positionRoleIconUrl("FILL"));
   });
 });

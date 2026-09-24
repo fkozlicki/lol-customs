@@ -4,12 +4,12 @@
  * Two kinds. Champion, item, spell and profile-icon art comes from Data Dragon, Riot's authorised
  * source, addressed by patch so a URL never changes what it points at; `next/image` resizes and
  * re-encodes it and serves it from our own domain. Rank crests, role icons and objective icons are
- * a small fixed set, so they are self-hosted under `public/game/`, fetched once from a pinned
- * Community Dragon version by `scripts/generate-game-data.ts`.
+ * a small fixed set, self-hosted under `public/game/` by `scripts/generate-game-data.ts`.
  *
  * Keeping every URL behind these functions means moving any of them to another origin later is a
  * change to this file alone.
  */
+import type { TeamRole } from "@v1/domain/shuffle";
 
 const DD_BASE = "https://ddragon.leagueoflegends.com";
 
@@ -35,7 +35,7 @@ export function profileIconUrl(
 
 // --- Self-hosted ---
 
-const RANK_TIERS = [
+const RANK_TIERS = new Set([
   "iron",
   "bronze",
   "silver",
@@ -46,66 +46,56 @@ const RANK_TIERS = [
   "master",
   "grandmaster",
   "challenger",
-] as const;
+]);
 
-/** The shuffle's roles, mapped to the file names of Riot's position-selector icons. */
-const ROLE_FILES: Record<string, string> = {
+/** Each role a drawn team fills, named the way Riot's position-selector icons are. */
+const ROLE_FILES = {
   TOP: "top",
   JUNGLE: "jungle",
   MID: "middle",
   ADC: "bottom",
   SUPPORT: "utility",
-};
+} as const satisfies Record<TeamRole, string>;
 
-const OBJECTIVES = ["baron", "dragon", "herald", "inhibitor", "tower"] as const;
+export const OBJECTIVES = [
+  "baron",
+  "dragon",
+  "herald",
+  "inhibitor",
+  "tower",
+] as const;
 export type Objective = (typeof OBJECTIVES)[number];
 
-/** Riot numbers the blue side 100 and the red side 200, and names the icons that way. */
+/** Riot numbers the blue side 100 and the red side 200, and names its icons that way. */
 const SIDE_ID = { blue: 100, red: 200 } as const;
+export type Side = keyof typeof SIDE_ID;
 
 export function rankCrestUrl(tier: string | null): string {
   const normalized = tier?.trim().toLowerCase() ?? "";
-  const known = (RANK_TIERS as readonly string[]).includes(normalized);
-  return `/game/ranks/${known ? normalized : "unranked"}.svg`;
+  return `/game/ranks/${RANK_TIERS.has(normalized) ? normalized : "unranked"}.svg`;
 }
 
+/** Takes a plain string because roles arrive from stored data; anything unknown is the blank icon. */
 export function positionRoleIconUrl(role: string): string {
-  return `/game/roles/${ROLE_FILES[role] ?? "none"}.png`;
+  const file = ROLE_FILES[role as TeamRole] ?? "none";
+  return `/game/roles/${file}.png`;
 }
 
-export function objectiveIconUrl(
-  objective: Objective,
-  side: "blue" | "red",
-): string {
+export function objectiveIconUrl(objective: Objective, side: Side): string {
   return `/game/objectives/${objective}-${SIDE_ID[side]}.png`;
 }
 
-// --- What the generator downloads ---
-
-const CDRAGON_RANKS =
-  "plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests";
-const CDRAGON_ROLES =
-  "plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions";
-const CDRAGON_OBJECTIVES = "plugins/rcp-fe-lol-match-history/global/default";
-
 /**
- * Every self-hosted file: where it lives under `public/`, and where it comes from on Community
- * Dragon, relative to a version root. The generator downloads exactly this list, and a test checks
- * that every path above is in it and on disk.
+ * Every path under `public/` the functions above can return, produced by calling them — so the
+ * list cannot drift from what components actually ask for. The generator downloads exactly these,
+ * and a test checks each one is on disk.
  */
-export const LOCAL_ASSETS: { path: string; source: string }[] = [
-  ...[...RANK_TIERS, "unranked"].map((tier) => ({
-    path: `/game/ranks/${tier}.svg`,
-    source: `${CDRAGON_RANKS}/${tier}.svg`,
-  })),
-  ...[...Object.values(ROLE_FILES), "none"].map((file) => ({
-    path: `/game/roles/${file}.png`,
-    source: `${CDRAGON_ROLES}/icon-position-${file}.png`,
-  })),
+export const SELF_HOSTED_PATHS: readonly string[] = [
+  ...[...RANK_TIERS, null].map(rankCrestUrl),
+  ...[...Object.keys(ROLE_FILES), "unknown"].map(positionRoleIconUrl),
   ...OBJECTIVES.flatMap((objective) =>
-    Object.values(SIDE_ID).map((id) => ({
-      path: `/game/objectives/${objective}-${id}.png`,
-      source: `${CDRAGON_OBJECTIVES}/${objective}-${id}.png`,
-    })),
+    (Object.keys(SIDE_ID) as Side[]).map((side) =>
+      objectiveIconUrl(objective, side),
+    ),
   ),
 ];

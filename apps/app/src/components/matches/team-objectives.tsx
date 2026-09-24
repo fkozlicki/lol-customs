@@ -1,6 +1,10 @@
 import { cn } from "@v1/ui/cn";
 import Image from "next/image";
-import { objectiveIconUrl } from "@/utils/asset-urls";
+import {
+  type Objective,
+  objectiveIconUrl,
+  type Side,
+} from "@/utils/asset-urls";
 
 interface TeamObjectivesProps {
   baronKills: number;
@@ -8,9 +12,15 @@ interface TeamObjectivesProps {
   heraldKills: number;
   inhibitorKills: number;
   towerKills: number;
-  teamName: "blue" | "red";
+  teamName: Side;
   align?: "left" | "right";
 }
+
+/** Two rows, in the order the client's end-of-game screen lists them. */
+const ROWS: readonly (readonly Objective[])[] = [
+  ["baron", "dragon", "herald"],
+  ["inhibitor", "tower"],
+];
 
 export function TeamObjectives({
   baronKills,
@@ -21,63 +31,35 @@ export function TeamObjectives({
   teamName,
   align = "left",
 }: TeamObjectivesProps) {
+  const counts: Record<Objective, number> = {
+    baron: baronKills,
+    dragon: dragonKills,
+    herald: heraldKills,
+    inhibitor: inhibitorKills,
+    tower: towerKills,
+  };
+
   return (
     <div className="flex items-center gap-2 justify-center sm:block sm:space-y-1">
-      <div className={cn("flex gap-2", align === "right" && "justify-end")}>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Image
-            src={objectiveIconUrl("baron", teamName)}
-            alt=""
-            width={16}
-            height={16}
-            className="shrink-0"
-          />
-          {baronKills}
+      {ROWS.map((row) => (
+        <div
+          key={row.join()}
+          className={cn("flex gap-2", align === "right" && "justify-end")}
+        >
+          {row.map((objective) => (
+            <div key={objective} className="flex items-center gap-1.5 text-xs">
+              <Image
+                src={objectiveIconUrl(objective, teamName)}
+                alt=""
+                width={16}
+                height={16}
+                className="shrink-0"
+              />
+              <span className="num">{counts[objective]}</span>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Image
-            src={objectiveIconUrl("dragon", teamName)}
-            alt=""
-            width={16}
-            height={16}
-            className="shrink-0"
-          />
-          {dragonKills}
-        </div>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Image
-            src={objectiveIconUrl("herald", teamName)}
-            alt=""
-            width={16}
-            height={16}
-            className="shrink-0"
-          />
-          {heraldKills}
-        </div>
-      </div>
-
-      <div className={cn("flex gap-2", align === "right" && "justify-end")}>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Image
-            src={objectiveIconUrl("inhibitor", teamName)}
-            alt=""
-            width={16}
-            height={16}
-            className="shrink-0"
-          />
-          {inhibitorKills}
-        </div>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Image
-            src={objectiveIconUrl("tower", teamName)}
-            alt=""
-            width={16}
-            height={16}
-            className="shrink-0"
-          />
-          {towerKills}
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
