@@ -46,7 +46,6 @@ export default async function PlayerProfilePage({
   if (!player) notFound();
 
   const puuid = player.puuid;
-  const platformId = player.platform_id ?? "eun1";
 
   const seasonStats = await getQueryClient().fetchQuery(
     trpc.players.profileStats.queryOptions({ puuid, season }),
@@ -79,13 +78,7 @@ export default async function PlayerProfilePage({
       ),
     );
   }
-  prefetch(
-    trpc.riot.getPlayerRankByRiotId.queryOptions({
-      gameName,
-      tagLine,
-      platformId,
-    }),
-  );
+  prefetch(trpc.players.soloRank.queryOptions({ puuid }));
 
   return (
     <HydrateClient>
@@ -94,7 +87,6 @@ export default async function PlayerProfilePage({
           puuid={puuid}
           gameName={gameName}
           tagLine={tagLine}
-          platformId={platformId}
         />
 
         {hasSeasonGames ? (
