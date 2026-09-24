@@ -49,18 +49,24 @@ the surface differ in light mode: ink has to be readable on paper, a surface has
 **Motion** — `EASE`, `DURATION` (`fast` 0.15, `base` 0.25, `slow` 0.4, `count` 0.8) and `STAGGER` from
 `@/utils/motion`. A local `transition` must pass `inherit: true` to keep the shared easing.
 
-**Components** — `PageHeader` (eyebrow, title, description, actions) opens every page;
-`PageHeaderSkeleton` stands in while it loads. `SectionHeading` is the block heading below it.
-Shared primitives come from `@v1/ui/*`.
+**Components** — `PageShell` is the page container; it takes the measure (`wide`, `list`, `reading`,
+`room`) and nothing else, because the padding is the same on every page. `PageHeader` (eyebrow, title,
+description, actions) opens every page; `PageHeaderSkeleton` stands in while it loads.
+`SectionHeading` is the `label-caps` block heading below it — a heading at entry-title size is a
+different thing and does not borrow the name. `RankTag` is a rank crest with a label beside it;
+`WinLoss` is a win–loss record. Shared primitives come from `@v1/ui/*`.
+
+A shape built three times is a component. A shape built once is not — extracting it before then buys
+an abstraction and no reuse.
 
 **Storybook** — `bun dev:storybook`. Two sections: *Design system* for the tokens and the shared
 primitives, *App* for the Derby compositions. The toolbar switches theme and locale, so rules 3 and 9
 are one click away instead of a rebuild. Everything this file describes in prose is under
 *Design system → Tokens*.
 
-**Page shell** — `mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16`. Reading views narrow
-the measure (`max-w-4xl` for the forum list, `max-w-3xl` for a post); the auction room widens to
-`max-w-[1500px]`.
+**Page shell** — `<PageShell>`, not the string it renders. `width` picks the measure: `wide`
+(`max-w-6xl`, the default), `list` (`max-w-4xl`, the forum list), `reading` (`max-w-3xl`, a post),
+`room` (`max-w-[1500px]`, the auction). `gap="none"` is for a page that does its own spacing.
 
 **Type scale** — page title `text-4xl sm:text-6xl uppercase tracking-[-0.035em]`; entry title
 `text-2xl sm:text-3xl tracking-[-0.02em]`; body `text-sm`; label `label-caps`; number `num`.

@@ -7,6 +7,7 @@ import { cn } from "@v1/ui/cn";
 import CurrentStreak from "@/components/home/current-streak";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
+import { WinLoss } from "@/components/win-loss";
 
 interface PlayerStatsCardProps {
   puuid: string;
@@ -53,10 +54,7 @@ export function PlayerStatsCard({ puuid, season }: PlayerStatsCardProps) {
         </span>
       </Stat>
       <Stat label={t("record")}>
-        <span className="num text-xl">
-          <span className="text-win">{wins}</span>–
-          <span className="text-loss">{losses}</span>
-        </span>
+        <WinLoss wins={wins} losses={losses} className="text-xl" />
         <span className="num text-xs text-muted-foreground">
           {formatWinrate(wins, losses)}
         </span>

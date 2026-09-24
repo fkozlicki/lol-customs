@@ -31,6 +31,7 @@
     "@v1/logger": "workspace:*",
     "@v1/supabase": "workspace:*",
     "@v1/ui": "workspace:*",
+    "class-variance-authority": "^0.7.1",
     "date-fns": "^4.1.0",
     "geist": "^1.5.1",
     "jwt-decode": "^4.0.0",

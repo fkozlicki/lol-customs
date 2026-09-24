@@ -21,6 +21,7 @@ import { z } from "zod";
 import { useUser } from "@/components/auth/user-context";
 import { RichTextEditor } from "@/components/forum/rich-text-editor";
 import { Icons } from "@/components/icons";
+import { PageShell } from "@/components/page-shell";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
@@ -70,7 +71,7 @@ export default function NewPostPage() {
   if (isLoading || !profile) return null;
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-8 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell width="reading">
       <Link
         href="/posts"
         className="label-caps inline-flex items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"
@@ -136,6 +137,6 @@ export default function NewPostPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </PageShell>
   );
 }

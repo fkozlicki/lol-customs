@@ -11,6 +11,7 @@ import { toast } from "@v1/ui/sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
 import { Icons } from "@/components/icons";
+import { PageShell } from "@/components/page-shell";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {
@@ -657,7 +658,7 @@ export function AuctionRoom({ id }: { id: string }) {
   const teamA = captainFor(room, "A");
   const teamB = captainFor(room, "B");
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell width="room">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
         <div className="min-w-0">
           <div className="flex items-center gap-4">
@@ -779,13 +780,13 @@ export function AuctionRoom({ id }: { id: string }) {
           <EventFeed room={room} />
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 
 export function AuctionRoomSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell width="room">
       <div className="border-b pb-4">
         <div className="flex items-center gap-4">
           <Skeleton className="h-3 w-16" />
@@ -809,6 +810,6 @@ export function AuctionRoomSkeleton() {
         </div>
         <Skeleton className="order-3 h-80" />
       </div>
-    </div>
+    </PageShell>
   );
 }

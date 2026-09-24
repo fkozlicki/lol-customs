@@ -1,7 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { RankCrest } from "@/components/game-assets/rank-crest";
+import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
@@ -35,13 +35,10 @@ export function PlayerSoloRank({
     tier && !APEX_TIERS.includes(tier.toUpperCase()) ? soloQ?.rank : null;
 
   return (
-    <div className="flex items-center gap-1.5">
-      <RankCrest tier={tier} width={16} height={16} className="shrink-0" />
-      <span className="label-caps">
-        {t("soloDuo")} ·{" "}
-        {tier ? [tier, division].filter(Boolean).join(" ") : t("unranked")}
-        {soloQ && ` · ${soloQ.leaguePoints ?? 0} LP`}
-      </span>
-    </div>
+    <RankTag tier={tier}>
+      {t("soloDuo")} ·{" "}
+      {tier ? [tier, division].filter(Boolean).join(" ") : t("unranked")}
+      {soloQ && ` · ${soloQ.leaguePoints ?? 0} LP`}
+    </RankTag>
   );
 }

@@ -9,6 +9,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
+import { WinLoss } from "@/components/win-loss";
 import { AnimatedNumber } from "@/components/motion/animated-number";
 import { useScopedI18n } from "@/locales/client";
 import { DURATION } from "@/utils/motion";
@@ -138,8 +139,7 @@ function PodiumPlace({
           )}
           {row && (
             <span className="num mt-2 text-[11px] text-muted-foreground sm:text-xs">
-              <span className="text-win">{wins}</span>–
-              <span className="text-loss">{losses}</span> ·{" "}
+              <WinLoss wins={wins} losses={losses} /> ·{" "}
               {formatWinrate(wins, losses)}
             </span>
           )}

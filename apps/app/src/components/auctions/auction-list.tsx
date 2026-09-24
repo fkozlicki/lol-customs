@@ -10,6 +10,7 @@ import { useCallback } from "react";
 import { useUser } from "@/components/auth/user-context";
 import { Icons } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { riotId } from "./auction-contract";
@@ -56,7 +57,7 @@ export function AuctionList() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell>
       <PageHeader title={t("title")} description={t("description")}>
         <div className="flex items-center gap-4">
           <ConnectionBadge state={connection} />
@@ -149,7 +150,7 @@ export function AuctionList() {
           </Button>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 

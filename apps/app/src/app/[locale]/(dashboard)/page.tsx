@@ -4,6 +4,7 @@ import { maxHistoricallyAfterGames } from "@/components/home/leaderboard-after-g
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
 import { Leaderboard } from "@/components/home/leaderboard-preview";
 import LeaderboardSkeleton from "@/components/home/leaderboard-skeleton";
+import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
@@ -47,7 +48,7 @@ export default async function DashboardHomePage({
 
   return (
     <HydrateClient>
-      <div className="mx-auto w-full max-w-6xl px-4 pt-10 pb-16 sm:pt-16">
+      <PageShell gap="none">
         {/* TODO: rows should reorder smoothly when the season changes. Keying the boundary remounts
             the standings, so they replay the entry stagger instead; animating a reorder needs the
             previous rows kept (e.g. placeholder data) and `layout` on each row. */}
@@ -65,7 +66,7 @@ export default async function DashboardHomePage({
             }
           />
         </Suspense>
-      </div>
+      </PageShell>
     </HydrateClient>
   );
 }

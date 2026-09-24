@@ -1,11 +1,12 @@
 import { AuctionListSkeleton } from "@/components/auctions/auction-list";
 import { PageHeaderSkeleton } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 
 export default function AuctionsLoading() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell>
       <PageHeaderSkeleton />
       <AuctionListSkeleton />
-    </div>
+    </PageShell>
   );
 }

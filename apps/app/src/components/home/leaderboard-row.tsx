@@ -9,6 +9,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
+import { WinLoss } from "@/components/win-loss";
 import { useScopedI18n } from "@/locales/client";
 import { DURATION, STAGGER } from "@/utils/motion";
 import { withSeason } from "@/utils/season";
@@ -99,10 +100,7 @@ export default function LeaderboardRow({
       <td className="hidden px-3 text-right sm:table-cell">
         <div className="num flex flex-col items-end leading-tight">
           <span>{wins + losses}</span>
-          <span className="text-[11px] text-muted-foreground">
-            <span className="text-win">{wins}</span>–
-            <span className="text-loss">{losses}</span>
-          </span>
+          <WinLoss wins={wins} losses={losses} className="text-[11px]" />
         </div>
       </td>
       <td className="hidden px-3 text-right md:table-cell">
