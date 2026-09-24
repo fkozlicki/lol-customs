@@ -21,6 +21,8 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-overlay: var(--overlay);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -40,6 +42,10 @@
   --accent: #374151;
   --accent-foreground: #eaeaea;
   --destructive: #ef4444;
+  /* Two tokens @v1/ui components name. Without them the badge text and the dialog scrim
+     render transparent — no utility, no build error. See packages/ui/README.md. */
+  --destructive-foreground: #fff;
+  --overlay: rgb(0 0 0 / 0.1);
   --border: #374151;
   --input: #374151;
   --ring: #6366f1;

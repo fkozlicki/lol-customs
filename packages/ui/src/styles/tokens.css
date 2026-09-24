@@ -43,6 +43,9 @@
 	--color-card-foreground: var(--card-foreground);
 	--color-card: var(--card);
 
+	/* The scrim behind a dialog or a sheet. It darkens, so no foreground/background token fits. */
+	--color-overlay: var(--overlay);
+
 	/* Domain colors: named after CONTEXT.md terms. Colour only ever carries domain meaning. */
 	--color-win: var(--win);
 	--color-loss: var(--loss);
@@ -87,6 +90,7 @@
 	--input: oklch(0.87 0.01 85);
 	--ring: oklch(0.45 0.01 85);
 	--radius: 0;
+	--overlay: oklch(0 0 0 / 0.1);
 
 	--win: oklch(0.52 0.16 255);
 	--loss: oklch(0.55 0.2 27);
@@ -135,6 +139,7 @@
 	--border: oklch(0.29 0.004 85);
 	--input: oklch(0.29 0.004 85);
 	--ring: oklch(0.6 0.006 85);
+	--overlay: oklch(0 0 0 / 0.1);
 
 	--win: oklch(0.7 0.14 252);
 	--loss: oklch(0.66 0.19 27);

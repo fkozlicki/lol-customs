@@ -6,19 +6,23 @@
  * design review — it covers the colour rules only. Put `design-check-ignore` in a comment on a line
  * that is a false positive, with a reason.
  *
- * It scans apps/app only. The shared primitives in packages/ui still carry eight violations of their
- * own — shadcn's `bg-black/10` overlays, a `text-white` badge — and widening the walk is worth doing
- * once those are settled, because fixing them is a design decision, not a rename.
+ * It scans both tiers: the app's own components and the shared primitives they are built on. It does
+ * not scan apps/lcu, which has its own look and is not held to these rules.
  */
 import { readdirSync, readFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const APP_DIR = join(fileURLToPath(new URL(".", import.meta.url)), "..");
-const SRC_DIR = join(APP_DIR, "src");
+const REPO_ROOT = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "..",
+  "..",
+  "..",
+);
+const SCANNED = [join("apps", "app", "src"), join("packages", "ui", "src")];
 const EXTENSIONS = [".ts", ".tsx", ".css"];
 /** Where the tokens themselves are declared, so literal colour values belong here. */
-const TOKEN_FILE = join("src", "app", "[locale]", "styles.css");
+const TOKEN_FILE = join("packages", "ui", "src", "styles", "tokens.css");
 const IGNORE_MARKER = "design-check-ignore";
 
 const PALETTE = [
@@ -69,7 +73,7 @@ interface Rule {
   id: string;
   pattern: RegExp;
   message: string;
-  /** Files where the rule does not apply, relative to apps/app. */
+  /** Files where the rule does not apply, relative to the repo root. */
   skip?: string;
 }
 
@@ -92,7 +96,7 @@ const RULES: Rule[] = [
     pattern:
       /(?<![\w&])#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b|\b(?:rgba?|hsla?|oklch)\(/g,
     message:
-      "Literal colour value. Declare it as a token in styles.css and reference the token.",
+      "Literal colour value. Declare it as a token in tokens.css and reference the token.",
     skip: TOKEN_FILE,
   },
 ];
@@ -118,24 +122,26 @@ interface Violation {
 
 const violations: Violation[] = [];
 
-for (const path of walk(SRC_DIR)) {
-  const file = relative(APP_DIR, path);
-  const lines = readFileSync(path, "utf8").split("\n");
+for (const dir of SCANNED) {
+  for (const path of walk(join(REPO_ROOT, dir))) {
+    const file = relative(REPO_ROOT, path);
+    const lines = readFileSync(path, "utf8").split("\n");
 
-  for (const [index, line] of lines.entries()) {
-    if (line.includes(IGNORE_MARKER)) continue;
+    for (const [index, line] of lines.entries()) {
+      if (line.includes(IGNORE_MARKER)) continue;
 
-    for (const rule of RULES) {
-      if (rule.skip && file === rule.skip.split("/").join(sep)) continue;
-      rule.pattern.lastIndex = 0;
-      for (const match of line.matchAll(rule.pattern)) {
-        violations.push({
-          file,
-          line: index + 1,
-          column: (match.index ?? 0) + 1,
-          rule,
-          text: match[0],
-        });
+      for (const rule of RULES) {
+        if (rule.skip && file === rule.skip) continue;
+        rule.pattern.lastIndex = 0;
+        for (const match of line.matchAll(rule.pattern)) {
+          violations.push({
+            file,
+            line: index + 1,
+            column: (match.index ?? 0) + 1,
+            rule,
+            text: match[0],
+          });
+        }
       }
     }
   }
@@ -155,14 +161,14 @@ for (const violation of violations) {
 console.error(
   `\nDesign check failed: ${violations.length} hardcoded colour${
     violations.length === 1 ? "" : "s"
-  } in apps/app.\n`,
+  }.\n`,
 );
 
 for (const [id, found] of byRule) {
   console.error(`${id}: ${found[0]?.rule.message}`);
   for (const violation of found) {
     console.error(
-      `  apps/app/${violation.file}:${violation.line}:${violation.column}  ${violation.text}`,
+      `  ${violation.file}:${violation.line}:${violation.column}  ${violation.text}`,
     );
   }
   console.error("");
