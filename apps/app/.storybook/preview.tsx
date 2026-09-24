@@ -5,6 +5,8 @@
 import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { Geist, Geist_Mono } from "next/font/google";
+// The same internal the framework's own router decorator uses; see `withLocale`.
+import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { useEffect } from "react";
 import { I18nProviderClient } from "@/locales/client";
 import "../src/app/[locale]/styles.css";
@@ -31,12 +33,29 @@ const withGeist: Decorator = (Story) => {
   return <Story />;
 };
 
-/** Both locales are a rule, not a preference (DESIGN.md), so the toolbar switches between them. */
-const withLocale: Decorator = (Story, context) => (
-  <I18nProviderClient locale={context.globals.locale} fallback={null}>
-    <Story />
-  </I18nProviderClient>
-);
+/**
+ * Both locales are a rule, not a preference (DESIGN.md), so the toolbar switches between them.
+ *
+ * The provider alone is not enough. `useScopedI18n` reads it, but `useCurrentLocale` — which
+ * `RelativeTime` uses to pick a date-fns locale — goes to `useParams().locale` instead, because the
+ * app keeps its locale in the route segment. Without a segment `useParams()` is null, and anything
+ * rendering a relative time throws.
+ *
+ * `parameters.nextjs.navigation.segments` is the documented way to set that, but parameters are read
+ * once, outside this decorator, so the toolbar cannot reach them. Providing the context here instead
+ * works because the framework's router decorator wraps this one, so the nearer provider wins.
+ */
+const withLocale: Decorator = (Story, context) => {
+  const locale = context.globals.locale;
+
+  return (
+    <PathParamsContext.Provider value={{ locale }}>
+      <I18nProviderClient locale={locale} fallback={null}>
+        <Story />
+      </I18nProviderClient>
+    </PathParamsContext.Provider>
+  );
+};
 
 const preview: Preview = {
   decorators: [
@@ -65,6 +84,14 @@ const preview: Preview = {
   parameters: {
     layout: "centered",
     controls: { expanded: true },
+    /**
+     * The app is App Router, so `next/navigation` is what its components import. `withLocale`
+     * replaces `navigation` on every render; this is the floor for a story that renders before it.
+     */
+    nextjs: {
+      appDirectory: true,
+      navigation: { pathname: "/en", segments: [["locale", "en"]] },
+    },
   },
 };
 
