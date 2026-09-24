@@ -154,9 +154,7 @@ export default function RandomTeamsTool() {
           </h2>
 
           {roster.length === 0 ? (
-            <p className="py-4 text-sm text-muted-foreground">
-              {t("rosterHint")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("rosterHint")}</p>
           ) : (
             <ul className="divide-y">
               {roster.map((entry) => (

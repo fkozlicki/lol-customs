@@ -103,7 +103,7 @@ values
   ('10000000-0000-0000-0000-000000000003', 'auction-c'),
   ('10000000-0000-0000-0000-000000000004', 'auction-d');
 
-select plan(80);
+select plan(89);
 
 select has_table('public', 'auction_rooms', 'auction_rooms exists');
 select has_table('public', 'auction_captains', 'auction_captains exists');
@@ -183,12 +183,6 @@ insert into auction_test_state(name, room_id)
 select 'visible', (public.auction_create_room(
   '20000000-0000-0000-0000-000000000005', tests.auction_players(), 'Charlie', 20, 30, true
 )->>'id')::uuid;
-
-select tests.login('10000000-0000-0000-0000-000000000002');
-select throws_ok(format(
-  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000006', 'Bravo again')$$,
-  tests.room('visible')
-), 'P0001', 'AUCTION_ALREADY_CAPTAIN', 'one user cannot captain two unfinished rooms');
 
 select tests.login('10000000-0000-0000-0000-000000000004');
 select lives_ok(format(
@@ -467,8 +461,90 @@ select is(
   'players alternate from the round opener, skipping a full team'
 );
 select is(
-  (select count(*) from public.auction_list_active()),
+  (select count(*) from public.auction_list_active()
+   where (room->>'id')::uuid in (select room_id from auction_test_state)),
   0::bigint, 'public list excludes completed rooms'
+);
+
+-- ---- one lobby per person --------------------------------------------------------------------
+
+select tests.login('10000000-0000-0000-0000-000000000001');
+insert into auction_test_state(name, room_id)
+select 'lobby1', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000060', tests.auction_players(), 'Alpha', 20, 30, false
+)->>'id')::uuid;
+select is(
+  (select count(*) from public.auction_list_active()
+   where room->>'status' = 'waiting' and (room->>'isMine')::boolean),
+  1::bigint, 'the list includes lobbies and marks the viewer''s own'
+);
+
+select tests.login('10000000-0000-0000-0000-000000000002');
+select lives_ok(format(
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000061', 'Bravo')$$,
+  tests.room('lobby1')
+), 'captain B joins a lobby');
+
+select tests.login('10000000-0000-0000-0000-000000000003');
+insert into auction_test_state(name, room_id)
+select 'lobby2', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000062', tests.auction_players(), 'Charlie', 20, 30, false
+)->>'id')::uuid;
+select tests.login('10000000-0000-0000-0000-000000000002');
+select lives_ok(format(
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000063', 'Bravo')$$,
+  tests.room('lobby2')
+), 'joining another lobby is allowed');
+select is(
+  (select count(*) from public.auction_captains where room_id = tests.room('lobby1') and side = 'B'),
+  0::bigint, 'joining another lobby leaves the first'
+);
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby1')),
+  'waiting', 'the left lobby waits for a new captain'
+);
+
+select tests.login('10000000-0000-0000-0000-000000000001');
+insert into auction_test_state(name, room_id)
+select 'lobby3', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000064', tests.auction_players(), 'Alpha', 20, 30, false
+)->>'id')::uuid;
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby1')),
+  'cancelled', 'creating a new auction cancels the creator''s lobby'
+);
+select is(
+  (select payload->>'reason' from public.auction_events
+   where room_id = tests.room('lobby1') and event_type = 'cancelled'),
+  'replaced', 'the cancellation says the lobby was replaced'
+);
+
+select tests.login('10000000-0000-0000-0000-000000000003');
+select public.auction_set_ready(tests.room('lobby2'), '20000000-0000-0000-0000-000000000065', true);
+select tests.login('10000000-0000-0000-0000-000000000002');
+select public.auction_set_ready(tests.room('lobby2'), '20000000-0000-0000-0000-000000000066', true);
+update public.auction_rooms set countdown_ends_at = clock_timestamp() - interval '1 second'
+where id = tests.room('lobby2');
+select public.auction_tick();
+select tests.login('10000000-0000-0000-0000-000000000003');
+select throws_ok(
+  $$select public.auction_create_room(
+    '20000000-0000-0000-0000-000000000067', tests.auction_players(), 'Charlie', 20, 30, false
+  )$$,
+  'P0001', 'AUCTION_ALREADY_CAPTAIN', 'a live auction blocks creating another'
+);
+select tests.login('10000000-0000-0000-0000-000000000002');
+select throws_ok(format(
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000068', 'Bravo')$$,
+  tests.room('lobby3')
+), 'P0001', 'AUCTION_ALREADY_CAPTAIN', 'a live auction blocks joining another');
+
+update public.auction_rooms set last_activity_at = clock_timestamp() - interval '31 minutes'
+where id = tests.room('lobby3');
+select public.auction_tick();
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby3')),
+  'expired', 'an idle lobby expires after 30 minutes'
 );
 
 -- ---- cancel and cleanup ---------------------------------------------------------------------

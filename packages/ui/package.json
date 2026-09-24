@@ -29,6 +29,7 @@
     "./badge": "./src/components/badge.tsx",
     "./button": "./src/components/button.tsx",
     "./card": "./src/components/card.tsx",
+    "./checkbox": "./src/components/checkbox.tsx",
     "./chart": "./src/components/chart.tsx",
     "./cn": "./src/utils/cn.ts",
     "./dialog": "./src/components/dialog.tsx",

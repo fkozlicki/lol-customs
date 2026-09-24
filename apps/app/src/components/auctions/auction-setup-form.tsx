@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
 import { formatRank } from "@v1/domain/rank";
 import { parseRiotId, riotIdKey } from "@v1/domain/riot-id";
 import { Button } from "@v1/ui/button";
-import { cn } from "@v1/ui/cn";
+import { Checkbox } from "@v1/ui/checkbox";
 import { Input } from "@v1/ui/input";
 import { Label } from "@v1/ui/label";
 import { toast } from "@v1/ui/sonner";
@@ -28,11 +28,12 @@ export interface PoolPlayer {
 interface AuctionSetupFormProps {
   roomId?: string;
   initialPlayers?: PoolPlayer[];
-  initialTeamName?: string;
   initialBudget?: number;
   initialBidSeconds?: number;
   initialRevealOrder?: boolean;
   onUpdated?: () => void;
+  /** Shown beside the save button when the form edits an existing lobby. */
+  onCancel?: () => void;
 }
 
 function fingerprint(players: PoolPlayer[]) {
@@ -42,18 +43,18 @@ function fingerprint(players: PoolPlayer[]) {
 export function AuctionSetupForm({
   roomId,
   initialPlayers = [],
-  initialTeamName = "Team A",
   initialBudget = 20,
   initialBidSeconds = 30,
   initialRevealOrder = false,
   onUpdated,
+  onCancel,
 }: AuctionSetupFormProps) {
   const t = useScopedI18n("dashboard.pages.auctions");
   const trpc = useTRPC();
   const router = useRouter();
   const { profile, isLoading, openSignInDialog } = useUser();
   const [pool, setPool] = useState<PoolPlayer[]>(initialPlayers);
-  const [teamName, setTeamName] = useState(initialTeamName);
+  const [teamName, setTeamName] = useState("Team A");
   const [budget, setBudget] = useState(initialBudget);
   const [bidSeconds, setBidSeconds] = useState(initialBidSeconds);
   const [revealOrder, setRevealOrder] = useState(initialRevealOrder);
@@ -62,6 +63,13 @@ export function AuctionSetupForm({
   const [initialFingerprint] = useState(() => fingerprint(initialPlayers));
 
   const { data: allPlayers = [] } = useQuery(trpc.players.all.queryOptions());
+  const { data: auctions } = useQuery({
+    ...trpc.auctions.listActive.queryOptions(),
+    enabled: !roomId && Boolean(profile),
+  });
+  const myAuction = roomId
+    ? undefined
+    : auctions?.find((auction) => auction.isMine);
   const poolKeys = useMemo(() => new Set(pool.map(riotIdKey)), [pool]);
 
   useEffect(() => {
@@ -83,9 +91,15 @@ export function AuctionSetupForm({
     });
   }, [allPlayers, poolKeys, search]);
 
+  const queryClient = useQueryClient();
   const createAuction = useMutation(
     trpc.auctions.create.mutationOptions({
-      onSuccess: (room) => router.push(`/auctions/${room.id}`),
+      onSuccess: (room) => {
+        void queryClient.invalidateQueries(
+          trpc.auctions.listActive.queryOptions(),
+        );
+        router.push(`/auctions/${room.id}`);
+      },
       onError: (error) => toast.error(error.message),
     }),
   );
@@ -142,7 +156,6 @@ export function AuctionSetupForm({
       tagLine,
     }));
     const settings = {
-      teamName,
       budget,
       bidSeconds,
       showOrder: revealOrder,
@@ -155,7 +168,7 @@ export function AuctionSetupForm({
         ...(fingerprint(pool) !== initialFingerprint ? { players } : {}),
       });
     } else {
-      createAuction.mutate({ players, ...settings });
+      createAuction.mutate({ players, teamName, ...settings });
     }
   }
 
@@ -163,165 +176,207 @@ export function AuctionSetupForm({
   const pending = createAuction.isPending || updateLobby.isPending;
   const valid =
     isFull &&
-    teamName.trim().length > 0 &&
-    teamName.length <= 100 &&
+    (Boolean(roomId) ||
+      (teamName.trim().length > 0 && teamName.length <= 100)) &&
     budget >= 4 &&
     budget <= 100 &&
     bidSeconds >= 10 &&
     bidSeconds <= 60;
 
+  if (myAuction?.status === "active") {
+    return (
+      <div className="flex flex-col items-start gap-4">
+        <p className="max-w-md text-sm">{t("creator.liveAuction")}</p>
+        <Button onClick={() => router.push(`/auctions/${myAuction.id}`)}>
+          {t("creator.goToAuction")}
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-14">
-      <section>
-        <StepHeading step="1" title={t("creator.roster")}>
-          <div className="flex items-baseline gap-4">
-            {pool.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setPool([])}
-                className="label-caps underline-offset-4 hover:text-foreground hover:underline"
-              >
-                {t("creator.clear")}
-              </button>
-            )}
-            <span className="num text-xl font-semibold">
-              {pool.length}/{AUCTION_POOL_SIZE}
-            </span>
-          </div>
-        </StepHeading>
+    <div className="space-y-10">
+      {myAuction && (
+        <p className="border-b pb-4 text-sm text-muted-foreground">
+          {t("creator.replacesLobby", {
+            teams: `${myAuction.teamA.teamName} vs ${myAuction.teamB.teamName}`,
+          })}
+        </p>
+      )}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-baseline gap-4">
+          <span className="num text-xl font-semibold">
+            {pool.length}/{AUCTION_POOL_SIZE}
+          </span>
+          {pool.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setPool([])}
+              className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t("creator.clear")}
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="ghost" onClick={onCancel}>
+              {t("lobby.cancelEdit")}
+            </Button>
+          )}
+          <Button
+            type="button"
+            disabled={!valid || pending || (!roomId && !profile)}
+            onClick={submit}
+          >
+            {pending && <Icons.Loader className="size-4 animate-spin" />}
+            {pending
+              ? t("creator.saving")
+              : roomId
+                ? t("creator.save")
+                : t("creator.create")}
+          </Button>
+        </div>
+      </div>
 
-        <div className="grid gap-10 md:grid-cols-2 md:gap-16">
-          <div>
-            {pool.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">
-                {t("creator.rosterHint")}
-              </p>
-            ) : (
-              <ul className="divide-y">
-                {pool.map((entry) => (
-                  <li
-                    key={riotIdKey(entry)}
-                    className="flex h-12 items-center gap-3"
-                  >
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                      {entry.gameName}
-                    </span>
-                    <RankTag tier={entry.rankTier}>
-                      {formatRank(entry.rankTier, entry.rankDivision) ??
-                        t("room.unranked")}
-                    </RankTag>
-                    <button
-                      type="button"
-                      onClick={() => removePlayer(entry)}
-                      aria-label={t("creator.remove")}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      <Icons.X className="size-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div>
-            <h3 className="label-caps pb-3 text-foreground">
-              {t("creator.addPlayers")}
-            </h3>
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("creator.search")}
-              aria-label={t("creator.search")}
-            />
-            <ul className="mt-2 max-h-72 divide-y overflow-y-auto">
-              {ladderPlayers.length === 0 ? (
-                <li className="py-4 text-sm text-muted-foreground">
-                  {t("creator.noResults")}
-                </li>
-              ) : (
-                ladderPlayers.slice(0, 80).map((player) => (
-                  <li
-                    key={player.puuid}
-                    className="flex h-12 items-center gap-3 pr-1"
-                  >
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                      {player.game_name}
-                    </span>
-                    <RankTag tier={player.rank_tier}>
-                      {formatRank(player.rank_tier, player.rank_division) ??
-                        t("room.unranked")}
-                    </RankTag>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={isFull}
-                      onClick={() =>
-                        player.game_name &&
-                        player.tag_line &&
-                        addPlayer({
-                          gameName: player.game_name,
-                          tagLine: player.tag_line,
-                          rankTier: player.rank_tier,
-                          rankDivision: player.rank_division,
-                        })
-                      }
-                    >
-                      {t("creator.add")}
-                    </Button>
-                  </li>
-                ))
-              )}
-            </ul>
-
-            <div className="mt-6 space-y-2">
-              <Label htmlFor="auction-riot-id" className="label-caps">
-                {t("creator.manual")}
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="auction-riot-id"
-                  value={manualRiotId}
-                  onChange={(event) => setManualRiotId(event.target.value)}
-                  placeholder={t("creator.riotIdPlaceholder")}
-                  autoComplete="off"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      addFromRiotId();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addFromRiotId}
-                  disabled={isFull}
+      <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+        <section>
+          <h2 className="label-caps pb-3 text-foreground">
+            {t("creator.roster")}
+          </h2>
+          {pool.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t("creator.rosterHint")}
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {pool.map((entry) => (
+                <li
+                  key={riotIdKey(entry)}
+                  className="flex h-12 items-center gap-3"
                 >
-                  {t("creator.add")}
-                </Button>
-              </div>
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                    {entry.gameName}
+                  </span>
+                  <RankTag tier={entry.rankTier}>
+                    {formatRank(entry.rankTier, entry.rankDivision) ??
+                      t("room.unranked")}
+                  </RankTag>
+                  <button
+                    type="button"
+                    onClick={() => removePlayer(entry)}
+                    aria-label={t("creator.remove")}
+                    className="text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Icons.X className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section>
+          <h2 className="label-caps pb-3 text-foreground">
+            {t("creator.addPlayers")}
+          </h2>
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("creator.search")}
+            aria-label={t("creator.search")}
+          />
+          <ul className="mt-2 max-h-72 divide-y overflow-y-auto">
+            {ladderPlayers.length === 0 ? (
+              <li className="py-4 text-sm text-muted-foreground">
+                {t("creator.noResults")}
+              </li>
+            ) : (
+              ladderPlayers.slice(0, 80).map((player) => (
+                <li
+                  key={player.puuid}
+                  className="flex h-12 items-center gap-3 pr-1"
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                    {player.game_name}
+                  </span>
+                  <RankTag tier={player.rank_tier}>
+                    {formatRank(player.rank_tier, player.rank_division) ??
+                      t("room.unranked")}
+                  </RankTag>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={isFull}
+                    onClick={() =>
+                      player.game_name &&
+                      player.tag_line &&
+                      addPlayer({
+                        gameName: player.game_name,
+                        tagLine: player.tag_line,
+                        rankTier: player.rank_tier,
+                        rankDivision: player.rank_division,
+                      })
+                    }
+                  >
+                    {t("creator.add")}
+                  </Button>
+                </li>
+              ))
+            )}
+          </ul>
+
+          <div className="mt-6 space-y-2">
+            <Label htmlFor="auction-riot-id" className="label-caps">
+              {t("creator.manual")}
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="auction-riot-id"
+                value={manualRiotId}
+                onChange={(event) => setManualRiotId(event.target.value)}
+                placeholder={t("creator.riotIdPlaceholder")}
+                autoComplete="off"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addFromRiotId();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addFromRiotId}
+                disabled={isFull}
+              >
+                {t("creator.add")}
+              </Button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section>
-        <StepHeading step="2" title={t("creator.rules")} />
+      <section className="border-t pt-6">
+        <h2 className="label-caps pb-3 text-foreground">
+          {t("creator.rules")}
+        </h2>
 
         <div className="grid gap-6 sm:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="auction-team-name" className="label-caps">
-              {t("creator.teamName")}
-            </Label>
-            <Input
-              id="auction-team-name"
-              value={teamName}
-              maxLength={100}
-              onChange={(event) => setTeamName(event.target.value)}
-            />
-          </div>
+          {!roomId && (
+            <div className="space-y-2">
+              <Label htmlFor="auction-team-name" className="label-caps">
+                {t("creator.teamName")}
+              </Label>
+              <Input
+                id="auction-team-name"
+                value={teamName}
+                maxLength={100}
+                onChange={(event) => setTeamName(event.target.value)}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="auction-budget" className="label-caps">
               {t("creator.budget")}
@@ -352,70 +407,22 @@ export function AuctionSetupForm({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setRevealOrder((value) => !value)}
-          className="mt-6 flex w-full items-center gap-3 border-t pt-4 text-left"
-        >
-          <span
-            className={cn(
-              "flex size-5 shrink-0 items-center justify-center border",
-              revealOrder && "border-foreground bg-foreground text-background",
-            )}
-          >
-            {revealOrder && <Icons.Check className="size-3.5" />}
-          </span>
-          <span>
-            <span className="block text-sm font-medium">
+        <div className="mt-6 flex items-start gap-3">
+          <Checkbox
+            id="auction-reveal-order"
+            checked={revealOrder}
+            onCheckedChange={(checked) => setRevealOrder(checked === true)}
+          />
+          <div className="grid gap-1.5">
+            <Label htmlFor="auction-reveal-order">
               {t("creator.revealOrder")}
-            </span>
-            <span className="block text-xs text-muted-foreground">
+            </Label>
+            <p className="text-sm text-muted-foreground">
               {t("creator.revealOrderHint")}
-            </span>
-          </span>
-        </button>
+            </p>
+          </div>
+        </div>
       </section>
-
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t pt-6">
-        <p className="text-xs text-muted-foreground">
-          {isFull ? "" : t("creator.needEight")}
-        </p>
-        <Button
-          type="button"
-          size="lg"
-          disabled={!valid || pending || (!roomId && !profile)}
-          onClick={submit}
-        >
-          {pending && <Icons.Loader className="size-4 animate-spin" />}
-          {pending
-            ? t("creator.saving")
-            : roomId
-              ? t("creator.save")
-              : t("creator.create")}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function StepHeading({
-  step,
-  title,
-  children,
-}: {
-  step: string;
-  title: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 pb-4">
-      <h2 className="flex items-baseline gap-3">
-        <span className="num text-sm text-muted-foreground">{step}</span>
-        <span className="text-xl font-semibold uppercase tracking-[-0.02em] sm:text-2xl">
-          {title}
-        </span>
-      </h2>
-      {children}
     </div>
   );
 }

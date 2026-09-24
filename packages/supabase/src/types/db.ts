@@ -941,6 +941,10 @@ export type Database = {
         Returns: undefined;
       };
       _auction_fail: { Args: { p_code: string }; Returns: undefined };
+      _auction_release_captain_locked: {
+        Args: { p_except_room_id: string; p_user_id: string };
+        Returns: undefined;
+      };
       _auction_request_room: {
         Args: { p_actor_id: string; p_request_id: string };
         Returns: string;

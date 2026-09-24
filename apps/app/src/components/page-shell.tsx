@@ -18,8 +18,6 @@ const pageShell = cva("mx-auto w-full px-4 pt-10 pb-16 sm:pt-16", {
       list: "max-w-4xl",
       /** A single post. */
       reading: "max-w-3xl",
-      /** The auction room, which needs the horizontal space. */
-      room: "max-w-[1500px]",
     },
     /** Whether the shell separates its children, or the page does its own spacing. */
     gap: {

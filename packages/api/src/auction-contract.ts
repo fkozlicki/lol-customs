@@ -39,7 +39,9 @@ export interface AuctionListCaptain {
 
 export interface AuctionListItem {
   id: string;
-  status: "countdown" | "active";
+  status: "waiting" | "countdown" | "active";
+  /** The viewer is one of its captains. */
+  isMine: boolean;
   phase: AuctionPhase | null;
   teamA: AuctionListCaptain;
   teamB: AuctionListCaptain;

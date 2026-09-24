@@ -57,7 +57,8 @@ function domainError(error: RpcError): TRPCError {
   const messages: Record<string, string> = {
     AUCTION_PROFILE_REQUIRED: "Create a profile before joining an auction.",
     AUCTION_ROOM_NOT_FOUND: "Auction not found.",
-    AUCTION_ALREADY_CAPTAIN: "You are already a captain in another auction.",
+    AUCTION_ALREADY_CAPTAIN:
+      "You are a captain in a live auction. Finish or cancel it first.",
     AUCTION_CAPTAIN_SLOT_TAKEN: "The second captain slot is already taken.",
     AUCTION_PERMISSION_DENIED: "You cannot perform this action.",
     AUCTION_DEADLINE_PASSED: "The bidding deadline has passed.",
@@ -196,7 +197,8 @@ interface RawRoom {
 
 interface RawListItem {
   id: string;
-  status: "countdown" | "active";
+  status: "waiting" | "countdown" | "active";
+  isMine: boolean;
   phase: AuctionPhase | null;
   teamA: string;
   teamB: string;
@@ -224,6 +226,7 @@ function normalizeListItem(raw: RawListItem): AuctionListItem {
   return {
     id: raw.id,
     status: raw.status,
+    isMine: raw.isMine,
     phase: raw.phase,
     teamA: { teamName: raw.teamA, captain: raw.captainA },
     teamB: { teamName: raw.teamB, captain: raw.captainB },
@@ -285,7 +288,7 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
     permissions: {
       isCreator: raw.permissions.isCreator,
       mySide,
-      canJoin: raw.permissions.canJoin,
+      canJoin: raw.permissions.canJoin && mySide === null,
       canLeave: mySide === "B" && ["waiting", "countdown"].includes(raw.status),
       canRemoveCaptain:
         raw.permissions.isCreator &&
@@ -293,7 +296,9 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
         ["waiting", "countdown"].includes(raw.status),
       canEditLobby: raw.permissions.canEditLobby,
       canReady:
-        mySide !== null && ["waiting", "countdown"].includes(raw.status),
+        mySide !== null &&
+        hasCaptainB &&
+        ["waiting", "countdown"].includes(raw.status),
       canBid:
         active &&
         raw.phase === "bidding" &&

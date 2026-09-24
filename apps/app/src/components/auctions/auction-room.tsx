@@ -1,14 +1,14 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
-import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
+import { Card, CardContent } from "@v1/ui/card";
+import { cn } from "@v1/ui/cn";
 import { Input } from "@v1/ui/input";
-import { Label } from "@v1/ui/label";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
 import { Icons } from "@/components/icons";
@@ -418,49 +418,159 @@ function Lobby({
 }) {
   const t = useScopedI18n("dashboard.pages.auctions");
   const trpc = useTRPC();
-  const { profile, openSignInDialog } = useUser();
-  const [teamName, setTeamName] = useState(
-    room.permissions.mySide
-      ? (captainFor(room, room.permissions.mySide)?.teamName ?? "")
-      : "Team B",
+  const [editing, setEditing] = useState(false);
+  const me = room.permissions.mySide
+    ? captainFor(room, room.permissions.mySide)
+    : undefined;
+  const ready = useMutation(
+    trpc.auctions.setReady.mutationOptions({
+      onSuccess: refresh,
+      onError: (error) => {
+        toast.error(error.message);
+        refresh();
+      },
+    }),
   );
+
+  return (
+    <div className="space-y-12">
+      {room.countdownEndsAt && (
+        <div className="space-y-2">
+          <p className="label-caps text-foreground">{t("lobby.starting")}</p>
+          <AuctionCountdown
+            deadline={room.countdownEndsAt}
+            serverNow={room.serverNow}
+            durationSeconds={5}
+          />
+        </div>
+      )}
+
+      <section className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-12">
+        <LobbyTeam room={room} side="A" refresh={refresh} />
+        <span className="label-caps hidden pt-2 sm:block">vs</span>
+        <LobbyTeam room={room} side="B" refresh={refresh} />
+      </section>
+
+      {me && (
+        <Button
+          size="lg"
+          disabled={!room.permissions.canReady || ready.isPending}
+          onClick={() => ready.mutate({ id: room.id, ready: !me.ready })}
+        >
+          {me.ready ? t("actions.unready") : t("actions.ready")}
+        </Button>
+      )}
+
+      {editing ? (
+        <AuctionSetupForm
+          roomId={room.id}
+          initialPlayers={room.players.map((player) => ({
+            gameName: player.gameName,
+            tagLine: player.tagLine,
+            rankTier: player.soloTier,
+            rankDivision: player.soloDivision,
+          }))}
+          initialBudget={room.budget}
+          initialBidSeconds={room.bidSeconds}
+          initialRevealOrder={room.showOrder}
+          onUpdated={() => {
+            setEditing(false);
+            refresh();
+          }}
+          onCancel={() => setEditing(false)}
+        />
+      ) : (
+        <section>
+          <div className="flex items-baseline justify-between gap-4 border-b pb-3">
+            <h2 className="label-caps text-foreground">
+              {t("creator.roster")}
+            </h2>
+            {room.permissions.canEditLobby && (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+              >
+                {t("lobby.edit")}
+              </button>
+            )}
+          </div>
+          <ul className="grid gap-x-12 sm:grid-cols-2">
+            {room.players.map((player) => (
+              <li
+                key={player.id}
+                className="flex h-12 items-center gap-3 border-b"
+              >
+                <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                  {player.gameName}
+                </span>
+                <RankTag tier={player.soloTier}>
+                  {player.soloRankLabel || t("room.unranked")}
+                </RankTag>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function LobbyTeam({
+  room,
+  side,
+  refresh,
+}: {
+  room: AuctionRoomSnapshot;
+  side: AuctionSide;
+  refresh: () => void;
+}) {
+  const t = useScopedI18n("dashboard.pages.auctions");
+  const trpc = useTRPC();
+  const captain = captainFor(room, side);
+  const { mySide, canLeave, canRemoveCaptain } = room.permissions;
+  const queryClient = useQueryClient();
   const failed = (error: { message: string }) => {
     toast.error(error.message);
     refresh();
   };
-  const join = useMutation(
-    trpc.auctions.joinCaptain.mutationOptions({
-      onSuccess: refresh,
-      onError: failed,
-    }),
-  );
-  const ready = useMutation(
-    trpc.auctions.setReady.mutationOptions({
-      onSuccess: refresh,
-      onError: failed,
-    }),
-  );
+  const captainChanged = () => {
+    refresh();
+    void queryClient.invalidateQueries(trpc.auctions.listActive.queryOptions());
+  };
   const leave = useMutation(
     trpc.auctions.leaveCaptain.mutationOptions({
-      onSuccess: refresh,
+      onSuccess: captainChanged,
       onError: failed,
     }),
   );
   const remove = useMutation(
     trpc.auctions.removeCaptain.mutationOptions({
-      onSuccess: refresh,
+      onSuccess: captainChanged,
       onError: failed,
     }),
   );
-  const update = useMutation(
+  const [renaming, setRenaming] = useState(false);
+  const [teamName, setTeamName] = useState("");
+  const rename = useMutation(
     trpc.auctions.updateLobby.mutationOptions({
-      onSuccess: refresh,
+      onSuccess: () => {
+        setRenaming(false);
+        refresh();
+      },
       onError: failed,
     }),
   );
-  const me = room.permissions.mySide
-    ? captainFor(room, room.permissions.mySide)
-    : undefined;
+  const isMine = captain !== undefined && side === mySide;
+
+  function saveTeamName() {
+    const name = teamName.trim();
+    if (!name || name === captain?.teamName) {
+      setRenaming(false);
+      return;
+    }
+    rename.mutate({ id: room.id, teamName: name });
+  }
 
   async function copyInviteLink() {
     try {
@@ -472,118 +582,135 @@ function Lobby({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {room.status === "countdown" ? t("lobby.starting") : t("lobby.title")}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-y py-3">
-          <p className="text-sm text-muted-foreground">{t("lobby.invite")}</p>
-          <Button variant="outline" size="sm" onClick={copyInviteLink}>
-            <Icons.Copy className="size-4" />
-            {t("lobby.copyLink")}
+    <div className="space-y-3 border-b pb-6">
+      {renaming ? (
+        <div className="flex gap-2">
+          <Input
+            value={teamName}
+            maxLength={100}
+            autoFocus
+            onChange={(event) => setTeamName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") saveTeamName();
+              if (event.key === "Escape") setRenaming(false);
+            }}
+            aria-label={t("lobby.teamName")}
+          />
+          <Button
+            disabled={!teamName.trim() || rename.isPending}
+            onClick={saveTeamName}
+          >
+            {t("lobby.saveName")}
+          </Button>
+          <Button variant="ghost" onClick={() => setRenaming(false)}>
+            {t("lobby.cancelEdit")}
           </Button>
         </div>
-        {room.countdownEndsAt && (
-          <AuctionCountdown
-            deadline={room.countdownEndsAt}
-            serverNow={room.serverNow}
-            durationSeconds={5}
-          />
-        )}
-        <div className="grid gap-3 sm:grid-cols-2">
-          {(["A", "B"] as const).map((side) => {
-            const captain = captainFor(room, side);
-            return (
-              <div key={side} className="border p-4">
-                <div className="flex justify-between gap-2">
-                  <div>
-                    <p className="font-semibold">
-                      {captain?.teamName ?? t(`room.team${side}`)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {captain?.profileNickname ?? t("lobby.openSlot")}
-                    </p>
-                  </div>
-                  {captain && (
-                    <Badge variant={captain.ready ? "default" : "secondary"}>
-                      {captain.ready ? t("lobby.ready") : t("lobby.notReady")}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {room.permissions.canJoin && (
-          <div className="space-y-3 border p-4">
-            <h3 className="font-semibold">{t("lobby.joinTitle")}</h3>
-            <Input
-              value={teamName}
-              maxLength={100}
-              onChange={(event) => setTeamName(event.target.value)}
-              placeholder={t("lobby.teamName")}
-            />
-            <Button
-              disabled={!teamName.trim() || join.isPending}
-              onClick={() =>
-                profile
-                  ? join.mutate({ id: room.id, teamName })
-                  : openSignInDialog()
-              }
+      ) : (
+        <h2 className="truncate text-xl font-semibold uppercase tracking-[-0.02em] sm:text-2xl">
+          {captain?.teamName ?? t(`room.team${side}`)}
+        </h2>
+      )}
+      {captain ? (
+        <>
+          <p className="flex items-center gap-1.5 text-sm font-medium">
+            <Icons.Captain className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="truncate">{captain.profileNickname}</span>
+          </p>
+          <div className="flex items-baseline gap-4">
+            <span
+              className={cn("label-caps", captain.ready && "text-foreground")}
             >
-              {t("actions.join")}
+              {captain.ready ? t("lobby.ready") : t("lobby.notReady")}
+            </span>
+            {isMine && !renaming && (
+              <button
+                type="button"
+                onClick={() => {
+                  setTeamName(captain.teamName);
+                  setRenaming(true);
+                }}
+                className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+              >
+                {t("lobby.rename")}
+              </button>
+            )}
+            {side === "B" && (canLeave || canRemoveCaptain) && (
+              <button
+                type="button"
+                disabled={leave.isPending || remove.isPending}
+                onClick={() =>
+                  canLeave
+                    ? leave.mutate({ id: room.id })
+                    : remove.mutate({ id: room.id })
+                }
+                className="label-caps underline-offset-4 hover:text-foreground hover:underline"
+              >
+                {canLeave ? t("lobby.leave") : t("lobby.remove")}
+              </button>
+            )}
+          </div>
+        </>
+      ) : mySide === null && room.status === "waiting" ? (
+        <JoinCaptain room={room} refresh={refresh} />
+      ) : (
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm text-muted-foreground">
+            {mySide === "A"
+              ? t("lobby.waitingForCaptain")
+              : t("lobby.openSlot")}
+          </span>
+          {mySide === "A" && (
+            <Button size="sm" onClick={copyInviteLink}>
+              <Icons.Copy className="size-4" />
+              {t("lobby.copyLink")}
             </Button>
-          </div>
-        )}
-        {me && (
-          <div className="space-y-3  border bg-muted/20 p-4">
-            <Label>{t("lobby.teamName")}</Label>
-            <div className="flex gap-2">
-              <Input
-                value={teamName}
-                maxLength={100}
-                onChange={(event) => setTeamName(event.target.value)}
-                placeholder={me.teamName || t("lobby.teamName")}
-              />
-              <Button
-                variant="outline"
-                disabled={!teamName.trim() || update.isPending}
-                onClick={() => update.mutate({ id: room.id, teamName })}
-              >
-                {t("actions.saveTeamName")}
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                disabled={!room.permissions.canReady || ready.isPending}
-                onClick={() => ready.mutate({ id: room.id, ready: !me.ready })}
-              >
-                {me.ready ? t("actions.unready") : t("actions.ready")}
-              </Button>
-              {room.permissions.canLeave && (
-                <Button
-                  variant="outline"
-                  onClick={() => leave.mutate({ id: room.id })}
-                >
-                  {t("actions.leave")}
-                </Button>
-              )}
-              {room.permissions.canRemoveCaptain && captainFor(room, "B") && (
-                <Button
-                  variant="outline"
-                  onClick={() => remove.mutate({ id: room.id })}
-                >
-                  {t("actions.removeCaptain")}
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JoinCaptain({
+  room,
+  refresh,
+}: {
+  room: AuctionRoomSnapshot;
+  refresh: () => void;
+}) {
+  const t = useScopedI18n("dashboard.pages.auctions");
+  const trpc = useTRPC();
+  const { profile, openSignInDialog } = useUser();
+  const queryClient = useQueryClient();
+  const join = useMutation(
+    trpc.auctions.joinCaptain.mutationOptions({
+      onSuccess: () => {
+        refresh();
+        // joining may also release the viewer's previous lobby
+        void queryClient.invalidateQueries(
+          trpc.auctions.listActive.queryOptions(),
+        );
+      },
+      onError: (error) => {
+        toast.error(error.message);
+        refresh();
+      },
+    }),
+  );
+
+  return (
+    <Button
+      className="self-start"
+      disabled={join.isPending}
+      onClick={() =>
+        profile
+          ? join.mutate({ id: room.id, teamName: t("room.teamB") })
+          : openSignInDialog()
+      }
+    >
+      {t("actions.join")}
+    </Button>
   );
 }
 
@@ -595,9 +722,16 @@ export function AuctionRoom({ id }: { id: string }) {
     void query.refetch();
   }, [query.refetch]);
   const connection = useAuctionRealtime(`auction:room:${id}`, refresh);
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const cancel = useMutation(
     trpc.auctions.cancel.mutationOptions({
-      onSuccess: refresh,
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          trpc.auctions.listActive.queryOptions(),
+        );
+        router.push("/auctions");
+      },
       onError: (error) => toast.error(error.message),
     }),
   );
@@ -637,7 +771,7 @@ export function AuctionRoom({ id }: { id: string }) {
   const teamA = captainFor(room, "A");
   const teamB = captainFor(room, "B");
   return (
-    <PageShell width="room">
+    <PageShell>
       <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
         <div className="min-w-0">
           <div className="flex items-center gap-4">
@@ -724,44 +858,13 @@ export function AuctionRoom({ id }: { id: string }) {
           <EventFeed room={room} />
         </div>
       )}
-
-      {(room.status === "waiting" || room.status === "countdown") && (
-        <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div>
-            {room.permissions.canEditLobby && (
-              <details className="border p-4">
-                <summary className="cursor-pointer font-semibold">
-                  {t("lobby.edit")}
-                </summary>
-                <div className="mt-5">
-                  <AuctionSetupForm
-                    roomId={room.id}
-                    initialPlayers={room.players.map((player) => ({
-                      gameName: player.gameName,
-                      tagLine: player.tagLine,
-                      rankTier: player.soloTier,
-                      rankDivision: player.soloDivision,
-                    }))}
-                    initialTeamName={captainFor(room, "A")?.teamName}
-                    initialBudget={room.budget}
-                    initialBidSeconds={room.bidSeconds}
-                    initialRevealOrder={room.showOrder}
-                    onUpdated={refresh}
-                  />
-                </div>
-              </details>
-            )}
-          </div>
-          <EventFeed room={room} />
-        </div>
-      )}
     </PageShell>
   );
 }
 
 export function AuctionRoomSkeleton() {
   return (
-    <PageShell width="room">
+    <PageShell>
       <div className="border-b pb-4">
         <div className="flex items-center gap-4">
           <Skeleton className="h-3 w-16" />

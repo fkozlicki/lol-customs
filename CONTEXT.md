@@ -58,6 +58,10 @@ _Avoid_: Bidding room, live auction
 The person who leads a team. In a draw, one of the team's five players picked at random; in an auction, a
 signed-in user who buys the other four and is known only by their profile.
 
+**Lobby**:
+An auction before it starts, while its captains join and get ready. A person captains at most one
+lobby: entering another releases the first, and an idle lobby expires.
+
 **Pool**:
 The eight players an auction sells. Captains are never in the pool.
 _Avoid_: Roster
