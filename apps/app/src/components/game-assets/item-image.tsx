@@ -35,7 +35,6 @@ export function ItemImage({
       alt=""
       width={width}
       height={height}
-      unoptimized
       className={className}
     />
   );

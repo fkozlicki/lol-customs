@@ -20,7 +20,6 @@ export function RankCrest({
       alt=""
       width={width}
       height={height}
-      unoptimized
       className={className}
     />
   );

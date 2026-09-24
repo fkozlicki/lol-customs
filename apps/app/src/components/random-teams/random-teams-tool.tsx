@@ -300,7 +300,6 @@ function TeamRow({
         width={20}
         height={20}
         className="shrink-0 object-contain"
-        unoptimized
       />
       <span className="min-w-0 flex-1 truncate text-sm font-medium">
         {player.gameName}
