@@ -1,9 +1,8 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useTRPC } from "@/trpc/react";
 import { spellImageUrl } from "@/utils/asset-urls";
+import { useGamePatch } from "./game-patch";
 
 const SPELL_ID_TO_KEY: Record<number, string> = {
   1: "SummonerBoost",
@@ -36,10 +35,7 @@ export function SpellImage({
   height,
   className,
 }: SpellImageProps) {
-  const trpc = useTRPC();
-  const { data: patch } = useSuspenseQuery(
-    trpc.datadragon.currentPatch.queryOptions(),
-  );
+  const patch = useGamePatch();
 
   const key = SPELL_ID_TO_KEY[spellId] ?? "SummonerFlash";
 

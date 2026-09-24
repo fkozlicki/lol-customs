@@ -86,8 +86,6 @@ export default async function PlayerProfilePage({
       platformId,
     }),
   );
-  prefetch(trpc.datadragon.currentPatch.queryOptions());
-  prefetch(trpc.datadragon.championMap.queryOptions());
 
   return (
     <HydrateClient>
