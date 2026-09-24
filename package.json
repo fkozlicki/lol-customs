@@ -35,6 +35,7 @@
     "dev:jobs": "turbo jobs --filter=@v1/jobs",
     "dev:app": "turbo dev --filter=@v1/app",
     "dev:lcu": "turbo dev --filter=@v1/lcu",
+    "dev:storybook": "bun run --cwd apps/app storybook",
     "start:app": "turbo start --filter=@v1/app",
     "test": "turbo test --parallel",
     "format": "biome format --write .",

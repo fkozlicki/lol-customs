@@ -10,11 +10,13 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@storybook/react": "^10.6.0",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@v1/typescript": "workspace:*",
     "react": "catalog:react",
     "react-dom": "catalog:react",
+    "storybook": "^10.6.0",
     "typescript": "catalog:"
   },
   "peerDependencies": {

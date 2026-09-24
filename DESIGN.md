@@ -13,7 +13,7 @@ loops, nothing slides. The data is the decoration.
    `win`, `loss`, `mvp` and `ace` — the terms in [CONTEXT.md](CONTEXT.md). Everything else is
    `background`, `foreground`, `muted`, `border` and `card`. A button is not blue because buttons are
    blue; a tag is not green because it is positive.
-2. **Every colour comes from a token.** Tokens live in `apps/app/src/app/[locale]/styles.css` and are
+2. **Every colour comes from a token.** Tokens live in `packages/ui/src/styles/tokens.css` and are
    defined twice, for `:root` and `.dark`. A colour written anywhere else — a palette class, a hex, an
    `rgb()` — cannot follow the theme and is rejected by the check below.
 3. **Dark is the reference.** It was designed first. Light is paper, not inverted graphite: warm
@@ -52,6 +52,11 @@ the surface differ in light mode: ink has to be readable on paper, a surface has
 **Components** — `PageHeader` (eyebrow, title, description, actions) opens every page;
 `PageHeaderSkeleton` stands in while it loads. `SectionHeading` is the block heading below it.
 Shared primitives come from `@v1/ui/*`.
+
+**Storybook** — `bun dev:storybook`. Two sections: *Design system* for the tokens and the shared
+primitives, *App* for the Derby compositions. The toolbar switches theme and locale, so rules 3 and 9
+are one click away instead of a rebuild. Everything this file describes in prose is under
+*Design system → Tokens*.
 
 **Page shell** — `mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16`. Reading views narrow
 the measure (`max-w-4xl` for the forum list, `max-w-3xl` for a post); the auction room widens to
