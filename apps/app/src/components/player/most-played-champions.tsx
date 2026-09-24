@@ -6,6 +6,7 @@ import { ChampionImage } from "@/components/game-assets/champion-image";
 import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
+import { WinLoss } from "@/components/win-loss";
 
 interface MostPlayedChampionsProps {
   puuid: string;
@@ -58,12 +59,11 @@ export function MostPlayedChampions({
                   <span className="text-sm font-semibold">
                     {formatWinrate(champ.wins, champ.games - champ.wins)}
                   </span>
-                  <span className="text-xs">
-                    <span className="text-win">{champ.wins}</span>–
-                    <span className="text-loss">
-                      {champ.games - champ.wins}
-                    </span>
-                  </span>
+                  <WinLoss
+                    wins={champ.wins}
+                    losses={champ.games - champ.wins}
+                    className="text-xs"
+                  />
                 </div>
               </div>
             </li>

@@ -2,6 +2,7 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import { Suspense } from "react";
 import { HallOfFame, HallOfFameSkeleton } from "@/components/hof/hall-of-fame";
 import { PageHeader } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
@@ -21,7 +22,7 @@ export default async function HallOfFamePage({
 
   return (
     <HydrateClient>
-      <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+      <PageShell>
         <PageHeader
           eyebrow={
             season === ALL_TIME_SEASON
@@ -36,7 +37,7 @@ export default async function HallOfFamePage({
         <Suspense fallback={<HallOfFameSkeleton />} key={season}>
           <HallOfFame season={season} />
         </Suspense>
-      </div>
+      </PageShell>
     </HydrateClient>
   );
 }

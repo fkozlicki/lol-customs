@@ -10,6 +10,7 @@ import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { withSeason } from "@/utils/season";
+import { WinLoss } from "@/components/win-loss";
 
 type Relations = RouterOutputs["players"]["relations"];
 type Relation = Relations["teammates"]["mostMatches"];
@@ -41,12 +42,24 @@ export function PlayerRelations({ puuid, season }: PlayerRelationsProps) {
           <RelationRow
             label={t("mostWinsWith")}
             relation={teammates.mostWins}
-            detail={(r) => <WinLossRecord wins={r.wins} losses={r.losses} />}
+            detail={(r) => (
+              <WinLoss
+                className="text-base font-semibold"
+                wins={r.wins}
+                losses={r.losses}
+              />
+            )}
           />
           <RelationRow
             label={t("mostLossesWith")}
             relation={teammates.mostLosses}
-            detail={(r) => <WinLossRecord wins={r.wins} losses={r.losses} />}
+            detail={(r) => (
+              <WinLoss
+                className="text-base font-semibold"
+                wins={r.wins}
+                losses={r.losses}
+              />
+            )}
           />
         </ul>
       </section>
@@ -57,12 +70,24 @@ export function PlayerRelations({ puuid, season }: PlayerRelationsProps) {
           <RelationRow
             label={t("bestRecord")}
             relation={rivals.bestRecord}
-            detail={(r) => <WinLossRecord wins={r.wins} losses={r.losses} />}
+            detail={(r) => (
+              <WinLoss
+                className="text-base font-semibold"
+                wins={r.wins}
+                losses={r.losses}
+              />
+            )}
           />
           <RelationRow
             label={t("worstRecord")}
             relation={rivals.worstRecord}
-            detail={(r) => <WinLossRecord wins={r.wins} losses={r.losses} />}
+            detail={(r) => (
+              <WinLoss
+                className="text-base font-semibold"
+                wins={r.wins}
+                losses={r.losses}
+              />
+            )}
           />
           <RelationRow
             label={t("mostKilled")}
@@ -134,21 +159,5 @@ function RelationRow({
         </span>
       </Link>
     </li>
-  );
-}
-
-function WinLossRecord({
-  wins,
-  losses,
-}: {
-  wins: number | null;
-  losses: number | null;
-}) {
-  return (
-    <span className="num text-base font-semibold">
-      <span className="text-win">{wins ?? 0}</span>
-      <span className="text-muted-foreground">–</span>
-      <span className="text-loss">{losses ?? 0}</span>
-    </span>
   );
 }

@@ -4,6 +4,7 @@ import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
 import MatchHistorySkeleton from "@/components/matches/match-history-skeleton";
 import { PageHeader } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
@@ -30,7 +31,7 @@ export default async function MatchHistoryPage({
 
   return (
     <HydrateClient>
-      <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+      <PageShell>
         <PageHeader
           eyebrow={
             season === ALL_TIME_SEASON
@@ -47,7 +48,7 @@ export default async function MatchHistoryPage({
         <Suspense fallback={<MatchHistorySkeleton />} key={season}>
           <MatchHistoryList season={season} />
         </Suspense>
-      </div>
+      </PageShell>
     </HydrateClient>
   );
 }

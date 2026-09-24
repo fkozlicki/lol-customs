@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { PostDetails } from "@/components/forum/post-details";
 import PostDetailsSkeleton from "@/components/forum/post-details-skeleton";
+import { PageShell } from "@/components/page-shell";
 import { caller, HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 interface PostPageProps {
@@ -19,11 +20,11 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <HydrateClient>
-      <div className="mx-auto w-full max-w-3xl px-4 pt-10 pb-16 sm:pt-16">
+      <PageShell width="reading" gap="none">
         <Suspense fallback={<PostDetailsSkeleton />}>
           <PostDetails postId={id} />
         </Suspense>
-      </div>
+      </PageShell>
     </HydrateClient>
   );
 }

@@ -72,7 +72,7 @@ export function HallOfFame({ season }: { season: number }) {
           id={`hof-${section.id}`}
           className="scroll-mt-20"
         >
-          <SectionHeading>{t(`sections.${section.id}`)}</SectionHeading>
+          <SectionTitle>{t(`sections.${section.id}`)}</SectionTitle>
           {section.pairs.length > 0 ? (
             <>
               <TitleRows
@@ -133,7 +133,12 @@ function TitleRows({
   );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
+/**
+ * The heading above a Hall of Fame section. Not `SectionHeading` from `@/components/page-header`,
+ * which is the `label-caps` block heading — this is an entry title, one step down from the page
+ * title. It shadowed that name until it was renamed.
+ */
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="pb-3 text-2xl font-semibold uppercase leading-none tracking-[-0.03em] sm:text-3xl">
       {children}

@@ -19,8 +19,8 @@ import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { RankCrest } from "@/components/game-assets/rank-crest";
 import { Icons } from "@/components/icons";
+import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { positionRoleIconUrl } from "@/utils/asset-urls";
@@ -168,11 +168,10 @@ export default function RandomTeamsTool() {
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {entry.gameName}
                   </span>
-                  <RankTag
-                    tier={entry.rankTier}
-                    division={entry.rankDivision}
-                    unrankedLabel={t("unranked")}
-                  />
+                  <RankTag tier={entry.rankTier}>
+                    {formatRank(entry.rankTier, entry.rankDivision) ??
+                      t("unranked")}
+                  </RankTag>
                   <button
                     type="button"
                     onClick={() => removePlayer(entry)}
@@ -210,11 +209,10 @@ export default function RandomTeamsTool() {
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {player.game_name}
                   </span>
-                  <RankTag
-                    tier={player.rank_tier}
-                    division={player.rank_division}
-                    unrankedLabel={t("unranked")}
-                  />
+                  <RankTag tier={player.rank_tier}>
+                    {formatRank(player.rank_tier, player.rank_division) ??
+                      t("unranked")}
+                  </RankTag>
                   <Button
                     type="button"
                     size="sm"
@@ -272,17 +270,9 @@ function TeamColumn({
         <h2 className="text-2xl font-semibold uppercase leading-none tracking-[-0.03em] sm:text-3xl">
           {title}
         </h2>
-        <span className="flex items-center gap-1.5">
-          <RankCrest
-            tier={team.avgRankTier}
-            width={18}
-            height={18}
-            className="shrink-0"
-          />
-          <span className="label-caps">
-            {t("avgSolo")} {team.avgRankLabel}
-          </span>
-        </span>
+        <RankTag tier={team.avgRankTier} size="lg">
+          {t("avgSolo")} {team.avgRankLabel}
+        </RankTag>
       </div>
       <ul className="divide-y border-t">
         {team.players.map((player) => (
@@ -319,34 +309,10 @@ function TeamRow({
           <span className="label-caps ml-2">{t("captain")}</span>
         )}
       </span>
-      <RankTag
-        tier={player.rankTier}
-        division={player.rankDivision}
-        unrankedLabel={t("unranked")}
-      />
+      <RankTag tier={player.rankTier}>
+        {formatRank(player.rankTier, player.rankDivision) ?? t("unranked")}
+      </RankTag>
     </li>
-  );
-}
-
-/** Last rank recorded for the player in a ladder match. */
-function RankTag({
-  tier,
-  division,
-  unrankedLabel,
-  className,
-}: {
-  tier: string | null;
-  division: string | null;
-  unrankedLabel: string;
-  className?: string;
-}) {
-  const label = formatRank(tier, division);
-
-  return (
-    <span className={cn("flex shrink-0 items-center gap-1.5", className)}>
-      <RankCrest tier={tier} width={16} height={16} className="shrink-0" />
-      <span className="label-caps">{label ?? unrankedLabel}</span>
-    </span>
   );
 }
 

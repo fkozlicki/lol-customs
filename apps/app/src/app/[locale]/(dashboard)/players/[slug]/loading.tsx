@@ -1,9 +1,10 @@
 import { Skeleton } from "@v1/ui/skeleton";
 import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
+import { PageShell } from "@/components/page-shell";
 
 export default function PlayerProfileLoading() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell>
       <div className="flex items-center gap-6">
         <Skeleton className="size-16 sm:size-24" />
         <Skeleton className="h-10 w-64" />
@@ -18,6 +19,6 @@ export default function PlayerProfileLoading() {
           ))}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

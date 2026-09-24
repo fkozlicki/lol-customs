@@ -4,8 +4,8 @@ import { formatRank } from "@v1/domain/rank";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ChampionImage } from "@/components/game-assets/champion-image";
-import { RankCrest } from "@/components/game-assets/rank-crest";
 import { SpellImage } from "@/components/game-assets/spell-image";
+import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";
@@ -55,16 +55,10 @@ export default function MatchParticipantInfo({
         >
           {p.players.game_name}
         </Link>
-        <span className="flex items-center gap-1 text-xs text-muted-foreground capitalize">
-          <RankCrest
-            tier={p.rank_tier}
-            width={14}
-            height={14}
-            className="shrink-0"
-          />
+        <RankTag tier={p.rank_tier} size="sm">
           {formatRank(p.rank_tier?.toLowerCase() ?? null, p.rank_division) ??
             t("unranked")}
-        </span>
+        </RankTag>
       </div>
     </div>
   );

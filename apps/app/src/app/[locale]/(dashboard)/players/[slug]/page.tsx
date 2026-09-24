@@ -2,6 +2,7 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import { parsePlayerSlug } from "@v1/domain/riot-id";
 import { notFound } from "next/navigation";
 import { SectionHeading } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 import { MostPlayedChampions } from "@/components/player/most-played-champions";
 import { PlayerMatchHistory } from "@/components/player/player-match-history";
 import { PlayerProfileHeader } from "@/components/player/player-profile-header";
@@ -90,7 +91,7 @@ export default async function PlayerProfilePage({
 
   return (
     <HydrateClient>
-      <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+      <PageShell>
         <PlayerProfileHeader
           puuid={puuid}
           gameName={gameName}
@@ -146,7 +147,7 @@ export default async function PlayerProfilePage({
             </section>
           )}
         </div>
-      </div>
+      </PageShell>
     </HydrateClient>
   );
 }

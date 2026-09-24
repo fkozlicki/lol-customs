@@ -1,9 +1,10 @@
 import { Skeleton } from "@v1/ui/skeleton";
 import { PageHeaderSkeleton } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 
 export default function NewAuctionLoading() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pt-10 pb-16 sm:pt-16">
+    <PageShell>
       <PageHeaderSkeleton eyebrow />
       <div className="space-y-12">
         {[0, 1, 2].map((step) => (
@@ -19,6 +20,6 @@ export default function NewAuctionLoading() {
           </div>
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }
