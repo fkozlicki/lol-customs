@@ -1019,6 +1019,10 @@ export type Database = {
         Args: { p_request_id: string; p_room_id: string };
         Returns: Json;
       };
+      auction_concede: {
+        Args: { p_request_id: string; p_room_id: string };
+        Returns: Json;
+      };
       auction_create_room: {
         Args: {
           p_bid_seconds: number;

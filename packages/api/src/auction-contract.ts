@@ -42,6 +42,8 @@ export interface AuctionListItem {
   status: "waiting" | "countdown" | "active";
   /** The viewer is one of its captains. */
   isMine: boolean;
+  /** Which side the viewer captains, if any. */
+  mySide: AuctionSide | null;
   phase: AuctionPhase | null;
   teamA: AuctionListCaptain;
   teamB: AuctionListCaptain;
@@ -98,10 +100,8 @@ export interface AuctionRoomPermissions {
   canBid: boolean;
   /** Give up a round to the leader while bidding. */
   canConcede: boolean;
-  /** Hand the player of a free auction to the captain with no budget. */
-  canPass: boolean;
-  /** Buy the player of a free auction for $1. */
-  canTake: boolean;
+  /** Buy the player of a free auction for $1, or pass them to the captain with no budget. */
+  canDecideFreeAuction: boolean;
   canCancel: boolean;
 }
 

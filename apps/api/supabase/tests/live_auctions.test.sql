@@ -103,7 +103,7 @@ values
   ('10000000-0000-0000-0000-000000000003', 'auction-c'),
   ('10000000-0000-0000-0000-000000000004', 'auction-d');
 
-select plan(89);
+select plan(93);
 
 select has_table('public', 'auction_rooms', 'auction_rooms exists');
 select has_table('public', 'auction_captains', 'auction_captains exists');
@@ -118,6 +118,7 @@ select ok(not has_table_privilege('authenticated', 'public.auction_rooms', 'INSE
 select ok(has_function_privilege('anon', 'public.auction_get_room(uuid)', 'EXECUTE'), 'anon can read a room through RPC');
 select ok(not has_function_privilege('anon', 'public.auction_bid(uuid,uuid,integer)', 'EXECUTE'), 'anon cannot bid');
 select ok(not has_function_privilege('anon', 'public.auction_take(uuid,uuid)', 'EXECUTE'), 'anon cannot take');
+select ok(not has_function_privilege('anon', 'public.auction_concede(uuid,uuid)', 'EXECUTE'), 'anon cannot concede');
 select ok(
   not has_function_privilege('authenticated', 'public._auction_award_locked(uuid,text,integer,text,uuid,uuid)', 'EXECUTE'),
   'clients cannot award players directly'
@@ -252,17 +253,21 @@ select throws_ok(format(
   tests.room('hidden')
 ), 'P0001', 'AUCTION_LEADER_CANNOT_BID', 'the leading captain cannot raise their own bid');
 select throws_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000014')$$,
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000014')$$,
   tests.room('hidden')
-), 'P0001', 'AUCTION_LEADER_CANNOT_PASS', 'the opener cannot skip the player');
+), 'P0001', 'AUCTION_LEADER_CANNOT_CONCEDE', 'the opener cannot give up their own lead');
 select throws_ok(format(
   $$select public.auction_take(%L, '20000000-0000-0000-0000-000000000015')$$,
   tests.room('hidden')
 ), 'P0001', 'AUCTION_TAKE_NOT_ALLOWED', 'take is only for a free auction');
 
 select tests.login_side(tests.room('hidden'), tests.other(tests.leader(tests.room('hidden'))));
+select throws_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000030')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_PASS_NOT_ALLOWED', 'a pass is only for a free auction, so nobody skips a player');
 select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000016')$$,
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000016')$$,
   tests.room('hidden')
 ), 'the other captain concedes');
 select is(
@@ -280,7 +285,7 @@ select is(
   1::bigint, 'command request id is recorded once'
 );
 select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000016')$$,
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000016')$$,
   tests.room('hidden')
 ), 'retrying a concession is idempotent');
 select is(
@@ -356,6 +361,10 @@ select throws_ok(format(
   $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000021')$$,
   tests.room('hidden')
 ), 'P0001', 'AUCTION_PASS_NOT_ALLOWED', 'the broke captain cannot pass');
+select throws_ok(format(
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000031')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_CONCEDE_NOT_ALLOWED', 'there is nothing to concede in a free auction');
 select throws_ok(format(
   $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000022', 1)$$,
   tests.room('hidden')
@@ -440,10 +449,19 @@ select is(
   1::bigint, 'only the current player is revealed at start'
 );
 
+-- The first opener already has two players, so it fills up while the rest is shared.
+update public.auction_players set assigned_side = tests.first_opener(room_id), purchase_price = 0, revealed = true
+where id in (
+  select id from public.auction_players
+  where room_id = tests.room('visible') and assigned_side is null
+    and id <> (select current_player_id from public.auction_rooms where id = tests.room('visible'))
+  order by draw_position
+  limit 2
+);
 update public.auction_captains set budget_remaining = case when side = tests.first_opener(room_id) then 1 else 0 end
 where room_id = tests.room('visible');
 select tests.login_side(tests.room('visible'), tests.other(tests.first_opener(tests.room('visible'))));
-select public.auction_pass(tests.room('visible'), '20000000-0000-0000-0000-000000000042');
+select public.auction_concede(tests.room('visible'), '20000000-0000-0000-0000-000000000042');
 select tests.next_round(tests.room('visible'));
 select is(
   (select status from public.auction_rooms where id = tests.room('visible')),
@@ -454,11 +472,15 @@ select is(
    where room_id = tests.room('visible') and event_type = 'auto_assigned'),
   (select array_agg(s) from unnest(array[
     tests.other(tests.first_opener(tests.room('visible'))), tests.first_opener(tests.room('visible')),
-    tests.other(tests.first_opener(tests.room('visible'))), tests.first_opener(tests.room('visible')),
-    tests.other(tests.first_opener(tests.room('visible'))), tests.first_opener(tests.room('visible')),
+    tests.other(tests.first_opener(tests.room('visible'))), tests.other(tests.first_opener(tests.room('visible'))),
     tests.other(tests.first_opener(tests.room('visible')))
   ]) s),
   'players alternate from the round opener, skipping a full team'
+);
+select is(
+  (select count(*) from public.auction_players
+   where room_id = tests.room('visible') and assigned_side = tests.first_opener(room_id)),
+  4::bigint, 'the full team stops receiving players'
 );
 select is(
   (select count(*) from public.auction_list_active()

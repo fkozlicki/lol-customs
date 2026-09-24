@@ -36,7 +36,8 @@ interface AuctionSetupFormProps {
   onCancel?: () => void;
 }
 
-function fingerprint(players: PoolPlayer[]) {
+/** The pool as one comparable string, so an edit only sends players when the pool changed. */
+function poolKey(players: PoolPlayer[]) {
   return players.map(riotIdKey).sort().join("|");
 }
 
@@ -60,7 +61,7 @@ export function AuctionSetupForm({
   const [revealOrder, setRevealOrder] = useState(initialRevealOrder);
   const [search, setSearch] = useState("");
   const [manualRiotId, setManualRiotId] = useState("");
-  const [initialFingerprint] = useState(() => fingerprint(initialPlayers));
+  const [initialPoolKey] = useState(() => poolKey(initialPlayers));
 
   const { data: allPlayers = [] } = useQuery(trpc.players.all.queryOptions());
   const { data: auctions } = useQuery({
@@ -165,7 +166,7 @@ export function AuctionSetupForm({
       updateLobby.mutate({
         id: roomId,
         ...settings,
-        ...(fingerprint(pool) !== initialFingerprint ? { players } : {}),
+        ...(poolKey(pool) !== initialPoolKey ? { players } : {}),
       });
     } else {
       createAuction.mutate({ players, teamName, ...settings });
@@ -198,9 +199,15 @@ export function AuctionSetupForm({
     <div className="space-y-10">
       {myAuction && (
         <p className="border-b pb-4 text-sm text-muted-foreground">
-          {t("creator.replacesLobby", {
-            teams: `${myAuction.teamA.teamName} vs ${myAuction.teamB.teamName}`,
-          })}
+          {t(
+            myAuction.mySide === "A"
+              ? "creator.replacesLobby"
+              : "creator.leavesLobby",
+            {
+              teamA: myAuction.teamA.teamName,
+              teamB: myAuction.teamB.teamName,
+            },
+          )}
         </p>
       )}
       <div className="flex items-center justify-between gap-4">
@@ -242,11 +249,11 @@ export function AuctionSetupForm({
       <div className="grid gap-10 md:grid-cols-2 md:gap-16">
         <section>
           <h2 className="label-caps pb-3 text-foreground">
-            {t("creator.roster")}
+            {t("creator.pool")}
           </h2>
           {pool.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t("creator.rosterHint")}
+              {t("creator.poolHint")}
             </p>
           ) : (
             <ul className="divide-y">

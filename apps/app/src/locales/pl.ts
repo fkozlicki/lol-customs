@@ -241,8 +241,8 @@ export default {
           title: "Utwórz aukcję live",
           description:
             "Wybierz ośmiu graczy, których kupią kapitanowie. Ty jesteś kapitanem Team A; drugi kapitan dołącza z linku do pokoju.",
-          roster: "Pula graczy",
-          rosterHint: "Dodaj ośmiu graczy z rankingu lub przez Riot ID.",
+          pool: "Pula graczy",
+          poolHint: "Dodaj ośmiu graczy z rankingu lub przez Riot ID.",
           clear: "Wyczyść",
           addPlayers: "Z rankingu",
           search: "Szukaj graczy w rankingu...",
@@ -257,7 +257,10 @@ export default {
           liveAuction:
             "Jesteś kapitanem w trwającej aukcji. Dokończ ją albo anuluj, zanim utworzysz kolejną.",
           goToAuction: "Przejdź do swojej aukcji",
-          replacesLobby: "Utworzenie nowej aukcji anuluje Twoje lobby {teams}.",
+          replacesLobby:
+            "Utworzenie nowej aukcji anuluje Twoje lobby {teamA} vs {teamB}.",
+          leavesLobby:
+            "Utworzenie nowej aukcji wypisze Cię z lobby {teamA} vs {teamB}.",
           teamName: "Nazwa twojej drużyny",
           budget: "Budżet ($4-$100)",
           timer: "Czas oferty (10-60 s)",
@@ -272,6 +275,7 @@ export default {
         room: {
           teamA: "Team A",
           teamB: "Team B",
+          versus: "vs",
           rosterCount: "{count}/5 graczy",
           remaining: "pozostało",
           leadingShort: "Prowadzi",
@@ -298,7 +302,7 @@ export default {
           openSlot: "Oczekiwanie na kapitana",
           ready: "Gotowy",
           notReady: "Niegotowy",
-          teamName: "Nazwa Team B",
+          teamName: "Nazwa drużyny",
           waitingForCaptain: "Czekamy na drugiego kapitana",
           edit: "Edytuj",
           cancelEdit: "Anuluj",

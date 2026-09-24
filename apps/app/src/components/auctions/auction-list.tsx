@@ -104,7 +104,10 @@ export function AuctionList() {
                   <div className="min-w-0 space-y-2">
                     <h2 className="text-3xl font-semibold uppercase leading-[0.95] tracking-[-0.03em] sm:text-5xl">
                       {room.teamA.teamName}
-                      <span className="text-muted-foreground"> vs </span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        {t("room.versus")}{" "}
+                      </span>
                       {room.teamB.teamName}
                     </h2>
                     <p className="truncate text-xs text-muted-foreground">

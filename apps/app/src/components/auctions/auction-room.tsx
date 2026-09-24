@@ -311,19 +311,26 @@ function RoundControls({
   const bid = useMutation(
     trpc.auctions.bid.mutationOptions({ onSuccess: refresh, onError: failed }),
   );
+  const concede = useMutation(
+    trpc.auctions.concede.mutationOptions({
+      onSuccess: refresh,
+      onError: failed,
+    }),
+  );
   const pass = useMutation(
     trpc.auctions.pass.mutationOptions({ onSuccess: refresh, onError: failed }),
   );
   const take = useMutation(
     trpc.auctions.take.mutationOptions({ onSuccess: refresh, onError: failed }),
   );
-  const { canBid, canConcede, canPass, canTake } = room.permissions;
-  const busy = bid.isPending || pass.isPending || take.isPending;
+  const { canBid, canConcede, canDecideFreeAuction } = room.permissions;
+  const busy =
+    bid.isPending || concede.isPending || pass.isPending || take.isPending;
 
   if (room.phase === "free_auction") {
     return (
       <div className="space-y-3 border-t pt-6">
-        {canTake ? (
+        {canDecideFreeAuction ? (
           <>
             <div className="grid gap-2 sm:grid-cols-2">
               <Button
@@ -336,7 +343,7 @@ function RoundControls({
               <Button
                 size="lg"
                 variant="outline"
-                disabled={!canPass || busy}
+                disabled={busy}
                 onClick={() => pass.mutate({ id: room.id })}
               >
                 {t("actions.pass")}
@@ -398,7 +405,7 @@ function RoundControls({
             size="lg"
             variant="ghost"
             disabled={!canConcede || busy}
-            onClick={() => pass.mutate({ id: room.id })}
+            onClick={() => concede.mutate({ id: room.id })}
           >
             {t("actions.concede")}
           </Button>
@@ -447,7 +454,9 @@ function Lobby({
 
       <section className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-12">
         <LobbyTeam room={room} side="A" refresh={refresh} />
-        <span className="label-caps hidden pt-2 sm:block">vs</span>
+        <span className="label-caps hidden pt-2 sm:block">
+          {t("room.versus")}
+        </span>
         <LobbyTeam room={room} side="B" refresh={refresh} />
       </section>
 
@@ -482,9 +491,7 @@ function Lobby({
       ) : (
         <section>
           <div className="flex items-baseline justify-between gap-4 border-b pb-3">
-            <h2 className="label-caps text-foreground">
-              {t("creator.roster")}
-            </h2>
+            <h2 className="label-caps text-foreground">{t("creator.pool")}</h2>
             {room.permissions.canEditLobby && (
               <button
                 type="button"
@@ -782,7 +789,7 @@ export function AuctionRoom({ id }: { id: string }) {
           </div>
           <h1 className="mt-2 truncate text-2xl font-semibold uppercase tracking-[-0.03em] sm:text-4xl">
             {teamA?.teamName ?? t("room.teamA")}{" "}
-            <span className="text-muted-foreground">vs</span>{" "}
+            <span className="text-muted-foreground">{t("room.versus")}</span>{" "}
             {teamB?.teamName ?? t("room.teamB")}
           </h1>
         </div>

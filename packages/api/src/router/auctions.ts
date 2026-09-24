@@ -66,8 +66,10 @@ function domainError(error: RpcError): TRPCError {
     AUCTION_BUDGET_EXCEEDED: "This bid exceeds your remaining budget.",
     AUCTION_BIDDING_CLOSED: "Bidding is not open right now.",
     AUCTION_LEADER_CANNOT_BID: "You already lead this round.",
-    AUCTION_PASS_NOT_ALLOWED: "Pass is not available right now.",
-    AUCTION_LEADER_CANNOT_PASS: "The leading captain cannot concede.",
+    AUCTION_PASS_NOT_ALLOWED: "A pass is only possible in a free auction.",
+    AUCTION_CONCEDE_NOT_ALLOWED: "There is nothing to concede right now.",
+    AUCTION_LEADER_CANNOT_CONCEDE:
+      "You lead this round, so there is nothing to concede.",
     AUCTION_TAKE_NOT_ALLOWED: "Taking for $1 is not available right now.",
   };
   const message = domainCode
@@ -199,6 +201,7 @@ interface RawListItem {
   id: string;
   status: "waiting" | "countdown" | "active";
   isMine: boolean;
+  mySide: AuctionSide | null;
   phase: AuctionPhase | null;
   teamA: string;
   teamB: string;
@@ -227,6 +230,7 @@ function normalizeListItem(raw: RawListItem): AuctionListItem {
     id: raw.id,
     status: raw.status,
     isMine: raw.isMine,
+    mySide: raw.mySide,
     phase: raw.phase,
     teamA: { teamName: raw.teamA, captain: raw.captainA },
     teamB: { teamName: raw.teamB, captain: raw.captainB },
@@ -306,8 +310,7 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
         myBudget !== null &&
         myBudget > raw.currentBid,
       canConcede: active && raw.phase === "bidding" && !leading,
-      canPass: active && raw.phase === "free_auction" && leading,
-      canTake: active && raw.phase === "free_auction" && leading,
+      canDecideFreeAuction: active && raw.phase === "free_auction" && leading,
       canCancel: raw.permissions.canCancel,
     },
   };
@@ -511,6 +514,16 @@ export const auctionsRouter = createTRPCRouter({
         p_room_id: input.id,
         p_request_id: randomUUID(),
         p_amount: input.amount,
+      });
+      return { ok: true };
+    }),
+
+  concede: protectedProcedure
+    .input(roomIdSchema)
+    .mutation(async ({ ctx, input }) => {
+      await callRpc(ctx.supabase, "auction_concede", {
+        p_room_id: input.id,
+        p_request_id: randomUUID(),
       });
       return { ok: true };
     }),
