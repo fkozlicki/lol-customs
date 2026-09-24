@@ -47,6 +47,46 @@ A player's wins and losses in matches against one rival. It is only compared onc
 least three matches.
 _Avoid_: Matchup, H2H
 
+### Auctions
+
+**Auction**:
+Building two teams by letting two captains buy the players of a pool, each with the same budget. Like a
+draw, an auction produces teams, not a match.
+_Avoid_: Bidding room, live auction
+
+**Captain**:
+The person who leads a team. In a draw, one of the team's five players picked at random; in an auction, a
+signed-in user who buys the other four and is known only by their profile.
+
+**Lobby**:
+An auction before it starts, while its captains join and get ready. A person captains at most one
+lobby: entering another releases the first, and an idle lobby expires.
+
+**Pool**:
+The eight players an auction sells. Captains are never in the pool.
+_Avoid_: Roster
+
+**Round**:
+The sale of one player from the pool. Every round starts with an opening bid and ends when the player
+goes to a team; no player can be skipped or sent back.
+_Avoid_: Lot, turn
+
+**Opening bid**:
+The $1 bid that starts a round, placed automatically for one captain. Captains take turns opening,
+starting with one picked at random; a captain with no budget left is opened for by the other.
+
+**Concede**:
+Giving up a round to the captain who leads it, who buys the player at their bid.
+_Avoid_: Pass
+
+**Free auction**:
+A round in which one captain has no budget left. The other captain either buys the player for $1 or
+passes.
+
+**Pass**:
+Handing the player of a free auction to the captain with no budget, for $0.
+_Avoid_: Skip, send back
+
 ### Performance
 
 **OP score**:

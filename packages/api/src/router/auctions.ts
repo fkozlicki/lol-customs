@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
+import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
+import { formatRank } from "@v1/domain/rank";
 import { riotIdKey } from "@v1/domain/riot-id";
 import type { Json } from "@v1/supabase/types";
 import { z } from "zod";
@@ -11,28 +13,20 @@ import type {
   AuctionSide,
   AuctionStatus,
 } from "../auction-contract";
-import { loadAuctionRoster } from "../auction-roster";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 const roomIdSchema = z.object({ id: z.string().uuid() });
 
-const rosterPlayerSchema = z.object({
+const poolPlayerSchema = z.object({
   gameName: z.string().trim().min(1).max(100),
   tagLine: z.string().trim().min(1).max(20),
-  platformId: z.string().trim().min(1).max(10),
 });
 
-const rosterSchema = z
-  .array(rosterPlayerSchema)
-  .length(10)
+const poolSchema = z
+  .array(poolPlayerSchema)
+  .length(AUCTION_POOL_SIZE)
   .refine(
-    (players) =>
-      new Set(
-        players.map(
-          (player) =>
-            `${player.gameName.toLowerCase()}#${player.tagLine.toLowerCase()}`,
-        ),
-      ).size === 10,
+    (players) => new Set(players.map(riotIdKey)).size === AUCTION_POOL_SIZE,
     "Each Riot ID must be unique.",
   );
 
@@ -63,16 +57,20 @@ function domainError(error: RpcError): TRPCError {
   const messages: Record<string, string> = {
     AUCTION_PROFILE_REQUIRED: "Create a profile before joining an auction.",
     AUCTION_ROOM_NOT_FOUND: "Auction not found.",
-    AUCTION_ALREADY_CAPTAIN: "You are already a captain in another auction.",
+    AUCTION_ALREADY_CAPTAIN:
+      "You are a captain in a live auction. Finish or cancel it first.",
     AUCTION_CAPTAIN_SLOT_TAKEN: "The second captain slot is already taken.",
     AUCTION_PERMISSION_DENIED: "You cannot perform this action.",
     AUCTION_DEADLINE_PASSED: "The bidding deadline has passed.",
     AUCTION_BID_TOO_LOW: "The bid is too low.",
     AUCTION_BUDGET_EXCEEDED: "This bid exceeds your remaining budget.",
-    AUCTION_OPPONENT_PASSIVE:
-      "You cannot raise so high against an opponent with no budget.",
-    AUCTION_PASS_NOT_ALLOWED: "Pass is not available right now.",
-    AUCTION_LEADER_CANNOT_PASS: "The leading captain cannot pass.",
+    AUCTION_BIDDING_CLOSED: "Bidding is not open right now.",
+    AUCTION_LEADER_CANNOT_BID: "You already lead this round.",
+    AUCTION_PASS_NOT_ALLOWED: "A pass is only possible in a free auction.",
+    AUCTION_CONCEDE_NOT_ALLOWED: "There is nothing to concede right now.",
+    AUCTION_LEADER_CANNOT_CONCEDE:
+      "You lead this round, so there is nothing to concede.",
+    AUCTION_TAKE_NOT_ALLOWED: "Taking for $1 is not available right now.",
   };
   const message = domainCode
     ? (messages[domainCode] ?? domainCode)
@@ -137,7 +135,6 @@ interface RawCaptain {
   side: AuctionSide;
   teamName: string;
   profileNickname: string;
-  playerId: string;
   ready: boolean;
   budgetRemaining: number;
   isCurrentUser: boolean;
@@ -148,7 +145,6 @@ interface RawPlayer {
   gameName: string;
   tagLine: string;
   rank: {
-    platformId?: string;
     soloTier?: string | null;
     soloDivision?: string | null;
     soloRankLabel?: string;
@@ -157,7 +153,6 @@ interface RawPlayer {
   revealed: boolean;
   assignedSide: AuctionSide | null;
   purchasePrice: number | null;
-  isCaptain: boolean;
 }
 
 interface RawEvent {
@@ -182,10 +177,10 @@ interface RawRoom {
   currentPlayerId: string | null;
   currentBid: number;
   leadingSide: AuctionSide | null;
+  roundNumber: number;
   countdownEndsAt: string | null;
   bidDeadline: string | null;
   phaseDeadline: string | null;
-  openingPass: { a: boolean; b: boolean };
   stateVersion: number;
   serverTime: string;
   createdAt: string;
@@ -204,12 +199,14 @@ interface RawRoom {
 
 interface RawListItem {
   id: string;
-  status: "countdown" | "active";
+  status: "waiting" | "countdown" | "active";
+  isMine: boolean;
+  mySide: AuctionSide | null;
   phase: AuctionPhase | null;
   teamA: string;
   teamB: string;
   captainA: string;
-  captainB: string;
+  captainB: string | null;
   currentPlayer: string | null;
   currentBid: number;
   countdownEndsAt: string | null;
@@ -232,9 +229,11 @@ function normalizeListItem(raw: RawListItem): AuctionListItem {
   return {
     id: raw.id,
     status: raw.status,
+    isMine: raw.isMine,
+    mySide: raw.mySide,
     phase: raw.phase,
-    teamA: { teamName: raw.teamA, ...splitRiotId(raw.captainA) },
-    teamB: { teamName: raw.teamB, ...splitRiotId(raw.captainB) },
+    teamA: { teamName: raw.teamA, captain: raw.captainA },
+    teamB: { teamName: raw.teamB, captain: raw.captainB },
     currentPlayer: raw.currentPlayer ? splitRiotId(raw.currentPlayer) : null,
     currentBid: raw.currentBid || null,
     countdownEndsAt: raw.countdownEndsAt,
@@ -249,9 +248,8 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
   const myBudget =
     raw.captains.find((captain) => captain.side === mySide)?.budgetRemaining ??
     null;
-  const inActiveBidding =
-    raw.status === "active" &&
-    (raw.phase === "awaiting_opening_bid" || raw.phase === "bidding");
+  const active = raw.status === "active" && mySide !== null;
+  const leading = raw.leadingSide === mySide;
   return {
     id: raw.id,
     status: raw.status,
@@ -262,7 +260,7 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
     currentPlayerId: raw.currentPlayerId,
     currentBid: raw.currentBid || null,
     currentLeaderSide: raw.leadingSide,
-    openingPass: raw.openingPass,
+    roundNumber: raw.roundNumber,
     countdownEndsAt: raw.countdownEndsAt,
     phaseEndsAt: raw.phase === "bidding" ? raw.bidDeadline : raw.phaseDeadline,
     createdAt: raw.createdAt,
@@ -274,11 +272,9 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
       id: player.id,
       gameName: player.gameName,
       tagLine: player.tagLine,
-      platformId: player.rank.platformId ?? "eun1",
       soloTier: player.rank.soloTier ?? null,
       soloDivision: player.rank.soloDivision ?? null,
       soloRankLabel: player.rank.soloRankLabel ?? "",
-      captainSide: player.isCaptain ? player.assignedSide : null,
       teamSide: player.assignedSide,
       purchasePrice: player.purchasePrice,
       revealed: player.revealed,
@@ -296,7 +292,7 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
     permissions: {
       isCreator: raw.permissions.isCreator,
       mySide,
-      canJoin: raw.permissions.canJoin,
+      canJoin: raw.permissions.canJoin && mySide === null,
       canLeave: mySide === "B" && ["waiting", "countdown"].includes(raw.status),
       canRemoveCaptain:
         raw.permissions.isCreator &&
@@ -304,31 +300,90 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
         ["waiting", "countdown"].includes(raw.status),
       canEditLobby: raw.permissions.canEditLobby,
       canReady:
-        mySide !== null && ["waiting", "countdown"].includes(raw.status),
-      canBid: inActiveBidding && myBudget !== null && myBudget > 0,
-      canPass:
         mySide !== null &&
-        raw.status === "active" &&
-        ((raw.phase === "awaiting_opening_bid" && raw.leadingSide === null) ||
-          (raw.phase === "bidding" && raw.leadingSide !== mySide)),
+        hasCaptainB &&
+        ["waiting", "countdown"].includes(raw.status),
+      canBid:
+        active &&
+        raw.phase === "bidding" &&
+        !leading &&
+        myBudget !== null &&
+        myBudget > raw.currentBid,
+      canConcede: active && raw.phase === "bidding" && !leading,
+      canDecideFreeAuction: active && raw.phase === "free_auction" && leading,
       canCancel: raw.permissions.canCancel,
     },
   };
 }
 
-function rosterPayload(
-  players: Awaited<ReturnType<typeof loadAuctionRoster>>,
-): Json {
-  return players.map((player) => ({
-    gameName: player.gameName,
-    tagLine: player.tagLine,
-    rank: {
-      platformId: player.platformId,
-      soloTier: player.soloTier,
-      soloDivision: player.soloDivision,
-      soloRankLabel: player.soloRankLabel,
-    },
-  })) as Json;
+interface PoolClient {
+  from: (table: "players") => {
+    select: (columns: "puuid, game_name, tag_line") => PromiseLike<{
+      data:
+        | { puuid: string; game_name: string | null; tag_line: string | null }[]
+        | null;
+      error: RpcError | null;
+    }>;
+  };
+  rpc: (name: "player_latest_ranks") => PromiseLike<{
+    data:
+      | {
+          puuid: string;
+          rank_tier: string | null;
+          rank_division: string | null;
+        }[]
+      | null;
+    error: RpcError | null;
+  }>;
+}
+
+/** The pool with each player's latest ladder rank; players outside the ladder are unranked. */
+async function poolPayload(
+  client: unknown,
+  pool: z.infer<typeof poolSchema>,
+): Promise<Json> {
+  const supabase = client as PoolClient;
+  const [players, ranks] = await Promise.all([
+    supabase.from("players").select("puuid, game_name, tag_line"),
+    supabase.rpc("player_latest_ranks"),
+  ]);
+  if (players.error) throw domainError(players.error);
+  if (ranks.error) throw domainError(ranks.error);
+
+  const puuidByRiotId = new Map(
+    (players.data ?? []).flatMap((player) =>
+      player.game_name && player.tag_line
+        ? [
+            [
+              riotIdKey({
+                gameName: player.game_name,
+                tagLine: player.tag_line,
+              }),
+              player.puuid,
+            ] as const,
+          ]
+        : [],
+    ),
+  );
+  const rankByPuuid = new Map(
+    (ranks.data ?? []).map((rank) => [rank.puuid, rank]),
+  );
+
+  return pool.map((player) => {
+    const puuid = puuidByRiotId.get(riotIdKey(player));
+    const rank = puuid ? rankByPuuid.get(puuid) : undefined;
+    const soloTier = rank?.rank_tier ?? null;
+    const soloDivision = rank?.rank_division ?? null;
+    return {
+      gameName: player.gameName,
+      tagLine: player.tagLine,
+      rank: {
+        soloTier,
+        soloDivision,
+        soloRankLabel: formatRank(soloTier, soloDivision) ?? "",
+      },
+    };
+  }) as Json;
 }
 
 export const auctionsRouter = createTRPCRouter({
@@ -351,24 +406,10 @@ export const auctionsRouter = createTRPCRouter({
     return room ? normalizeRoom(room) : null;
   }),
 
-  validateRoster: protectedProcedure
-    .input(z.object({ players: rosterSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await requireProfile(ctx.user.id, ctx.supabase);
-      const players = await loadAuctionRoster(input.players);
-      return {
-        players: players.map(({ puuid: _puuid, ...player }) => player),
-      };
-    }),
-
   create: protectedProcedure
     .input(
       z.object({
-        players: rosterSchema,
-        captainRiotId: rosterPlayerSchema.pick({
-          gameName: true,
-          tagLine: true,
-        }),
+        players: poolSchema,
         teamName: teamNameSchema.default("Team A"),
         budget: z.number().int().min(4).max(100).default(20),
         bidSeconds: z.number().int().min(10).max(60).default(30),
@@ -377,25 +418,12 @@ export const auctionsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       await requireProfile(ctx.user.id, ctx.supabase);
-      const players = await loadAuctionRoster(input.players);
-      const captainIndex = input.players.findIndex(
-        (player) => riotIdKey(player) === riotIdKey(input.captainRiotId),
-      );
-      const captain = players[captainIndex];
-      if (!captain) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "The captain Riot ID must be part of the roster.",
-        });
-      }
-
       const result = await callRpc<RawRoom>(
         ctx.supabase,
         "auction_create_room",
         {
           p_request_id: randomUUID(),
-          p_players: rosterPayload(players),
-          p_captain_riot_id: `${captain.gameName}#${captain.tagLine}`,
+          p_players: await poolPayload(ctx.supabase, input.players),
           p_team_name: input.teamName,
           p_starting_budget: input.budget,
           p_bid_seconds: input.bidSeconds,
@@ -409,7 +437,6 @@ export const auctionsRouter = createTRPCRouter({
   joinCaptain: protectedProcedure
     .input(
       roomIdSchema.extend({
-        playerId: z.string().uuid(),
         teamName: teamNameSchema.default("Team B"),
       }),
     )
@@ -418,7 +445,6 @@ export const auctionsRouter = createTRPCRouter({
       await callRpc(ctx.supabase, "auction_join_captain", {
         p_room_id: input.id,
         p_request_id: randomUUID(),
-        p_player_id: input.playerId,
         p_team_name: input.teamName,
       });
       return { ok: true };
@@ -451,13 +477,13 @@ export const auctionsRouter = createTRPCRouter({
         budget: z.number().int().min(4).max(100).optional(),
         bidSeconds: z.number().int().min(10).max(60).optional(),
         showOrder: z.boolean().optional(),
-        players: rosterSchema.optional(),
+        players: poolSchema.optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const players = input.players
-        ? await loadAuctionRoster(input.players)
-        : undefined;
+        ? await poolPayload(ctx.supabase, input.players)
+        : null;
       await callRpc(ctx.supabase, "auction_update_lobby", {
         p_room_id: input.id,
         p_request_id: randomUUID(),
@@ -465,7 +491,7 @@ export const auctionsRouter = createTRPCRouter({
         p_starting_budget: input.budget ?? null,
         p_bid_seconds: input.bidSeconds ?? null,
         p_order_visible: input.showOrder ?? null,
-        p_players: players ? rosterPayload(players) : null,
+        p_players: players,
       });
       return { ok: true };
     }),
@@ -492,10 +518,30 @@ export const auctionsRouter = createTRPCRouter({
       return { ok: true };
     }),
 
+  concede: protectedProcedure
+    .input(roomIdSchema)
+    .mutation(async ({ ctx, input }) => {
+      await callRpc(ctx.supabase, "auction_concede", {
+        p_room_id: input.id,
+        p_request_id: randomUUID(),
+      });
+      return { ok: true };
+    }),
+
   pass: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
       await callRpc(ctx.supabase, "auction_pass", {
+        p_room_id: input.id,
+        p_request_id: randomUUID(),
+      });
+      return { ok: true };
+    }),
+
+  take: protectedProcedure
+    .input(roomIdSchema)
+    .mutation(async ({ ctx, input }) => {
+      await callRpc(ctx.supabase, "auction_take", {
         p_room_id: input.id,
         p_request_id: randomUUID(),
       });

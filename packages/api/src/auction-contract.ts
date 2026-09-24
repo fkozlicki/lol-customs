@@ -6,7 +6,7 @@ export type AuctionStatus =
   | "cancelled"
   | "expired";
 
-export type AuctionPhase = "awaiting_opening_bid" | "bidding" | "sold_pause";
+export type AuctionPhase = "free_auction" | "bidding" | "sold_pause";
 
 export type AuctionSide = "A" | "B";
 
@@ -16,30 +16,34 @@ export type AuctionEventType =
   | "captain_left"
   | "captain_removed"
   | "lobby_updated"
-  | "ready"
-  | "unready"
   | "ready_changed"
   | "countdown_started"
   | "countdown_cancelled"
   | "auction_started"
   | "player_revealed"
+  | "opening_bid"
   | "bid"
+  | "concede"
   | "pass"
-  | "pass_skipped"
   | "sold"
   | "auto_assigned"
   | "cancelled"
-  | "completed";
+  | "completed"
+  | "expired";
 
 export interface AuctionListCaptain {
   teamName: string;
-  gameName: string;
-  tagLine: string;
+  /** Profile nickname; null while the captain B slot is open. */
+  captain: string | null;
 }
 
 export interface AuctionListItem {
   id: string;
-  status: "countdown" | "active";
+  status: "waiting" | "countdown" | "active";
+  /** The viewer is one of its captains. */
+  isMine: boolean;
+  /** Which side the viewer captains, if any. */
+  mySide: AuctionSide | null;
   phase: AuctionPhase | null;
   teamA: AuctionListCaptain;
   teamB: AuctionListCaptain;
@@ -57,7 +61,6 @@ export interface AuctionCaptainView {
   side: AuctionSide;
   teamName: string;
   profileNickname: string;
-  playerId: string;
   ready: boolean;
   budgetRemaining: number;
   isCurrentUser: boolean;
@@ -67,11 +70,9 @@ export interface AuctionPlayerView {
   id: string;
   gameName: string;
   tagLine: string;
-  platformId: string;
   soloTier: string | null;
   soloDivision: string | null;
   soloRankLabel: string;
-  captainSide: AuctionSide | null;
   teamSide: AuctionSide | null;
   purchasePrice: number | null;
   revealed: boolean;
@@ -97,7 +98,10 @@ export interface AuctionRoomPermissions {
   canEditLobby: boolean;
   canReady: boolean;
   canBid: boolean;
-  canPass: boolean;
+  /** Give up a round to the leader while bidding. */
+  canConcede: boolean;
+  /** Buy the player of a free auction for $1, or pass them to the captain with no budget. */
+  canDecideFreeAuction: boolean;
   canCancel: boolean;
 }
 
@@ -111,7 +115,7 @@ export interface AuctionRoomView {
   currentPlayerId: string | null;
   currentBid: number | null;
   currentLeaderSide: AuctionSide | null;
-  openingPass: { a: boolean; b: boolean };
+  roundNumber: number;
   countdownEndsAt: string | null;
   phaseEndsAt: string | null;
   createdAt: string;

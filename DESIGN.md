@@ -49,8 +49,8 @@ the surface differ in light mode: ink has to be readable on paper, a surface has
 **Motion** — `EASE`, `DURATION` (`fast` 0.15, `base` 0.25, `slow` 0.4, `count` 0.8) and `STAGGER` from
 `@/utils/motion`. A local `transition` must pass `inherit: true` to keep the shared easing.
 
-**Components** — `PageShell` is the page container; it takes the measure (`wide`, `list`, `reading`,
-`room`) and nothing else, because the padding is the same on every page. `PageHeader` (eyebrow, title,
+**Components** — `PageShell` is the page container; it takes the measure (`wide`, `list`, `reading`)
+and nothing else, because the padding is the same on every page. `PageHeader` (eyebrow, title,
 description, actions) opens every page; `PageHeaderSkeleton` stands in while it loads.
 `SectionHeading` is the `label-caps` block heading below it — a heading at entry-title size is a
 different thing and does not borrow the name. `RankTag` is a rank crest with a label beside it;
@@ -65,8 +65,8 @@ are one click away instead of a rebuild. Everything this file describes in prose
 *Design system → Tokens*.
 
 **Page shell** — `<PageShell>`, not the string it renders. `width` picks the measure: `wide`
-(`max-w-6xl`, the default), `list` (`max-w-4xl`, the forum list), `reading` (`max-w-3xl`, a post),
-`room` (`max-w-[1500px]`, the auction). `gap="none"` is for a page that does its own spacing.
+(`max-w-6xl`, the default, auctions included), `list` (`max-w-4xl`, the forum list), `reading`
+(`max-w-3xl`, a post). `gap="none"` is for a page that does its own spacing.
 
 **Type scale** — page title `text-4xl sm:text-6xl uppercase tracking-[-0.035em]`; entry title
 `text-2xl sm:text-3xl tracking-[-0.02em]`; body `text-sm`; label `label-caps`; number `num`.

@@ -3,7 +3,12 @@ begin;
 create extension if not exists pgtap with schema extensions;
 create schema if not exists tests;
 
-create function tests.auction_players()
+create temporary table auction_test_state (
+  name text primary key,
+  room_id uuid not null
+);
+
+create function tests.auction_players(p_count integer default 8)
 returns jsonb
 language sql
 immutable
@@ -11,9 +16,9 @@ as $$
   select jsonb_agg(jsonb_build_object(
     'gameName', 'Player' || n,
     'tagLine', 'EUW',
-    'rank', jsonb_build_object('tier', 'GOLD', 'division', 'I', 'lp', n)
+    'rank', jsonb_build_object('soloTier', 'GOLD', 'soloDivision', 'I', 'soloRankLabel', 'Gold I')
   ) order by n)
-  from generate_series(1, 10) n;
+  from generate_series(1, p_count) n;
 $$;
 
 create function tests.login(p_user_id uuid)
@@ -21,6 +26,60 @@ returns void
 language sql
 as $$
   select set_config('request.jwt.claim.sub', p_user_id::text, true);
+$$;
+
+create function tests.room(p_name text)
+returns uuid
+language sql
+stable
+as $$
+  select room_id from auction_test_state where name = p_name;
+$$;
+
+-- Signs in as the captain of one side of a room.
+create function tests.login_side(p_room_id uuid, p_side text)
+returns void
+language sql
+as $$
+  select set_config('request.jwt.claim.sub', (
+    select user_id::text from public.auction_captains where room_id = p_room_id and side = p_side
+  ), true);
+$$;
+
+create function tests.other(p_side text)
+returns text
+language sql
+immutable
+as $$
+  select case p_side when 'A' then 'B' else 'A' end;
+$$;
+
+create function tests.leader(p_room_id uuid)
+returns text
+language sql
+stable
+as $$
+  select leading_side from public.auction_rooms where id = p_room_id;
+$$;
+
+create function tests.first_opener(p_room_id uuid)
+returns text
+language sql
+stable
+as $$
+  select first_opener_side from public.auction_rooms where id = p_room_id;
+$$;
+
+-- Ends the sold pause so the next tick starts the next round.
+create function tests.next_round(p_room_id uuid)
+returns void
+language plpgsql
+as $$
+begin
+  update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
+  where id = p_room_id and phase = 'sold_pause';
+  perform public.auction_tick();
+end;
 $$;
 
 insert into auth.users (
@@ -44,12 +103,7 @@ values
   ('10000000-0000-0000-0000-000000000003', 'auction-c'),
   ('10000000-0000-0000-0000-000000000004', 'auction-d');
 
-create temporary table auction_test_state (
-  name text primary key,
-  room_id uuid not null
-);
-
-select plan(72);
+select plan(93);
 
 select has_table('public', 'auction_rooms', 'auction_rooms exists');
 select has_table('public', 'auction_captains', 'auction_captains exists');
@@ -63,379 +117,484 @@ select ok(not has_table_privilege('anon', 'public.auction_rooms', 'SELECT'), 'an
 select ok(not has_table_privilege('authenticated', 'public.auction_rooms', 'INSERT'), 'authenticated has no direct room writes');
 select ok(has_function_privilege('anon', 'public.auction_get_room(uuid)', 'EXECUTE'), 'anon can read a room through RPC');
 select ok(not has_function_privilege('anon', 'public.auction_bid(uuid,uuid,integer)', 'EXECUTE'), 'anon cannot bid');
+select ok(not has_function_privilege('anon', 'public.auction_take(uuid,uuid)', 'EXECUTE'), 'anon cannot take');
+select ok(not has_function_privilege('anon', 'public.auction_concede(uuid,uuid)', 'EXECUTE'), 'anon cannot concede');
+select ok(
+  not has_function_privilege('authenticated', 'public._auction_award_locked(uuid,text,integer,text,uuid,uuid)', 'EXECUTE'),
+  'clients cannot award players directly'
+);
 select ok(not has_function_privilege('authenticated', 'public.auction_tick()', 'EXECUTE'), 'clients cannot invoke the global tick');
+
+-- ---- lobby -----------------------------------------------------------------------------------
 
 select tests.login('10000000-0000-0000-0000-000000000001');
 insert into auction_test_state(name, room_id)
 select 'hidden', (public.auction_create_room(
-  '20000000-0000-0000-0000-000000000001', tests.auction_players(), 'Player1#EUW',
-  'Alpha', 20, 30, false
+  '20000000-0000-0000-0000-000000000001', tests.auction_players(), 'Alpha', 20, 30, false
 )->>'id')::uuid;
 
 select is(
-  (select count(*) from public.auction_players where room_id = (select room_id from auction_test_state where name = 'hidden')),
-  10::bigint,
-  'create atomically stores exactly ten players'
+  (select count(*) from public.auction_players where room_id = tests.room('hidden')),
+  8::bigint,
+  'create stores the pool of eight players'
 );
 select is(
-  (select count(*) from public.auction_captains where room_id = (select room_id from auction_test_state where name = 'hidden')),
+  (select count(*) from public.auction_captains where room_id = tests.room('hidden') and side = 'A'),
   1::bigint,
-  'creator becomes captain A'
+  'the creator becomes captain A without picking a pool player'
+);
+select is(
+  public.auction_get_room(tests.room('hidden'))->'captains'->0->>'profileNickname',
+  'auction-a',
+  'captains are shown by their profile nickname'
 );
 select ok(
-  not (public.auction_get_room((select room_id from auction_test_state where name = 'hidden')) ? 'creatorId'),
+  not (public.auction_get_room(tests.room('hidden')) ? 'creatorId'),
   'public snapshot omits creator user id'
 );
 select is(
   public.auction_create_room(
-    '20000000-0000-0000-0000-000000000001', tests.auction_players(), 'Player1#EUW',
-    'Alpha', 20, 30, false
+    '20000000-0000-0000-0000-000000000001', tests.auction_players(), 'Alpha', 20, 30, false
   )->>'id',
-  (select room_id::text from auction_test_state where name = 'hidden'),
+  tests.room('hidden')::text,
   'create is idempotent by request id'
 );
 
 select tests.login('10000000-0000-0000-0000-000000000003');
 select throws_ok(
   $$select public.auction_create_room(
-    '20000000-0000-0000-0000-000000000002',
-    tests.auction_players() || (tests.auction_players()->0),
-    'Player1#EUW', 'Bad', 20, 30, false
+    '20000000-0000-0000-0000-000000000002', tests.auction_players(10), 'Bad', 20, 30, false
   )$$,
-  'P0001', 'AUCTION_PLAYERS_INVALID', 'create rejects a pool other than ten players'
+  'P0001', 'AUCTION_PLAYERS_INVALID', 'create rejects a pool other than eight players'
 );
 
 select tests.login('10000000-0000-0000-0000-000000000002');
 select lives_ok(format(
-  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000003', %L, 'Bravo')$$,
-  (select room_id from auction_test_state where name = 'hidden'),
-  (select id from public.auction_players where room_id = (select room_id from auction_test_state where name = 'hidden') and riot_id_normalized = 'player2#euw')
-), 'a second user can claim captain B');
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000003', 'Bravo')$$,
+  tests.room('hidden')
+), 'a second user claims captain B with only a team name');
 
 select tests.login('10000000-0000-0000-0000-000000000003');
 select throws_ok(format(
-  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000004', %L, 'Charlie')$$,
-  (select room_id from auction_test_state where name = 'hidden'),
-  (select id from public.auction_players where room_id = (select room_id from auction_test_state where name = 'hidden') and riot_id_normalized = 'player3#euw')
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000004', 'Charlie')$$,
+  tests.room('hidden')
 ), 'P0001', 'AUCTION_CAPTAIN_SLOT_TAKEN', 'captain B slot cannot be claimed twice');
 
 insert into auction_test_state(name, room_id)
 select 'visible', (public.auction_create_room(
-  '20000000-0000-0000-0000-000000000005', tests.auction_players(), 'Player3#EUW',
-  'Charlie', 20, 30, true
+  '20000000-0000-0000-0000-000000000005', tests.auction_players(), 'Charlie', 20, 30, true
 )->>'id')::uuid;
-
-select tests.login('10000000-0000-0000-0000-000000000002');
-select throws_ok(format(
-  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000006', %L, 'Bravo again')$$,
-  (select room_id from auction_test_state where name = 'visible'),
-  (select id from public.auction_players where room_id = (select room_id from auction_test_state where name = 'visible') and riot_id_normalized = 'player4#euw')
-), 'P0001', 'AUCTION_ALREADY_CAPTAIN', 'one user cannot captain two unfinished rooms');
 
 select tests.login('10000000-0000-0000-0000-000000000004');
 select lives_ok(format(
-  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000007', %L, 'Delta')$$,
-  (select room_id from auction_test_state where name = 'visible'),
-  (select id from public.auction_players where room_id = (select room_id from auction_test_state where name = 'visible') and riot_id_normalized = 'player4#euw')
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000007', 'Delta')$$,
+  tests.room('visible')
 ), 'an eligible user can captain another room');
+
+select tests.login('10000000-0000-0000-0000-000000000003');
+select throws_ok(format(
+  $$select public.auction_update_lobby(%L, '20000000-0000-0000-0000-000000000008', null, null, null, %L::jsonb, null)$$,
+  tests.room('visible'), tests.auction_players(9)
+), 'P0001', 'AUCTION_PLAYERS_INVALID', 'the lobby pool must stay at eight players');
 
 select tests.login('10000000-0000-0000-0000-000000000001');
 select lives_ok(format(
-  $$select public.auction_set_ready(%L, '20000000-0000-0000-0000-000000000008', true)$$,
-  (select room_id from auction_test_state where name = 'hidden')
+  $$select public.auction_set_ready(%L, '20000000-0000-0000-0000-000000000009', true)$$,
+  tests.room('hidden')
 ), 'captain A can become ready');
 select tests.login('10000000-0000-0000-0000-000000000002');
 select lives_ok(format(
-  $$select public.auction_set_ready(%L, '20000000-0000-0000-0000-000000000009', true)$$,
-  (select room_id from auction_test_state where name = 'hidden')
+  $$select public.auction_set_ready(%L, '20000000-0000-0000-0000-000000000010', true)$$,
+  tests.room('hidden')
 ), 'captain B can start countdown');
 select is(
-  (select status from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  (select status from public.auction_rooms where id = tests.room('hidden')),
   'countdown', 'both ready transitions to countdown'
 );
 select tests.login('10000000-0000-0000-0000-000000000001');
 select lives_ok(format(
-  $$select public.auction_set_ready(%L, '20000000-0000-0000-0000-000000000010', false)$$,
-  (select room_id from auction_test_state where name = 'hidden')
+  $$select public.auction_set_ready(%L, '20000000-0000-0000-0000-000000000011', false)$$,
+  tests.room('hidden')
 ), 'readiness can be withdrawn during countdown');
 select is(
-  (select status from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  (select status from public.auction_rooms where id = tests.room('hidden')),
   'waiting', 'withdrawing readiness cancels countdown'
 );
 
-select public.auction_set_ready(
-  (select room_id from auction_test_state where name = 'hidden'),
-  '20000000-0000-0000-0000-000000000011', true
-);
+select public.auction_set_ready(tests.room('hidden'), '20000000-0000-0000-0000-000000000012', true);
 update public.auction_rooms set countdown_ends_at = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'hidden');
+where id = tests.room('hidden');
 select cmp_ok(public.auction_tick(), '>=', 1, 'tick processes an elapsed countdown');
+
+-- ---- round 1: forced opening bid, concede ---------------------------------------------------
+
 select is(
-  (select status from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  (select status from public.auction_rooms where id = tests.room('hidden')),
   'active', 'elapsed countdown starts auction'
 );
 select is(
-  (select count(*) from public.auction_players where room_id = (select room_id from auction_test_state where name = 'hidden') and draw_position is not null),
+  (select count(*) from public.auction_players where room_id = tests.room('hidden') and draw_position is not null),
   1::bigint, 'hidden mode persists only the revealed draw position'
 );
-
--- ---- revocable opening pass, no budget reserve, all-in, passive $1 rule ----
-select tests.login('10000000-0000-0000-0000-000000000002');
-select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000012')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'a captain may pass before the opening bid');
-select is(
-  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
-  'awaiting_opening_bid', 'a lone opening pass does not advance the phase'
+select ok(tests.first_opener(tests.room('hidden')) in ('A', 'B'), 'a random captain opens the first round');
+select results_eq(
+  format($$select phase, current_bid, leading_side, round_number from public.auction_rooms where id = %L$$, tests.room('hidden')),
+  format($$values ('bidding'::text, 1, %L::text, 1::smallint)$$, tests.first_opener(tests.room('hidden'))),
+  'round 1 opens with a forced $1 bid for the first opener'
 );
 select is(
-  (select (public.auction_get_room((select room_id from auction_test_state where name = 'hidden'))->'openingPass'->>'b')),
-  'true', 'the opening pass is recorded against the passing side'
-);
-select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000012')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 're-passing before a bid is idempotent');
-
--- a single opening pass is revoked once the foe opens bidding (no reserve)
-select tests.login('10000000-0000-0000-0000-000000000001');
-select lives_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000013', 1)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'the opening bid is accepted without a budget reserve');
-select is(
-  (select (public.auction_get_room((select room_id from auction_test_state where name = 'hidden'))->'openingPass'->>'a')),
-  'false', 'opening passes are cleared once bidding opens'
+  (select count(*) from public.auction_events where room_id = tests.room('hidden') and event_type = 'opening_bid'),
+  1::bigint, 'the opening bid is recorded'
 );
 
-select tests.login('10000000-0000-0000-0000-000000000001');
+select tests.login_side(tests.room('hidden'), tests.leader(tests.room('hidden')));
 select throws_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000014')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'P0001', 'AUCTION_LEADER_CANNOT_PASS', 'leading captain cannot pass');
-select tests.login('10000000-0000-0000-0000-000000000002');
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000013', 2)$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_LEADER_CANNOT_BID', 'the leading captain cannot raise their own bid');
+select throws_ok(format(
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000014')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_LEADER_CANNOT_CONCEDE', 'the opener cannot give up their own lead');
+select throws_ok(format(
+  $$select public.auction_take(%L, '20000000-0000-0000-0000-000000000015')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_TAKE_NOT_ALLOWED', 'take is only for a free auction');
+
+select tests.login_side(tests.room('hidden'), tests.other(tests.leader(tests.room('hidden'))));
+select throws_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000030')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_PASS_NOT_ALLOWED', 'a pass is only for a free auction, so nobody skips a player');
 select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000015')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'the non-leading captain can pass to concede the player');
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000016')$$,
+  tests.room('hidden')
+), 'the other captain concedes');
 select is(
-  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
-  'sold_pause', 'pass atomically resolves the player'
+  (select phase from public.auction_rooms where id = tests.room('hidden')),
+  'sold_pause', 'a concession resolves the round'
 );
 select is(
-  (select count(*) from public.auction_events where request_id = '20000000-0000-0000-0000-000000000015'),
+  (select assigned_side || ':' || purchase_price from public.auction_players
+   where id = (select current_player_id from public.auction_rooms where id = tests.room('hidden'))),
+  tests.first_opener(tests.room('hidden')) || ':1',
+  'the conceded player goes to the leader at the opening bid'
+);
+select is(
+  (select count(*) from public.auction_events where request_id = '20000000-0000-0000-0000-000000000016'),
   1::bigint, 'command request id is recorded once'
 );
 select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000015')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'retrying pass is idempotent');
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000016')$$,
+  tests.room('hidden')
+), 'retrying a concession is idempotent');
 select is(
-  (select count(*) from public.auction_events where event_type = 'sold' and room_id = (select room_id from auction_test_state where name = 'hidden')),
+  (select count(*) from public.auction_events where event_type = 'sold' and room_id = tests.room('hidden')),
   1::bigint, 'idempotent retry does not duplicate sale'
 );
 
--- fast-forward the sold pause and test the 2/2 opening-pass skip
-update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'hidden');
-select public.auction_tick();
-select tests.login('10000000-0000-0000-0000-000000000001');
-select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000016')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'captain A passes on the next player');
-select tests.login('10000000-0000-0000-0000-000000000002');
-select lives_ok(format(
-  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000017')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'a reciprocal pass triggers a 2/2 skip');
-select is(
-  (select count(*) from public.auction_events where room_id = (select room_id from auction_test_state where name = 'hidden') and event_type = 'pass_skipped'),
-  1::bigint, 'the skip is recorded as a pass_skipped event'
-);
-select is(
-  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
-  'awaiting_opening_bid', 'the next player is revealed after a 2/2 skip'
-);
-select is(
-  (select count(*) from public.auction_players
-   where room_id = (select room_id from auction_test_state where name = 'hidden')
-     and not is_captain and revealed and assigned_side is null),
-  1::bigint, 'exactly one unassigned player is revealed after the skip'
-);
+-- ---- round 2: the opener alternates, deadline sells to the leader ---------------------------
 
--- late bid rejected by server time, then tick sells on an elapsed deadline
-select tests.login('10000000-0000-0000-0000-000000000001');
-select public.auction_bid(
-  (select room_id from auction_test_state where name = 'hidden'),
-  '20000000-0000-0000-0000-000000000024', 1
+select tests.next_round(tests.room('hidden'));
+select results_eq(
+  format($$select phase, current_bid, leading_side, round_number from public.auction_rooms where id = %L$$, tests.room('hidden')),
+  format($$values ('bidding'::text, 1, %L::text, 2::smallint)$$, tests.other(tests.first_opener(tests.room('hidden')))),
+  'the other captain opens round 2'
 );
-select is(
-  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
-  'bidding', 'an opening bid enters bidding when the foe can counter'
-);
+select tests.login_side(tests.room('hidden'), tests.first_opener(tests.room('hidden')));
+select lives_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000017', 2)$$,
+  tests.room('hidden')
+), 'the non-leader raises');
+select is(tests.leader(tests.room('hidden')), tests.first_opener(tests.room('hidden')), 'a raise takes the lead');
 update public.auction_rooms set bid_deadline = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'hidden');
-select tests.login('10000000-0000-0000-0000-000000000002');
+where id = tests.room('hidden');
+select tests.login_side(tests.room('hidden'), tests.other(tests.first_opener(tests.room('hidden'))));
 select throws_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000025', 2)$$,
-  (select room_id from auction_test_state where name = 'hidden')
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000018', 3)$$,
+  tests.room('hidden')
 ), 'P0001', 'AUCTION_DEADLINE_PASSED', 'late bid is rejected by server time');
 select cmp_ok(public.auction_tick(), '>=', 1, 'tick resolves an elapsed bid deadline');
-
--- all-in (bidding the whole remaining budget) instantly wins when the foe cannot beat it
-update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'hidden');
-select public.auction_tick();
-select tests.login('10000000-0000-0000-0000-000000000001');
-select throws_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000018', 99)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'P0001', 'AUCTION_BUDGET_EXCEEDED', 'a bid above remaining budget is rejected');
-update public.auction_captains set budget_remaining = 5
-where room_id = (select room_id from auction_test_state where name = 'hidden') and side = 'B';
-select tests.login('10000000-0000-0000-0000-000000000001');
-select lives_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000019', 18)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'an all-in bid wins immediately when the foe cannot raise');
 select is(
-  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  (select phase from public.auction_rooms where id = tests.room('hidden')),
+  'sold_pause', 'the deadline sells to the leader'
+);
+
+-- ---- round 3: all-in wins at once when the other captain cannot raise -----------------------
+
+select tests.next_round(tests.room('hidden'));
+select tests.login_side(tests.room('hidden'), tests.other(tests.first_opener(tests.room('hidden'))));
+select throws_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000019', 99)$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_BUDGET_EXCEEDED', 'a bid above remaining budget is rejected');
+update public.auction_captains set budget_remaining = case when side = tests.first_opener(room_id) then 5 else 10 end
+where room_id = tests.room('hidden');
+select lives_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000020', 10)$$,
+  tests.room('hidden')
+), 'an all-in bid is accepted');
+select is(
+  (select phase from public.auction_rooms where id = tests.room('hidden')),
   'sold_pause', 'an unbeatable all-in resolves straight to the sold pause'
 );
 select is(
   (select budget_remaining from public.auction_captains
-   where room_id = (select room_id from auction_test_state where name = 'hidden') and side = 'A'),
+   where room_id = tests.room('hidden') and side = tests.other(tests.first_opener(room_id))),
   0, 'the all-in side reaches zero budget'
 );
 
--- passive $1 rule: with the foe at zero budget, bids are capped at current + $1
-update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'hidden');
-select public.auction_tick();
-select tests.login('10000000-0000-0000-0000-000000000001');
-select throws_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000020', 1)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'P0001', 'AUCTION_BUDGET_EXCEEDED', 'a captain at zero budget cannot bid');
-select tests.login('10000000-0000-0000-0000-000000000002');
-select throws_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000021', 3)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'P0001', 'AUCTION_OPPONENT_PASSIVE', 'a foe at zero budget caps the bid at $1 over current');
-select lives_ok(format(
-  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000022', 1)$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'the $1 passive bid is accepted');
-select is(
-  (select phase from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
-  'sold_pause', 'the $1 bid wins instantly against a zero-budget foe'
-);
+-- ---- round 4: the broke opener is opened for; free auction pass -----------------------------
 
--- a lone pass by the money side skips the player when the foe is at zero budget
-update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'hidden');
-select public.auction_tick();
-select tests.login('10000000-0000-0000-0000-000000000002');
+select tests.next_round(tests.room('hidden'));
+select results_eq(
+  format($$select phase, current_bid, leading_side, round_number from public.auction_rooms where id = %L$$, tests.room('hidden')),
+  format($$values ('free_auction'::text, 1, %L::text, 4::smallint)$$, tests.first_opener(tests.room('hidden'))),
+  'a broke opener is opened for, which makes a free auction'
+);
+select ok(
+  (select phase_deadline is not null from public.auction_rooms where id = tests.room('hidden')),
+  'a free auction runs on a deadline'
+);
+select tests.login_side(tests.room('hidden'), tests.other(tests.first_opener(tests.room('hidden'))));
+select throws_ok(format(
+  $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000021')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_PASS_NOT_ALLOWED', 'the broke captain cannot pass');
+select throws_ok(format(
+  $$select public.auction_concede(%L, '20000000-0000-0000-0000-000000000031')$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_CONCEDE_NOT_ALLOWED', 'there is nothing to concede in a free auction');
+select throws_ok(format(
+  $$select public.auction_bid(%L, '20000000-0000-0000-0000-000000000022', 1)$$,
+  tests.room('hidden')
+), 'P0001', 'AUCTION_BIDDING_CLOSED', 'nobody bids in a free auction');
+select tests.login_side(tests.room('hidden'), tests.first_opener(tests.room('hidden')));
 select lives_ok(format(
   $$select public.auction_pass(%L, '20000000-0000-0000-0000-000000000023')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'the money side can pass to send a player to the back of the queue');
+  tests.room('hidden')
+), 'the captain with money passes');
 select is(
-  (select count(*) from public.auction_events where room_id = (select room_id from auction_test_state where name = 'hidden') and event_type = 'pass_skipped'),
-  2::bigint, 'the lone money-side pass is recorded as a skip'
+  (select assigned_side || ':' || purchase_price from public.auction_players
+   where id = (select current_player_id from public.auction_rooms where id = tests.room('hidden'))),
+  tests.other(tests.first_opener(tests.room('hidden'))) || ':0',
+  'a passed player goes to the broke captain for $0'
+);
+select is(
+  (select leading_side from public.auction_rooms where id = tests.room('hidden')),
+  null, 'nobody leads after a pass'
 );
 
-select tests.login('10000000-0000-0000-0000-000000000003');
-select public.auction_set_ready(
-  (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000040', true
+-- ---- round 5: free auction take -------------------------------------------------------------
+
+select tests.next_round(tests.room('hidden'));
+select tests.login_side(tests.room('hidden'), tests.first_opener(tests.room('hidden')));
+select lives_ok(format(
+  $$select public.auction_take(%L, '20000000-0000-0000-0000-000000000024')$$,
+  tests.room('hidden')
+), 'the captain with money takes the player');
+select lives_ok(format(
+  $$select public.auction_take(%L, '20000000-0000-0000-0000-000000000024')$$,
+  tests.room('hidden')
+), 'retrying a take is idempotent');
+select is(
+  (select assigned_side || ':' || purchase_price from public.auction_players
+   where id = (select current_player_id from public.auction_rooms where id = tests.room('hidden'))),
+  tests.first_opener(tests.room('hidden')) || ':1',
+  'a taken player costs $1'
 );
-select tests.login('10000000-0000-0000-0000-000000000004');
-select public.auction_set_ready(
-  (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000041', true
+
+-- ---- round 6: free auction timeout completes the auction ------------------------------------
+
+select tests.next_round(tests.room('hidden'));
+select is(
+  (select phase from public.auction_rooms where id = tests.room('hidden')),
+  'free_auction', 'the free auction continues while one captain is broke'
 );
-update public.auction_rooms set countdown_ends_at = clock_timestamp() - interval '1 second'
-where id = (select room_id from auction_test_state where name = 'visible');
+update public.auction_rooms set phase_deadline = clock_timestamp() - interval '1 second'
+where id = tests.room('hidden');
 select public.auction_tick();
 select is(
-  (select count(*) from public.auction_players where room_id = (select room_id from auction_test_state where name = 'visible') and not is_captain and draw_position is not null),
+  (select status from public.auction_rooms where id = tests.room('hidden')),
+  'completed', 'the fourth purchase completes the auction'
+);
+select is(
+  (select count(*) from public.auction_players where room_id = tests.room('hidden') and assigned_side = tests.first_opener(room_id)),
+  4::bigint, 'the timed-out free auction went to the captain with money'
+);
+select is(
+  (select count(*) from public.auction_players where room_id = tests.room('hidden') and assigned_side = tests.other(tests.first_opener(room_id))),
+  4::bigint, 'the other team is rounded out to four players'
+);
+select is(
+  (select sum(amount) from public.auction_events where room_id = tests.room('hidden') and event_type = 'auto_assigned'),
+  0::bigint, 'auto-assigned players cost zero dollars'
+);
+
+-- ---- both captains broke: the rest is shared alternately ------------------------------------
+
+select tests.login('10000000-0000-0000-0000-000000000003');
+select public.auction_set_ready(tests.room('visible'), '20000000-0000-0000-0000-000000000040', true);
+select tests.login('10000000-0000-0000-0000-000000000004');
+select public.auction_set_ready(tests.room('visible'), '20000000-0000-0000-0000-000000000041', true);
+update public.auction_rooms set countdown_ends_at = clock_timestamp() - interval '1 second'
+where id = tests.room('visible');
+select public.auction_tick();
+select is(
+  (select count(*) from public.auction_players where room_id = tests.room('visible') and draw_position is not null),
   8::bigint, 'visible mode stores all eight draw positions at start'
 );
 select is(
-  (select count(*) from public.auction_players where room_id = (select room_id from auction_test_state where name = 'visible') and not is_captain and revealed),
+  (select count(*) from public.auction_players where room_id = tests.room('visible') and revealed),
   1::bigint, 'only the current player is revealed at start'
 );
 
-with available as (
-  select id, row_number() over (order by draw_position) n
-  from public.auction_players
-  where room_id = (select room_id from auction_test_state where name = 'visible')
-    and assigned_side is null
-    and id <> (select current_player_id from public.auction_rooms where id = (select room_id from auction_test_state where name = 'visible'))
-)
-update public.auction_players p
-set assigned_side = case when a.n <= 3 then 'A' else 'B' end, purchase_price = 1, revealed = true
-from available a
-where p.id = a.id and a.n <= 6;
-update public.auction_captains set budget_remaining = 17
-where room_id = (select room_id from auction_test_state where name = 'visible');
-select tests.login('10000000-0000-0000-0000-000000000003');
-select public.auction_bid(
-  (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000042', 1
+-- The first opener already has two players, so it fills up while the rest is shared.
+update public.auction_players set assigned_side = tests.first_opener(room_id), purchase_price = 0, revealed = true
+where id in (
+  select id from public.auction_players
+  where room_id = tests.room('visible') and assigned_side is null
+    and id <> (select current_player_id from public.auction_rooms where id = tests.room('visible'))
+  order by draw_position
+  limit 2
 );
-select tests.login('10000000-0000-0000-0000-000000000004');
-select public.auction_pass(
-  (select room_id from auction_test_state where name = 'visible'),
-  '20000000-0000-0000-0000-000000000043'
+update public.auction_captains set budget_remaining = case when side = tests.first_opener(room_id) then 1 else 0 end
+where room_id = tests.room('visible');
+select tests.login_side(tests.room('visible'), tests.other(tests.first_opener(tests.room('visible'))));
+select public.auction_concede(tests.room('visible'), '20000000-0000-0000-0000-000000000042');
+select tests.next_round(tests.room('visible'));
+select is(
+  (select status from public.auction_rooms where id = tests.room('visible')),
+  'completed', 'with both captains broke the rest of the pool is handed out'
 );
 select is(
-  (select status from public.auction_rooms where id = (select room_id from auction_test_state where name = 'visible')),
-  'completed', 'fourth purchase auto-completes the auction'
+  (select array_agg(actor_side order by id) from public.auction_events
+   where room_id = tests.room('visible') and event_type = 'auto_assigned'),
+  (select array_agg(s) from unnest(array[
+    tests.other(tests.first_opener(tests.room('visible'))), tests.first_opener(tests.room('visible')),
+    tests.other(tests.first_opener(tests.room('visible'))), tests.other(tests.first_opener(tests.room('visible'))),
+    tests.other(tests.first_opener(tests.room('visible')))
+  ]) s),
+  'players alternate from the round opener, skipping a full team'
 );
 select is(
-  (select count(*) from public.auction_players where room_id = (select room_id from auction_test_state where name = 'visible') and assigned_side = 'A'),
-  5::bigint, 'team A finishes with captain plus four players'
+  (select count(*) from public.auction_players
+   where room_id = tests.room('visible') and assigned_side = tests.first_opener(room_id)),
+  4::bigint, 'the full team stops receiving players'
 );
 select is(
-  (select count(*) from public.auction_players where room_id = (select room_id from auction_test_state where name = 'visible') and assigned_side = 'B'),
-  5::bigint, 'team B finishes with captain plus four players'
+  (select count(*) from public.auction_list_active()
+   where (room->>'id')::uuid in (select room_id from auction_test_state)),
+  0::bigint, 'public list excludes completed rooms'
 );
+
+-- ---- one lobby per person --------------------------------------------------------------------
+
+select tests.login('10000000-0000-0000-0000-000000000001');
+insert into auction_test_state(name, room_id)
+select 'lobby1', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000060', tests.auction_players(), 'Alpha', 20, 30, false
+)->>'id')::uuid;
 select is(
-  (select count(*) from public.auction_events where room_id = (select room_id from auction_test_state where name = 'visible') and event_type = 'auto_assigned'),
-  1::bigint, 'remaining player is auto-assigned to round out the losing side'
-);
-select is(
-  (select amount from public.auction_events where room_id = (select room_id from auction_test_state where name = 'visible') and event_type = 'auto_assigned'),
-  0, 'auto-assigned players cost zero dollars'
-);
-select is(
-  (select count(*) from public.auction_list_active()),
-  1::bigint, 'public list excludes completed rooms'
+  (select count(*) from public.auction_list_active()
+   where room->>'status' = 'waiting' and (room->>'isMine')::boolean),
+  1::bigint, 'the list includes lobbies and marks the viewer''s own'
 );
 
 select tests.login('10000000-0000-0000-0000-000000000002');
+select lives_ok(format(
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000061', 'Bravo')$$,
+  tests.room('lobby1')
+), 'captain B joins a lobby');
+
+select tests.login('10000000-0000-0000-0000-000000000003');
+insert into auction_test_state(name, room_id)
+select 'lobby2', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000062', tests.auction_players(), 'Charlie', 20, 30, false
+)->>'id')::uuid;
+select tests.login('10000000-0000-0000-0000-000000000002');
+select lives_ok(format(
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000063', 'Bravo')$$,
+  tests.room('lobby2')
+), 'joining another lobby is allowed');
+select is(
+  (select count(*) from public.auction_captains where room_id = tests.room('lobby1') and side = 'B'),
+  0::bigint, 'joining another lobby leaves the first'
+);
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby1')),
+  'waiting', 'the left lobby waits for a new captain'
+);
+
+select tests.login('10000000-0000-0000-0000-000000000001');
+insert into auction_test_state(name, room_id)
+select 'lobby3', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000064', tests.auction_players(), 'Alpha', 20, 30, false
+)->>'id')::uuid;
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby1')),
+  'cancelled', 'creating a new auction cancels the creator''s lobby'
+);
+select is(
+  (select payload->>'reason' from public.auction_events
+   where room_id = tests.room('lobby1') and event_type = 'cancelled'),
+  'replaced', 'the cancellation says the lobby was replaced'
+);
+
+select tests.login('10000000-0000-0000-0000-000000000003');
+select public.auction_set_ready(tests.room('lobby2'), '20000000-0000-0000-0000-000000000065', true);
+select tests.login('10000000-0000-0000-0000-000000000002');
+select public.auction_set_ready(tests.room('lobby2'), '20000000-0000-0000-0000-000000000066', true);
+update public.auction_rooms set countdown_ends_at = clock_timestamp() - interval '1 second'
+where id = tests.room('lobby2');
+select public.auction_tick();
+select tests.login('10000000-0000-0000-0000-000000000003');
+select throws_ok(
+  $$select public.auction_create_room(
+    '20000000-0000-0000-0000-000000000067', tests.auction_players(), 'Charlie', 20, 30, false
+  )$$,
+  'P0001', 'AUCTION_ALREADY_CAPTAIN', 'a live auction blocks creating another'
+);
+select tests.login('10000000-0000-0000-0000-000000000002');
 select throws_ok(format(
-  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000044')$$,
-  (select room_id from auction_test_state where name = 'hidden')
+  $$select public.auction_join_captain(%L, '20000000-0000-0000-0000-000000000068', 'Bravo')$$,
+  tests.room('lobby3')
+), 'P0001', 'AUCTION_ALREADY_CAPTAIN', 'a live auction blocks joining another');
+
+update public.auction_rooms set last_activity_at = clock_timestamp() - interval '31 minutes'
+where id = tests.room('lobby3');
+select public.auction_tick();
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby3')),
+  'expired', 'an idle lobby expires after 30 minutes'
+);
+
+-- ---- cancel and cleanup ---------------------------------------------------------------------
+
+select tests.login('10000000-0000-0000-0000-000000000001');
+insert into auction_test_state(name, room_id)
+select 'cancelled', (public.auction_create_room(
+  '20000000-0000-0000-0000-000000000050', tests.auction_players(), 'Alpha', 20, 30, false
+)->>'id')::uuid;
+select tests.login('10000000-0000-0000-0000-000000000002');
+select throws_ok(format(
+  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000051')$$,
+  tests.room('cancelled')
 ), 'P0001', 'AUCTION_PERMISSION_DENIED', 'non-creator cannot cancel');
 select tests.login('10000000-0000-0000-0000-000000000001');
 select lives_ok(format(
-  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000045')$$,
-  (select room_id from auction_test_state where name = 'hidden')
-), 'creator can cancel an active room');
+  $$select public.auction_cancel(%L, '20000000-0000-0000-0000-000000000052')$$,
+  tests.room('cancelled')
+), 'creator can cancel a room');
 select is(
-  jsonb_array_length(public.auction_get_room((select room_id from auction_test_state where name = 'hidden'))->'players'),
-  0, 'cancelled snapshot hides rosters'
+  jsonb_array_length(public.auction_get_room(tests.room('cancelled'))->'players'),
+  0, 'cancelled snapshot hides the pool'
 );
 update public.auction_rooms set terminal_at = clock_timestamp() - interval '25 hours'
-where id = (select room_id from auction_test_state where name = 'hidden');
+where id = tests.room('cancelled');
 select public.auction_tick();
 select is(
-  (select count(*) from public.auction_rooms where id = (select room_id from auction_test_state where name = 'hidden')),
+  (select count(*) from public.auction_rooms where id = tests.room('cancelled')),
   0::bigint, 'tick removes terminal rooms after 24 hours'
 );
 

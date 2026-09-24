@@ -4,6 +4,7 @@
   "private": true,
   "sideEffects": false,
   "exports": {
+    "./auction": "./src/auction.ts",
     "./rank": "./src/rank.ts",
     "./riot-id": "./src/riot-id.ts",
     "./season": "./src/season.ts",

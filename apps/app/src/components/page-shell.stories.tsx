@@ -44,11 +44,6 @@ export const Reading: Story = {
   args: { width: "reading", children: <Measure label="Post" /> },
 };
 
-/** The auction room, which needs the horizontal space. */
-export const Room: Story = {
-  args: { width: "room", children: <Measure label="Auction" /> },
-};
-
 /** Pages that do their own spacing opt out of the rhythm rather than fighting it. */
 export const NoGap: Story = {
   args: { gap: "none", children: <Measure label="Own spacing" /> },

@@ -13,7 +13,6 @@ import { PageHeader } from "@/components/page-header";
 import { PageShell } from "@/components/page-shell";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { riotId } from "./auction-contract";
 import { useAuctionRealtime } from "./use-auction-realtime";
 
 function ConnectionBadge({
@@ -94,35 +93,55 @@ export function AuctionList() {
                   <span className="label-caps text-foreground">
                     {t(`status.${room.status}`)}
                   </span>
+                  {room.isMine && (
+                    <span className="label-caps bg-foreground px-1.5 text-background">
+                      {t("list.yours")}
+                    </span>
+                  )}
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
                   <div className="min-w-0 space-y-2">
                     <h2 className="text-3xl font-semibold uppercase leading-[0.95] tracking-[-0.03em] sm:text-5xl">
                       {room.teamA.teamName}
-                      <span className="text-muted-foreground"> vs </span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        {t("room.versus")}{" "}
+                      </span>
                       {room.teamB.teamName}
                     </h2>
-                    <p className="num truncate text-xs text-muted-foreground">
-                      {riotId(room.teamA)} · {riotId(room.teamB)}
+                    <p className="truncate text-xs text-muted-foreground">
+                      {[room.teamA.captain, room.teamB.captain]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </p>
                   </div>
 
                   <div className="flex items-end gap-8 sm:justify-end">
-                    <div className="min-w-0">
-                      <p className="label-caps">{t("list.onStage")}</p>
-                      <p className="truncate text-sm font-medium">
-                        {room.currentPlayer
-                          ? room.currentPlayer.gameName
-                          : t("list.starting")}
+                    {room.status === "waiting" ? (
+                      <p className="text-sm font-medium">
+                        {room.teamB.captain
+                          ? t("list.waitingReady")
+                          : t("list.lookingForCaptain")}
                       </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="label-caps">{t("list.price")}</p>
-                      <p className="num text-4xl font-semibold leading-none">
-                        ${room.currentBid ?? 0}
-                      </p>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="min-w-0">
+                          <p className="label-caps">{t("list.onStage")}</p>
+                          <p className="truncate text-sm font-medium">
+                            {room.currentPlayer
+                              ? room.currentPlayer.gameName
+                              : t("list.starting")}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="label-caps">{t("list.price")}</p>
+                          <p className="num text-4xl font-semibold leading-none">
+                            ${room.currentBid ?? 0}
+                          </p>
+                        </div>
+                      </>
+                    )}
                     <span className="label-caps hidden text-foreground underline-offset-4 group-hover:underline sm:block">
                       {t("list.watch")} →
                     </span>
