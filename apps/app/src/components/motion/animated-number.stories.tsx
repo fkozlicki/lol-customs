@@ -13,7 +13,8 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * Counts up to a rating when it arrives. DESIGN.md rule 8: motion marks arriving data, so this runs
- * once and settles — it never loops. With reduced motion on it renders the final value at once.
+ * once and settles — it never loops. With reduced motion it shows the final value before the first
+ * paint; server and client both render `from` first, so hydration matches.
  */
 export const Default: Story = {};
 
