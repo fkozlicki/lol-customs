@@ -2,6 +2,12 @@
 
 Neutral primitives — shadcn/ui components plus the Derby design tokens they depend on.
 
+## Adding a primitive
+
+Run the shadcn CLI from this package — `components.json` here points it at the right aliases and at
+`src/styles/tokens.css`. `apps/app` has no config of its own on purpose: the only thing it would add
+is shadcn's composed blocks, and Derby's compositions are written by hand.
+
 ## What belongs here
 
 Anything that knows nothing about Derby: a button, a dialog, a table. Components that encode the
