@@ -4,9 +4,9 @@
  */
 import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
-import { Geist, Geist_Mono } from "next/font/google";
 // The same internal the framework's own router decorator uses; see `withLocale`.
 import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
+import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { useEffect } from "react";
 import { I18nProviderClient } from "@/locales/client";
@@ -21,9 +21,8 @@ const sans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 /**
- * On `<html>`, not `<body>`: the font tokens are declared on `:root`, so a variable set below it does
- * not reach them. The app sets them on `<body>` and `num`/`label-caps` fall back to a generic mono as
- * a result — a bug in the app, not in the tokens, so Storybook shows what the tokens intend.
+ * On `<html>`, as in the app's root layout: the font tokens are declared on `:root`, so a variable
+ * set any lower does not reach them, and every font falls back to the system stack.
  */
 const withGeist: Decorator = (Story) => {
   useEffect(() => {

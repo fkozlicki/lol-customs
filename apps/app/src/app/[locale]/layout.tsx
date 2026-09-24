@@ -1,5 +1,4 @@
 import "./styles.css";
-import { cn } from "@v1/ui/cn";
 import { Toaster } from "@v1/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -38,13 +37,14 @@ export default async function RootLayout({
   const { locale } = await params;
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body
-        className={cn(
-          `${GeistSans.variable} ${GeistMono.variable}`,
-          "antialiased",
-        )}
-      >
+    // The font variables go on <html>: the tokens that read them (`--font-sans`, `--font-mono`) are
+    // declared on :root, and a variable set lower down never reaches a declaration made above it.
+    <html
+      lang={locale}
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="antialiased">
         <I18nProviderClient locale={locale}>
           <TRPCReactProvider>
             <UserProvider>
