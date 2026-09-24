@@ -5,6 +5,7 @@ import type { RouterOutputs } from "@v1/api";
 import { useCallback, useState } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
+import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import MatchHistoryCard from "./match-history-card";
@@ -80,6 +81,13 @@ export function MatchHistoryList({ season }: { season: number }) {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={fetchNextPage}
+        loading={
+          <div className="space-y-2">
+            <MatchCardSkeleton />
+            <MatchCardSkeleton />
+            <MatchCardSkeleton />
+          </div>
+        }
       />
     </div>
   );

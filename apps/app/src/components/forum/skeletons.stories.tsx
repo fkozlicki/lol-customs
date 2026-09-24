@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import PostDetailsSkeleton from "./post-details-skeleton";
-import PostListSkeleton from "./post-list-skeleton";
+import PostListSkeleton, { PostCardSkeleton } from "./post-list-skeleton";
 
 const meta = {
   title: "Forum/Skeletons",
@@ -16,4 +16,9 @@ export const List: StoryObj = {
 
 export const Post: StoryObj = {
   render: () => <PostDetailsSkeleton />,
+};
+
+/** One row: what the list grows by while its next page loads. */
+export const Row: StoryObj = {
+  render: () => <PostCardSkeleton />,
 };
