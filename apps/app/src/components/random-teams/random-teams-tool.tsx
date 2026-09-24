@@ -14,13 +14,13 @@ import {
 } from "@v1/domain/shuffle";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { RankCrest } from "@/components/game-assets/rank-crest";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { positionRoleIconUrl } from "@/utils/asset-urls";
@@ -143,7 +143,7 @@ export default function RandomTeamsTool() {
           disabled={!isFull}
           onClick={() => setTeams(buildRandomTeams(roster))}
         >
-          <Icons.RandomTeams className="size-4" />
+          <Icons.Shuffle className="size-4" />
           {teams ? t("reroll") : t("generate")}
         </Button>
       </div>

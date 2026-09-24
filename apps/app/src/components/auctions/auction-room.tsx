@@ -4,13 +4,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@v1/ui/card";
-import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
 import { Label } from "@v1/ui/label";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {

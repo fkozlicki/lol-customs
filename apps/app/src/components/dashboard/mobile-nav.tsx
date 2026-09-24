@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@v1/ui/sheet";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";

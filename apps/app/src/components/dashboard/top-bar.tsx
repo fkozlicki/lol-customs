@@ -7,11 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
-import { Icons } from "@v1/ui/icons";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { DURATION } from "@/utils/motion";
 import { withSeason } from "@/utils/season";

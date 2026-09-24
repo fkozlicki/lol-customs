@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
 import { Skeleton } from "@v1/ui/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { Icons } from "@/components/icons";
 import { PageHeader } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";

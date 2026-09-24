@@ -1,4 +1,4 @@
-import { Icons } from "@v1/ui/icons";
+import { Icons } from "@/components/icons";
 
 /** The places people come to Derby for; always one tap away. */
 export const PRIMARY_PATHS = [
@@ -17,7 +17,7 @@ export const PRIMARY_PATHS = [
   {
     path: "/hof",
     label: "sidebar.hallOfFame",
-    Icon: Icons.HOF,
+    Icon: Icons.HallOfFame,
     seasonScoped: true,
   },
 ] as const;
@@ -27,7 +27,7 @@ export const TOOL_PATHS = [
   {
     path: "/shuffle",
     label: "sidebar.shuffle",
-    Icon: Icons.RandomTeams,
+    Icon: Icons.Shuffle,
     seasonScoped: false,
   },
   {

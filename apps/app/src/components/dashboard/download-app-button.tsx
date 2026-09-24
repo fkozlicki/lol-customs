@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
-import { Icons } from "@v1/ui/icons";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useDownloadDialog } from "./use-download-dialog";
 

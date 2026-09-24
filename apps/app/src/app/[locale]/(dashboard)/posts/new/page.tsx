@@ -11,7 +11,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@v1/ui/form";
-import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
 import { toast } from "@v1/ui/sonner";
 import Link from "next/link";
@@ -21,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useUser } from "@/components/auth/user-context";
 import { RichTextEditor } from "@/components/forum/rich-text-editor";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 

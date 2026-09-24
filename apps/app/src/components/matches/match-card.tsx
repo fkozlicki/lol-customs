@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { MatchHighlights } from "./match-highlights";
 import type { Match, RawJson } from "./match-history-list";

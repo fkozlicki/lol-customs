@@ -1,0 +1,192 @@
+/**
+ * Derby design tokens.
+ *
+ * The components in this package name these tokens — `bg-card`, `text-muted-foreground`,
+ * `text-win` — so whoever uses them has to define them. Shipping the contract with the components
+ * means a consumer cannot quietly end up with half of it: an undefined token produces no utility,
+ * no build error and no styles.
+ *
+ * Import after `@import "tailwindcss"`. See DESIGN.md for what the tokens mean.
+ */
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+
+	/* Domain colors: named after CONTEXT.md terms. Colour only ever carries domain meaning. */
+	--color-win: var(--win);
+	--color-loss: var(--loss);
+	--color-mvp: var(--mvp);
+	--color-mvp-surface: var(--mvp-surface);
+	--color-mvp-foreground: var(--mvp-foreground);
+	--color-ace: var(--ace);
+	--color-ace-surface: var(--ace-surface);
+	--color-ace-foreground: var(--ace-foreground);
+
+	/* Sharp corners everywhere; circles stay explicit (`rounded-full`). */
+	--radius-xs: 0;
+	--radius-sm: 0;
+	--radius-md: 0;
+	--radius-lg: 0;
+	--radius-xl: 0;
+	--radius-2xl: 0;
+	--radius-3xl: 0;
+	--radius-4xl: 0;
+
+	--ease-derby: cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Light: paper and graphite. */
+:root {
+	--background: oklch(0.965 0.008 85);
+	--foreground: oklch(0.22 0.005 85);
+	--card: oklch(0.985 0.005 85);
+	--card-foreground: oklch(0.22 0.005 85);
+	--popover: oklch(0.985 0.005 85);
+	--popover-foreground: oklch(0.22 0.005 85);
+	--primary: oklch(0.22 0.005 85);
+	--primary-foreground: oklch(0.965 0.008 85);
+	--secondary: oklch(0.935 0.009 85);
+	--secondary-foreground: oklch(0.22 0.005 85);
+	--muted: oklch(0.93 0.009 85);
+	--muted-foreground: oklch(0.5 0.01 85);
+	--accent: oklch(0.91 0.01 85);
+	--accent-foreground: oklch(0.22 0.005 85);
+	--destructive: oklch(0.55 0.17 27);
+	--destructive-foreground: oklch(0.985 0.005 85);
+	--border: oklch(0.87 0.01 85);
+	--input: oklch(0.87 0.01 85);
+	--ring: oklch(0.45 0.01 85);
+	--radius: 0;
+
+	--win: oklch(0.52 0.16 255);
+	--loss: oklch(0.55 0.2 27);
+	/* `--mvp`/`--ace` are the ink, readable on paper; `*-surface` is the filled badge. */
+	--mvp: oklch(0.6 0.13 72);
+	--mvp-surface: oklch(0.86 0.13 85);
+	--mvp-foreground: oklch(0.3 0.07 70);
+	--ace: oklch(0.52 0.17 300);
+	--ace-surface: oklch(0.85 0.09 303);
+	--ace-foreground: oklch(0.32 0.12 300);
+
+	--chart-1: oklch(0.22 0.005 85);
+	--chart-2: oklch(0.52 0.16 255);
+	--chart-3: oklch(0.55 0.2 27);
+	--chart-4: oklch(0.5 0.01 85);
+	--chart-5: oklch(0.7 0.01 85);
+
+	--sidebar: oklch(0.965 0.008 85);
+	--sidebar-foreground: oklch(0.22 0.005 85);
+	--sidebar-primary: oklch(0.22 0.005 85);
+	--sidebar-primary-foreground: oklch(0.965 0.008 85);
+	--sidebar-accent: oklch(0.91 0.01 85);
+	--sidebar-accent-foreground: oklch(0.22 0.005 85);
+	--sidebar-border: oklch(0.87 0.01 85);
+	--sidebar-ring: oklch(0.45 0.01 85);
+}
+
+/* Dark: graphite and warm off-white. Designed first. */
+.dark {
+	--background: oklch(0.165 0.004 85);
+	--foreground: oklch(0.94 0.006 85);
+	--card: oklch(0.19 0.004 85);
+	--card-foreground: oklch(0.94 0.006 85);
+	--popover: oklch(0.2 0.004 85);
+	--popover-foreground: oklch(0.94 0.006 85);
+	--primary: oklch(0.94 0.006 85);
+	--primary-foreground: oklch(0.165 0.004 85);
+	--secondary: oklch(0.225 0.004 85);
+	--secondary-foreground: oklch(0.94 0.006 85);
+	--muted: oklch(0.22 0.004 85);
+	--muted-foreground: oklch(0.66 0.008 85);
+	--accent: oklch(0.25 0.004 85);
+	--accent-foreground: oklch(0.94 0.006 85);
+	--destructive: oklch(0.62 0.16 27);
+	--destructive-foreground: oklch(0.94 0.006 85);
+	--border: oklch(0.29 0.004 85);
+	--input: oklch(0.29 0.004 85);
+	--ring: oklch(0.6 0.006 85);
+
+	--win: oklch(0.7 0.14 252);
+	--loss: oklch(0.66 0.19 27);
+	--mvp: oklch(0.83 0.16 82);
+	--mvp-surface: oklch(0.83 0.16 82);
+	--mvp-foreground: oklch(0.165 0.004 85);
+	--ace: oklch(0.72 0.15 300);
+	--ace-surface: oklch(0.72 0.15 300);
+	--ace-foreground: oklch(0.165 0.004 85);
+
+	--chart-1: oklch(0.94 0.006 85);
+	--chart-2: oklch(0.7 0.14 252);
+	--chart-3: oklch(0.66 0.19 27);
+	--chart-4: oklch(0.66 0.008 85);
+	--chart-5: oklch(0.45 0.006 85);
+
+	--sidebar: oklch(0.165 0.004 85);
+	--sidebar-foreground: oklch(0.94 0.006 85);
+	--sidebar-primary: oklch(0.94 0.006 85);
+	--sidebar-primary-foreground: oklch(0.165 0.004 85);
+	--sidebar-accent: oklch(0.25 0.004 85);
+	--sidebar-accent-foreground: oklch(0.94 0.006 85);
+	--sidebar-border: oklch(0.29 0.004 85);
+	--sidebar-ring: oklch(0.6 0.006 85);
+}
+
+/* Uppercase label: section headers, table headers, metadata. */
+@utility label-caps {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	line-height: 1rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--color-muted-foreground);
+}
+
+/* Every number the ladder shows: ratings, records, KDA, counts. */
+@utility num {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.01em;
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+	button,
+	[role="button"] {
+		@apply cursor-pointer;
+	}
+}

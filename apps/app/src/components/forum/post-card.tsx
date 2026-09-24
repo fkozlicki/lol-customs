@@ -2,8 +2,8 @@
 
 import type { RouterOutputs } from "@v1/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
-import { Icons } from "@v1/ui/icons";
 import Link from "next/link";
+import { Icons } from "@/components/icons";
 import { RelativeTime } from "@/components/relative-time";
 import { useScopedI18n } from "@/locales/client";
 

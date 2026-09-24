@@ -11,10 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
-import { Icons } from "@v1/ui/icons";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { Icons } from "@/components/icons";
 import { SUPPORTED_LOCALES } from "@/locales";
 import {
   useChangeLocale,

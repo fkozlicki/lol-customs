@@ -2,9 +2,9 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
-import { Icons } from "@v1/ui/icons";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/auth/user-context";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { InfiniteScrollTrigger } from "../infinite-scroll-trigger";

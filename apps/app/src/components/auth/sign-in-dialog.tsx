@@ -20,12 +20,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@v1/ui/form";
-import { Icons } from "@v1/ui/icons";
 import { Input } from "@v1/ui/input";
 import { toast } from "@v1/ui/sonner";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { useUser } from "./user-context";

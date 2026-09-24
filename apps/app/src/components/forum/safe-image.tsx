@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
-import { Icons } from "@v1/ui/icons";
 import { useState } from "react";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 
 interface SafeImageProps {

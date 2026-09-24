@@ -3,9 +3,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
-import { Icons } from "@v1/ui/icons";
 import { toast } from "@v1/ui/sonner";
 import { useUser } from "@/components/auth/user-context";
+import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
