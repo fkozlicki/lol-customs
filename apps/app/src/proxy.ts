@@ -34,8 +34,18 @@ function redirectRemovedPage(request: NextRequest) {
   return NextResponse.redirect(url, 308);
 }
 
-/** Season-scoped pages without `?season=` reopen the season the visitor last picked. */
+/**
+ * Season-scoped pages without `?season=` reopen the season the visitor last picked.
+ *
+ * Only page loads are redirected. Next prefetches a link's route tree without its search params, and
+ * a redirect there makes the router treat `/` as `/?season=1`, dropping any other param (`?after=`) on
+ * the next navigation. Next strips its own prefetch headers before the proxy runs, so the browser's
+ * `Sec-Fetch-Mode` is the only way to tell a page load from the router's fetches.
+ */
 function restoreRememberedSeason(request: NextRequest) {
+  const fetchMode = request.headers.get("sec-fetch-mode");
+  if (fetchMode && fetchMode !== "navigate") return null;
+
   const { nextUrl } = request;
   const remembered = request.cookies.get(SEASON_COOKIE)?.value;
   if (!remembered || nextUrl.searchParams.has(SEASON_PARAM)) return null;

@@ -18,12 +18,12 @@ import { withSeason } from "@/utils/season";
 import { AccountMenu } from "./account-menu";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
 import { SeasonSelector } from "./season-selector";
-import { useSeasonParam } from "./use-season-param";
+import { useNavSeason } from "./use-season-param";
 
 export function TopBar() {
   const t = useScopedI18n("dashboard");
   const pathname = usePathname();
-  const season = useSeasonParam();
+  const season = useNavSeason();
   const toolsActive = TOOL_PATHS.some(({ path }) =>
     isActivePath(pathname, path),
   );

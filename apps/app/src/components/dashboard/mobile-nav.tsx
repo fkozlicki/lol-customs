@@ -9,12 +9,12 @@ import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
-import { useSeasonParam } from "./use-season-param";
+import { useNavSeason } from "./use-season-param";
 
 export function MobileNav() {
   const t = useScopedI18n("dashboard");
   const pathname = usePathname();
-  const season = useSeasonParam();
+  const season = useNavSeason();
   const [moreOpen, setMoreOpen] = useState(false);
   const tabPaths = [...PRIMARY_PATHS, FORUM_PATH];
   const secondaryPaths = TOOL_PATHS;
