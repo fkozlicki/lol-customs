@@ -54,7 +54,8 @@ and nothing else, because the padding is the same on every page. `PageHeader` (e
 description, actions) opens every page; `PageHeaderSkeleton` stands in while it loads.
 `SectionHeading` is the `label-caps` block heading below it — a heading at entry-title size is a
 different thing and does not borrow the name. `RankTag` is a rank crest with a label beside it;
-`WinLoss` is a win–loss record. Shared primitives come from `@v1/ui/*`.
+`WinLoss` is a win–loss record. `Backdrop` is the halftone behind every dashboard page; the layout
+renders it, a page never does. Shared primitives come from `@v1/ui/*`.
 
 A shape built three times is a component. A shape built once is not — extracting it before then buys
 an abstraction and no reuse.
@@ -112,6 +113,10 @@ These break a rule on purpose; extending them needs a reason in the PR.
   the signal that the room is live.
 - **Skeletons** pulse: `Skeleton` in `@v1/ui` is shared with the desktop app.
 - **Toasts** use Sonner's `richColors`, so success and error carry a hue outside the domain palette.
+- **The backdrop** loops: halftone portraits of the champions the top five play most take turns
+  beside the content column, the player's name upright on the opposite edge. It is the ladder's own
+  data rather than ornament, drawn in `foreground` ink at about a fifth of its strength, never under
+  the column's text, only on windows 1280 px and wider, and still under reduced motion.
 
 ## The check
 

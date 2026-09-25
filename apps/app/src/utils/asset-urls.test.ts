@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  championLoadingArtUrl,
   objectiveIconUrl,
   positionRoleIconUrl,
   profileIconUrl,
@@ -16,6 +17,14 @@ const PUBLIC_DIR = join(
   "..",
   "public",
 );
+
+describe("champion loading art", () => {
+  test("comes from Data Dragon by champion id, with no patch in the path", () => {
+    expect(championLoadingArtUrl("MonkeyKing")).toBe(
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/MonkeyKing_0.jpg",
+    );
+  });
+});
 
 describe("profile icons", () => {
   test("come from Data Dragon, pinned to the patch", () => {

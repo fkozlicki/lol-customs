@@ -17,6 +17,15 @@ export function championImageUrl(patch: string, imageFile: string): string {
   return `${DD_BASE}/cdn/${patch}/img/champion/${imageFile}`;
 }
 
+/**
+ * A champion's loading-screen art, base skin, by Data Dragon id (the square image's name without
+ * `.png`: `MonkeyKing` for Wukong). Data Dragon serves it without a patch; it changes only with a
+ * visual update. Read into a canvas by the backdrop, so it is fetched as is, not through `next/image`.
+ */
+export function championLoadingArtUrl(championId: string): string {
+  return `${DD_BASE}/cdn/img/champion/loading/${championId}_0.jpg`;
+}
+
 export function itemImageUrl(patch: string, imageFile: string): string {
   return `${DD_BASE}/cdn/${patch}/img/item/${imageFile}`;
 }
