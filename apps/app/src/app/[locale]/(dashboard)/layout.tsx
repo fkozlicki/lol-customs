@@ -1,3 +1,4 @@
+import { Backdrop } from "@/components/backdrop/backdrop";
 import { DownloadAppDialog } from "@/components/dashboard/download-app-dialog";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
 import { SiteFooter } from "@/components/dashboard/site-footer";
@@ -14,7 +15,8 @@ export default async function DashboardLayout({
 
   return (
     <GamePatchProvider patch={patch}>
-      <div className="flex min-h-dvh flex-col">
+      <div className="isolate flex min-h-dvh flex-col">
+        <Backdrop />
         <TopBar />
         <main className="min-w-0 flex-1">{children}</main>
         <SiteFooter />
