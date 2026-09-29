@@ -6,8 +6,8 @@
  * design review — it covers the colour rules only. Put `design-check-ignore` in a comment on a line
  * that is a false positive, with a reason.
  *
- * It scans both tiers: the app's own components and the shared primitives they are built on. It does
- * not scan apps/lcu, which has its own look and is not held to these rules.
+ * It scans the app and the whole design system — the primitives and the recipes built on them. It
+ * does not scan apps/lcu, which has its own look and is not held to these rules.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
