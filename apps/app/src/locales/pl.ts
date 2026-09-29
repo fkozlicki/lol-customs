@@ -179,11 +179,6 @@ export default {
           cancelled: "Anulowana",
           expired: "Wygasła",
         },
-        connection: {
-          connecting: "Łączenie",
-          live: "Synchronizacja live",
-          degraded: "Odpytywanie",
-        },
         phase: {
           free_auction: "Wolna aukcja",
           bidding: "Licytacja live",

@@ -3,10 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
+import { AuctionListSkeleton } from "@v1/ui/recipes/auctions/auction-list-skeleton";
+import { ConnectionBadge } from "@v1/ui/recipes/auctions/connection-badge";
 import { Icons } from "@v1/ui/recipes/icons";
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
-import { Skeleton } from "@v1/ui/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -14,27 +15,6 @@ import { useUser } from "@/components/auth/user-context";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { useAuctionRealtime } from "./use-auction-realtime";
-
-function ConnectionBadge({
-  state,
-}: {
-  state: "connecting" | "live" | "degraded";
-}) {
-  const t = useScopedI18n("dashboard.pages.auctions");
-
-  return (
-    <span className="flex items-center gap-1.5">
-      <span
-        className={cn(
-          "size-1.5",
-          state === "live" ? "bg-foreground" : "bg-muted-foreground",
-          state === "connecting" && "animate-pulse",
-        )}
-      />
-      <span className="label-caps">{t(`connection.${state}`)}</span>
-    </span>
-  );
-}
 
 export function AuctionList() {
   const t = useScopedI18n("dashboard.pages.auctions");
@@ -172,36 +152,3 @@ export function AuctionList() {
     </PageShell>
   );
 }
-
-export function AuctionListSkeleton() {
-  return (
-    <div className="space-y-12">
-      {[0, 1].map((item) => (
-        <div key={item}>
-          <div className="flex items-center gap-3 pb-4">
-            <Skeleton className="size-1.5" />
-            <Skeleton className="h-3 w-20" />
-          </div>
-          <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-3/4 sm:h-12" />
-              <Skeleton className="h-3 w-56" />
-            </div>
-            <div className="flex items-end gap-8 sm:justify-end">
-              <div className="space-y-2">
-                <Skeleton className="h-3 w-16" />
-                <Skeleton className="h-5 w-24" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-3 w-12" />
-                <Skeleton className="h-9 w-20" />
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export { ConnectionBadge };

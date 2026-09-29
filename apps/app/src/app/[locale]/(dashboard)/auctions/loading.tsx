@@ -1,6 +1,6 @@
+import { AuctionListSkeleton } from "@v1/ui/recipes/auctions/auction-list-skeleton";
 import { PageHeaderSkeleton } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
-import { AuctionListSkeleton } from "@/components/auctions/auction-list";
 
 export default function AuctionsLoading() {
   return (

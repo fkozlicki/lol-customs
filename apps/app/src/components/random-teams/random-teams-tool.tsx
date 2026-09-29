@@ -17,7 +17,6 @@ import { Input } from "@v1/ui/input";
 import { positionRoleIconUrl } from "@v1/ui/recipes/game-assets/asset-urls";
 import { Icons } from "@v1/ui/recipes/icons";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
-import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -309,14 +308,5 @@ function TeamRow({
         {formatRank(player.rankTier, player.rankDivision) ?? t("unranked")}
       </RankTag>
     </li>
-  );
-}
-
-export function RandomTeamsToolSkeleton() {
-  return (
-    <div className="grid gap-10 md:grid-cols-2 md:gap-16">
-      <Skeleton className="h-96 w-full" />
-      <Skeleton className="h-96 w-full" />
-    </div>
   );
 }

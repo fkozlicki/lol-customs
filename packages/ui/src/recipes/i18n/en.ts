@@ -44,6 +44,13 @@ export default {
     installerExe: "Installer (.exe)",
     zipPortable: "ZIP (portable)",
   },
+  auctions: {
+    connection: {
+      connecting: "Connecting",
+      live: "Live sync",
+      degraded: "Polling",
+    },
+  },
   season: {
     emptyPlayerTitle: "No games in Season {number}",
     emptyPlayerDescription: "This player has not played in this season yet.",

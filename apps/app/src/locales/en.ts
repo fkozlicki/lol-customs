@@ -177,11 +177,6 @@ export default {
           cancelled: "Cancelled",
           expired: "Expired",
         },
-        connection: {
-          connecting: "Connecting",
-          live: "Live sync",
-          degraded: "Polling",
-        },
         phase: {
           free_auction: "Free auction",
           bidding: "Bidding live",
