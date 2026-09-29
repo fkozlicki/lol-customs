@@ -30,11 +30,10 @@ reused had no story and nobody could see what already existed.
    in `stories/`, and import `@v1/ui` through its exports, as in Turborepo's design-system example, so a
    story reaches exactly what the app can. It still uses `@storybook/nextjs-vite`, because game-asset
    recipes render through `next/image` (ADR 0002).
-4. **Recipes have their own dictionary.** `packages/ui/src/recipes/i18n/` holds the English and Polish
-   strings recipes render, keyed by concept (`match.victory`, not `dashboard.pages.matchHistory.victory`),
-   with a small provider and a `useRecipesI18n(scope)` hook shaped like `useScopedI18n`. The app mounts the
-   provider once with the route's locale. The app's own dictionary stays in `apps/app/src/locales` and does
-   not repeat recipe strings.
+4. **Recipes own their messages.** `packages/ui/src/recipes/messages/` holds the English and Polish
+   strings recipes render, keyed by concept (`match.victory`, not `dashboard.pages.matchHistory.victory`).
+   The app composes them into its one dictionary and recipes read them with next-intl's `useTranslations`
+   ([ADR 0005](0005-one-i18n-runtime-next-intl.md)). The app's own messages stay in `apps/app/src/locales`.
 5. **"Recipe" now names a component, not a style API.** 0003 used it for the `cva` call inside a component
    file; that call is now called *variants*, as cva (`variants`, `VariantProps`) and shadcn
    (`buttonVariants`) name it.
@@ -45,19 +44,17 @@ reused had no story and nobody could see what already existed.
   pure function of its props, and the Storybook needs no app code to run.
 - **One structural line.** "Visual" and "logic" now live in different packages, so the split is enforced
   by imports rather than remembered.
-- **next-international cannot host a second dictionary.** `createI18nClient` makes a context per call,
-  but its dictionary cache is shared by the module and keyed only by the locale
-  (`next-international/dist/app/client/index.js`, `localesCache`). A second client for recipes would read
-  whichever dictionary loaded first. A plain provider also drops `next-international` and
-  `next/navigation` from `packages/ui`.
+- **Messages beside the recipes that render them.** A recipe's strings change with the recipe, so they
+  live in the same package; how they reach the page is ADR 0005's subject.
 - **Why a folder and not a package.** One export map, one `@source` line per consumer, one Storybook
   specifier. What a separate package would have guaranteed structurally is enforced by lint instead (below).
 
 ## Consequences
 
-- Recipes may import primitives, `recipes/i18n`, `next/image`, `next/link` (with the `href` passed in),
-  `motion`, `date-fns`, `react-intersection-observer` and `@tiptap/*`. They may not import `@v1/api`,
-  `@v1/domain`, `@v1/supabase`, `@trpc/*`, `nuqs`, `next/navigation`, `next-international` or `@/…`. Biome's
+- Recipes may import primitives, `next-intl`'s hooks, `next/image`, `next/link` (with the `href` passed
+  in), `motion`, `date-fns`, `react-intersection-observer` and `@tiptap/*`. They may not import `@v1/api`,
+  `@v1/domain`, `@v1/supabase`, `@trpc/*`, `nuqs`, `next/navigation`, `next-intl/server`,
+  `next-intl/navigation` or `@/…`. Biome's
   `noRestrictedImports` enforces this for `packages/ui/src`, and keeps `apps/storybook` to `@v1/ui`'s
   exports: no data layer, no path into a package or the app.
 - **Derby Sync (`apps/lcu`) uses primitives only.** It does not import `tokens.css`, so a recipe's
@@ -65,8 +62,8 @@ reused had no story and nobody could see what already existed.
   `next/image`'s default loader does not work. Lint blocks `@v1/ui/recipes/*` in `apps/lcu`. 0003's
   observation stands; it now guards one folder instead of the whole package.
 - `next` is a peer dependency of `packages/ui`.
-- A string a recipe renders goes into the recipes dictionary; every other string into
-  `apps/app/src/locales`. Both need `en` and `pl`.
+- A string a recipe renders goes into `packages/ui/src/recipes/messages`; every other string into
+  `apps/app/src/locales`. Both need `en` and `pl`, and ADR 0005 says how they are composed.
 - Game-asset code (URL builders, the generated champion list, the patch provider) lives with the recipes
   that use it. The self-hosted icons stay in `apps/app/public/game/`, which Next serves and Storybook maps
   with `staticDirs`.
