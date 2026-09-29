@@ -2,7 +2,8 @@
  * One Storybook for Derby's design system, and nothing but it.
  *
  * `packages/ui` holds two tiers — the neutral primitives with the token contract, and the recipes built
- * on them (ADR 0004) — and this renders both from where their stories live, beside the components. The
+ * on them (ADR 0004). Their stories live here, in `stories/`, and import `@v1/ui` the way any consumer
+ * does, as in Turborepo's design-system example: a story can only reach what the package exports. The
  * app is not in the graph: recipes take plain props, so a story is its args.
  *
  * `@storybook/nextjs-vite` rather than plain React: game-asset recipes render through `next/image`
@@ -10,24 +11,22 @@
  */
 import type { StorybookConfig } from "@storybook/nextjs-vite";
 
-const UI = "../../../packages/ui/src";
-
 const config: StorybookConfig = {
   framework: "@storybook/nextjs-vite",
   stories: [
     {
       titlePrefix: "Design system",
-      directory: UI,
+      directory: "../stories",
       files: "tokens.stories.tsx",
     },
     {
       titlePrefix: "Design system",
-      directory: `${UI}/components`,
+      directory: "../stories/components",
       files: "**/*.stories.tsx",
     },
     {
       titlePrefix: "Recipes",
-      directory: `${UI}/recipes`,
+      directory: "../stories/recipes",
       files: "**/*.stories.tsx",
     },
   ],

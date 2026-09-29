@@ -62,7 +62,7 @@ them come from `@v1/ui/*`.
 A shape built three times is a component. A shape built once is not — extracting it before then buys
 an abstraction and no reuse.
 
-**Storybook** — `bun dev:storybook`, from `apps/storybook`. Two sections: *Design system* for the
+**Storybook** — `bun dev:storybook`, from `apps/storybook`, where the stories live. Two sections: *Design system* for the
 tokens and the primitives, *Recipes* for Derby's visual components. The toolbar switches theme and
 locale, so rules 3 and 9 are one click away instead of a rebuild. Everything this file describes in
 prose is under *Design system → Tokens*.

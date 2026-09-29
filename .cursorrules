@@ -233,5 +233,5 @@ When refactoring:
 2. **New page**: Prefetch relevant queries, wrap in `HydrateClient`, use Suspense + skeleton where a client component consumes the data.
 3. **New client component**: Use `useTRPC()` and `useSuspenseQuery(trpc....queryOptions())`; keep components small and focused.
 4. **New form**: react-hook-form + zodResolver + Zod schema; tRPC mutation with optimistic updates and toast.
-5. **New UI**: Prefer `@v1/ui` components and Tailwind; use `cn()` and semantic tokens. A new visual component is a recipe in `packages/ui/src/recipes`, with a story beside it.
+5. **New UI**: Prefer `@v1/ui` components and Tailwind; use `cn()` and semantic tokens. A new visual component is a recipe in `packages/ui/src/recipes`, with a story in `apps/storybook/stories/recipes`.
 6. **Imports**: `@v1/*` for packages, `@/` for app src; default export for main component.

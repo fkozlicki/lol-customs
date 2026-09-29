@@ -20,7 +20,7 @@
         "SENTRY_ORG",
         "SENTRY_PROJECT"
       ],
-      "inputs": ["$TURBO_DEFAULT$", ".env", "!**/*.stories.{tsx,mdx}"],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
       "dependsOn": ["^build"],
       "outputs": [
         ".next/**",

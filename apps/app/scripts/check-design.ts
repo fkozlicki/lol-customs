@@ -6,8 +6,9 @@
  * design review — it covers the colour rules only. Put `design-check-ignore` in a comment on a line
  * that is a false positive, with a reason.
  *
- * It scans the app and the whole design system — the primitives and the recipes built on them. It
- * does not scan apps/lcu, which has its own look and is not held to these rules.
+ * It scans the app, the whole design system — the primitives and the recipes built on them — and the
+ * stories that show it. It does not scan apps/lcu, which has its own look and is not held to these
+ * rules.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -19,7 +20,11 @@ const REPO_ROOT = join(
   "..",
   "..",
 );
-const SCANNED = [join("apps", "app", "src"), join("packages", "ui", "src")];
+const SCANNED = [
+  join("apps", "app", "src"),
+  join("packages", "ui", "src"),
+  join("apps", "storybook", "stories"),
+];
 const EXTENSIONS = [".ts", ".tsx", ".css"];
 /** Where the tokens themselves are declared, so literal colour values belong here. */
 const TOKEN_FILE = join("packages", "ui", "src", "styles", "tokens.css");

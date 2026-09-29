@@ -1,7 +1,7 @@
 /**
  * One real match from the local database, as `matches.list` returns it: what `toMatchCardView` is
  * tested against, and what the design system's view-shaped fixture was generated from
- * (`packages/ui/src/recipes/matches/match.fixtures.ts`).
+ * (`apps/storybook/stories/recipes/matches/match.fixtures.ts`).
  *
  * The game data is real — champions, items, KDA, damage, ranks, OP scores — because that is what the
  * match recipes render, and made-up numbers stop looking like a match very quickly. The people are

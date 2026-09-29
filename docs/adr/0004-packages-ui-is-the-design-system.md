@@ -26,8 +26,10 @@ reused had no story and nobody could see what already existed.
 2. **`apps/app` only uses them.** It keeps the containers (queries, mutations, nuqs, routing) and one mapper
    per data root (for example `toMatchCardView`) that formats values with `@v1/domain` and builds
    season-aware hrefs.
-3. **One Storybook, in `apps/storybook`, rendering only `packages/ui`.** It still uses
-   `@storybook/nextjs-vite`, because game-asset recipes render through `next/image` (ADR 0002).
+3. **One Storybook, in `apps/storybook`, rendering only `packages/ui`.** The stories live there too,
+   in `stories/`, and import `@v1/ui` through its exports, as in Turborepo's design-system example, so a
+   story reaches exactly what the app can. It still uses `@storybook/nextjs-vite`, because game-asset
+   recipes render through `next/image` (ADR 0002).
 4. **Recipes have their own dictionary.** `packages/ui/src/recipes/i18n/` holds the English and Polish
    strings recipes render, keyed by concept (`match.victory`, not `dashboard.pages.matchHistory.victory`),
    with a small provider and a `useRecipesI18n(scope)` hook shaped like `useScopedI18n`. The app mounts the
@@ -56,7 +58,8 @@ reused had no story and nobody could see what already existed.
 - Recipes may import primitives, `recipes/i18n`, `next/image`, `next/link` (with the `href` passed in),
   `motion`, `date-fns`, `react-intersection-observer` and `@tiptap/*`. They may not import `@v1/api`,
   `@v1/domain`, `@v1/supabase`, `@trpc/*`, `nuqs`, `next/navigation`, `next-international` or `@/…`. Biome's
-  `noRestrictedImports` enforces this for `packages/ui/src`.
+  `noRestrictedImports` enforces this for `packages/ui/src`, and keeps `apps/storybook` to `@v1/ui`'s
+  exports: no data layer, no path into a package or the app.
 - **Derby Sync (`apps/lcu`) uses primitives only.** It does not import `tokens.css`, so a recipe's
   `label-caps`, `num` or domain colours would render unstyled there, and it is a static export, where
   `next/image`'s default loader does not work. Lint blocks `@v1/ui/recipes/*` in `apps/lcu`. 0003's

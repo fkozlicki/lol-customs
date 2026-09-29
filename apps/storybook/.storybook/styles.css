@@ -1,7 +1,6 @@
 /*
- * The stylesheet a page in the app gets, minus the app. `source(none)` because automatic detection
- * would start from the working directory, which is this workspace; everything a story renders comes
- * from packages/ui, named below.
+ * The stylesheet a page in the app gets, minus the app. `source(none)` so the two lines below are the
+ * whole of what is scanned: the design system, and the stories' own layout around it.
  */
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
@@ -9,6 +8,7 @@
 @plugin "@tailwindcss/typography";
 
 @source "../../../packages/ui/src";
+@source "../stories";
 
 /* Geist is loaded in preview.tsx under the variable names the app uses. */
 @theme inline {

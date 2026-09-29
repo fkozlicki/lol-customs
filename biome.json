@@ -106,6 +106,39 @@
           }
         }
       }
+    },
+    {
+      "includes": ["apps/storybook/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@v1/api": "Stories render packages/ui from plain values; they have no data layer (ADR 0004).",
+                  "@v1/domain": "Stories pass values already formatted, as the app's mappers would (ADR 0004).",
+                  "@v1/supabase": "Stories render packages/ui from plain values; they have no data layer (ADR 0004).",
+                  "nuqs": "Recipes take value and onChange; a story holds that state with useState (ADR 0004)."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@v1/api/**",
+                      "@v1/domain/**",
+                      "@v1/supabase/**",
+                      "@/**",
+                      "**/packages/**",
+                      "**/app/src/**"
+                    ],
+                    "message": "apps/storybook renders packages/ui through its exports, like any consumer; import @v1/ui/* (ADR 0004)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

@@ -20,7 +20,8 @@ See [README.md](README.md) for setup.
 - `apps/api`: the Supabase project: migrations, pgTAP tests, config. Not the tRPC server.
 - `apps/app`: Next.js dashboard (next-international with `en` and `pl`, tRPC, Supabase auth): pages,
   containers and mappers. Everything visual comes from `packages/ui`.
-- `apps/storybook`: the one Storybook. It renders `packages/ui` and nothing else.
+- `apps/storybook`: the one Storybook, with every story in `stories/`. It renders `packages/ui`,
+  through its exports, and nothing else.
 - `packages/api`: tRPC routers consumed by `apps/app`.
 - `packages/supabase`: Supabase clients and generated DB types.
 - `packages/ui`: Derby's design system (`@v1/ui/*`): shadcn primitives in `src/components`, and the
