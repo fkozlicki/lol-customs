@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecipesI18n } from "../i18n/i18n";
+import { useTranslations } from "next-intl";
 
 interface MatchStatsProps {
   blueKills: number;
@@ -16,7 +16,7 @@ export function MatchStats({
   blueGold,
   redGold,
 }: MatchStatsProps) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
 
   return (
     <div className="flex-1 space-y-2">

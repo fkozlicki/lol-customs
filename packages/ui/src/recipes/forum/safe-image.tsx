@@ -1,8 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "../../components/button";
-import { useRecipesI18n } from "../i18n/i18n";
 import { Icons } from "../icons";
 
 interface SafeImageProps {
@@ -18,7 +18,7 @@ export function SafeImage({
   className,
   initialNsfw,
 }: SafeImageProps) {
-  const t = useRecipesI18n("forum.sensitiveContent");
+  const t = useTranslations("forum.sensitiveContent");
   const [revealed, setRevealed] = useState(false);
 
   if (initialNsfw && !revealed) {

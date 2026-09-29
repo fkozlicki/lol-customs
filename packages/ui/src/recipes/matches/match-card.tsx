@@ -1,7 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "../../utils/cn";
-import { useRecipesI18n } from "../i18n/i18n";
 import { Icons } from "../icons";
 import { MatchHighlights } from "./match-highlights";
 import { MatchMetadata } from "./match-metadata";
@@ -20,7 +20,7 @@ export default function MatchCard({
   isExpanded,
   onToggleExpand,
 }: MatchCardProps) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
   const { player } = match;
   const outcome = player ? (player.win ? "win" : "loss") : null;
 

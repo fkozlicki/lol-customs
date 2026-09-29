@@ -1,13 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "../../utils/cn";
 import { ChampionImage } from "../game-assets/champion-image";
-import { useRecipesI18n } from "../i18n/i18n";
 import type { MatchCardView, ParticipantView } from "./match-view";
 
 /** Neutral card summary: which side won, and the MVP and ACE of the match. */
 export function MatchHighlights({ match }: { match: MatchCardView }) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-5 overflow-hidden sm:gap-8">

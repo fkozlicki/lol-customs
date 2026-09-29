@@ -1,5 +1,4 @@
 import "./styles.css";
-import { RecipesI18nProvider } from "@v1/ui/recipes/i18n";
 import { Toaster } from "@v1/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -10,7 +9,6 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { UserProvider } from "@/components/auth/user-context";
 import { MotionProvider } from "@/components/motion/motion-provider";
-import { toLocale } from "@/locales";
 import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
@@ -48,24 +46,22 @@ export default async function RootLayout({
     >
       <body className="antialiased">
         <NextIntlClientProvider>
-          <RecipesI18nProvider locale={toLocale(locale)}>
-            <TRPCReactProvider>
-              <UserProvider>
-                <ThemeProvider
-                  attribute="class"
-                  defaultTheme="system"
-                  enableSystem
-                  disableTransitionOnChange
-                >
-                  <NuqsAdapter>
-                    <MotionProvider>{children}</MotionProvider>
-                  </NuqsAdapter>
-                  <Toaster richColors={true} />
-                  <SignInDialog />
-                </ThemeProvider>
-              </UserProvider>
-            </TRPCReactProvider>
-          </RecipesI18nProvider>
+          <TRPCReactProvider>
+            <UserProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <NuqsAdapter>
+                  <MotionProvider>{children}</MotionProvider>
+                </NuqsAdapter>
+                <Toaster richColors={true} />
+                <SignInDialog />
+              </ThemeProvider>
+            </UserProvider>
+          </TRPCReactProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -2,8 +2,8 @@
 
 import { formatDistanceToNowStrict } from "date-fns";
 import { enUS, pl } from "date-fns/locale";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "../../utils/cn";
-import { useRecipesI18n, useRecipesLocale } from "../i18n/i18n";
 import type { MatchCardView } from "./match-view";
 import { RatingChange } from "./rating-change";
 
@@ -12,8 +12,8 @@ import { RatingChange } from "./rating-change";
  * the owner's result and rating change; the card is neutral without them.
  */
 export function MatchMetadata({ match }: { match: MatchCardView }) {
-  const t = useRecipesI18n("match");
-  const locale = useRecipesLocale();
+  const t = useTranslations("match");
+  const locale = useLocale();
   const { player } = match;
 
   return (

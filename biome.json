@@ -74,11 +74,14 @@
                       "@v1/supabase/**",
                       "@trpc/**",
                       "nuqs/**",
-                      "next-international",
-                      "next-international/**",
+                      "next-intl/server",
+                      "next-intl/navigation",
+                      "next-intl/routing",
+                      "next-intl/middleware",
+                      "next-intl/plugin",
                       "@/**"
                     ],
-                    "message": "packages/ui renders plain props and its own dictionary; data, routing and the app's strings stay in apps/app (ADR 0004)."
+                    "message": "packages/ui renders plain props and reads its messages through next-intl's hooks; data, routing and the request config stay in apps/app (ADR 0004, 0005)."
                   }
                 ]
               }

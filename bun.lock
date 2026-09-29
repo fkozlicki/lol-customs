@@ -107,6 +107,7 @@
       "dependencies": {
         "@v1/ui": "workspace:*",
         "next": "catalog:react",
+        "next-intl": "^4.14.8",
         "react": "catalog:react",
         "react-dom": "catalog:react",
         "react-hook-form": "^7.54.2",
@@ -226,12 +227,14 @@
         "@types/react-dom": "catalog:react",
         "@v1/typescript": "workspace:*",
         "next": "catalog:react",
+        "next-intl": "^4.14.8",
         "react": "catalog:react",
         "react-dom": "catalog:react",
         "typescript": "catalog:",
       },
       "peerDependencies": {
         "next": "catalog:react",
+        "next-intl": "^4.14.8",
         "react": "catalog:react",
         "zod": "catalog:",
       },

@@ -16,9 +16,11 @@ import { createReadStream, existsSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { RECIPE_LOCALES } from "@v1/ui/recipes/i18n";
+import { messages } from "@v1/ui/recipes/messages";
 import { chromium } from "playwright";
 
+/** Every locale the recipes have messages for. */
+const LOCALES = Object.keys(messages);
 const STORYBOOK_DIR = join(fileURLToPath(new URL(".", import.meta.url)), "..");
 const STATIC_DIR = join(STORYBOOK_DIR, "storybook-static");
 
@@ -79,7 +81,7 @@ interface Failure {
 const failures: Failure[] = [];
 const browser = await chromium.launch();
 
-for (const locale of RECIPE_LOCALES) {
+for (const locale of LOCALES) {
   const context = await browser.newContext({
     viewport: { width: 900, height: 600 },
     reducedMotion: "reduce",
@@ -138,11 +140,11 @@ for (const locale of RECIPE_LOCALES) {
 await browser.close();
 server.close();
 
-const total = stories.length * RECIPE_LOCALES.length;
+const total = stories.length * LOCALES.length;
 
 if (failures.length === 0) {
   console.log(
-    `\n${total} story renders checked (${stories.length} stories × ${RECIPE_LOCALES.length} locales). All good.\n`,
+    `\n${total} story renders checked (${stories.length} stories × ${LOCALES.length} locales). All good.\n`,
   );
   process.exit(0);
 }

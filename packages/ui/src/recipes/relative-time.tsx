@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from "date-fns";
 import { enUS, pl } from "date-fns/locale";
-import { useRecipesLocale } from "./i18n/i18n";
+import { useLocale } from "next-intl";
 
 /** "3 hours ago" in the viewer's language. */
 export function RelativeTime({
@@ -12,7 +12,7 @@ export function RelativeTime({
   date: string;
   className?: string;
 }) {
-  const locale = useRecipesLocale();
+  const locale = useLocale();
 
   return (
     <time dateTime={date} className={className}>

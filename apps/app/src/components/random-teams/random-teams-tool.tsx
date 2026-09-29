@@ -24,7 +24,9 @@ import { useMemo, useState } from "react";
 import { useTRPC } from "@/trpc/react";
 
 type DbPlayer = RouterOutputs["players"]["all"][number];
-type ShuffleCopy = ReturnType<typeof useTranslations<"dashboard.pages.shuffle">>;
+type ShuffleCopy = ReturnType<
+  typeof useTranslations<"dashboard.pages.shuffle">
+>;
 
 export default function RandomTeamsTool() {
   const t = useTranslations("dashboard.pages.shuffle");

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "../../components/button";
-import { useRecipesI18n } from "../i18n/i18n";
 
 interface PlayerSeasonEmptyProps {
   seasonNumber: number;
@@ -14,7 +14,7 @@ export function PlayerSeasonEmpty({
   seasonNumber,
   allSeasonsHref,
 }: PlayerSeasonEmptyProps) {
-  const t = useRecipesI18n("season");
+  const t = useTranslations("season");
 
   return (
     <section className="flex flex-col items-start gap-3">

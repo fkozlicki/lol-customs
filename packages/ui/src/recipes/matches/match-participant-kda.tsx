@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecipesI18n } from "../i18n/i18n";
+import { useTranslations } from "next-intl";
 import type { ParticipantView } from "./match-view";
 
 /** Kills / deaths / assists, kill participation, and the ratio. */
@@ -9,7 +9,7 @@ export default function MatchParticipantKDA({
 }: {
   participant: ParticipantView;
 }) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
 
   return (
     <div className="num flex flex-col items-center gap-0.5 text-xs">

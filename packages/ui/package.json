@@ -16,12 +16,14 @@
     "@types/react-dom": "catalog:react",
     "@v1/typescript": "workspace:*",
     "next": "catalog:react",
+    "next-intl": "^4.14.8",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "typescript": "catalog:"
   },
   "peerDependencies": {
     "next": "catalog:react",
+    "next-intl": "^4.14.8",
     "react": "catalog:react",
     "zod": "catalog:"
   },
@@ -47,9 +49,9 @@
     "./recipes/game-assets/asset-urls": "./src/recipes/game-assets/asset-urls.ts",
     "./recipes/game-assets/champions": "./src/recipes/game-assets/champions.ts",
     "./recipes/home/standings-view": "./src/recipes/home/standings-view.ts",
-    "./recipes/i18n": "./src/recipes/i18n/i18n.tsx",
     "./recipes/icons": "./src/recipes/icons.ts",
     "./recipes/matches/match-view": "./src/recipes/matches/match-view.ts",
+    "./recipes/messages": "./src/recipes/messages/index.ts",
     "./recipes/motion": "./src/recipes/motion.ts",
     "./scroll-area": "./src/components/scroll-area.tsx",
     "./separator": "./src/components/separator.tsx",

@@ -1,7 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ChampionImage } from "../game-assets/champion-image";
-import { useRecipesI18n } from "../i18n/i18n";
 import MatchParticipantItems from "./match-participant-items";
 import MatchParticipantScore from "./match-participant-score";
 import type { ParticipantView } from "./match-view";
@@ -12,7 +12,7 @@ export function PlayerMetadata({
 }: {
   participant: ParticipantView;
 }) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2.5">

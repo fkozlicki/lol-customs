@@ -2,7 +2,8 @@
  * Every string a recipe renders, in English. Keyed by what it names, not by the page it first appeared
  * on: `match.mvp`, once, rather than an `mvp` under every page that shows one.
  *
- * The app's own strings live in `apps/app/src/locales`. A string belongs here when a recipe renders it.
+ * A string belongs here when a recipe renders it; the app's own live in `apps/app/src/locales`. The two
+ * are spread into one dictionary, so a top-level key here cannot share a name with one of the app's.
  */
 export default {
   match: {

@@ -1,7 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "../../utils/cn";
-import { useRecipesI18n } from "../i18n/i18n";
 import type { ParticipantView } from "./match-view";
 
 interface MatchParticipantScoreProps {
@@ -14,7 +14,7 @@ export default function MatchParticipantScore({
   participant,
   hideScore = false,
 }: MatchParticipantScoreProps) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
   const { opScore, place, badge } = participant;
 
   if (!opScore) {

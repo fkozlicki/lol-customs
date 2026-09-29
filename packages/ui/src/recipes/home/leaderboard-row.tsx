@@ -2,9 +2,9 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { cn } from "../../utils/cn";
 import { ProfileIcon } from "../game-assets/profile-icon";
-import { useRecipesI18n } from "../i18n/i18n";
 import { DURATION, STAGGER } from "../motion";
 import { WinLoss } from "../win-loss";
 import CurrentStreak from "./current-streak";
@@ -23,7 +23,7 @@ export default function LeaderboardRow({
   index,
   qualificationMatches,
 }: LeaderboardRowProps) {
-  const t = useRecipesI18n("standings");
+  const t = useTranslations("standings");
   const { position, name, wins, losses } = row;
   const isQualifying = position == null;
 

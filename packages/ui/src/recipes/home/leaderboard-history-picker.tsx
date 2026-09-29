@@ -1,8 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ScrollArea, ScrollBar } from "../../components/scroll-area";
 import { cn } from "../../utils/cn";
-import { useRecipesI18n } from "../i18n/i18n";
 
 interface LeaderboardHistoryPickerProps {
   /** The match counts the standings can be replayed after, in order; live comes last. */
@@ -20,7 +20,7 @@ export default function LeaderboardHistoryPicker({
   onChange,
   className,
 }: LeaderboardHistoryPickerProps) {
-  const t = useRecipesI18n("standings");
+  const t = useTranslations("standings");
 
   if (options.length === 0) return null;
 

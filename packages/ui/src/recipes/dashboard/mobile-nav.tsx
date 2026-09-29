@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   Sheet,
@@ -9,7 +10,6 @@ import {
   SheetTitle,
 } from "../../components/sheet";
 import { cn } from "../../utils/cn";
-import { useRecipesI18n } from "../i18n/i18n";
 import { Icons, type LucideIcon } from "../icons";
 
 export interface NavItem {
@@ -28,7 +28,7 @@ interface MobileNavProps {
 
 /** The bottom bar on a phone. */
 export function MobileNav({ tabs, more }: MobileNavProps) {
-  const t = useRecipesI18n("nav");
+  const t = useTranslations("nav");
   const [moreOpen, setMoreOpen] = useState(false);
   const moreActive = more.some((item) => item.active);
 

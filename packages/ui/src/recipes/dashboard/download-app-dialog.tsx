@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "../../components/button";
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/dialog";
-import { useRecipesI18n } from "../i18n/i18n";
 import { Icons } from "../icons";
 
 interface DownloadAppDialogProps {
@@ -25,7 +25,7 @@ export function DownloadAppDialog({
   installerUrl,
   zipUrl,
 }: DownloadAppDialogProps) {
-  const t = useRecipesI18n("download");
+  const t = useTranslations("download");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

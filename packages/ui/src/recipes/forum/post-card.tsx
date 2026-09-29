@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRecipesI18n } from "../i18n/i18n";
+import { useTranslations } from "next-intl";
 import { Icons } from "../icons";
 import { AuthorLine } from "./author-line";
 import type { PostCardView } from "./post-view";
 
 /** A post in the forum list: who and when, the title, an excerpt, and its counts. */
 export function PostCard({ post }: { post: PostCardView }) {
-  const t = useRecipesI18n("forum");
+  const t = useTranslations("forum");
 
   return (
     <article>

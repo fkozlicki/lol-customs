@@ -2,10 +2,10 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { cn } from "../../utils/cn";
 import { AnimatedNumber } from "../animated-number";
 import { ProfileIcon } from "../game-assets/profile-icon";
-import { useRecipesI18n } from "../i18n/i18n";
 import { DURATION } from "../motion";
 import { WinLoss } from "../win-loss";
 import type { StandingsRowView } from "./standings-view";
@@ -29,7 +29,7 @@ export function SeasonPodium({
   rows,
   qualificationMatches,
 }: SeasonPodiumProps) {
-  const t = useRecipesI18n("standings");
+  const t = useTranslations("standings");
   const podium = rows.filter((row) => row.position != null).slice(0, 3);
 
   return (

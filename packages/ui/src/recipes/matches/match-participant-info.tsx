@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChampionImage } from "../game-assets/champion-image";
 import { SpellImage } from "../game-assets/spell-image";
-import { useRecipesI18n } from "../i18n/i18n";
 import { RankTag } from "../rank-tag";
 import type { ParticipantView } from "./match-view";
 
@@ -13,7 +13,7 @@ export default function MatchParticipantInfo({
 }: {
   participant: ParticipantView;
 }) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
 
   return (
     <div className="flex items-center gap-1">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -8,13 +9,12 @@ import {
   TableRow,
 } from "../../components/table";
 import { cn } from "../../utils/cn";
-import { useRecipesI18n } from "../i18n/i18n";
 import type { SideView } from "./match-view";
 import { TeamRow } from "./team-row";
 
 /** One side's scoreboard; the header carries the result in its colour. */
 export default function TeamTable({ team }: { team: SideView }) {
-  const t = useRecipesI18n("match");
+  const t = useTranslations("match");
 
   return (
     <Table className="w-full">
