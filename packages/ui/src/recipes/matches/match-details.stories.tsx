@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { MATCH } from "./match.fixtures";
+import type { Meta, StoryObj } from "@storybook/react";
+import { MATCH_CARD } from "./match.fixtures";
 import MatchDetails from "./match-details";
 
 const meta = {
   title: "Matches/Match details",
   component: MatchDetails,
   parameters: { layout: "padded" },
-  args: { match: MATCH },
+  args: { match: MATCH_CARD },
 } satisfies Meta<typeof MatchDetails>;
 
 export default meta;

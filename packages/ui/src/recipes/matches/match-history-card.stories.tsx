@@ -1,6 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { MATCH, MATCH_VIEW } from "./match.fixtures";
+import {
+  MATCH_CARD,
+  MATCH_CARD_FOR_ACE,
+  MATCH_CARD_FOR_MVP,
+} from "./match.fixtures";
 import MatchCard from "./match-card";
 import MatchHistoryCard from "./match-history-card";
 
@@ -8,7 +12,7 @@ const meta = {
   title: "Matches/Match card",
   component: MatchCard,
   parameters: { layout: "padded" },
-  args: { match: MATCH, isExpanded: false, onToggleExpand: () => {} },
+  args: { match: MATCH_CARD, isExpanded: false, onToggleExpand: () => {} },
 } satisfies Meta<typeof MatchCard>;
 
 export default meta;
@@ -23,22 +27,22 @@ export const Collapsed: Story = {};
  * lead, and the left rule takes the colour of their result.
  */
 export const FromTheMvpsProfile: Story = {
-  args: { puuid: MATCH_VIEW.mvp.puuid },
+  args: { match: MATCH_CARD_FOR_MVP },
 };
 
 export const FromTheAcesProfile: Story = {
-  args: { puuid: MATCH_VIEW.ace.puuid },
+  args: { match: MATCH_CARD_FOR_ACE },
 };
 
 /** The real composition: click the chevron to open the scoreboard under the card. */
 export const Interactive: Story = {
   render: () => {
-    const [open, setOpen] = useState<number | null>(MATCH.match_id);
+    const [open, setOpen] = useState(true);
     return (
       <MatchHistoryCard
-        match={MATCH}
-        expandedMatchId={open}
-        toggleExpand={(id) => setOpen((prev) => (prev === id ? null : id))}
+        match={MATCH_CARD}
+        expanded={open}
+        onToggleExpand={() => setOpen((prev) => !prev)}
       />
     );
   },

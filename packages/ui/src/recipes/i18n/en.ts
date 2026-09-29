@@ -6,8 +6,25 @@
  */
 export default {
   match: {
+    victory: "Victory",
+    defeat: "Defeat",
+    winner: "Winner",
+    sideBlue: "Blue",
+    sideRed: "Red",
+    mvp: "MVP",
+    ace: "ACE",
+    opScore: "OP score",
+    kda: "KDA",
+    perfect: "Perfect",
+    killParticipation: "KP",
+    damage: "Damage",
+    wards: "Wards",
+    cs: "CS",
+    items: "Items",
     kills: "Kills",
     gold: "Gold",
+    unranked: "Unranked",
+    expand: "Show match details",
   },
   season: {
     emptyPlayerTitle: "No games in Season {number}",

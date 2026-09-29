@@ -4,8 +4,25 @@ import type { Strings } from "./format";
 /** The same keys as `en.ts`; a key missing or extra here fails typecheck. */
 export default {
   match: {
+    victory: "Wygrana",
+    defeat: "Przegrana",
+    winner: "Wygrywa",
+    sideBlue: "Niebiescy",
+    sideRed: "Czerwoni",
+    mvp: "MVP",
+    ace: "ACE",
+    opScore: "OP score",
+    kda: "KDA",
+    perfect: "Perfect",
+    killParticipation: "Udział",
+    damage: "Obrażenia",
+    wards: "Wardy",
+    cs: "CS",
+    items: "Przedmioty",
     kills: "Zabójstwa",
     gold: "Złoto",
+    unranked: "Bez rangi",
+    expand: "Pokaż szczegóły meczu",
   },
   season: {
     emptyPlayerTitle: "Brak gier w Sezonie {number}",

@@ -49,6 +49,7 @@
     "./recipes/game-assets/champions": "./src/recipes/game-assets/champions.ts",
     "./recipes/i18n": "./src/recipes/i18n/i18n.tsx",
     "./recipes/icons": "./src/recipes/icons.ts",
+    "./recipes/matches/match-view": "./src/recipes/matches/match-view.ts",
     "./recipes/motion": "./src/recipes/motion.ts",
     "./scroll-area": "./src/components/scroll-area.tsx",
     "./separator": "./src/components/separator.tsx",

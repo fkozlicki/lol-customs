@@ -3,8 +3,10 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
-import { useCallback, useState } from "react";
-import MatchHistoryCard from "@/components/matches/match-history-card";
+import MatchHistoryCard from "@v1/ui/recipes/matches/match-history-card";
+import { useCallback, useMemo, useState } from "react";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
+import { toMatchCardView } from "@/components/matches/match-view";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
@@ -28,7 +30,14 @@ export function PlayerMatchHistory({ puuid, season }: PlayerMatchHistoryProps) {
       ),
     );
 
-  const matches = data.pages.flatMap((p) => p.items);
+  const seasonParam = useSeasonParam();
+  const matches = useMemo(
+    () =>
+      data.pages
+        .flatMap((p) => p.items)
+        .map((match) => toMatchCardView(match, { puuid, season: seasonParam })),
+    [data.pages, puuid, seasonParam],
+  );
 
   const toggleExpand = useCallback((matchId: number) => {
     setExpandedMatchId((prev) => (prev === matchId ? null : matchId));
@@ -44,11 +53,10 @@ export function PlayerMatchHistory({ puuid, season }: PlayerMatchHistoryProps) {
     <div className="space-y-2">
       {matches.map((match) => (
         <MatchHistoryCard
-          key={match.match_id}
+          key={match.id}
           match={match}
-          expandedMatchId={expandedMatchId}
-          toggleExpand={toggleExpand}
-          puuid={puuid}
+          expanded={expandedMatchId === match.id}
+          onToggleExpand={() => toggleExpand(match.id)}
         />
       ))}
       <InfiniteScrollTrigger

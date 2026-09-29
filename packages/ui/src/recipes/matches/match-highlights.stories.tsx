@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { MATCH_VIEW } from "./match.fixtures";
+import type { Meta, StoryObj } from "@storybook/react";
+import { MATCH_CARD } from "./match.fixtures";
 import { MatchHighlights } from "./match-highlights";
 
 const meta = {
   title: "Matches/Match highlights",
   component: MatchHighlights,
   parameters: { layout: "padded" },
-  args: { participants: MATCH_VIEW.participants },
+  args: { match: MATCH_CARD },
 } satisfies Meta<typeof MatchHighlights>;
 
 export default meta;
@@ -18,11 +18,5 @@ export const Default: Story = {};
 
 /** A match rated before MVP and ACE existed: the slots stay, empty, so the row keeps its shape. */
 export const NoMvpOrAce: Story = {
-  args: {
-    participants: MATCH_VIEW.participants.map((p) => ({
-      ...p,
-      is_mvp: false,
-      is_ace: false,
-    })),
-  },
+  args: { match: { ...MATCH_CARD, mvp: null, ace: null } },
 };

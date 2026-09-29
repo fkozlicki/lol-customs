@@ -1,43 +1,15 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import type { RouterOutputs } from "@v1/api";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
-import { useCallback, useState } from "react";
+import MatchHistoryCard from "@v1/ui/recipes/matches/match-history-card";
+import { useCallback, useMemo, useState } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import MatchHistoryCard from "./match-history-card";
-
-export type Match = RouterOutputs["matches"]["list"]["items"][number];
-export type MatchParticipant = Match["match_participants"][number];
-
-export interface RawParticipant {
-  stats: {
-    item0: number;
-    item1: number;
-    item2: number;
-    item3: number;
-    item4: number;
-    item5: number;
-    item6: number;
-    perk0: number;
-    perk1: number;
-    perk2: number;
-    perk3: number;
-    perk4: number;
-    perk5: number;
-    perkPrimaryStyle?: number;
-  };
-  participantId: number;
-  spell1Id: number;
-  spell2Id: number;
-}
-
-export interface RawJson {
-  participants: RawParticipant[];
-}
+import { toMatchCardView } from "./match-view";
 
 export function MatchHistoryList({ season }: { season: number }) {
   const t = useScopedI18n("dashboard.pages.matchHistory");
@@ -52,7 +24,14 @@ export function MatchHistoryList({ season }: { season: number }) {
       ),
     );
 
-  const matches = data.pages.flatMap((p) => p.items);
+  const seasonParam = useSeasonParam();
+  const matches = useMemo(
+    () =>
+      data.pages
+        .flatMap((p) => p.items)
+        .map((match) => toMatchCardView(match, { season: seasonParam })),
+    [data.pages, seasonParam],
+  );
 
   const toggleExpand = useCallback((matchId: number) => {
     setExpandedMatchId((prev) => (prev === matchId ? null : matchId));
@@ -71,10 +50,10 @@ export function MatchHistoryList({ season }: { season: number }) {
     <div className="space-y-2">
       {matches.map((match) => (
         <MatchHistoryCard
-          key={match.match_id}
+          key={match.id}
           match={match}
-          expandedMatchId={expandedMatchId}
-          toggleExpand={toggleExpand}
+          expanded={expandedMatchId === match.id}
+          onToggleExpand={() => toggleExpand(match.id)}
         />
       ))}
       <InfiniteScrollTrigger
