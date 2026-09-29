@@ -49,5 +49,63 @@
   },
   "formatter": {
     "indentStyle": "space"
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/ui/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@v1/api": "The design system takes plain props; the app maps tRPC output (ADR 0004).",
+                  "@v1/domain": "The design system takes values already formatted; the app calls @v1/domain (ADR 0004).",
+                  "@v1/supabase": "The design system takes plain props; the app maps database rows (ADR 0004).",
+                  "next/navigation": "Pass the pathname, an href or a callback; routing stays in the app (ADR 0004).",
+                  "nuqs": "Take value and onChange; the query string stays in the app (ADR 0004)."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@v1/api/**",
+                      "@v1/domain/**",
+                      "@v1/supabase/**",
+                      "@trpc/**",
+                      "nuqs/**",
+                      "next-international",
+                      "next-international/**",
+                      "@/**"
+                    ],
+                    "message": "packages/ui renders plain props and its own dictionary; data, routing and the app's strings stay in apps/app (ADR 0004)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/lcu/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@v1/ui/recipes/**"],
+                    "message": "Derby Sync does not load tokens.css and is a static export, so recipes render unstyled or break there; use @v1/ui primitives (ADR 0004)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

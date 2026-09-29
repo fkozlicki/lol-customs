@@ -22,6 +22,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
+    "next": "catalog:react",
     "react": "catalog:react",
     "zod": "catalog:"
   },
@@ -31,8 +32,8 @@
     "./badge": "./src/components/badge.tsx",
     "./button": "./src/components/button.tsx",
     "./card": "./src/components/card.tsx",
-    "./checkbox": "./src/components/checkbox.tsx",
     "./chart": "./src/components/chart.tsx",
+    "./checkbox": "./src/components/checkbox.tsx",
     "./cn": "./src/utils/cn.ts",
     "./dialog": "./src/components/dialog.tsx",
     "./dropdown-menu": "./src/components/dropdown-menu.tsx",
@@ -42,6 +43,7 @@
     "./input": "./src/components/input.tsx",
     "./label": "./src/components/label.tsx",
     "./progress": "./src/components/progress.tsx",
+    "./recipes/*": "./src/recipes/*.tsx",
     "./recipes/i18n": "./src/recipes/i18n/i18n.tsx",
     "./scroll-area": "./src/components/scroll-area.tsx",
     "./separator": "./src/components/separator.tsx",

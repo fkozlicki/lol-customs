@@ -13,12 +13,8 @@ import type { StorybookConfig } from "@storybook/nextjs-vite";
 
 const config: StorybookConfig = {
   framework: "@storybook/nextjs-vite",
+  // The design system and its recipes render in apps/storybook; what is left here is moving there.
   stories: [
-    {
-      titlePrefix: "Design system",
-      directory: "../../../packages/ui/src",
-      files: "**/*.stories.tsx",
-    },
     {
       titlePrefix: "App",
       directory: "../src/components",
