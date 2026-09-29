@@ -1,4 +1,4 @@
-import { Icons } from "@/components/icons";
+import { Icons } from "@v1/ui/recipes/icons";
 
 /** The places people come to Derby for; always one tap away. */
 export const PRIMARY_PATHS = [

@@ -1,6 +1,6 @@
-import PostListSkeleton from "@/components/forum/post-list-skeleton";
-import { PageHeaderSkeleton } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
+import PostListSkeleton from "@v1/ui/recipes/forum/post-list-skeleton";
+import { PageHeaderSkeleton } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 
 export default function PostsLoading() {
   return (

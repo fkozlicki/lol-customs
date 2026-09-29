@@ -3,11 +3,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { cn } from "@v1/ui/cn";
+import { DURATION } from "@v1/ui/recipes/motion";
 import { motion } from "motion/react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { DURATION } from "@/utils/motion";
 import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
 import LeaderboardRow from "./leaderboard-row";
 import { SeasonPodium } from "./season-podium";

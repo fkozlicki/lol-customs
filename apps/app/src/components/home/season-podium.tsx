@@ -5,14 +5,14 @@ import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { playerHref } from "@v1/domain/riot-id";
 import { formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
+import { DURATION } from "@v1/ui/recipes/motion";
+import { AnimatedNumber } from "@v1/ui/recipes/animated-number";
+import { WinLoss } from "@v1/ui/recipes/win-loss";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
-import { WinLoss } from "@/components/win-loss";
-import { AnimatedNumber } from "@/components/motion/animated-number";
 import { useScopedI18n } from "@/locales/client";
-import { DURATION } from "@/utils/motion";
 import { withSeason } from "@/utils/season";
 
 type StandingsRow = RouterOutputs["riftRank"]["leaderboard"][number];

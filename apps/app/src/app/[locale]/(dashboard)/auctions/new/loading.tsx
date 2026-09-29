@@ -1,6 +1,6 @@
+import { PageHeaderSkeleton } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Skeleton } from "@v1/ui/skeleton";
-import { PageHeaderSkeleton } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
 
 export default function NewAuctionLoading() {
   return (

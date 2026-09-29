@@ -1,13 +1,13 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
 import { parsePlayerSlug } from "@v1/domain/riot-id";
+import { SectionHeading } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
+import { PlayerSeasonEmpty } from "@v1/ui/recipes/player/player-season-empty";
 import { notFound } from "next/navigation";
-import { SectionHeading } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
 import { MostPlayedChampions } from "@/components/player/most-played-champions";
 import { PlayerMatchHistory } from "@/components/player/player-match-history";
 import { PlayerProfileHeader } from "@/components/player/player-profile-header";
 import { PlayerRelations } from "@/components/player/player-relations";
-import { PlayerSeasonEmpty } from "@/components/player/player-season-empty";
 import { PlayerSeasonSummaries } from "@/components/player/player-season-summaries";
 import { PlayerStatsCard } from "@/components/player/player-stats-card";
 import { PlayerTitles } from "@/components/player/player-titles";
@@ -20,7 +20,7 @@ import {
   prefetch,
   trpc,
 } from "@/trpc/server";
-import { seasonNumber } from "@/utils/season";
+import { ALL_TIME_PARAM, SEASON_PARAM, seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
 
 interface PlayerPageProps {
@@ -113,6 +113,7 @@ export default async function PlayerProfilePage({
         ) : (
           <PlayerSeasonEmpty
             seasonNumber={seasonNumber(season, seasons) ?? season}
+            allSeasonsHref={`?${SEASON_PARAM}=${ALL_TIME_PARAM}`}
           />
         )}
 

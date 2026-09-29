@@ -1,7 +1,7 @@
 "use client";
 
+import { EASE } from "@v1/ui/recipes/motion";
 import { MotionConfig } from "motion/react";
-import { EASE } from "@/utils/motion";
 
 /**
  * Honours `prefers-reduced-motion`: transforms are skipped, opacity fades remain.

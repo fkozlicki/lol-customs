@@ -7,6 +7,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@v1/ui/chart";
+import { DURATION } from "@v1/ui/recipes/motion";
+import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { format } from "date-fns";
 import { useReducedMotion } from "motion/react";
 import {
@@ -17,10 +19,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { DURATION } from "@/utils/motion";
 
 interface RatingHistoryChartProps {
   puuid: string;

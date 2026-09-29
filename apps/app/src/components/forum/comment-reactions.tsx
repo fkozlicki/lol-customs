@@ -1,11 +1,11 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { toast } from "@v1/ui/sonner";
 import { useUser } from "@/components/auth/user-context";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { ReactionButtons } from "./reaction-buttons";
 
 interface CommentReactionsProps {
   commentId: string;

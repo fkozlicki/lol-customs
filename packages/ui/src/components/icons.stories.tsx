@@ -10,7 +10,7 @@ export default meta;
 
 /**
  * The shared set. Names say what an icon depicts, not what Derby uses it for, because Derby Sync
- * draws from the same map — `apps/app/src/components/icons.ts` adds the domain names on top.
+ * draws from the same map — `recipes/icons.ts` adds the domain names on top.
  */
 export const All: StoryObj = {
   render: () => (

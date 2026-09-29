@@ -4,4 +4,21 @@
  *
  * The app's own strings live in `apps/app/src/locales`. A string belongs here when a recipe renders it.
  */
-export default {} as const;
+export default {
+  match: {
+    kills: "Kills",
+    gold: "Gold",
+  },
+  season: {
+    emptyPlayerTitle: "No games in Season {number}",
+    emptyPlayerDescription: "This player has not played in this season yet.",
+    showAllTime: "Show all seasons",
+  },
+  forum: {
+    sensitiveContent: {
+      title: "Sensitive content",
+      description: "This image may contain adult content.",
+      show: "Show image",
+    },
+  },
+} as const;

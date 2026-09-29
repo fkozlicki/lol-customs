@@ -5,15 +5,15 @@ import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { playerHref } from "@v1/domain/riot-id";
 import { formatKda, formatKdaRatio, formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
+import CurrentStreak from "@v1/ui/recipes/home/current-streak";
+import { DURATION, STAGGER } from "@v1/ui/recipes/motion";
+import { WinLoss } from "@v1/ui/recipes/win-loss";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { ProfileIcon } from "@/components/game-assets/profile-icon";
-import { WinLoss } from "@/components/win-loss";
 import { useScopedI18n } from "@/locales/client";
-import { DURATION, STAGGER } from "@/utils/motion";
 import { withSeason } from "@/utils/season";
-import CurrentStreak from "./current-streak";
 
 type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
 

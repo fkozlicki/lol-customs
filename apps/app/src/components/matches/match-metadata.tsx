@@ -2,11 +2,11 @@
 
 import { formatDuration } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
+import { RatingChange } from "@v1/ui/recipes/matches/rating-change";
 import { formatDistanceToNowStrict } from "date-fns";
 import { enUS, pl } from "date-fns/locale";
 import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import type { Match, MatchParticipant } from "./match-history-list";
-import { RatingChange } from "./rating-change";
 
 interface MatchMetadataProps {
   match: Match;

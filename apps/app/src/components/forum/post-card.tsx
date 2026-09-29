@@ -1,11 +1,11 @@
 "use client";
 
 import type { RouterOutputs } from "@v1/api";
+import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
+import { Icons } from "@v1/ui/recipes/icons";
 import Link from "next/link";
-import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { postExcerpt, type TipTapNode } from "@/utils/post-excerpt";
-import { AuthorLine } from "./author-line";
 
 type Post = RouterOutputs["forum"]["posts"]["list"]["items"][number];
 

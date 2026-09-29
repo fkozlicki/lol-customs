@@ -2,10 +2,10 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
+import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
+import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
 import { useCallback, useState } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
-import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
-import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import MatchHistoryCard from "./match-history-card";

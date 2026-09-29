@@ -1,7 +1,7 @@
 "use client";
 
+import { DURATION } from "@v1/ui/recipes/motion";
 import { motion } from "motion/react";
-import { DURATION } from "@/utils/motion";
 
 /** Pages cross-fade briefly on navigation; nothing slides. */
 export default function DashboardTemplate({

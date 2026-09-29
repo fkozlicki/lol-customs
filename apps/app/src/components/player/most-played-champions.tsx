@@ -2,11 +2,11 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatKda, formatWinrate } from "@v1/domain/stats";
+import { SectionHeading } from "@v1/ui/recipes/page-header";
+import { WinLoss } from "@v1/ui/recipes/win-loss";
 import { ChampionImage } from "@/components/game-assets/champion-image";
-import { SectionHeading } from "@/components/page-header";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { WinLoss } from "@/components/win-loss";
 
 interface MostPlayedChampionsProps {
   puuid: string;

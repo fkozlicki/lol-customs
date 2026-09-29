@@ -1,10 +1,10 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
+import MatchHistorySkeleton from "@v1/ui/recipes/matches/match-history-skeleton";
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Suspense } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
-import MatchHistorySkeleton from "@/components/matches/match-history-skeleton";
-import { PageHeader } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";

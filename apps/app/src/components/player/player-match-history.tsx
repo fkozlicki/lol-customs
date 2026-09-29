@@ -1,9 +1,9 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
+import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
 import { useCallback, useState } from "react";
-import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
-import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
 import MatchHistoryCard from "@/components/matches/match-history-card";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";

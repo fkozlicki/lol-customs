@@ -1,6 +1,6 @@
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { AuctionSetupForm } from "@/components/auctions/auction-setup-form";
-import { PageHeader } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 
 export default async function NewAuctionPage() {

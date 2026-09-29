@@ -1,8 +1,8 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Suspense } from "react";
 import { HallOfFame, HallOfFameSkeleton } from "@/components/hof/hall-of-fame";
-import { PageHeader } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";

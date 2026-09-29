@@ -14,11 +14,11 @@ import {
 } from "@v1/domain/shuffle";
 import { Button } from "@v1/ui/button";
 import { Input } from "@v1/ui/input";
+import { Icons } from "@v1/ui/recipes/icons";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Icons } from "@/components/icons";
 import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";

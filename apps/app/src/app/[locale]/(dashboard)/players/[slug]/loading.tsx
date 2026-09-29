@@ -1,6 +1,6 @@
+import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Skeleton } from "@v1/ui/skeleton";
-import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
-import { PageShell } from "@/components/page-shell";
 
 export default function PlayerProfileLoading() {
   return (

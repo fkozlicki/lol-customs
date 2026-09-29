@@ -1,10 +1,10 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
+import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Suspense } from "react";
 import { maxHistoricallyAfterGames } from "@/components/home/leaderboard-after-games";
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
 import { Leaderboard } from "@/components/home/leaderboard-preview";
-import LeaderboardSkeleton from "@/components/home/leaderboard-skeleton";
-import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";

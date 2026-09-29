@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
+import { MATCH, MATCH_VIEW } from "./match.fixtures";
 import MatchCard from "./match-card";
 import MatchHistoryCard from "./match-history-card";
-import { MATCH, MATCH_VIEW } from "./match.fixtures";
 
 const meta = {
   title: "Matches/Match card",

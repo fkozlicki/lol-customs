@@ -1,8 +1,8 @@
+import PostDetailsSkeleton from "@v1/ui/recipes/forum/post-details-skeleton";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { PostDetails } from "@/components/forum/post-details";
-import PostDetailsSkeleton from "@/components/forum/post-details-skeleton";
-import { PageShell } from "@/components/page-shell";
 import { caller, HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 interface PostPageProps {

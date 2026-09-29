@@ -7,13 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
+import { Icons } from "@v1/ui/recipes/icons";
+import { DURATION } from "@v1/ui/recipes/motion";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
-import { DURATION } from "@/utils/motion";
 import { withSeason } from "@/utils/season";
 import { AccountMenu } from "./account-menu";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";

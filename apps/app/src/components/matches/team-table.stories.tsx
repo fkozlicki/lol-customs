@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Table, TableBody } from "@v1/ui/table";
 import { MATCH, MATCH_VIEW } from "./match.fixtures";
-import TeamTable from "./team-table";
 import { TeamRow } from "./team-row";
+import TeamTable from "./team-table";
 
 const v = MATCH_VIEW;
 

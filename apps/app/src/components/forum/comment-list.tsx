@@ -2,13 +2,13 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
+import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
+import { TipTapRenderer } from "@v1/ui/recipes/forum/tiptap-renderer";
 import { useState } from "react";
 import { useScopedI18n } from "@/locales/client";
-import { AuthorLine } from "./author-line";
 import { useTRPC } from "@/trpc/react";
 import { CommentForm } from "./comment-form";
 import { CommentReactions } from "./comment-reactions";
-import { TipTapRenderer } from "./tiptap-renderer";
 
 interface CommentListProps {
   postId: string;

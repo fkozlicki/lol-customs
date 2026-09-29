@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import MatchDetails from "./match-details";
 import { MATCH } from "./match.fixtures";
+import MatchDetails from "./match-details";
 
 const meta = {
   title: "Matches/Match details",

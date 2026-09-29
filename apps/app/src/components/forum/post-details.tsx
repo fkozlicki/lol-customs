@@ -1,14 +1,14 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
+import { TipTapRenderer } from "@v1/ui/recipes/forum/tiptap-renderer";
+import { Icons } from "@v1/ui/recipes/icons";
 import Link from "next/link";
-import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
-import { AuthorLine } from "./author-line";
 import { useTRPC } from "@/trpc/react";
 import { CommentList } from "./comment-list";
 import { PostReactions } from "./post-reactions";
-import { TipTapRenderer } from "./tiptap-renderer";
 
 interface PostDetailProps {
   postId: string;

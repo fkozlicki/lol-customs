@@ -1,8 +1,8 @@
+import PostListSkeleton from "@v1/ui/recipes/forum/post-list-skeleton";
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Suspense } from "react";
 import { PostList } from "@/components/forum/post-list";
-import PostListSkeleton from "@/components/forum/post-list-skeleton";
-import { PageHeader } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 

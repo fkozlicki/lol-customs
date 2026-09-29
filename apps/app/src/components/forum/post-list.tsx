@@ -2,13 +2,13 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
+import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-list-skeleton";
+import { Icons } from "@v1/ui/recipes/icons";
+import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/auth/user-context";
-import { Icons } from "@/components/icons";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
-import { PostCardSkeleton } from "./post-list-skeleton";
 import { PostCard } from "./post-card";
 
 export function PostList() {

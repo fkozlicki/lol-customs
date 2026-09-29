@@ -1,9 +1,9 @@
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 import { Suspense } from "react";
-import { PageHeader } from "@/components/page-header";
 import RandomTeamsTool, {
   RandomTeamsToolSkeleton,
 } from "@/components/random-teams/random-teams-tool";
-import { PageShell } from "@/components/page-shell";
 import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 

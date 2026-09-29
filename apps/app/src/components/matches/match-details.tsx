@@ -1,7 +1,7 @@
 "use client";
 
+import { MatchStats } from "@v1/ui/recipes/matches/match-stats";
 import type { Match } from "./match-history-list";
-import { MatchStats } from "./match-stats";
 import { TeamObjectives } from "./team-objectives";
 import TeamTable from "./team-table";
 
