@@ -37,19 +37,12 @@ export default {
       auctions: "Aukcje",
       posts: "Forum",
       tools: "Narzędzia",
-      more: "Więcej",
       downloadDesktopApp: "Pobierz Derby Sync",
     },
     footer: {
       // Riot's required wording, in English on purpose: the policy gives no translation.
       riotNotice:
         "Derby isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
-    },
-    download: {
-      title: "Pobierz Derby Sync",
-      description: "Wybierz preferowany format.",
-      installerExe: "Instalator (.exe)",
-      zipPortable: "ZIP (przenośna)",
     },
     preferences: {
       menuLabel: "Konto i ustawienia",
@@ -120,19 +113,13 @@ export default {
         tableMvp: "MVP",
         tableAce: "ACE",
         tableStreak: "Seria",
-        tableBest: "Rekord",
-        historyLive: "Live",
         afterGames: "Po {count} grach",
         rank1st: "1.",
         rank2nd: "2.",
         rank3rd: "3.",
         tableMatches: "Mecze",
-        historyLabel: "Po meczu",
         qualifyingTitle: "W kwalifikacjach",
         qualifyingHint: "Pozycja po {count} meczach",
-        podiumQualifying: "Kwalifikacje trwają",
-        podiumQualifyingHint:
-          "Podium zapełni się, gdy gracze rozegrają {count} meczów.",
         noMatchesYet: "Brak meczów w tym sezonie.",
       },
       matchHistory: {

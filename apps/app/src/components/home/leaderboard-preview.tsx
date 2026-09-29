@@ -3,14 +3,17 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { cn } from "@v1/ui/cn";
+import LeaderboardRow from "@v1/ui/recipes/home/leaderboard-row";
+import { SeasonPodium } from "@v1/ui/recipes/home/season-podium";
 import { DURATION } from "@v1/ui/recipes/motion";
 import { motion } from "motion/react";
+import { useMemo } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
-import LeaderboardRow from "./leaderboard-row";
-import { SeasonPodium } from "./season-podium";
+import { toStandingsRowView } from "./standings-view";
 
 interface LeaderboardProps {
   season: number;
@@ -57,8 +60,16 @@ export function Leaderboard({
     }),
   );
 
-  const qualified = leaderboard.filter((row) => row.qualified);
-  const qualifying = leaderboard.filter((row) => !row.qualified);
+  const seasonParam = useSeasonParam();
+  const rows = useMemo(
+    () =>
+      leaderboard.map((row) =>
+        toStandingsRowView(row, { season: seasonParam }),
+      ),
+    [leaderboard, seasonParam],
+  );
+  const qualified = rows.filter((row) => row.position != null);
+  const qualifying = rows.filter((row) => row.position == null);
 
   return (
     <div className="space-y-12 sm:space-y-16">
@@ -81,7 +92,10 @@ export function Leaderboard({
             {seasonTitle}
           </motion.h1>
         </div>
-        <SeasonPodium rows={leaderboard} />
+        <SeasonPodium
+          rows={rows}
+          qualificationMatches={QUALIFICATION_MATCHES}
+        />
       </section>
 
       <section className="space-y-4">
@@ -120,10 +134,10 @@ export function Leaderboard({
               <tbody>
                 {qualified.map((row, index) => (
                   <LeaderboardRow
-                    key={row.puuid}
+                    key={row.key}
                     row={row}
-                    position={row.position}
                     index={index}
+                    qualificationMatches={QUALIFICATION_MATCHES}
                   />
                 ))}
                 {qualifying.length > 0 && (
@@ -144,9 +158,10 @@ export function Leaderboard({
                 )}
                 {qualifying.map((row, index) => (
                   <LeaderboardRow
-                    key={row.puuid}
+                    key={row.key}
                     row={row}
                     index={qualified.length + index}
+                    qualificationMatches={QUALIFICATION_MATCHES}
                   />
                 ))}
               </tbody>

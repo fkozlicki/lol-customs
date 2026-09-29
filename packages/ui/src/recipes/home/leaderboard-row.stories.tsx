@@ -1,12 +1,16 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import LeaderboardRow from "./leaderboard-row";
-import { STANDINGS } from "./standings.fixtures";
+import { QUALIFICATION_MATCHES, STANDINGS } from "./standings.fixtures";
 
 const meta = {
   title: "Home/Leaderboard row",
   component: LeaderboardRow,
   parameters: { layout: "padded" },
-  args: { row: STANDINGS[0], position: 1, index: 0 },
+  args: {
+    row: STANDINGS[0]!,
+    index: 0,
+    qualificationMatches: QUALIFICATION_MATCHES,
+  },
   decorators: [
     (Story) => (
       <table className="w-full">
@@ -26,28 +30,27 @@ export const Leader: Story = {};
 
 /** A mid-table row. The record column is `hidden sm:table-cell`, so narrow the canvas to see it go. */
 export const MidTable: Story = {
-  args: { row: STANDINGS[6], position: 7, index: 6 },
+  args: { row: STANDINGS[6]!, index: 6 },
 };
 
 /** Still qualifying: no position yet, because standings only rank players past the threshold. */
 export const Qualifying: Story = {
   args: {
-    row: STANDINGS[STANDINGS.length - 1],
-    position: null,
+    row: STANDINGS[STANDINGS.length - 1]!,
     index: STANDINGS.length - 1,
   },
 };
 
 /** The whole table, which is where a row's alignment actually has to hold. */
 export const Standings: Story = {
-  render: () => (
+  render: (args) => (
     <>
       {STANDINGS.map((row, index) => (
         <LeaderboardRow
-          key={row.puuid}
+          key={row.key}
           row={row}
-          position={row.position}
           index={index}
+          qualificationMatches={args.qualificationMatches}
         />
       ))}
     </>

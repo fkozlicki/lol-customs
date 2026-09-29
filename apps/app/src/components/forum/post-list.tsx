@@ -2,6 +2,7 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
+import { PostCard } from "@v1/ui/recipes/forum/post-card";
 import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-list-skeleton";
 import { Icons } from "@v1/ui/recipes/icons";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
@@ -9,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/components/auth/user-context";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { PostCard } from "./post-card";
+import { toPostCardView } from "./post-view";
 
 export function PostList() {
   const { profile, openSignInDialog } = useUser();
@@ -63,7 +64,7 @@ export function PostList() {
 
       <div className="divide-y">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={toPostCardView(post)} />
         ))}
       </div>
 

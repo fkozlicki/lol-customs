@@ -26,12 +26,31 @@ export default {
     unranked: "Unranked",
     expand: "Show match details",
   },
+  standings: {
+    best: "Best",
+    podiumQualifying: "Qualifying in progress",
+    podiumQualifyingHint:
+      "The podium fills up once players reach {count} matches.",
+    historyLabel: "After match",
+    historyLive: "Live",
+  },
+  nav: {
+    more: "More",
+  },
+  download: {
+    button: "Download Derby Sync",
+    title: "Download Derby Sync",
+    description: "Choose the format you prefer.",
+    installerExe: "Installer (.exe)",
+    zipPortable: "ZIP (portable)",
+  },
   season: {
     emptyPlayerTitle: "No games in Season {number}",
     emptyPlayerDescription: "This player has not played in this season yet.",
     showAllTime: "Show all seasons",
   },
   forum: {
+    unknownAuthor: "Unknown",
     sensitiveContent: {
       title: "Sensitive content",
       description: "This image may contain adult content.",

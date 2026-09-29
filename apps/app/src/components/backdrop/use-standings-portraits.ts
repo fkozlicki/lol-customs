@@ -1,19 +1,11 @@
 "use client";
 
 import { useQueries, useQuery } from "@tanstack/react-query";
+import type { Portrait } from "@v1/ui/recipes/backdrop/halftone-portraits";
 import { CHAMPIONS } from "@v1/ui/recipes/game-assets/champions";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
 import { resolveSeason } from "@/utils/season";
-
-export interface Portrait {
-  /** Data Dragon id: the square image's name without `.png`. */
-  championId: string;
-  championName: string;
-  playerName: string | null;
-  /** Place in the standings; null for a player not yet qualified. */
-  position: number | null;
-}
 
 /** How far down the standings the portraits go. */
 const STANDINGS = 5;

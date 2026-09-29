@@ -1,40 +1,30 @@
 "use client";
 
-import type { RouterOutputs } from "@v1/api";
-import { QUALIFICATION_MATCHES } from "@v1/api/season";
-import { playerHref } from "@v1/domain/riot-id";
-import { formatKda, formatKdaRatio, formatWinrate } from "@v1/domain/stats";
-import { cn } from "@v1/ui/cn";
-import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
-import CurrentStreak from "@v1/ui/recipes/home/current-streak";
-import { DURATION, STAGGER } from "@v1/ui/recipes/motion";
-import { WinLoss } from "@v1/ui/recipes/win-loss";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { useScopedI18n } from "@/locales/client";
-import { withSeason } from "@/utils/season";
-
-type LeaderboardRow = RouterOutputs["riftRank"]["leaderboard"][number];
+import { cn } from "../../utils/cn";
+import { ProfileIcon } from "../game-assets/profile-icon";
+import { useRecipesI18n } from "../i18n/i18n";
+import { DURATION, STAGGER } from "../motion";
+import { WinLoss } from "../win-loss";
+import CurrentStreak from "./current-streak";
+import type { StandingsRowView } from "./standings-view";
 
 interface LeaderboardRowProps {
-  row: LeaderboardRow;
-  /** Standings position; absent while the player is still qualifying. */
-  position?: number | null;
+  row: StandingsRowView;
+  /** Position in the table, for the stagger as rows enter. */
   index: number;
+  /** How many matches qualify a player; the app's rule, drawn as the progress of a qualifying row. */
+  qualificationMatches: number;
 }
 
 export default function LeaderboardRow({
   row,
-  position,
   index,
+  qualificationMatches,
 }: LeaderboardRowProps) {
-  const t = useScopedI18n("dashboard.pages.leaderboard");
-  const season = useSeasonParam();
-
-  const name = row.player?.game_name ?? row.puuid.slice(0, 8);
-  const wins = row.wins ?? 0;
-  const losses = row.losses ?? 0;
+  const t = useRecipesI18n("standings");
+  const { position, name, wins, losses } = row;
   const isQualifying = position == null;
 
   return (
@@ -50,7 +40,10 @@ export default function LeaderboardRow({
     >
       <td className="h-14 pl-4 pr-3 sm:pl-0">
         {isQualifying ? (
-          <QualifyingProgress matches={row.matches_played} />
+          <QualifyingProgress
+            matches={row.matchesPlayed}
+            of={qualificationMatches}
+          />
         ) : (
           <span
             className={cn(
@@ -65,15 +58,9 @@ export default function LeaderboardRow({
         )}
       </td>
       <td className="px-3">
-        <Link
-          href={withSeason(
-            playerHref(row.player?.game_name, row.player?.tag_line),
-            season,
-          )}
-          className="flex min-w-0 items-center gap-3"
-        >
+        <Link href={row.href} className="flex min-w-0 items-center gap-3">
           <ProfileIcon
-            iconId={row.player?.profile_icon ?? null}
+            iconId={row.iconId}
             name={name}
             fallbackChars={1}
             avatarClassName="size-8 rounded-none"
@@ -91,11 +78,11 @@ export default function LeaderboardRow({
             isQualifying && "font-normal text-muted-foreground",
           )}
         >
-          {Math.round(row.rating ?? 0)}
+          {row.rating}
         </span>
       </td>
       <td className="num px-3 text-right text-muted-foreground">
-        {formatWinrate(wins, losses)}
+        {row.winrate}
       </td>
       <td className="hidden px-3 text-right sm:table-cell">
         <div className="num flex flex-col items-end leading-tight">
@@ -105,39 +92,35 @@ export default function LeaderboardRow({
       </td>
       <td className="hidden px-3 text-right md:table-cell">
         <div className="num flex flex-col items-end leading-tight">
-          <span>
-            {formatKdaRatio(row.avg_kills, row.avg_deaths, row.avg_assists)}
-          </span>
-          <span className="text-[11px] text-muted-foreground">
-            {formatKda(row.avg_kills, row.avg_deaths, row.avg_assists)}
-          </span>
+          <span>{row.kdaRatio}</span>
+          <span className="text-[11px] text-muted-foreground">{row.kda}</span>
         </div>
       </td>
       <td
         className={cn(
           "num hidden px-3 text-right md:table-cell",
-          row.mvp_games ? "text-mvp" : "text-muted-foreground",
+          row.mvpGames ? "text-mvp" : "text-muted-foreground",
         )}
       >
-        {row.mvp_games ?? 0}
+        {row.mvpGames}
       </td>
       <td
         className={cn(
           "num hidden px-3 text-right md:table-cell",
-          row.ace_games ? "text-ace" : "text-muted-foreground",
+          row.aceGames ? "text-ace" : "text-muted-foreground",
         )}
       >
-        {row.ace_games ?? 0}
+        {row.aceGames}
       </td>
       <td className="hidden pl-3 pr-4 text-right sm:table-cell sm:pr-0">
         <div className="flex flex-col items-end leading-tight">
           <CurrentStreak
-            winStreak={row.win_streak}
-            loseStreak={row.lose_streak}
+            winStreak={row.winStreak}
+            loseStreak={row.loseStreak}
           />
-          {row.best_streak ? (
+          {row.bestStreak ? (
             <span className="num text-[11px] text-muted-foreground">
-              {t("tableBest")} {row.best_streak}
+              {t("best")} {row.bestStreak}
             </span>
           ) : null}
         </div>
@@ -146,14 +129,14 @@ export default function LeaderboardRow({
   );
 }
 
-function QualifyingProgress({ matches }: { matches: number }) {
+function QualifyingProgress({ matches, of }: { matches: number; of: number }) {
   return (
     <div className="flex flex-col gap-1">
       <span className="num text-[11px] text-muted-foreground">
-        {matches}/{QUALIFICATION_MATCHES}
+        {matches}/{of}
       </span>
       <div className="flex gap-0.5">
-        {Array.from({ length: QUALIFICATION_MATCHES }).map((_, i) => (
+        {Array.from({ length: of }).map((_, i) => (
           <span
             key={i}
             className={cn(

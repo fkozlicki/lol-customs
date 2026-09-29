@@ -36,18 +36,11 @@ export default {
       auctions: "Auctions",
       posts: "Forum",
       tools: "Tools",
-      more: "More",
       downloadDesktopApp: "Download Derby Sync",
     },
     footer: {
       riotNotice:
         "Derby isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
-    },
-    download: {
-      title: "Download Derby Sync",
-      description: "Choose the format you prefer.",
-      installerExe: "Installer (.exe)",
-      zipPortable: "ZIP (portable)",
     },
     preferences: {
       menuLabel: "Account and settings",
@@ -118,19 +111,13 @@ export default {
         tableMvp: "MVP",
         tableAce: "ACE",
         tableStreak: "Streak",
-        tableBest: "Best",
-        historyLive: "Live",
         afterGames: "After {count} games",
         rank1st: "1st",
         rank2nd: "2nd",
         rank3rd: "3rd",
         tableMatches: "Matches",
-        historyLabel: "After match",
         qualifyingTitle: "Qualifying",
         qualifyingHint: "Ranked after {count} matches",
-        podiumQualifying: "Qualifying in progress",
-        podiumQualifyingHint:
-          "The podium fills up once players reach {count} matches.",
         noMatchesYet: "No matches in this season yet.",
       },
       matchHistory: {

@@ -1,21 +1,14 @@
 "use client";
 
-import type { RouterOutputs } from "@v1/api";
-import { QUALIFICATION_MATCHES } from "@v1/api/season";
-import { playerHref } from "@v1/domain/riot-id";
-import { formatWinrate } from "@v1/domain/stats";
-import { cn } from "@v1/ui/cn";
-import { AnimatedNumber } from "@v1/ui/recipes/animated-number";
-import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
-import { DURATION } from "@v1/ui/recipes/motion";
-import { WinLoss } from "@v1/ui/recipes/win-loss";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { useScopedI18n } from "@/locales/client";
-import { withSeason } from "@/utils/season";
-
-type StandingsRow = RouterOutputs["riftRank"]["leaderboard"][number];
+import { cn } from "../../utils/cn";
+import { AnimatedNumber } from "../animated-number";
+import { ProfileIcon } from "../game-assets/profile-icon";
+import { useRecipesI18n } from "../i18n/i18n";
+import { DURATION } from "../motion";
+import { WinLoss } from "../win-loss";
+import type { StandingsRowView } from "./standings-view";
 
 /** Visual order on the podium: second, first, third. */
 const PODIUM_ORDER = [1, 0, 2] as const;
@@ -25,9 +18,19 @@ const BLOCK_HEIGHT = ["h-28 sm:h-44", "h-20 sm:h-32", "h-14 sm:h-24"] as const;
 /** Rises 3rd, then 2nd, then 1st. */
 const RISE_DELAY = [0.24, 0.12, 0] as const;
 
-export function SeasonPodium({ rows }: { rows: StandingsRow[] }) {
-  const t = useScopedI18n("dashboard.pages.leaderboard");
-  const podium = rows.filter((row) => row.qualified).slice(0, 3);
+interface SeasonPodiumProps {
+  /** The standings in order; the first three with a position stand on the podium. */
+  rows: StandingsRowView[];
+  /** How many matches qualify a player, for the note while a step is still empty. */
+  qualificationMatches: number;
+}
+
+export function SeasonPodium({
+  rows,
+  qualificationMatches,
+}: SeasonPodiumProps) {
+  const t = useRecipesI18n("standings");
+  const podium = rows.filter((row) => row.position != null).slice(0, 3);
 
   return (
     <div>
@@ -42,7 +45,7 @@ export function SeasonPodium({ rows }: { rows: StandingsRow[] }) {
             {t("podiumQualifying")}
           </span>
           <span className="text-sm text-muted-foreground">
-            {t("podiumQualifyingHint", { count: QUALIFICATION_MATCHES })}
+            {t("podiumQualifyingHint", { count: qualificationMatches })}
           </span>
         </div>
       )}
@@ -55,16 +58,11 @@ function PodiumPlace({
   row,
 }: {
   place: number;
-  row: StandingsRow | undefined;
+  row: StandingsRowView | undefined;
 }) {
-  const season = useSeasonParam();
   const isFirst = place === 0;
   const riseDelay = RISE_DELAY[place] ?? 0;
   const contentDelay = riseDelay + DURATION.slow;
-
-  const name = row?.player?.game_name ?? row?.puuid.slice(0, 8) ?? "?";
-  const wins = row?.wins ?? 0;
-  const losses = row?.losses ?? 0;
 
   return (
     <div className="flex min-w-0 flex-col">
@@ -80,15 +78,12 @@ function PodiumPlace({
       >
         {row ? (
           <Link
-            href={withSeason(
-              playerHref(row.player?.game_name, row.player?.tag_line),
-              season,
-            )}
+            href={row.href}
             className="group flex min-w-0 max-w-full flex-col items-start gap-2 sm:gap-3"
           >
             <ProfileIcon
-              iconId={row.player?.profile_icon ?? null}
-              name={name}
+              iconId={row.iconId}
+              name={row.name}
               fallbackChars={1}
               avatarClassName={cn(
                 "rounded-none",
@@ -102,7 +97,7 @@ function PodiumPlace({
                 isFirst ? "text-sm sm:text-lg" : "text-xs sm:text-base",
               )}
             >
-              {name}
+              {row.name}
             </span>
           </Link>
         ) : (
@@ -119,7 +114,7 @@ function PodiumPlace({
         <div className="flex flex-col">
           {row ? (
             <AnimatedNumber
-              value={Math.round(row.rating ?? 0)}
+              value={row.rating}
               from={1000}
               delay={contentDelay}
               className={cn(
@@ -139,8 +134,7 @@ function PodiumPlace({
           )}
           {row && (
             <span className="num mt-2 text-[11px] text-muted-foreground sm:text-xs">
-              <WinLoss wins={wins} losses={losses} /> ·{" "}
-              {formatWinrate(wins, losses)}
+              <WinLoss wins={row.wins} losses={row.losses} /> · {row.winrate}
             </span>
           )}
         </div>

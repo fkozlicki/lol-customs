@@ -1,34 +1,31 @@
 "use client";
 
-import type { RouterOutputs } from "@v1/api";
-import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
-import { Icons } from "@v1/ui/recipes/icons";
 import Link from "next/link";
-import { useScopedI18n } from "@/locales/client";
-import { postExcerpt, type TipTapNode } from "@/utils/post-excerpt";
+import { useRecipesI18n } from "../i18n/i18n";
+import { Icons } from "../icons";
+import { AuthorLine } from "./author-line";
+import type { PostCardView } from "./post-view";
 
-type Post = RouterOutputs["forum"]["posts"]["list"]["items"][number];
-
-export function PostCard({ post }: { post: Post }) {
-  const t = useScopedI18n("dashboard.pages.posts");
-  const author = Array.isArray(post.author) ? post.author[0] : post.author;
+/** A post in the forum list: who and when, the title, an excerpt, and its counts. */
+export function PostCard({ post }: { post: PostCardView }) {
+  const t = useRecipesI18n("forum");
 
   return (
     <article>
-      <Link href={`/posts/${post.id}`} className="group block space-y-3 py-6">
+      <Link href={post.href} className="group block space-y-3 py-6">
         <AuthorLine
-          name={author?.nickname ?? t("unknown")}
-          avatarUrl={author?.avatar_url}
-          date={post.created_at}
+          name={post.authorName ?? t("unknownAuthor")}
+          avatarUrl={post.avatarUrl}
+          date={post.createdAt}
         />
 
         <h2 className="text-2xl font-semibold leading-tight tracking-[-0.02em] underline-offset-4 group-hover:underline">
           {post.title}
         </h2>
 
-        {post.content && Object.keys(post.content).length > 0 && (
+        {post.excerpt && (
           <p className="line-clamp-2 max-w-2xl text-sm text-muted-foreground">
-            {postExcerpt(post.content as TipTapNode)}
+            {post.excerpt}
           </p>
         )}
 

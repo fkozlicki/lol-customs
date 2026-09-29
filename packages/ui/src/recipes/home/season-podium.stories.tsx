@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { SeasonPodium } from "./season-podium";
-import { STANDINGS } from "./standings.fixtures";
+import { QUALIFICATION_MATCHES, STANDINGS } from "./standings.fixtures";
 
 const meta = {
   title: "Home/Season podium",
   component: SeasonPodium,
   parameters: { layout: "padded" },
-  args: { rows: STANDINGS },
+  args: { rows: STANDINGS, qualificationMatches: QUALIFICATION_MATCHES },
 } satisfies Meta<typeof SeasonPodium>;
 
 export default meta;

@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { BackdropPortraits } from "./backdrop";
+import type { Meta, StoryObj } from "@storybook/react";
+import { BackdropPortraits } from "./backdrop-portraits";
 
 /**
- * The backdrop behind every dashboard page. The standings come from tRPC in the app, so the story
- * draws the portraits for a fixed list. It needs a window at least 1280 px wide to look like the
+ * The backdrop behind every dashboard page. In the app the champions are the top five's mains; the
+ * story draws a fixed list. It needs a window at least 1280 px wide to look like the
  * app, where a gutter exists beside the content column; narrower, the portrait fades under it.
  * The art is Riot's, loaded from Data Dragon, so the story needs a connection.
  */

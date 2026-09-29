@@ -24,12 +24,31 @@ export default {
     unranked: "Bez rangi",
     expand: "Pokaż szczegóły meczu",
   },
+  standings: {
+    best: "Rekord",
+    podiumQualifying: "Kwalifikacje trwają",
+    podiumQualifyingHint:
+      "Podium zapełni się, gdy gracze rozegrają {count} meczów.",
+    historyLabel: "Po meczu",
+    historyLive: "Live",
+  },
+  nav: {
+    more: "Więcej",
+  },
+  download: {
+    button: "Pobierz Derby Sync",
+    title: "Pobierz Derby Sync",
+    description: "Wybierz preferowany format.",
+    installerExe: "Instalator (.exe)",
+    zipPortable: "ZIP (przenośna)",
+  },
   season: {
     emptyPlayerTitle: "Brak gier w Sezonie {number}",
     emptyPlayerDescription: "Ten gracz nie zagrał jeszcze w tym sezonie.",
     showAllTime: "Pokaż wszystkie sezony",
   },
   forum: {
+    unknownAuthor: "Nieznany",
     sensitiveContent: {
       title: "Wrażliwa treść",
       description: "Ten obraz może zawierać treści dla dorosłych.",

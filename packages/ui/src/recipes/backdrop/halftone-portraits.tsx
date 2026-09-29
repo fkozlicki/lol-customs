@@ -1,9 +1,9 @@
 "use client";
 
-import { championLoadingArtUrl } from "@v1/ui/recipes/game-assets/asset-urls";
 import { useReducedMotion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
+import { championLoadingArtUrl } from "../game-assets/asset-urls";
 import {
   analyse,
   type Dot,
@@ -16,7 +16,16 @@ import {
   screen,
   UNDER_COLUMN,
 } from "./halftone";
-import type { Portrait } from "./use-standings-portraits";
+
+/** One champion to draw, and who it stands for. */
+export interface Portrait {
+  /** Data Dragon id: the square image's name without `.png`. */
+  championId: string;
+  championName: string;
+  playerName: string | null;
+  /** Place in the standings; null for a player not yet qualified. */
+  position: number | null;
+}
 
 /** Alternates sides so consecutive portraits never land in the same gutter. */
 const SLOTS: Slot[] = [
