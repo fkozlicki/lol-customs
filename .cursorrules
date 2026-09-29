@@ -107,7 +107,7 @@ If requirements are unclear, ask for clarification instead of guessing.
 
 ## Next.js (apps/app)
 
-- **Routing**: `[locale]` with next-international (e.g. `en`, `fr`). Route groups: `(dashboard)`, `(public)`.
+- **Routing**: `[locale]` with next-intl (`en`, `pl`), never shown in the URL: `src/proxy.ts` rewrites to it (`src/i18n/routing.ts`). Route groups: `(dashboard)`, `(public)`.
 - **Data in pages**: Prefer **Server Components**. Use `prefetch(trpc.router.procedure.queryOptions())` (and optionally with args), then wrap children in `<HydrateClient>` so client components can use the same data.
 - **Client data**: In client components use `useTRPC()` and `useSuspenseQuery(trpc.router.procedure.queryOptions())`. Keep **Suspense** boundaries with a domain-specific fallback (e.g. `<TableSkeleton />`, `<RoomsListSkeleton />`).
 - **Params**: In Next 15+, params are a Promise: `const { id } = await params;`.
@@ -140,7 +140,7 @@ If requirements are unclear, ask for clarification instead of guessing.
 ## UI & Styling
 
 - **Components**: Use **Shadcn UI** from `@v1/ui/*` (e.g. `@v1/ui/button`, `@v1/ui/sheet`, `@v1/ui/form`, `@v1/ui/table`). Do not duplicate these in the app.
-- **Recipes**: Anything visual that knows Derby goes in `packages/ui/src/recipes` and takes plain props — no tRPC types, `@v1/domain`, `nuqs`, `next/navigation` or `@/`. The app keeps a container (queries, URL state) and a mapper (`toMatchCardView`, …) that formats with `@v1/domain`. A recipe's strings go in `packages/ui/src/recipes/i18n/` and are read with `useRecipesI18n`. See `packages/ui/README.md`.
+- **Recipes**: Anything visual that knows Derby goes in `packages/ui/src/recipes` and takes plain props — no tRPC types, `@v1/domain`, `nuqs`, `next/navigation` or `@/`. The app keeps a container (queries, URL state) and a mapper (`toMatchCardView`, …) that formats with `@v1/domain`. A recipe's strings go in `packages/ui/src/recipes/messages/` and are read with next-intl's `useTranslations`, like the app's. See `packages/ui/README.md`.
 - **Styling**: **Tailwind CSS** only. Use `cn()` from `@v1/ui/cn` for conditional classes.
 - **Icons**: Use `Icons` from `@v1/ui/recipes/icons` — the shared set from `@v1/ui/icons` plus Derby's names (e.g. `Icons.Leaderboard`, `Icons.Auction`).
 - **Theme**: Support light/dark via `next-themes`; use semantic tokens (e.g. `text-muted-foreground`) where available.

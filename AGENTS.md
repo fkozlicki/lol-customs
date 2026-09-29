@@ -18,7 +18,7 @@ See [README.md](README.md) for setup.
 - `apps/lcu`: **Derby Sync**, the Electron app (still built and shown as "Niunio") that reads custom games from the League client and writes them
   straight into Supabase tables. Distributed as an installer to non-technical users.
 - `apps/api`: the Supabase project: migrations, pgTAP tests, config. Not the tRPC server.
-- `apps/app`: Next.js dashboard (next-international with `en` and `pl`, tRPC, Supabase auth): pages,
+- `apps/app`: Next.js dashboard (next-intl with `en` and `pl`, tRPC, Supabase auth): pages,
   containers and mappers. Everything visual comes from `packages/ui`.
 - `apps/storybook`: the one Storybook, with every story in `stories/`. It renders `packages/ui`,
   through its exports, and nothing else.
@@ -71,8 +71,10 @@ by tests in the app.
 ## Conventions
 
 - Code, comments, commit messages and docs are in English. Every user-facing string goes into both
-  `en.ts` and `pl.ts`: a string a recipe renders into `packages/ui/src/recipes/i18n/`, any other into
-  `apps/app/src/locales/`.
+  `en.ts` and `pl.ts`: a string a recipe renders into `packages/ui/src/recipes/messages/`, any other into
+  `apps/app/src/locales/`. The app spreads both into one next-intl dictionary, so a new top-level key
+  cannot reuse a name from the other side (ADR 0005); everything reads it through `useTranslations` or
+  `getTranslations`.
 - Some code still uses names from before the glossary: Riot-derived `game_*` columns describe a
   **Match**. Riot's `season_id` is not the ladder season.
 - Imports: `@v1/*` across packages, `@/` inside `apps/app`. Never use relative paths between packages.

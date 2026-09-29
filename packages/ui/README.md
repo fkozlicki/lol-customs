@@ -36,16 +36,19 @@ Biome's `noRestrictedImports` enforces all of that for `src/**`. What a recipe m
 
 ### Strings
 
-A recipe renders its own strings from `src/recipes/i18n/`: `en.ts`, and `pl.ts`, which must have the
-same keys or typecheck fails. Keys are named after what they name (`match.mvp`), not after the page
-that first showed them. Call `useRecipesI18n("match")`, which works like the app's `useScopedI18n`:
-dotted scopes, `{param}` placeholders, a React element allowed as a param. `useRecipesLocale()` gives
-the locale for date-fns and number formats.
+A recipe's strings live in `src/recipes/messages/`: `en.ts`, and `pl.ts`, which must have the same keys
+or typecheck fails. Keys are named after what they name (`match.mvp`), not after the page that first
+showed them. A recipe reads them with next-intl — `useTranslations("match")`, and `useLocale()` for
+date-fns and number formats — imported from `next-intl`, a peer dependency, so the package and the app
+share one copy and one context. Messages are ICU: `{param}` as usual, an apostrophe right before `{`
+starts quoted text, and React elements go through `t.rich`.
 
-The app mounts `RecipesI18nProvider` once with the route's locale; Storybook mounts it with the
-toolbar's. It is not a second next-international client, because next-international caches dictionaries
-per module by locale alone, so a second client would read the app's (ADR 0004). The app's own strings
-stay in `apps/app/src/locales` and do not repeat these.
+There is one runtime and one provider (ADR 0005). The app spreads these messages beside its own into
+the dictionary its `NextIntlClientProvider` serves (`apps/app/src/i18n/messages.ts`), and Storybook
+serves them alone. The spread is flat, so a new top-level key here must not reuse a name the app
+already has; `compose` in that file makes a clash a compile error. For typed keys when this package is
+checked on its own, `messages/app-config.d.ts` declares the recipes' part; nothing imports it, so it
+never meets the app's declaration of the whole.
 
 ## Derby Sync
 

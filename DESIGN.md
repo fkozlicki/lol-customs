@@ -30,7 +30,7 @@ loops, nothing slides. The data is the decoration.
 8. **Animate state changes and arriving data, nothing else.** 150–400 ms, one easing curve
    (`--ease-derby` / `EASE`), no loops, no scroll-triggered effects. `MotionProvider` sets
    `reducedMotion="user"`, so respect it rather than working around it.
-9. **Every user-facing string is in both locales.** A recipe's in `packages/ui/src/recipes/i18n/`,
+9. **Every user-facing string is in both locales.** A recipe's in `packages/ui/src/recipes/messages/`,
    the app's in `apps/app/src/locales/`, each with `en.ts` and `pl.ts`. A string typed into JSX is a
    bug in the Polish UI.
 10. **Phones get the same content.** Columns collapse, type shrinks, data does not disappear. Anything
