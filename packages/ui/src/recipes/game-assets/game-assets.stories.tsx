@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { ChampionImage } from "./champion-image";
 import { ItemImage } from "./item-image";
 import { ProfileIcon } from "./profile-icon";

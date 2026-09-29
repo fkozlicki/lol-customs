@@ -23,8 +23,9 @@ a group of about thirty.
    Dragon version by `apps/app/scripts/generate-game-data.ts`, never from its moving `latest`.
 3. **They are Riot's files, as published — not redrawn.** Monochrome icons of our own would sit closer to
    DESIGN.md's graphite and paper; the owner chose Riot's.
-4. **The champion list is generated into the repository** (`apps/app/src/game-data/champions.ts`) rather
-   than downloaded at runtime, and the patch is fetched once an hour on the server.
+4. **The champion list is generated into the repository**
+   (`packages/ui/src/recipes/game-assets/champions.ts`) rather than downloaded at runtime, and the patch
+   is fetched once an hour on the server.
 
 ## Why not a mirror
 
@@ -42,4 +43,5 @@ a group of about thirty.
 - Image optimisation runs on Vercel and counts against its limits; with patch-addressed URLs cached for a
   month, a group this size stays far inside them.
 - Revisit if Derby wants transforms `next/image` cannot do (op.gg's border crop), or if those limits start
-  to bite. Switching origin is a change to `apps/app/src/utils/asset-urls.ts` alone.
+  to bite. Switching origin is a change to `packages/ui/src/recipes/game-assets/asset-urls.ts`
+  alone.

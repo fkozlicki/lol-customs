@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@v1/ui/cn";
-import { ChampionImage } from "@/components/game-assets/champion-image";
+import { ChampionImage } from "@v1/ui/recipes/game-assets/champion-image";
 import { useScopedI18n } from "@/locales/client";
 import type { MatchParticipant } from "./match-history-list";
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@v1/ui/cn";
 import Image from "next/image";
-import { CHAMPIONS } from "@/game-data/champions";
-import { championImageUrl } from "@/utils/asset-urls";
+import { cn } from "../../utils/cn";
+import { championImageUrl } from "./asset-urls";
+import { CHAMPIONS } from "./champions";
 import { useGamePatch } from "./game-patch";
 
 interface ChampionImageProps {

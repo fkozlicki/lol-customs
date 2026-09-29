@@ -1,8 +1,8 @@
 "use client";
 
 import { useQueries, useQuery } from "@tanstack/react-query";
+import { CHAMPIONS } from "@v1/ui/recipes/game-assets/champions";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { CHAMPIONS } from "@/game-data/champions";
 import { useTRPC } from "@/trpc/react";
 import { resolveSeason } from "@/utils/season";
 

@@ -1,22 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   championLoadingArtUrl,
   objectiveIconUrl,
   positionRoleIconUrl,
   profileIconUrl,
   rankCrestUrl,
-  SELF_HOSTED_PATHS,
 } from "./asset-urls";
-
-const PUBLIC_DIR = join(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "..",
-  "..",
-  "public",
-);
 
 describe("champion loading art", () => {
   test("comes from Data Dragon by champion id, with no patch in the path", () => {
@@ -39,7 +28,7 @@ describe("profile icons", () => {
 });
 
 describe("rank crests", () => {
-  test("are served from the app, by tier, in any case", () => {
+  test("are served from the app's public/, by tier, in any case", () => {
     expect(rankCrestUrl("GOLD")).toBe("/game/ranks/gold.svg");
     expect(rankCrestUrl("grandmaster")).toBe("/game/ranks/grandmaster.svg");
   });
@@ -71,29 +60,5 @@ describe("objective icons", () => {
     expect(objectiveIconUrl("tower", "red")).toBe(
       "/game/objectives/tower-200.png",
     );
-  });
-});
-
-/**
- * The files are fetched by scripts/generate-game-data.ts from this same list. This is what keeps
- * code and disk honest: an icon cannot be added in code and forgotten in the download.
- */
-describe("self-hosted files", () => {
-  test("every path the module can produce exists in public/", () => {
-    const missing = SELF_HOSTED_PATHS.filter(
-      (path) => !existsSync(join(PUBLIC_DIR, path)),
-    );
-    expect(missing).toEqual([]);
-  });
-
-  test("lists each crest, role and objective once", () => {
-    // 10 tiers + unranked, 5 roles + the blank one, 5 objectives on 2 sides
-    expect(SELF_HOSTED_PATHS.length).toBe(11 + 6 + 10);
-    expect(new Set(SELF_HOSTED_PATHS).size).toBe(SELF_HOSTED_PATHS.length);
-  });
-
-  test("includes the fallbacks, which no real tier or role produces", () => {
-    expect(SELF_HOSTED_PATHS).toContain(rankCrestUrl(null));
-    expect(SELF_HOSTED_PATHS).toContain(positionRoleIconUrl("FILL"));
   });
 });

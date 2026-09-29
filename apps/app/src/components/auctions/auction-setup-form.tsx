@@ -9,11 +9,11 @@ import { Checkbox } from "@v1/ui/checkbox";
 import { Input } from "@v1/ui/input";
 import { Label } from "@v1/ui/label";
 import { Icons } from "@v1/ui/recipes/icons";
+import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 

@@ -1,6 +1,6 @@
-import { cn } from "@v1/ui/cn";
 import { cva, type VariantProps } from "class-variance-authority";
-import { RankCrest } from "@/components/game-assets/rank-crest";
+import { cn } from "../utils/cn";
+import { RankCrest } from "./game-assets/rank-crest";
 
 /**
  * A Solo/Duo rank crest with its label beside it.
@@ -27,7 +27,7 @@ const rankTag = cva("flex shrink-0 items-center", {
   defaultVariants: { size: "md" },
 });
 
-/** next/image wants numbers, so the crest sizes live beside the gaps rather than in the recipe. */
+/** next/image wants numbers, so the crest sizes live beside the gaps rather than in the variants. */
 const CREST_SIZE = { sm: 14, md: 16, lg: 18 } as const;
 
 interface RankTagProps extends VariantProps<typeof rankTag> {

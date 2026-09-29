@@ -1,4 +1,4 @@
-import { ItemImage } from "@/components/game-assets/item-image";
+import { ItemImage } from "@v1/ui/recipes/game-assets/item-image";
 import type { RawParticipant } from "./match-history-list";
 
 interface MatchParticipantItemsProps {

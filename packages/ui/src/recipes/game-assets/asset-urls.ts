@@ -1,15 +1,15 @@
 /**
- * Every game asset URL in the app, in one place.
+ * Every game asset URL, in one place.
  *
  * Two kinds. Champion, item, spell and profile-icon art comes from Data Dragon, Riot's authorised
  * source, addressed by patch so a URL never changes what it points at; `next/image` resizes and
  * re-encodes it and serves it from our own domain. Rank crests, role icons and objective icons are
- * a small fixed set, self-hosted under `public/game/` by `scripts/generate-game-data.ts`.
+ * a small fixed set, self-hosted under the app's `public/game/` by
+ * `apps/app/scripts/generate-game-data.ts`; Storybook serves the same folder at the same path.
  *
  * Keeping every URL behind these functions means moving any of them to another origin later is a
  * change to this file alone.
  */
-import type { TeamRole } from "@v1/domain/shuffle";
 
 const DD_BASE = "https://ddragon.leagueoflegends.com";
 
@@ -57,14 +57,20 @@ const RANK_TIERS = new Set([
   "challenger",
 ]);
 
-/** Each role a drawn team fills, named the way Riot's position-selector icons are. */
+/**
+ * Each role a drawn team fills, named the way Riot's position-selector icons are. The keys are the
+ * roles `@v1/domain` draws; the app's test checks the two lists agree, since this package cannot
+ * import the domain (ADR 0004).
+ */
 const ROLE_FILES = {
   TOP: "top",
   JUNGLE: "jungle",
   MID: "middle",
   ADC: "bottom",
   SUPPORT: "utility",
-} as const satisfies Record<TeamRole, string>;
+} as const;
+
+type Role = keyof typeof ROLE_FILES;
 
 export const OBJECTIVES = [
   "baron",
@@ -86,7 +92,7 @@ export function rankCrestUrl(tier: string | null): string {
 
 /** Takes a plain string because roles arrive from stored data; anything unknown is the blank icon. */
 export function positionRoleIconUrl(role: string): string {
-  const file = ROLE_FILES[role as TeamRole] ?? "none";
+  const file = ROLE_FILES[role as Role] ?? "none";
   return `/game/roles/${file}.png`;
 }
 
@@ -95,9 +101,9 @@ export function objectiveIconUrl(objective: Objective, side: Side): string {
 }
 
 /**
- * Every path under `public/` the functions above can return, produced by calling them — so the
+ * Every path under the app's `public/` the functions above can return, produced by calling them — so the
  * list cannot drift from what components actually ask for. The generator downloads exactly these,
- * and a test checks each one is on disk.
+ * and the app's test checks each one is on disk.
  */
 export const SELF_HOSTED_PATHS: readonly string[] = [
   ...[...RANK_TIERS, null].map(rankCrestUrl),

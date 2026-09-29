@@ -45,6 +45,8 @@
     "./label": "./src/components/label.tsx",
     "./progress": "./src/components/progress.tsx",
     "./recipes/*": "./src/recipes/*.tsx",
+    "./recipes/game-assets/asset-urls": "./src/recipes/game-assets/asset-urls.ts",
+    "./recipes/game-assets/champions": "./src/recipes/game-assets/champions.ts",
     "./recipes/i18n": "./src/recipes/i18n/i18n.tsx",
     "./recipes/icons": "./src/recipes/icons.ts",
     "./recipes/motion": "./src/recipes/motion.ts",

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CHAMPIONS } from "@/game-data/champions";
+import { CHAMPIONS } from "@v1/ui/recipes/game-assets/champions";
 import { FACES } from "./faces";
 import {
   CELL,

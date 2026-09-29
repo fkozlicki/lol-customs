@@ -2,8 +2,8 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ALL_TIME_SEASON } from "@v1/api/season";
+import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
 import { Suspense } from "react";
-import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useTRPC } from "@/trpc/react";
 import { PlayerSoloRank } from "./player-solo-rank";
 

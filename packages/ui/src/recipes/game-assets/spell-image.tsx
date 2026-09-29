@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { spellImageUrl } from "@/utils/asset-urls";
+import { spellImageUrl } from "./asset-urls";
 import { useGamePatch } from "./game-patch";
 
 const SPELL_ID_TO_KEY: Record<number, string> = {

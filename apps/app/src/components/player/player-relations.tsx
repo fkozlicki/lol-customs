@@ -3,11 +3,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { RouterOutputs } from "@v1/api";
 import { playerHref } from "@v1/domain/riot-id";
+import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
 import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { withSeason } from "@/utils/season";

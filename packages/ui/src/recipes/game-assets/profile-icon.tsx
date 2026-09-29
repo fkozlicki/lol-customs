@@ -1,9 +1,9 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
-import { cn } from "@v1/ui/cn";
 import { getImageProps } from "next/image";
-import { profileIconUrl } from "@/utils/asset-urls";
+import { Avatar, AvatarFallback, AvatarImage } from "../../components/avatar";
+import { cn } from "../../utils/cn";
+import { profileIconUrl } from "./asset-urls";
 import { useGamePatch } from "./game-patch";
 
 /**

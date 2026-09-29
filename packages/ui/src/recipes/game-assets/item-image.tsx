@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@v1/ui/cn";
 import Image from "next/image";
-import { itemImageUrl } from "@/utils/asset-urls";
+import { cn } from "../../utils/cn";
+import { itemImageUrl } from "./asset-urls";
 import { useGamePatch } from "./game-patch";
 
 interface ItemImageProps {

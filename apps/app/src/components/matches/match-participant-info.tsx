@@ -1,11 +1,11 @@
 "use client";
 
 import { formatRank } from "@v1/domain/rank";
+import { ChampionImage } from "@v1/ui/recipes/game-assets/champion-image";
+import { SpellImage } from "@v1/ui/recipes/game-assets/spell-image";
+import { RankTag } from "@v1/ui/recipes/rank-tag";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { ChampionImage } from "@/components/game-assets/champion-image";
-import { SpellImage } from "@/components/game-assets/spell-image";
-import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 import type { MatchParticipant, RawParticipant } from "./match-history-list";

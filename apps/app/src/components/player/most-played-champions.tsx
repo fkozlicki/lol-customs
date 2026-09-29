@@ -2,9 +2,9 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatKda, formatWinrate } from "@v1/domain/stats";
+import { ChampionImage } from "@v1/ui/recipes/game-assets/champion-image";
 import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
-import { ChampionImage } from "@/components/game-assets/champion-image";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 

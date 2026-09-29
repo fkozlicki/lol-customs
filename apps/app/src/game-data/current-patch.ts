@@ -1,4 +1,4 @@
-import { GENERATED_PATCH } from "./champions";
+import { GENERATED_PATCH } from "@v1/ui/recipes/game-assets/champions";
 
 /**
  * The latest Data Dragon patch, fetched once on the server and cached by Next for an hour.

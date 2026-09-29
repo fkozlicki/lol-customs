@@ -9,12 +9,12 @@ import { Input } from "@v1/ui/input";
 import { AuctionCountdown } from "@v1/ui/recipes/auctions/auction-countdown";
 import { Icons } from "@v1/ui/recipes/icons";
 import { PageShell } from "@v1/ui/recipes/page-shell";
+import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { Skeleton } from "@v1/ui/skeleton";
 import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { RankTag } from "@/components/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {

@@ -5,13 +5,13 @@ import { QUALIFICATION_MATCHES } from "@v1/api/season";
 import { playerHref } from "@v1/domain/riot-id";
 import { formatKda, formatKdaRatio, formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
+import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
 import CurrentStreak from "@v1/ui/recipes/home/current-streak";
 import { DURATION, STAGGER } from "@v1/ui/recipes/motion";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { ProfileIcon } from "@/components/game-assets/profile-icon";
 import { useScopedI18n } from "@/locales/client";
 import { withSeason } from "@/utils/season";
 

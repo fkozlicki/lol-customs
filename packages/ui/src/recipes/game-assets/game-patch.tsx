@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { GENERATED_PATCH } from "@/game-data/champions";
+import { GENERATED_PATCH } from "./champions";
 
 /**
  * The patch game images are drawn from. The dashboard layout provides the live one; anywhere

@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatRank } from "@v1/domain/rank";
-import { RankTag } from "@/components/rank-tag";
+import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
