@@ -12,9 +12,9 @@ import { Icons } from "@v1/ui/recipes/icons";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 /** A player in the pool; the rank is the last one recorded in a ladder match. */
@@ -50,7 +50,7 @@ export function AuctionSetupForm({
   onUpdated,
   onCancel,
 }: AuctionSetupFormProps) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const router = useRouter();
   const { profile, isLoading, openSignInDialog } = useUser();

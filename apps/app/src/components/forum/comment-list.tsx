@@ -4,8 +4,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
 import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
 import { TipTapRenderer } from "@v1/ui/recipes/forum/tiptap-renderer";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { CommentForm } from "./comment-form";
 import { CommentReactions } from "./comment-reactions";
@@ -15,7 +15,7 @@ interface CommentListProps {
 }
 
 export function CommentList({ postId }: CommentListProps) {
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
     trpc.forum.comments.list.queryOptions({ postId }),

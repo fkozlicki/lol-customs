@@ -12,15 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
 import { Icons } from "@v1/ui/recipes/icons";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { SUPPORTED_LOCALES } from "@/locales";
-import {
-  useChangeLocale,
-  useCurrentLocale,
-  useScopedI18n,
-} from "@/locales/client";
 import { useDownloadDialog } from "./use-download-dialog";
 
 const THEMES = ["system", "light", "dark"] as const;
@@ -28,11 +26,13 @@ const THEMES = ["system", "light", "dark"] as const;
 /** Account, theme, language and Derby Sync download behind one button. */
 export function AccountMenu() {
   const { profile, isLoading, openSignInDialog } = useUser();
-  const t = useScopedI18n("dashboard");
+  const t = useTranslations("dashboard");
   const [, setDownloadOpen] = useDownloadDialog();
   const { theme, setTheme } = useTheme();
-  const locale = useCurrentLocale();
-  const changeLocale = useChangeLocale({ preserveSearchParams: true });
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -102,7 +102,13 @@ export function AccountMenu() {
             <Segment
               key={option}
               active={locale === option}
-              onSelect={() => changeLocale(option)}
+              onSelect={() =>
+                // Same page, same query (the season stays): only the language changes.
+                router.replace(
+                  { pathname, query: Object.fromEntries(searchParams) },
+                  { locale: option },
+                )
+              }
             >
               {option}
             </Segment>

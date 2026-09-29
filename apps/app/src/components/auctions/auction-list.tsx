@@ -10,14 +10,14 @@ import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { useAuctionRealtime } from "./use-auction-realtime";
 
 export function AuctionList() {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const router = useRouter();
   const { profile, isLoading: userLoading, openSignInDialog } = useUser();

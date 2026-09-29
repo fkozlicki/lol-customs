@@ -1,4 +1,4 @@
-import { getScopedI18n } from "@/locales/server";
+import { getTranslations } from "next-intl/server";
 
 /**
  * The foot of every dashboard page. Its one job for now is Riot's attribution notice, which the
@@ -10,7 +10,7 @@ import { getScopedI18n } from "@/locales/server";
  * the width of the page. The bottom padding clears the fixed mobile navigation.
  */
 export async function SiteFooter() {
-  const t = await getScopedI18n("dashboard.footer");
+  const t = await getTranslations("dashboard.footer");
 
   return (
     <footer className="border-t">

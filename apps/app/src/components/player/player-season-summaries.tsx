@@ -5,7 +5,7 @@ import { formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import { SectionHeading } from "@v1/ui/recipes/page-header";
 import Link from "next/link";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "@/trpc/react";
 import { SEASON_PARAM, type SeasonOption } from "@/utils/season";
 
@@ -20,7 +20,7 @@ export function PlayerSeasonSummaries({
   season,
   seasons,
 }: PlayerSeasonSummariesProps) {
-  const t = useScopedI18n("dashboard.season");
+  const t = useTranslations("dashboard.season");
   const trpc = useTRPC();
   const { data: summaries } = useSuspenseQuery(
     trpc.players.seasonSummaries.queryOptions({ puuid }),

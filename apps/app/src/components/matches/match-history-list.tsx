@@ -4,15 +4,15 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
 import MatchHistoryCard from "@v1/ui/recipes/matches/match-history-card";
+import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { toMatchCardView } from "./match-view";
 
 export function MatchHistoryList({ season }: { season: number }) {
-  const t = useScopedI18n("dashboard.pages.matchHistory");
+  const t = useTranslations("dashboard.pages.matchHistory");
   const trpc = useTRPC();
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 

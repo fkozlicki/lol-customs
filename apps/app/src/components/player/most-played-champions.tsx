@@ -5,7 +5,7 @@ import { formatKda, formatWinrate } from "@v1/domain/stats";
 import { ChampionImage } from "@v1/ui/recipes/game-assets/champion-image";
 import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "@/trpc/react";
 
 interface MostPlayedChampionsProps {
@@ -17,7 +17,7 @@ export function MostPlayedChampions({
   puuid,
   season,
 }: MostPlayedChampionsProps) {
-  const t = useScopedI18n("dashboard.pages.player");
+  const t = useTranslations("dashboard.pages.player");
   const trpc = useTRPC();
   const { data: champions } = useSuspenseQuery(
     trpc.players.mostPlayedChampions.queryOptions({ puuid, season, limit: 5 }),

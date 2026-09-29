@@ -5,7 +5,7 @@ import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
 import { TipTapRenderer } from "@v1/ui/recipes/forum/tiptap-renderer";
 import { Icons } from "@v1/ui/recipes/icons";
 import Link from "next/link";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "@/trpc/react";
 import { CommentList } from "./comment-list";
 import { PostReactions } from "./post-reactions";
@@ -15,7 +15,7 @@ interface PostDetailProps {
 }
 
 export function PostDetails({ postId }: PostDetailProps) {
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const trpc = useTRPC();
   const { data: post } = useSuspenseQuery(
     trpc.forum.posts.get.queryOptions({ id: postId }),

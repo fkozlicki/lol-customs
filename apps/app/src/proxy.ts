@@ -1,17 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createI18nMiddleware } from "next-international/middleware";
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./locales";
+import createMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+import { SUPPORTED_LOCALES } from "./locales";
 import {
   isSeasonScopedPath,
   SEASON_COOKIE,
   SEASON_PARAM,
 } from "./utils/season";
 
-const I18nMiddleware = createI18nMiddleware({
-  locales: SUPPORTED_LOCALES,
-  defaultLocale: DEFAULT_LOCALE,
-  urlMappingStrategy: "rewrite",
-});
+const handleI18nRouting = createMiddleware(routing);
 
 const LOCALE_PREFIX = new RegExp(`^/(${SUPPORTED_LOCALES.join("|")})(?=/|$)`);
 
@@ -21,7 +18,7 @@ export function proxy(request: NextRequest) {
 
   const redirect = restoreRememberedSeason(request);
   if (redirect) return redirect;
-  return I18nMiddleware(request);
+  return handleI18nRouting(request);
 }
 
 /** The Rivalry page moved into player profiles. */

@@ -5,14 +5,14 @@ import {
   type NavItem,
 } from "@v1/ui/recipes/dashboard/mobile-nav";
 import { usePathname } from "next/navigation";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { withSeason } from "@/utils/season";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
 import { useNavSeason } from "./use-season-param";
 
 /** The phone's bottom bar, with the active tab from the pathname and the season on its links. */
 export function MobileNav() {
-  const t = useScopedI18n("dashboard");
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const season = useNavSeason();
 

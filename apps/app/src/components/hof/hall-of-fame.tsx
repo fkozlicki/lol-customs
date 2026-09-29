@@ -9,9 +9,9 @@ import { cn } from "@v1/ui/cn";
 import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
 import { Skeleton } from "@v1/ui/skeleton";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { ALL_TIME_PARAM, SEASON_PARAM, withSeason } from "@/utils/season";
 import {
@@ -26,7 +26,7 @@ type HofHolder = HallOfFameData[string][number];
 type HofPlayer = HofHolder["player"];
 
 export function HallOfFame({ season }: { season: number }) {
-  const t = useScopedI18n("dashboard.pages.hallOfFame");
+  const t = useTranslations("dashboard.pages.hallOfFame");
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
     trpc.riftRank.hallOfFame.queryOptions({ season }),
@@ -197,8 +197,8 @@ function TitleGrid({
 
 /** Early in a season nobody is qualified yet; point to a track that has titles instead of empty tables. */
 function HallOfFameEmpty({ season }: { season: number }) {
-  const t = useScopedI18n("dashboard.pages.hallOfFame");
-  const tSeason = useScopedI18n("dashboard.season");
+  const t = useTranslations("dashboard.pages.hallOfFame");
+  const tSeason = useTranslations("dashboard.season");
   const trpc = useTRPC();
   const { data: seasons } = useSuspenseQuery(trpc.seasons.list.queryOptions());
   const index = seasons.findIndex((s) => s.id === season);
@@ -236,7 +236,7 @@ function HallOfFameEmpty({ season }: { season: number }) {
 
 /** Who collects the most best and the most worst titles: the page's opening story. */
 function TitleCounts({ data }: { data: HallOfFameData }) {
-  const t = useScopedI18n("dashboard.pages.hallOfFame");
+  const t = useTranslations("dashboard.pages.hallOfFame");
 
   const counts = new Map<
     string,
@@ -337,8 +337,8 @@ function TitleCell({
   holders: HofHolder[];
   className?: string;
 }) {
-  const t = useScopedI18n("dashboard.pages.hallOfFame");
-  const locale = useCurrentLocale();
+  const t = useTranslations("dashboard.pages.hallOfFame");
+  const locale = useLocale();
   const holder = holders[0];
   const toneClass =
     entry.id === "mvp" ? "text-mvp" : entry.id === "ace" ? "text-ace" : null;

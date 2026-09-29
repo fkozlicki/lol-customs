@@ -11,6 +11,7 @@ import { DURATION } from "@v1/ui/recipes/motion";
 import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { format } from "date-fns";
 import { useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import {
   CartesianGrid,
   Line,
@@ -19,7 +20,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface RatingHistoryChartProps {
@@ -41,7 +41,7 @@ export function RatingHistoryChart({
   season,
   seasonStarts = [],
 }: RatingHistoryChartProps) {
-  const t = useScopedI18n("dashboard.pages.player");
+  const t = useTranslations("dashboard.pages.player");
   const reduceMotion = useReducedMotion();
   const trpc = useTRPC();
   const { data: history } = useSuspenseQuery(

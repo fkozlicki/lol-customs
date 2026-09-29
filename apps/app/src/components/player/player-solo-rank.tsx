@@ -3,7 +3,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatRank } from "@v1/domain/rank";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "@/trpc/react";
 
 /**
@@ -11,7 +11,7 @@ import { useTRPC } from "@/trpc/react";
  * with the player's latest match, read from the database rather than from the Riot API.
  */
 export function PlayerSoloRank({ puuid }: { puuid: string }) {
-  const t = useScopedI18n("dashboard.pages.player");
+  const t = useTranslations("dashboard.pages.player");
   const trpc = useTRPC();
   const { data: rank } = useSuspenseQuery(
     trpc.players.soloRank.queryOptions({ puuid }),

@@ -7,14 +7,14 @@ import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-list-skeleton";
 import { Icons } from "@v1/ui/recipes/icons";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { toPostCardView } from "./post-view";
 
 export function PostList() {
   const { profile, openSignInDialog } = useUser();
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const trpc = useTRPC();
   const router = useRouter();
 

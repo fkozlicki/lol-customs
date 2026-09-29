@@ -6,7 +6,7 @@ import { formatKda, formatKdaRatio, formatWinrate } from "@v1/domain/stats";
 import { cn } from "@v1/ui/cn";
 import CurrentStreak from "@v1/ui/recipes/home/current-streak";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "@/trpc/react";
 
 interface PlayerStatsCardProps {
@@ -16,7 +16,7 @@ interface PlayerStatsCardProps {
 
 /** The ladder first: position, rating and record on the selected rating track. */
 export function PlayerStatsCard({ puuid, season }: PlayerStatsCardProps) {
-  const t = useScopedI18n("dashboard.pages.player");
+  const t = useTranslations("dashboard.pages.player");
   const trpc = useTRPC();
   const { data: stats } = useSuspenseQuery(
     trpc.players.profileStats.queryOptions({ puuid, season }),

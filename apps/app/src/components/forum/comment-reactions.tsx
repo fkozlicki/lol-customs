@@ -3,8 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface CommentReactionsProps {
@@ -22,7 +22,7 @@ export function CommentReactions({
   dislikes: initialDislikes,
   reactions,
 }: CommentReactionsProps) {
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const { profile, openSignInDialog } = useUser();
   const trpc = useTRPC();
   const queryClient = useQueryClient();

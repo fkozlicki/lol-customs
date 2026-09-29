@@ -1,9 +1,9 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { HallOfFame, HallOfFameSkeleton } from "@/components/hof/hall-of-fame";
-import { getScopedI18n } from "@/locales/server";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
@@ -15,8 +15,8 @@ interface HallOfFamePageProps {
 export default async function HallOfFamePage({
   searchParams,
 }: HallOfFamePageProps) {
-  const t = await getScopedI18n("dashboard.pages.hallOfFame");
-  const tSeason = await getScopedI18n("dashboard.season");
+  const t = await getTranslations("dashboard.pages.hallOfFame");
+  const tSeason = await getTranslations("dashboard.season");
   const { season, seasons } = await getSeasonScope((await searchParams).season);
   prefetch(trpc.riftRank.hallOfFame.queryOptions({ season }));
 

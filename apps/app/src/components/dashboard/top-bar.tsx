@@ -13,7 +13,7 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useScopedI18n } from "@/locales/client";
+import { useTranslations } from "next-intl";
 import { withSeason } from "@/utils/season";
 import { AccountMenu } from "./account-menu";
 import { FORUM_PATH, isActivePath, PRIMARY_PATHS, TOOL_PATHS } from "./nav";
@@ -21,7 +21,7 @@ import { SeasonSelector } from "./season-selector";
 import { useNavSeason } from "./use-season-param";
 
 export function TopBar() {
-  const t = useScopedI18n("dashboard");
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const season = useNavSeason();
   const toolsActive = TOOL_PATHS.some(({ path }) =>

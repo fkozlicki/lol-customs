@@ -4,6 +4,7 @@ import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { PlayerSeasonEmpty } from "@v1/ui/recipes/player/player-season-empty";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { MostPlayedChampions } from "@/components/player/most-played-champions";
 import { PlayerMatchHistory } from "@/components/player/player-match-history";
 import { PlayerProfileHeader } from "@/components/player/player-profile-header";
@@ -12,7 +13,6 @@ import { PlayerSeasonSummaries } from "@/components/player/player-season-summari
 import { PlayerStatsCard } from "@/components/player/player-stats-card";
 import { PlayerTitles } from "@/components/player/player-titles";
 import { RatingHistoryChart } from "@/components/player/rating-history-chart";
-import { getScopedI18n } from "@/locales/server";
 import {
   caller,
   getQueryClient,
@@ -33,8 +33,8 @@ export default async function PlayerProfilePage({
   searchParams,
 }: PlayerPageProps) {
   const { slug } = await params;
-  const t = await getScopedI18n("dashboard.pages.player");
-  const tSeason = await getScopedI18n("dashboard.season");
+  const t = await getTranslations("dashboard.pages.player");
+  const tSeason = await getTranslations("dashboard.season");
   const { season, seasons } = await getSeasonScope((await searchParams).season);
   const riotId = parsePlayerSlug(slug);
 

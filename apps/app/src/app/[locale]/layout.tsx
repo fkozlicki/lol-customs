@@ -4,13 +4,13 @@ import { Toaster } from "@v1/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { UserProvider } from "@/components/auth/user-context";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { toLocale } from "@/locales";
-import { I18nProviderClient } from "@/locales/client";
 import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
@@ -47,7 +47,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
-        <I18nProviderClient locale={locale}>
+        <NextIntlClientProvider>
           <RecipesI18nProvider locale={toLocale(locale)}>
             <TRPCReactProvider>
               <UserProvider>
@@ -66,7 +66,7 @@ export default async function RootLayout({
               </UserProvider>
             </TRPCReactProvider>
           </RecipesI18nProvider>
-        </I18nProviderClient>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

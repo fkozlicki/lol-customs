@@ -7,10 +7,10 @@ import LeaderboardRow from "@v1/ui/recipes/home/leaderboard-row";
 import { SeasonPodium } from "@v1/ui/recipes/home/season-podium";
 import { DURATION } from "@v1/ui/recipes/motion";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
 import { toStandingsRowView } from "./standings-view";
@@ -44,7 +44,7 @@ export function Leaderboard({
   after,
   historyPicker,
 }: LeaderboardProps) {
-  const t = useScopedI18n("dashboard.pages.leaderboard");
+  const t = useTranslations("dashboard.pages.leaderboard");
   const trpc = useTRPC();
   const { data: gamesPlayed = 0 } = useSuspenseQuery(
     trpc.riftRank.ladderRatedMatchCount.queryOptions({ season }),

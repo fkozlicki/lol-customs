@@ -13,8 +13,8 @@ import {
 } from "@v1/ui/dropdown-menu";
 import { Icons } from "@v1/ui/recipes/icons";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {
   isSeasonScopedPath,
@@ -26,7 +26,7 @@ import {
 } from "@/utils/season";
 
 export function SeasonSelector() {
-  const t = useScopedI18n("dashboard.season");
+  const t = useTranslations("dashboard.season");
   const trpc = useTRPC();
   const pathname = usePathname();
   const { data: seasons } = useQuery(trpc.seasons.list.queryOptions());

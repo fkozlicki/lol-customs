@@ -10,8 +10,8 @@ import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/cn";
 import { Icons } from "@v1/ui/recipes/icons";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 export interface RichTextEditorHandle {
@@ -45,7 +45,7 @@ export const RichTextEditor = forwardRef<
   { onChange, placeholder = "Write something...", userId },
   ref,
 ) {
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
 

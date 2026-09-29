@@ -7,8 +7,8 @@ import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
 import { SectionHeading } from "@v1/ui/recipes/page-header";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { withSeason } from "@/utils/season";
 
@@ -22,7 +22,7 @@ interface PlayerRelationsProps {
 
 /** Who a player wins and loses with, and who they beat or struggle against. */
 export function PlayerRelations({ puuid, season }: PlayerRelationsProps) {
-  const t = useScopedI18n("dashboard.pages.player");
+  const t = useTranslations("dashboard.pages.player");
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
     trpc.players.relations.queryOptions({ puuid, season }),
@@ -118,7 +118,7 @@ function RelationRow({
   detail: (relation: NonNullable<Relation>) => React.ReactNode;
   emptyLabel?: string;
 }) {
-  const t = useScopedI18n("dashboard.pages.player");
+  const t = useTranslations("dashboard.pages.player");
   const season = useSeasonParam();
 
   if (!relation) {

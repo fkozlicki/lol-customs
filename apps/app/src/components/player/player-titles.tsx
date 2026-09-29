@@ -3,9 +3,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "@v1/ui/cn";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { formatHofValue, HOF_TITLES } from "@/components/hof/hof-config";
-import { useCurrentLocale, useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { withSeason } from "@/utils/season";
 
@@ -16,8 +16,8 @@ interface PlayerTitlesProps {
 
 /** Hall of Fame titles the player currently holds on the selected track. */
 export function PlayerTitles({ puuid, season }: PlayerTitlesProps) {
-  const t = useScopedI18n("dashboard.pages.hallOfFame");
-  const locale = useCurrentLocale();
+  const t = useTranslations("dashboard.pages.hallOfFame");
+  const locale = useLocale();
   const trpc = useTRPC();
   const seasonParam = useSeasonParam();
   const { data } = useSuspenseQuery(

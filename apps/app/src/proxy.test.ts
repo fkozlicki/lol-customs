@@ -34,3 +34,33 @@ describe("remembered season", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 });
+
+// The locale never shows in the URL: the proxy rewrites to the `[locale]` segment internally.
+describe("locale", () => {
+  const plain = (path: string, headers: Record<string, string>) =>
+    new NextRequest(`https://derby.test${path}`, { headers });
+  const rewrite = (response: Response) =>
+    response.headers.get("x-middleware-rewrite");
+
+  test("comes from Accept-Language on a first visit", () => {
+    const response = proxy(
+      plain("/matches", { "accept-language": "pl-PL,pl;q=0.9" }),
+    );
+    expect(rewrite(response)).toBe("https://derby.test/pl/matches");
+  });
+
+  test("comes from the cookie next-international set, which outranks the browser", () => {
+    const response = proxy(
+      plain("/matches", {
+        "accept-language": "pl-PL,pl;q=0.9",
+        cookie: "Next-Locale=en",
+      }),
+    );
+    expect(rewrite(response)).toBe("https://derby.test/en/matches");
+  });
+
+  test("falls back to English", () => {
+    const response = proxy(plain("/", { "accept-language": "de-DE" }));
+    expect(rewrite(response)).toBe("https://derby.test/en");
+  });
+});

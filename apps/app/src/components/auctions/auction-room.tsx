@@ -14,9 +14,9 @@ import { PageShell } from "@v1/ui/recipes/page-shell";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import {
   type AuctionEvent,
@@ -35,7 +35,7 @@ function TeamRoster({
   room: AuctionRoomSnapshot;
   side: AuctionSide;
 }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const captain = captainFor(room, side);
   const players = playersFor(room, side);
   const remaining = captain?.budgetRemaining ?? room.budget;
@@ -115,7 +115,7 @@ function TeamRoster({
 }
 
 function EventFeed({ room }: { room: AuctionRoomSnapshot }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const playerById = new Map(room.players.map((player) => [player.id, player]));
 
   function eventText(event: AuctionEvent) {
@@ -185,7 +185,7 @@ function ActiveStage({
   room: AuctionRoomSnapshot;
   refresh: () => void;
 }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const current = room.players.find(
     (player) => player.id === room.currentPlayerId,
   );
@@ -289,7 +289,7 @@ function RoundControls({
   room: AuctionRoomSnapshot;
   refresh: () => void;
 }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const mySide = room.permissions.mySide;
   const myBudget = mySide
@@ -423,7 +423,7 @@ function Lobby({
   room: AuctionRoomSnapshot;
   refresh: () => void;
 }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const [editing, setEditing] = useState(false);
   const me = room.permissions.mySide
@@ -532,7 +532,7 @@ function LobbyTeam({
   side: AuctionSide;
   refresh: () => void;
 }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const captain = captainFor(room, side);
   const { mySide, canLeave, canRemoveCaptain } = room.permissions;
@@ -686,7 +686,7 @@ function JoinCaptain({
   room: AuctionRoomSnapshot;
   refresh: () => void;
 }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const { profile, openSignInDialog } = useUser();
   const queryClient = useQueryClient();
@@ -722,7 +722,7 @@ function JoinCaptain({
 }
 
 export function AuctionRoom({ id }: { id: string }) {
-  const t = useScopedI18n("dashboard.pages.auctions");
+  const t = useTranslations("dashboard.pages.auctions");
   const trpc = useTRPC();
   const query = useQuery(trpc.auctions.getRoom.queryOptions({ id }));
   const refresh = useCallback(() => {

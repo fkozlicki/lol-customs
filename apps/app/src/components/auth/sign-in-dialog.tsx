@@ -23,10 +23,10 @@ import {
 import { Input } from "@v1/ui/input";
 import { Icons } from "@v1/ui/recipes/icons";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 import { useUser } from "./user-context";
 
@@ -45,7 +45,7 @@ type FormValues = z.infer<typeof schema>;
 
 export function SignInDialog() {
   const { signInDialogOpen, closeSignInDialog, refreshProfile } = useUser();
-  const t = useScopedI18n("dashboard.auth.profile");
+  const t = useTranslations("dashboard.auth.profile");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 

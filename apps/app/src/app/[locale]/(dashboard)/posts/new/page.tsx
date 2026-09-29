@@ -17,12 +17,12 @@ import { PageShell } from "@v1/ui/recipes/page-shell";
 import { toast } from "@v1/ui/sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useUser } from "@/components/auth/user-context";
 import { RichTextEditor } from "@/components/forum/rich-text-editor";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 const schema = z.object({
@@ -34,7 +34,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function NewPostPage() {
   const { profile, isLoading, openSignInDialog } = useUser();
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const router = useRouter();

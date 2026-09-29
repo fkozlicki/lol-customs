@@ -19,15 +19,15 @@ import { Icons } from "@v1/ui/recipes/icons";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { toast } from "@v1/ui/sonner";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 type DbPlayer = RouterOutputs["players"]["all"][number];
-type ShuffleCopy = ReturnType<typeof useScopedI18n<"dashboard.pages.shuffle">>;
+type ShuffleCopy = ReturnType<typeof useTranslations<"dashboard.pages.shuffle">>;
 
 export default function RandomTeamsTool() {
-  const t = useScopedI18n("dashboard.pages.shuffle");
+  const t = useTranslations("dashboard.pages.shuffle");
   const trpc = useTRPC();
   const { data: allPlayers } = useSuspenseQuery(
     trpc.players.all.queryOptions(),

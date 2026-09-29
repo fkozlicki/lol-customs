@@ -3,13 +3,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@v1/ui/button";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
 import {
   RichTextEditor,
   type RichTextEditorHandle,
 } from "@/components/forum/rich-text-editor";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 interface CommentFormProps {
@@ -19,7 +19,7 @@ interface CommentFormProps {
 
 export function CommentForm({ postId, onCancel }: CommentFormProps) {
   const { profile, openSignInDialog } = useUser();
-  const t = useScopedI18n("dashboard.pages.posts.comments");
+  const t = useTranslations("dashboard.pages.posts.comments");
   const [isEmpty, setIsEmpty] = useState(true);
   const contentRef = useRef<Record<string, unknown>>({});
   const editorRef = useRef<RichTextEditorHandle>(null);
