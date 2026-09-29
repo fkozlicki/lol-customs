@@ -4,6 +4,7 @@
  */
 import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
+import { RecipesI18nProvider } from "@v1/ui/recipes/i18n";
 // The same internal the framework's own router decorator uses; see `withLocale`.
 import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -51,7 +52,9 @@ const withLocale: Decorator = (Story, context) => {
   return (
     <PathParamsContext.Provider value={{ locale }}>
       <I18nProviderClient locale={locale} fallback={null}>
-        <Story />
+        <RecipesI18nProvider locale={locale}>
+          <Story />
+        </RecipesI18nProvider>
       </I18nProviderClient>
     </PathParamsContext.Provider>
   );

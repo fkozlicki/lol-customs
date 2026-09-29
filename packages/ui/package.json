@@ -7,10 +7,12 @@
     "clean": "rm -rf .turbo node_modules",
     "lint": "biome check .",
     "format": "biome --write .",
+    "test": "bun test src",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@storybook/react": "^10.6.0",
+    "@types/bun": "^1.3.5",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@v1/typescript": "workspace:*",
@@ -40,6 +42,7 @@
     "./input": "./src/components/input.tsx",
     "./label": "./src/components/label.tsx",
     "./progress": "./src/components/progress.tsx",
+    "./recipes/i18n": "./src/recipes/i18n/i18n.tsx",
     "./scroll-area": "./src/components/scroll-area.tsx",
     "./separator": "./src/components/separator.tsx",
     "./sheet": "./src/components/sheet.tsx",
