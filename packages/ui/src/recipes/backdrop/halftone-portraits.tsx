@@ -1,21 +1,19 @@
 "use client";
 
-import { championLoadingArtUrl } from "@v1/game-assets/urls";
 import { useReducedMotion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 import {
-  analyse,
   type Dot,
   type Frame,
   halfColumn,
-  type InkMap,
   JITTER,
   place,
   type Slot,
   screen,
   UNDER_COLUMN,
 } from "./halftone";
+import { inkMapFor } from "./ink-maps";
 
 /** One champion to draw, and who it stands for. */
 export interface Portrait {
@@ -54,46 +52,6 @@ interface Layer {
 }
 
 const easeOut = (t: number) => 1 - (1 - t) ** 3;
-
-/** Runs `work` in the browser's idle time (or soon, where there is no such thing). */
-function idle<T>(work: () => T) {
-  return new Promise<T>((resolve) => {
-    const run = () => resolve(work());
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(run, { timeout: 1500 });
-    } else {
-      setTimeout(run, 0);
-    }
-  });
-}
-
-function loadArt(championId: string) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = championLoadingArtUrl(championId);
-  });
-}
-
-/**
- * Ink maps by champion, kept for the life of the page. A map holds both themes, so a theme change or
- * a remount redraws without analysing the art again.
- */
-const inkMaps = new Map<string, Promise<InkMap | null>>();
-
-function inkMapFor(championId: string) {
-  let found = inkMaps.get(championId);
-  if (!found) {
-    // Analysing an art takes ~100 ms of main thread: do it when the browser is idle.
-    found = loadArt(championId)
-      .then((img) => idle(() => analyse(img, championId)))
-      .catch(() => null);
-    inkMaps.set(championId, found);
-  }
-  return found;
-}
 
 /**
  * The page's theme as the canvas needs it. Read from the document, not from React state: the ink

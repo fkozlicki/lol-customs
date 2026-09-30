@@ -53,7 +53,7 @@ bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 CI runs `bun run lint`, `bun run typecheck` and `bun run test`. Stories are not rendered in CI; run
 `test:stories` locally after touching a story or anything a story renders. `bun lint` also runs the design check in
 `apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
-[DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain`, `packages/ui` and `apps/app` — pure
+[DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain`, `packages/game-assets`, `packages/ui`, `apps/app` and `apps/lcu` — pure
 logic only, no component tests: recipes are covered by their stories, and the mappers that feed them
 by tests in the app.
 
@@ -85,6 +85,9 @@ by tests in the app.
   keeps the container (queries, URL state, routing) and one mapper per data root (`toMatchCardView`,
   `toStandingsRowView`, …) that formats with `@v1/domain` and builds the links. Biome enforces the
   imports (ADR 0004).
+- One component per file, in the app, the recipes and Derby Sync alike; a helper component gets a file
+  beside the one that uses it. A file that grows past a few hundred lines is a sign it holds more than
+  one job. shadcn's primitives in `packages/ui/src/components` are the exception and stay as generated.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
   `useSuspenseQuery` inside a Suspense boundary with a skeleton.
 - Season-scoped pages read `?season=` through `getSeasonScope` and pass the season to their queries.

@@ -35,6 +35,23 @@ Biome's `noRestrictedImports` enforces all of that for `src/**`. What a recipe m
 `next/link` with the `href` passed in, `motion`, `date-fns`, `react-intersection-observer` and
 `@tiptap/*`.
 
+### Shape
+
+One component per file, grouped by area (`auctions/`, `forum/`, `player/`, `player-picker/`, …); a
+helper a recipe uses gets its own file beside it, and the view types for an area sit in one
+`*-view.ts`. Three patterns keep a recipe plain when the screen around it is not:
+
+- **Slots.** Where a recipe frames something the app owns — a TipTap editor, a container with its own
+  mutations, a form the app validates — it takes it as a `ReactNode` (`editor`, `controls`,
+  `reactions`, `poolEditor`). A form field it styles takes its input props (`titleInput`,
+  `nicknameInput`), so react-hook-form's `register` spreads straight in and the app keeps the schema.
+- **Words as props.** A recipe's own words come from its messages. Words that are the app's — nav
+  labels, Hall of Fame titles — or that differ per screen come in as props: the player picker is worded
+  one way by the draw and another by the auction setup, so it takes its labels.
+- **Screen state stays, server state goes.** Which match card is open, the bid a captain is typing, a
+  team name being edited: a recipe may hold these. Anything that outlives the screen, lives in the URL
+  or reaches the server is the container's.
+
 ### Strings
 
 A recipe's strings live in `src/recipes/messages/`: `en.ts`, and `pl.ts`, which must have the same keys
