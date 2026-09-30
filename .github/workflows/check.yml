@@ -19,3 +19,9 @@ jobs:
         run: bun run typecheck
       - name: 🧪 Run tests
         run: bun run test
+      - name: 🎭 Install Chromium for the story tests
+        working-directory: apps/storybook
+        run: bunx playwright install --with-deps chromium
+      - name: 📚 Run story tests (render, interactions, accessibility; every locale and theme)
+        working-directory: apps/storybook
+        run: bun run test:stories
