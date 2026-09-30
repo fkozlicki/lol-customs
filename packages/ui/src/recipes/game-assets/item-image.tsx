@@ -1,8 +1,8 @@
 "use client";
 
+import { itemImageUrl } from "@v1/game-assets/urls";
 import Image from "next/image";
 import { cn } from "../../utils/cn";
-import { itemImageUrl } from "./asset-urls";
 import { useGamePatch } from "./game-patch";
 
 interface ItemImageProps {
@@ -31,7 +31,7 @@ export function ItemImage({
 
   return (
     <Image
-      src={itemImageUrl(patch, `${itemId}.png`)}
+      src={itemImageUrl(patch, itemId)}
       alt=""
       width={width}
       height={height}

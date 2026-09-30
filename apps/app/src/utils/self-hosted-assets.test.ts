@@ -7,9 +7,9 @@ import {
   positionRoleIconUrl,
   rankCrestUrl,
   SELF_HOSTED_PATHS,
-} from "@v1/ui/recipes/game-assets/asset-urls";
+} from "@v1/game-assets/urls";
 
-/** The URL builders live in the design system; the files they point at are this app's to serve. */
+/** The URL builders live in @v1/game-assets; the files they point at are this app's to serve. */
 const PUBLIC_DIR = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "..",
@@ -18,7 +18,7 @@ const PUBLIC_DIR = join(
 );
 
 /**
- * The files are fetched by apps/app/scripts/generate-game-data.ts from this same list. This is what keeps
+ * The files are fetched by scripts/download-game-icons.ts from this same list. This is what keeps
  * code and disk honest: an icon cannot be added in code and forgotten in the download.
  */
 describe("self-hosted files", () => {

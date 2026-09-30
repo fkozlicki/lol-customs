@@ -1,11 +1,31 @@
 import { describe, expect, test } from "bun:test";
 import {
   championLoadingArtUrl,
+  itemImageUrl,
   objectiveIconUrl,
   positionRoleIconUrl,
   profileIconUrl,
   rankCrestUrl,
-} from "./asset-urls";
+  spellImageUrl,
+} from "./urls";
+
+describe("items and summoner spells", () => {
+  test("are addressed by the numeric id match data carries", () => {
+    expect(itemImageUrl("16.19.1", 3078)).toBe(
+      "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/item/3078.png",
+    );
+    expect(spellImageUrl("16.19.1", 4)).toBe(
+      "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/spell/SummonerFlash.png",
+    );
+    expect(spellImageUrl("16.19.1", 14)).toBe(
+      "https://ddragon.leagueoflegends.com/cdn/16.19.1/img/spell/SummonerDot.png",
+    );
+  });
+
+  test("show Flash for a spell id nobody mapped, rather than a broken image", () => {
+    expect(spellImageUrl("16.19.1", 999)).toContain("/SummonerFlash.png");
+  });
+});
 
 describe("champion loading art", () => {
   test("comes from Data Dragon by champion id, with no patch in the path", () => {

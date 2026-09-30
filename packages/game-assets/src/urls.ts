@@ -1,15 +1,15 @@
 /**
- * Every game asset URL, in one place.
+ * Every game asset URL, in one place, for the app, the design system and Derby Sync alike.
  *
  * Two kinds. Champion, item, spell and profile-icon art comes from Data Dragon, Riot's authorised
- * source, addressed by patch so a URL never changes what it points at; `next/image` resizes and
- * re-encodes it and serves it from our own domain. Rank crests, role icons and objective icons are
- * a small fixed set, self-hosted under the app's `public/game/` by
- * `apps/app/scripts/generate-game-data.ts`; Storybook serves the same folder at the same path.
+ * source, addressed by patch so a URL never changes what it points at (ADR 0002). Rank crests, role
+ * icons and objective icons are a small fixed set, self-hosted under the app's `public/game/` by
+ * `apps/app/scripts/download-game-icons.ts`; Storybook serves the same folder at the same path.
  *
  * Keeping every URL behind these functions means moving any of them to another origin later is a
  * change to this file alone.
  */
+import { summonerSpellKey } from "./spells";
 
 const DD_BASE = "https://ddragon.leagueoflegends.com";
 
@@ -18,20 +18,22 @@ export function championImageUrl(patch: string, imageFile: string): string {
 }
 
 /**
- * A champion's loading-screen art, base skin, by Data Dragon id (the square image's name without
- * `.png`: `MonkeyKing` for Wukong). Data Dragon serves it without a patch; it changes only with a
- * visual update. Read into a canvas by the backdrop, so it is fetched as is, not through `next/image`.
+ * A champion's loading-screen art, base skin, by Data Dragon id (`champion(id).dataDragonId`:
+ * `MonkeyKing` for Wukong). Data Dragon serves it without a patch; it changes only with a visual
+ * update. Read into a canvas by the backdrop, so it is fetched as is, not through `next/image`.
  */
-export function championLoadingArtUrl(championId: string): string {
-  return `${DD_BASE}/cdn/img/champion/loading/${championId}_0.jpg`;
+export function championLoadingArtUrl(dataDragonId: string): string {
+  return `${DD_BASE}/cdn/img/champion/loading/${dataDragonId}_0.jpg`;
 }
 
-export function itemImageUrl(patch: string, imageFile: string): string {
-  return `${DD_BASE}/cdn/${patch}/img/item/${imageFile}`;
+/** An item by the numeric id match data carries. */
+export function itemImageUrl(patch: string, itemId: number): string {
+  return `${DD_BASE}/cdn/${patch}/img/item/${itemId}.png`;
 }
 
-export function spellImageUrl(patch: string, imageFile: string): string {
-  return `${DD_BASE}/cdn/${patch}/img/spell/${imageFile}`;
+/** A summoner spell by the numeric id match data carries. */
+export function spellImageUrl(patch: string, spellId: number): string {
+  return `${DD_BASE}/cdn/${patch}/img/spell/${summonerSpellKey(spellId)}.png`;
 }
 
 export function profileIconUrl(

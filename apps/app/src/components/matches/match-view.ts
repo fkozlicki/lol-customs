@@ -2,7 +2,7 @@ import type { RouterOutputs } from "@v1/api";
 import { formatRank } from "@v1/domain/rank";
 import { playerHref } from "@v1/domain/riot-id";
 import { formatDuration, formatKdaRatio } from "@v1/domain/stats";
-import type { Side } from "@v1/ui/recipes/game-assets/asset-urls";
+import type { Side } from "@v1/game-assets/urls";
 import type {
   MatchCardView,
   ParticipantView,

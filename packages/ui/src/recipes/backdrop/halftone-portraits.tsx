@@ -1,9 +1,9 @@
 "use client";
 
+import { championLoadingArtUrl } from "@v1/game-assets/urls";
 import { useReducedMotion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
-import { championLoadingArtUrl } from "../game-assets/asset-urls";
 import {
   analyse,
   type Dot,

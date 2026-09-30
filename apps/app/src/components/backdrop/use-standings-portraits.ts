@@ -1,8 +1,8 @@
 "use client";
 
 import { useQueries, useQuery } from "@tanstack/react-query";
+import { champion } from "@v1/game-assets/champions";
 import type { Portrait } from "@v1/ui/recipes/backdrop/halftone-portraits";
-import { CHAMPIONS } from "@v1/ui/recipes/game-assets/champions";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
 import { resolveSeason } from "@/utils/season";
@@ -12,13 +12,10 @@ const STANDINGS = 5;
 /** Shown while a season has no standings yet: Jhin, Ahri, Yasuo, Thresh, Lee Sin. */
 const FALLBACK = [202, 103, 157, 412, 64];
 
-function champion(key: number) {
-  const found = CHAMPIONS[key];
+function portraitOf(key: number) {
+  const found = champion(key);
   if (!found) return null;
-  return {
-    championId: found.image.replace(/\.png$/, ""),
-    championName: found.name,
-  };
+  return { championId: found.dataDragonId, championName: found.name };
 }
 
 /**
@@ -61,7 +58,7 @@ export function useStandingsPortraits({
   const seen = new Set<string>();
   (standings ?? []).forEach((row, i) => {
     const key = Number(mains[i]?.data?.[0]?.championId);
-    const main = Number.isFinite(key) ? champion(key) : null;
+    const main = Number.isFinite(key) ? portraitOf(key) : null;
     if (!main || seen.has(main.championId)) return;
     seen.add(main.championId);
     portraits.push({
@@ -73,7 +70,7 @@ export function useStandingsPortraits({
   if (portraits.length > 0) return portraits;
 
   return FALLBACK.flatMap((key) => {
-    const main = champion(key);
+    const main = portraitOf(key);
     return main ? [{ ...main, playerName: null, position: null }] : [];
   });
 }

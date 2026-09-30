@@ -1,9 +1,9 @@
 "use client";
 
+import { champion as findChampion } from "@v1/game-assets/champions";
+import { championImageUrl } from "@v1/game-assets/urls";
 import Image from "next/image";
 import { cn } from "../../utils/cn";
-import { championImageUrl } from "./asset-urls";
-import { CHAMPIONS } from "./champions";
 import { useGamePatch } from "./game-patch";
 
 interface ChampionImageProps {
@@ -20,8 +20,8 @@ export function ChampionImage({
   className,
 }: ChampionImageProps) {
   const patch = useGamePatch();
-  // A champion released after champions.ts was generated falls through to the placeholder.
-  const champion = championId != null ? CHAMPIONS[championId] : undefined;
+  // A champion released after the list was generated falls through to the placeholder.
+  const champion = findChampion(championId);
 
   if (!champion) {
     return (
@@ -34,7 +34,7 @@ export function ChampionImage({
 
   return (
     <Image
-      src={championImageUrl(patch, champion.image)}
+      src={championImageUrl(patch, champion.imageFile)}
       alt={champion.name}
       width={width}
       height={height}

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CHAMPIONS } from "../game-assets/champions";
+import { allChampions } from "@v1/game-assets/champions";
 import { FACES } from "./faces";
 import {
   CELL,
@@ -99,11 +99,7 @@ describe("screening a portrait", () => {
 
 describe("measured faces", () => {
   test("are keyed by champions that exist, and lie inside the art", () => {
-    const ids = new Set(
-      Object.values(CHAMPIONS).map((champion) =>
-        champion.image.replace(/\.png$/, ""),
-      ),
-    );
+    const ids = new Set(allChampions().map((c) => c.dataDragonId));
     for (const [id, [x, y]] of Object.entries(FACES)) {
       expect(ids.has(id), id).toBe(true);
       expect(x).toBeGreaterThan(0);

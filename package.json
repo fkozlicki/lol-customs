@@ -45,7 +45,8 @@
     "typecheck": "turbo typecheck",
     "db:reset": "bun run --cwd apps/api reset",
     "db:stop": "bun run --cwd apps/api stop",
-    "generate:types": "bun run --cwd apps/api generate"
+    "generate:types": "bun run --cwd apps/api generate",
+    "generate:game-data": "bun run --cwd packages/game-assets generate && bun run --cwd apps/app download-game-icons"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",

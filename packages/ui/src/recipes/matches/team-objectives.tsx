@@ -1,10 +1,10 @@
-import Image from "next/image";
-import { cn } from "../../utils/cn";
 import {
   type Objective,
   objectiveIconUrl,
   type Side,
-} from "../game-assets/asset-urls";
+} from "@v1/game-assets/urls";
+import Image from "next/image";
+import { cn } from "../../utils/cn";
 
 interface TeamObjectivesProps {
   baronKills: number;

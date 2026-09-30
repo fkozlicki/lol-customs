@@ -11,7 +11,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "bun test src",
-    "generate:game-data": "bun run scripts/generate-game-data.ts"
+    "download-game-icons": "bun run scripts/download-game-icons.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
@@ -28,6 +28,7 @@
     "@trpc/tanstack-react-query": "catalog:",
     "@v1/api": "workspace:*",
     "@v1/domain": "workspace:*",
+    "@v1/game-assets": "workspace:*",
     "@v1/logger": "workspace:*",
     "@v1/supabase": "workspace:*",
     "@v1/ui": "workspace:*",

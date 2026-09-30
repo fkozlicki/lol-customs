@@ -142,6 +142,37 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/game-assets/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@v1/game-assets is plain data and URLs, usable by the app, the design system and Derby Sync alike (ADR 0006).",
+                  "next": "@v1/game-assets is plain data and URLs; Next's caching is the caller's, passed in through latestPatch's init (ADR 0006)."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "react/**",
+                      "react-dom",
+                      "react-dom/**",
+                      "next/**",
+                      "@v1/**",
+                      "@/**"
+                    ],
+                    "message": "@v1/game-assets depends on nothing in the workspace or any framework, so every consumer can use it (ADR 0006)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

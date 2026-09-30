@@ -12,9 +12,9 @@ import {
   ROSTER_SIZE,
   type RosterPlayer,
 } from "@v1/domain/shuffle";
+import { positionRoleIconUrl } from "@v1/game-assets/urls";
 import { Button } from "@v1/ui/button";
 import { Input } from "@v1/ui/input";
-import { positionRoleIconUrl } from "@v1/ui/recipes/game-assets/asset-urls";
 import { Icons } from "@v1/ui/recipes/icons";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
 import { toast } from "@v1/ui/sonner";

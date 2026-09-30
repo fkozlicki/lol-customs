@@ -1,26 +1,8 @@
 "use client";
 
+import { spellImageUrl } from "@v1/game-assets/urls";
 import Image from "next/image";
-import { spellImageUrl } from "./asset-urls";
 import { useGamePatch } from "./game-patch";
-
-const SPELL_ID_TO_KEY: Record<number, string> = {
-  1: "SummonerBoost",
-  3: "SummonerExhaust",
-  4: "SummonerFlash",
-  6: "SummonerHaste",
-  7: "SummonerHeal",
-  11: "SummonerSmite",
-  12: "SummonerTeleport",
-  14: "SummonerDot",
-  21: "SummonerBarrier",
-  30: "SummonerPoroRecall",
-  31: "SummonerPoroThrow",
-  32: "SummonerSnowball",
-  39: "SummonerSnowURFSnowball_Mark",
-  54: "Summoner_UltBookPlaceholder",
-  55: "Summoner_UltBookSmitePlaceholder",
-};
 
 interface SpellImageProps {
   spellId: number;
@@ -37,11 +19,9 @@ export function SpellImage({
 }: SpellImageProps) {
   const patch = useGamePatch();
 
-  const key = SPELL_ID_TO_KEY[spellId] ?? "SummonerFlash";
-
   return (
     <Image
-      src={spellImageUrl(patch, `${key}.png`)}
+      src={spellImageUrl(patch, spellId)}
       alt=""
       width={width}
       height={height}

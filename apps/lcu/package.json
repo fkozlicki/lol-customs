@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.3",
+    "@v1/game-assets": "workspace:*",
     "@v1/ui": "workspace:*",
     "dotenv": "^16.4.5",
     "electron-updater": "^6.3.9",

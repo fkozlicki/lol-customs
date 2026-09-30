@@ -1,5 +1,5 @@
+import { rankCrestUrl } from "@v1/game-assets/urls";
 import Image from "next/image";
-import { rankCrestUrl } from "./asset-urls";
 
 interface RankCrestProps {
   tier: string | null;

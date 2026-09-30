@@ -1,4 +1,4 @@
-import type { Side } from "../game-assets/asset-urls";
+import type { Side } from "@v1/game-assets/urls";
 
 /**
  * A match as the match recipes draw it: every value already derived, formatted where formatting
