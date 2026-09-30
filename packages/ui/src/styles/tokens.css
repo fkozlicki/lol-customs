@@ -101,13 +101,14 @@
 	--overlay: oklch(0 0 0 / 0.1);
 
 	/*
-	 * The inks are text as well as colour, so each keeps 4.5:1 (WCAG AA) on the background, the card
-	 * and its own tinted surface (`bg-win/[0.1]`), in both themes. The story tests check it with axe.
+	 * The inks are text as well as colour, so each keeps 4.5:1 (WCAG AA) on the background, the card,
+	 * its own tinted surface (`bg-win/[0.1]`) and a hovered `bg-muted`, in both themes. The story tests
+	 * check it with axe.
 	 */
 	--win: oklch(0.48 0.16 255);
 	--loss: oklch(0.5 0.2 27);
 	/* `--mvp`/`--ace` are the ink, readable on paper; `*-surface` is the filled badge. */
-	--mvp: oklch(0.54 0.13 72);
+	--mvp: oklch(0.51 0.13 72);
 	--mvp-surface: oklch(0.86 0.13 85);
 	--mvp-foreground: oklch(0.3 0.07 70);
 	--ace: oklch(0.52 0.17 300);
