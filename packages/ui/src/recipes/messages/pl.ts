@@ -130,4 +130,13 @@ export default {
       dark: "Ciemny",
     },
   },
+  hallOfFame: {
+    noHolder: "Brak",
+    jumpTo: "Przejdź do sekcji",
+    mostBest: "Najwięcej najlepszych",
+    mostWorst: "Najwięcej najgorszych",
+    emptyTitle: "Sala sław czeka",
+    emptyHint: "Tytuły pojawią się, gdy gracze rozegrają {count} meczów.",
+    showSeason: "Zobacz Sezon {number}",
+  },
 } satisfies Strings<typeof en>;

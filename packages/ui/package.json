@@ -47,6 +47,7 @@
     "./recipes/*": "./src/recipes/*.tsx",
     "./recipes/dashboard/nav-item": "./src/recipes/dashboard/nav-item.ts",
     "./recipes/forum/post-view": "./src/recipes/forum/post-view.ts",
+    "./recipes/hof/hall-of-fame-view": "./src/recipes/hof/hall-of-fame-view.ts",
     "./recipes/home/standings-view": "./src/recipes/home/standings-view.ts",
     "./recipes/icons": "./src/recipes/icons.ts",
     "./recipes/matches/match-view": "./src/recipes/matches/match-view.ts",

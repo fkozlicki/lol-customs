@@ -304,13 +304,6 @@ export default {
           farm: "Farm & gold",
           map: "Map & utility",
         },
-        noHolder: "No holder yet",
-        jumpTo: "Jump to section",
-        mostBest: "Most best titles",
-        mostWorst: "Most worst titles",
-        emptyTitle: "The Hall of Fame is waiting",
-        emptyHint: "Titles appear once players reach {count} matches.",
-        showSeason: "See Season {number}",
         stats: {
           mvpMatches: "matches as MVP",
           matchesWithoutMvp: "matches, no MVP",

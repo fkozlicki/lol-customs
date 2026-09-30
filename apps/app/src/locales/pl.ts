@@ -305,13 +305,6 @@ export default {
           farm: "Farma i złoto",
           map: "Mapa",
         },
-        noHolder: "Brak",
-        jumpTo: "Przejdź do sekcji",
-        mostBest: "Najwięcej najlepszych",
-        mostWorst: "Najwięcej najgorszych",
-        emptyTitle: "Sala sław czeka",
-        emptyHint: "Tytuły pojawią się, gdy gracze rozegrają {count} meczów.",
-        showSeason: "Zobacz Sezon {number}",
         stats: {
           mvpMatches: "mecze jako MVP",
           matchesWithoutMvp: "mecze bez MVP",
