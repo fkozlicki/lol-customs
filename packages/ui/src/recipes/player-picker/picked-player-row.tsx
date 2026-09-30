@@ -3,16 +3,22 @@
 import { useTranslations } from "next-intl";
 import { Icons } from "../icons";
 import { RankTag } from "../rank-tag";
-import type { DrawPlayerView } from "./draw-view";
+import type { PickablePlayerView } from "./pickable-player-view";
 
-interface RosterPlayerRowProps {
-  player: DrawPlayerView;
+interface PickedPlayerRowProps {
+  player: PickablePlayerView;
+  /** The remove button's accessible name. */
+  removeLabel: string;
   onRemove: () => void;
 }
 
-/** A player on the roster, with their rank and a way to take them off it. */
-export function RosterPlayerRow({ player, onRemove }: RosterPlayerRowProps) {
-  const t = useTranslations("draw");
+/** A picked player, with their rank and a way to take them off again. */
+export function PickedPlayerRow({
+  player,
+  removeLabel,
+  onRemove,
+}: PickedPlayerRowProps) {
+  const t = useTranslations("player");
 
   return (
     <li className="flex h-12 items-center gap-3">
@@ -25,7 +31,7 @@ export function RosterPlayerRow({ player, onRemove }: RosterPlayerRowProps) {
       <button
         type="button"
         onClick={onRemove}
-        aria-label={t("removePlayer")}
+        aria-label={removeLabel}
         className="text-muted-foreground transition-colors hover:text-foreground"
       >
         <Icons.X className="size-4" />

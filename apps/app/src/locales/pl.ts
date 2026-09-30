@@ -36,7 +36,6 @@ export default {
     season: {
       label: "Sezon {number}",
       allTime: "Wszystkie sezony",
-      showAllTime: "Pokaż wszystkie sezony",
     },
     pages: {
       player: {
@@ -72,53 +71,14 @@ export default {
           bidding: "Licytacja live",
           sold_pause: "Sprzedany",
         },
-        list: {
-          create: "Utwórz aukcję",
-          watch: "Wejdź do pokoju",
-          onStage: "Na scenie",
-          price: "Cena",
-          starting: "Aukcja zaraz ruszy",
-          emptyTitle: "Brak aukcji na żywo",
-          emptyDescription:
-            "Utwórz pokój i zaproś drugiego kapitana. Lobby i trwające aukcje pojawią się tutaj.",
-          yours: "Twoja",
-          lookingForCaptain: "Szuka kapitana",
-          waitingReady: "Czeka na gotowość",
-        },
         creator: {
           eyebrow: "Dom aukcyjny",
           title: "Utwórz aukcję live",
           description:
             "Wybierz ośmiu graczy, których kupią kapitanowie. Ty jesteś kapitanem Team A; drugi kapitan dołącza z linku do pokoju.",
           pool: "Pula graczy",
-          poolHint: "Dodaj ośmiu graczy z rankingu lub przez Riot ID.",
-          clear: "Wyczyść",
-          addPlayers: "Z rankingu",
-          search: "Szukaj graczy w rankingu...",
-          noResults: "Brak dostępnych graczy.",
-          manual: "Dodaj Riot ID",
-          riotIdPlaceholder: "Nick#TAG",
-          add: "Dodaj",
-          remove: "Usuń gracza",
           duplicate: "To Riot ID jest już w puli.",
           invalidRiotId: "Użyj formatu Nick#TAG.",
-          rules: "Zasady pokoju",
-          liveAuction:
-            "Jesteś kapitanem w trwającej aukcji. Dokończ ją albo anuluj, zanim utworzysz kolejną.",
-          goToAuction: "Przejdź do swojej aukcji",
-          replacesLobby:
-            "Utworzenie nowej aukcji anuluje Twoje lobby {teamA} vs {teamB}.",
-          leavesLobby:
-            "Utworzenie nowej aukcji wypisze Cię z lobby {teamA} vs {teamB}.",
-          teamName: "Nazwa twojej drużyny",
-          budget: "Budżet ($4-$100)",
-          timer: "Czas oferty (10-60 s)",
-          revealOrder: "Pokaż pełną kolejność",
-          revealOrderHint:
-            "Widzowie i kapitanowie zobaczą wszystkich kolejnych graczy.",
-          create: "Utwórz pokój",
-          save: "Zapisz lobby",
-          saving: "Zapisywanie...",
           updated: "Lobby zaktualizowane.",
         },
         room: {
@@ -210,9 +170,6 @@ export default {
           expiredTitle: "Aukcja wygasła",
           expiredDescription:
             "Ten nieaktywny pokój wygasł i nie można go wznowić.",
-        },
-        errors: {
-          load: "Nie udało się pobrać aukcji live.",
         },
       },
       posts: {

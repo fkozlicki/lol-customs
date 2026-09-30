@@ -95,10 +95,6 @@ export default {
       waitingReady: "Waiting for ready",
     },
     creator: {
-      eyebrow: "Auction house",
-      title: "Create a live auction",
-      description:
-        "Pick the eight players the two captains will buy. You captain Team A; the other captain joins from the room link.",
       pool: "Player pool",
       poolHint: "Add eight players from the ladder or by Riot ID.",
       clear: "Clear",
@@ -109,8 +105,6 @@ export default {
       riotIdPlaceholder: "Game Name#TAG",
       add: "Add",
       remove: "Remove player",
-      duplicate: "That Riot ID is already in the pool.",
-      invalidRiotId: "Use the Game Name#TAG format.",
       rules: "Room rules",
       liveAuction:
         "You are a captain in a live auction. Finish or cancel it before creating another.",
@@ -127,7 +121,6 @@ export default {
       create: "Create room",
       save: "Save lobby",
       saving: "Saving...",
-      updated: "Lobby updated.",
     },
     room: {
       teamA: "Team A",

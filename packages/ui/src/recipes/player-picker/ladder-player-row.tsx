@@ -3,22 +3,24 @@
 import { useTranslations } from "next-intl";
 import { Button } from "../../components/button";
 import { RankTag } from "../rank-tag";
-import type { DrawPlayerView } from "./draw-view";
+import type { PickablePlayerView } from "./pickable-player-view";
 
 interface LadderPlayerRowProps {
-  player: DrawPlayerView;
-  /** The roster is full. */
+  player: PickablePlayerView;
+  addLabel: string;
+  /** Nothing more can be picked. */
   disabled: boolean;
   onAdd: () => void;
 }
 
-/** A ladder player who can join the roster. */
+/** A ladder player who can be picked. */
 export function LadderPlayerRow({
   player,
+  addLabel,
   disabled,
   onAdd,
 }: LadderPlayerRowProps) {
-  const t = useTranslations("draw");
+  const t = useTranslations("player");
 
   return (
     <li className="flex h-12 items-center gap-3 pr-1">
@@ -35,7 +37,7 @@ export function LadderPlayerRow({
         disabled={disabled}
         onClick={onAdd}
       >
-        {t("addPlayer")}
+        {addLabel}
       </Button>
     </li>
   );

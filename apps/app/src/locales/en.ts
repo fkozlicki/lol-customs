@@ -35,7 +35,6 @@ export default {
     season: {
       label: "Season {number}",
       allTime: "All seasons",
-      showAllTime: "Show all seasons",
     },
     pages: {
       player: {
@@ -71,52 +70,14 @@ export default {
           bidding: "Bidding live",
           sold_pause: "Sold",
         },
-        list: {
-          create: "Create auction",
-          watch: "Enter room",
-          onStage: "On the stage",
-          price: "Price",
-          starting: "Auction starting",
-          emptyTitle: "No auctions are live",
-          emptyDescription:
-            "Create a room and invite another captain. Lobbies and live auctions appear here.",
-          yours: "Yours",
-          lookingForCaptain: "Looking for a captain",
-          waitingReady: "Waiting for ready",
-        },
         creator: {
           eyebrow: "Auction house",
           title: "Create a live auction",
           description:
             "Pick the eight players the two captains will buy. You captain Team A; the other captain joins from the room link.",
           pool: "Player pool",
-          poolHint: "Add eight players from the ladder or by Riot ID.",
-          clear: "Clear",
-          addPlayers: "From the ladder",
-          search: "Search ladder players...",
-          noResults: "No available players found.",
-          manual: "Add a Riot ID",
-          riotIdPlaceholder: "Game Name#TAG",
-          add: "Add",
-          remove: "Remove player",
           duplicate: "That Riot ID is already in the pool.",
           invalidRiotId: "Use the Game Name#TAG format.",
-          rules: "Room rules",
-          liveAuction:
-            "You are a captain in a live auction. Finish or cancel it before creating another.",
-          goToAuction: "Go to your auction",
-          replacesLobby:
-            "Creating a new auction cancels your lobby {teamA} vs {teamB}.",
-          leavesLobby:
-            "Creating a new auction takes you out of the lobby {teamA} vs {teamB}.",
-          teamName: "Your team name",
-          budget: "Budget ($4-$100)",
-          timer: "Bid timer (10-60s)",
-          revealOrder: "Show the full draw order",
-          revealOrderHint: "Spectators and captains see all upcoming players.",
-          create: "Create room",
-          save: "Save lobby",
-          saving: "Saving...",
           updated: "Lobby updated.",
         },
         room: {
@@ -208,9 +169,6 @@ export default {
           expiredTitle: "Auction expired",
           expiredDescription:
             "This inactive room expired and can no longer be resumed.",
-        },
-        errors: {
-          load: "The live auctions could not be loaded.",
         },
       },
       posts: {

@@ -1,46 +1,53 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { Input } from "../../components/input";
-import type { DrawPlayerView } from "./draw-view";
 import { LadderPlayerRow } from "./ladder-player-row";
+import type { PickablePlayerView } from "./pickable-player-view";
 
 /** A long ladder would be a long page; the search narrows it past this many. */
 const SHOWN = 80;
 
 interface LadderPickerProps {
-  /** Ladder players not on the roster yet, already filtered by the search. */
-  players: DrawPlayerView[];
+  title: string;
+  searchPlaceholder: string;
+  /** What an empty list says with no search typed. */
+  emptyLabel: string;
+  /** What it says when the search matches nobody. */
+  noResultsLabel: string;
+  addLabel: string;
+  /** Ladder players not picked yet, already filtered by the search. */
+  players: PickablePlayerView[];
   search: string;
   onSearchChange: (search: string) => void;
   onAdd: (key: string) => void;
-  /** The roster is full. */
+  /** Nothing more can be picked. */
   full: boolean;
 }
 
-/** Picks roster players from the ladder by name. */
+/** Picks players from the ladder by name. */
 export function LadderPicker({
+  title,
+  searchPlaceholder,
+  emptyLabel,
+  noResultsLabel,
+  addLabel,
   players,
   search,
   onSearchChange,
   onAdd,
   full,
 }: LadderPickerProps) {
-  const t = useTranslations("draw");
-
   return (
     <div>
-      <h2 className="label-caps pb-3 text-foreground">{t("fromLadder")}</h2>
+      <h2 className="label-caps pb-3 text-foreground">{title}</h2>
       <Input
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
-        placeholder={t("searchPlaceholder")}
-        aria-label={t("searchPlaceholder")}
+        placeholder={searchPlaceholder}
+        aria-label={searchPlaceholder}
       />
       <ul className="mt-2 max-h-72 divide-y overflow-y-auto">
         {players.length === 0 ? (
           <li className="py-4 text-sm text-muted-foreground">
-            {search.trim() ? t("noSearchResults") : t("rosterHint")}
+            {search.trim() ? noResultsLabel : emptyLabel}
           </li>
         ) : (
           players
@@ -49,6 +56,7 @@ export function LadderPicker({
               <LadderPlayerRow
                 key={player.key}
                 player={player}
+                addLabel={addLabel}
                 disabled={full}
                 onAdd={() => onAdd(player.key)}
               />

@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { AuctionListSkeleton } from "@v1/ui/recipes/auctions/auction-list-skeleton";
 import { AuctionRoomSkeleton } from "@v1/ui/recipes/auctions/auction-room-skeleton";
 import { ConnectionBadge } from "@v1/ui/recipes/auctions/connection-badge";
+import { LiveAuctionNotice } from "@v1/ui/recipes/auctions/live-auction-notice";
+import { NewAuctionSkeleton } from "@v1/ui/recipes/auctions/new-auction-skeleton";
 
 const meta = {
   title: "Auctions",
@@ -33,4 +35,15 @@ export const ListLoading: StoryObj = {
 export const RoomLoading: StoryObj = {
   parameters: { layout: "fullscreen" },
   render: () => <AuctionRoomSkeleton />,
+};
+
+/** Instead of the setup form, for a captain whose auction is live: one at a time. */
+export const LiveAuction: StoryObj = {
+  render: () => <LiveAuctionNotice onGoToAuction={() => {}} />,
+};
+
+/** The new-auction page while it loads. */
+export const NewLoading: StoryObj = {
+  parameters: { layout: "fullscreen" },
+  render: () => <NewAuctionSkeleton />,
 };

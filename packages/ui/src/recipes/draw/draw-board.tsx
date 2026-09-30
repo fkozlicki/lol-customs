@@ -1,11 +1,12 @@
 "use client";
 
-import { DrawRoster } from "./draw-roster";
+import { useTranslations } from "next-intl";
+import { LadderPicker } from "../player-picker/ladder-picker";
+import { PickedPlayers } from "../player-picker/picked-players";
+import { RiotIdField } from "../player-picker/riot-id-field";
 import { DrawToolbar } from "./draw-toolbar";
 import type { DrawnTeamView, DrawPlayerView } from "./draw-view";
 import { DrawnTeam } from "./drawn-team";
-import { LadderPicker } from "./ladder-picker";
-import { RiotIdField } from "./riot-id-field";
 
 interface DrawBoardProps {
   /** The two drawn teams, once drawn. */
@@ -44,6 +45,7 @@ export function DrawBoard({
   onClear,
   onDraw,
 }: DrawBoardProps) {
+  const t = useTranslations("draw");
   const full = roster.length >= size;
 
   return (
@@ -64,9 +66,20 @@ export function DrawBoard({
       />
 
       <div className="grid gap-10 md:grid-cols-2 md:gap-16">
-        <DrawRoster roster={roster} onRemove={onRemove} />
+        <PickedPlayers
+          title={t("rosterTitle")}
+          emptyHint={t("rosterHint")}
+          removeLabel={t("removePlayer")}
+          players={roster}
+          onRemove={onRemove}
+        />
         <section className="space-y-6">
           <LadderPicker
+            title={t("fromLadder")}
+            searchPlaceholder={t("searchPlaceholder")}
+            emptyLabel={t("rosterHint")}
+            noResultsLabel={t("noSearchResults")}
+            addLabel={t("addPlayer")}
             players={candidates}
             search={search}
             onSearchChange={onSearchChange}
@@ -74,6 +87,10 @@ export function DrawBoard({
             full={full}
           />
           <RiotIdField
+            id="draw-riot-id"
+            label={t("riotIdLabel")}
+            placeholder={t("riotIdPlaceholder")}
+            addLabel={t("addPlayer")}
             value={riotId}
             onChange={onRiotIdChange}
             onAdd={onAddRiotId}

@@ -92,10 +92,6 @@ export default {
       waitingReady: "Czeka na gotowość",
     },
     creator: {
-      eyebrow: "Dom aukcyjny",
-      title: "Utwórz aukcję live",
-      description:
-        "Wybierz ośmiu graczy, których kupią kapitanowie. Ty jesteś kapitanem Team A; drugi kapitan dołącza z linku do pokoju.",
       pool: "Pula graczy",
       poolHint: "Dodaj ośmiu graczy z rankingu lub przez Riot ID.",
       clear: "Wyczyść",
@@ -106,8 +102,6 @@ export default {
       riotIdPlaceholder: "Nick#TAG",
       add: "Dodaj",
       remove: "Usuń gracza",
-      duplicate: "To Riot ID jest już w puli.",
-      invalidRiotId: "Użyj formatu Nick#TAG.",
       rules: "Zasady pokoju",
       liveAuction:
         "Jesteś kapitanem w trwającej aukcji. Dokończ ją albo anuluj, zanim utworzysz kolejną.",
@@ -125,7 +119,6 @@ export default {
       create: "Utwórz pokój",
       save: "Zapisz lobby",
       saving: "Zapisywanie...",
-      updated: "Lobby zaktualizowane.",
     },
     room: {
       teamA: "Team A",

@@ -1,4 +1,5 @@
 import type { TeamRole } from "@v1/game-assets/urls";
+import type { PickablePlayerView } from "../player-picker/pickable-player-view";
 
 /**
  * A draw as its recipes draw it. The app makes these from the ladder's players and
@@ -6,14 +7,7 @@ import type { TeamRole } from "@v1/game-assets/urls";
  */
 
 /** A player on the roster, or on the ladder waiting to be picked. */
-export interface DrawPlayerView {
-  /** The Riot ID, normalised: unique on the roster. */
-  key: string;
-  name: string;
-  rankTier: string | null;
-  /** "gold iv"; null when unranked, which the row says in the reader's language. */
-  rankLabel: string | null;
-}
+export type DrawPlayerView = PickablePlayerView;
 
 /** A player in a drawn team, with the role and captaincy the draw gave them. */
 export interface DrawnPlayerView extends DrawPlayerView {
