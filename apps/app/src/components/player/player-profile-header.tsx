@@ -2,13 +2,14 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ALL_TIME_SEASON } from "@v1/api/season";
-import { ProfileIcon } from "@v1/ui/recipes/game-assets/profile-icon";
+import { PlayerHeader } from "@v1/ui/recipes/player/player-header";
 import { Suspense } from "react";
 import { useTRPC } from "@/trpc/react";
 import { PlayerSoloRank } from "./player-solo-rank";
 
 interface PlayerProfileHeaderProps {
   puuid: string;
+  /** From the URL, until the profile's own record says otherwise. */
   gameName: string;
   tagLine: string;
 }
@@ -20,34 +21,18 @@ export function PlayerProfileHeader({
 }: PlayerProfileHeaderProps) {
   const trpc = useTRPC();
   const { data: stats } = useSuspenseQuery(
-    trpc.players.profileStats.queryOptions({
-      puuid,
-      season: ALL_TIME_SEASON,
-    }),
+    trpc.players.profileStats.queryOptions({ puuid, season: ALL_TIME_SEASON }),
   );
 
-  const name = stats?.player?.game_name ?? gameName;
-  const tag = stats?.player?.tag_line ?? tagLine;
-  const iconId = stats?.player?.profile_icon ?? null;
-
   return (
-    <div className="flex items-center gap-4 sm:gap-6">
-      <ProfileIcon
-        iconId={iconId}
-        name={name}
-        fallbackChars={2}
-        avatarClassName="size-16 rounded-none sm:size-24"
-        fallbackClassName="rounded-none"
-      />
-      <div className="flex min-w-0 flex-col gap-2">
-        <h1 className="truncate text-3xl font-semibold leading-none tracking-[-0.03em] sm:text-5xl">
-          {name}
-          <span className="font-normal text-muted-foreground"> #{tag}</span>
-        </h1>
-        <Suspense fallback={null}>
-          <PlayerSoloRank puuid={puuid} />
-        </Suspense>
-      </div>
-    </div>
+    <PlayerHeader
+      name={stats?.player?.game_name ?? gameName}
+      tagLine={stats?.player?.tag_line ?? tagLine}
+      iconId={stats?.player?.profile_icon ?? null}
+    >
+      <Suspense fallback={null}>
+        <PlayerSoloRank puuid={puuid} />
+      </Suspense>
+    </PlayerHeader>
   );
 }

@@ -40,7 +40,6 @@ export default {
       downloadDesktopApp: "Pobierz Derby Sync",
     },
     footer: {
-      // Riot's required wording, in English on purpose: the policy gives no translation.
       riotNotice:
         "Derby isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
     },
@@ -66,38 +65,7 @@ export default {
     },
     pages: {
       player: {
-        position: "Pozycja",
-        rating: "Punkty",
-        record: "Bilans",
-        kda: "KDA",
-        mvp: "MVP",
-        ace: "ACE",
-        streak: "Seria",
-        best: "Rekord {count}",
-        qualifying: "W kwalifikacjach",
-        qualifyingProgress: "{matches} z {count} meczów",
-        ratingHistory: "Historia punktów",
-        noRatingHistory: "Brak historii punktów.",
-        mostPlayed: "Najczęściej grane",
-        noChampionData: "Brak postaci.",
-        matchesLabel: "mecze",
         matches: "Mecze",
-        unranked: "Bez rangi",
-        soloDuo: "Solo/Duo",
-        teammates: "Drużyna",
-        rivals: "Rywale",
-        mostMatchesWith: "Partner w zbrodni",
-        mostWinsWith: "Talizman",
-        mostLossesWith: "Kumpel do tiltu",
-        bestRecord: "Ulubiony przeciwnik",
-        worstRecord: "Kryptonit",
-        mostKilled: "Worek treningowy",
-        mostKilledBy: "Nemezis",
-        matchesTogether: "razem: {count}",
-        matchesAgainst: "starcia: {count}",
-        killsCount: "zabójstwa: {count}",
-        noRelation: "Za mało meczów",
-        noKillData: "Brak zapisanych zabójstw",
       },
       leaderboard: {
         title: "Ranking",
@@ -323,7 +291,9 @@ export default {
           expiredDescription:
             "Ten nieaktywny pokój wygasł i nie można go wznowić.",
         },
-        errors: { load: "Nie udało się pobrać aukcji live." },
+        errors: {
+          load: "Nie udało się pobrać aukcji live.",
+        },
       },
       posts: {
         title: "Forum",

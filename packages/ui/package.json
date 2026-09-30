@@ -51,6 +51,7 @@
     "./recipes/matches/match-view": "./src/recipes/matches/match-view.ts",
     "./recipes/messages": "./src/recipes/messages/index.ts",
     "./recipes/motion": "./src/recipes/motion.ts",
+    "./recipes/player/player-view": "./src/recipes/player/player-view.ts",
     "./scroll-area": "./src/components/scroll-area.tsx",
     "./separator": "./src/components/separator.tsx",
     "./sheet": "./src/components/sheet.tsx",

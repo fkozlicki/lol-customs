@@ -23,14 +23,14 @@ describe("the composed dictionary", () => {
       messages: MESSAGES.pl,
       namespace: "match",
     });
-    const player = createTranslator({
+    const matches = createTranslator({
       locale: "pl",
       messages: MESSAGES.pl,
-      namespace: "dashboard.pages.player",
+      namespace: "dashboard.pages.matchHistory",
     });
 
     expect(match("victory")).toBe("Wygrana");
-    expect(player("rating")).toBe(pl.dashboard.pages.player.rating);
+    expect(matches("title")).toBe(pl.dashboard.pages.matchHistory.title);
   });
 
   test("types a key neither side has as an error", () => {
