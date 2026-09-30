@@ -1,21 +1,15 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
-import { TipTapRenderer } from "@v1/ui/recipes/forum/tiptap-renderer";
-import { Icons } from "@v1/ui/recipes/icons";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { PostArticle } from "@v1/ui/recipes/forum/post-article";
 import { useTRPC } from "@/trpc/react";
 import { CommentList } from "./comment-list";
 import { PostReactions } from "./post-reactions";
+import { toPostArticleView } from "./post-view";
+import type { Reaction } from "./reactions";
 
-interface PostDetailProps {
-  postId: string;
-}
-
-export function PostDetails({ postId }: PostDetailProps) {
-  const t = useTranslations("dashboard.pages.posts");
+/** A post on its own page, with its reactions and comments. */
+export function PostDetails({ postId }: { postId: string }) {
   const trpc = useTRPC();
   const { data: post } = useSuspenseQuery(
     trpc.forum.posts.get.queryOptions({ id: postId }),
@@ -23,44 +17,19 @@ export function PostDetails({ postId }: PostDetailProps) {
 
   if (!post) return null;
 
-  const author = Array.isArray(post.author) ? post.author[0] : post.author;
-
   return (
-    <article className="space-y-8">
-      <Link
-        href="/posts"
-        className="label-caps inline-flex items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"
-      >
-        <Icons.ChevronLeft className="size-3.5" />
-        {t("backToPosts")}
-      </Link>
-
-      <header className="space-y-4">
-        <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-5xl">
-          {post.title}
-        </h1>
-        <AuthorLine
-          name={author?.nickname ?? t("unknown")}
-          avatarUrl={author?.avatar_url}
-          date={post.created_at}
-          size="md"
-        />
-      </header>
-
-      {post.content && Object.keys(post.content).length > 0 && (
-        <TipTapRenderer content={post.content as Record<string, unknown>} />
-      )}
-
-      <div className="flex items-center gap-2">
+    <PostArticle
+      post={toPostArticleView(post)}
+      backHref="/posts"
+      reactions={
         <PostReactions
           postId={post.id}
           likes={post.likes}
           dislikes={post.dislikes}
-          reactions={post.reactions as { type: string; user_id: string }[]}
+          reactions={post.reactions as Reaction[]}
         />
-      </div>
-
-      <CommentList postId={postId} />
-    </article>
+      }
+      comments={<CommentList postId={postId} />}
+    />
   );
 }

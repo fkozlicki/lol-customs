@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-card-skeleton";
 import PostDetailsSkeleton from "@v1/ui/recipes/forum/post-details-skeleton";
-import PostListSkeleton, {
-  PostCardSkeleton,
-} from "@v1/ui/recipes/forum/post-list-skeleton";
+import PostListSkeleton from "@v1/ui/recipes/forum/post-list-skeleton";
 
 const meta = {
   title: "Forum/Skeletons",

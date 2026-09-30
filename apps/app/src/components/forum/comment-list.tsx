@@ -1,79 +1,49 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Button } from "@v1/ui/button";
-import { AuthorLine } from "@v1/ui/recipes/forum/author-line";
-import { TipTapRenderer } from "@v1/ui/recipes/forum/tiptap-renderer";
-import { useTranslations } from "next-intl";
+import { CommentItem } from "@v1/ui/recipes/forum/comment-item";
+import { CommentSection } from "@v1/ui/recipes/forum/comment-section";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/react";
 import { CommentForm } from "./comment-form";
 import { CommentReactions } from "./comment-reactions";
+import { toCommentView } from "./post-view";
 
-interface CommentListProps {
-  postId: string;
-}
-
-export function CommentList({ postId }: CommentListProps) {
-  const t = useTranslations("dashboard.pages.posts");
+/** The thread under a post, with the form to add to it. */
+export function CommentList({ postId }: { postId: string }) {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
     trpc.forum.comments.list.queryOptions({ postId }),
   );
-  const [showForm, setShowForm] = useState(false);
+  const [composing, setComposing] = useState(false);
 
   return (
-    <section className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="label-caps text-foreground">
-          {t("comments.title", { count: data.items.length })}
-        </h2>
-        {!showForm && (
-          <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
-            {t("comments.joinConversation")}
-          </Button>
-        )}
-      </div>
-
-      {showForm && (
-        <CommentForm postId={postId} onCancel={() => setShowForm(false)} />
-      )}
-
-      {data.items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {t("comments.noComments")}
-        </p>
-      ) : (
-        <ol className="divide-y border-b">
-          {data.items.map((comment) => {
-            const author = Array.isArray(comment.author)
-              ? comment.author[0]
-              : comment.author;
-            const reactions = Array.isArray(comment.reactions)
-              ? comment.reactions
-              : [];
-            return (
-              <li key={comment.id} className="space-y-2 py-5">
-                <AuthorLine
-                  name={author?.nickname ?? t("unknown")}
-                  avatarUrl={author?.avatar_url}
-                  date={comment.created_at}
-                />
-                <TipTapRenderer
-                  content={comment.content as Record<string, unknown>}
-                />
-                <CommentReactions
-                  commentId={comment.id}
-                  postId={postId}
-                  likes={comment.likes}
-                  dislikes={comment.dislikes}
-                  reactions={reactions}
-                />
-              </li>
-            );
-          })}
-        </ol>
-      )}
-    </section>
+    <CommentSection
+      count={data.items.length}
+      composer={
+        composing ? (
+          <CommentForm postId={postId} onCancel={() => setComposing(false)} />
+        ) : null
+      }
+      onCompose={() => setComposing(true)}
+    >
+      {data.items.map((comment) => (
+        <CommentItem
+          key={comment.id}
+          comment={toCommentView(comment)}
+          reactions={
+            <CommentReactions
+              commentId={comment.id}
+              postId={postId}
+              likes={comment.likes}
+              dislikes={comment.dislikes}
+              reactions={
+                Array.isArray(comment.reactions) ? comment.reactions : []
+              }
+            />
+          }
+        />
+      ))}
+    </CommentSection>
   );
 }

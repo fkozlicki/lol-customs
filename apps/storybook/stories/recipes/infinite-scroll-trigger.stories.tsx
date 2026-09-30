@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-list-skeleton";
+import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-card-skeleton";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
 

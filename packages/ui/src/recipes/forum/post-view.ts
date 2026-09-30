@@ -17,3 +17,22 @@ export interface PostCardView {
   dislikes: number;
   commentCount: number;
 }
+
+/** A post as its page shows it. */
+export interface PostArticleView {
+  title: string;
+  authorName: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+  /** The body as TipTap JSON; null for an empty one. */
+  content: Record<string, unknown> | null;
+}
+
+/** A comment under a post. */
+export interface CommentView {
+  id: string;
+  authorName: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+  content: Record<string, unknown>;
+}
