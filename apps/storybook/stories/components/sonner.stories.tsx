@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
 import { Toaster, toast } from "@v1/ui/sonner";
-import { expect, screen, waitFor } from "storybook/test";
+import { expect, screen } from "storybook/test";
 
 const meta = {
   title: "Components/Toast",
@@ -18,14 +18,14 @@ type Story = StoryObj<typeof meta>;
  * a failed reaction, a rejected upload.
  */
 export const Default: Story = {
+  // Chromatic freezes CSS transitions at their start, where a sonner toast is still at opacity 0;
+  // the snapshot takes their end instead, and the test checks the toast arrived, not how far it slid.
+  parameters: { chromatic: { pauseAnimationAtEnd: true } },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Error" }));
-    // The toast slides in; wait until it has, rather than judging it mid-transition.
-    await waitFor(
-      () =>
-        expect(screen.getByText("Could not save your reaction.")).toBeVisible(),
-      { timeout: 3000 },
-    );
+    await expect(
+      await screen.findByText("Could not save your reaction."),
+    ).toBeInTheDocument();
   },
   render: (args) => (
     <>
