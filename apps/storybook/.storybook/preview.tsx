@@ -97,6 +97,20 @@ const VIEWPORTS = {
 const preview: Preview = {
   // Every component gets a docs page: its props table and every story, with their comments.
   tags: ["autodocs"],
+  argsEnhancers: [
+    // A prop with a default in the component's signature starts on it, so a select or radio in
+    // Controls shows the variant the component renders with, not "Choose option…", without a story
+    // having to repeat it.
+    ({ argTypes, initialArgs }) =>
+      Object.fromEntries(
+        Object.entries(argTypes).flatMap(([name, argType]) => {
+          const summary = argType.table?.defaultValue?.summary;
+          if (name in initialArgs || !argType.options || !summary) return [];
+          const value = summary.replace(/^["']|["']$/g, "");
+          return argType.options.includes(value) ? [[name, value]] : [];
+        }),
+      ),
+  ],
   decorators: [
     withGeist,
     withLocale,

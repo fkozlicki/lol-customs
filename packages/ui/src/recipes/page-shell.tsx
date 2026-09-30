@@ -32,7 +32,12 @@ interface PageShellProps
   extends React.ComponentProps<"div">,
     VariantProps<typeof pageShell> {}
 
-export function PageShell({ width, gap, className, ...props }: PageShellProps) {
+export function PageShell({
+  width = "wide",
+  gap = "sections",
+  className,
+  ...props
+}: PageShellProps) {
   return (
     <div className={cn(pageShell({ width, gap }), className)} {...props} />
   );
