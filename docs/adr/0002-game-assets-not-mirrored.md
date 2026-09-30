@@ -20,12 +20,12 @@ a group of about thirty.
    with a 31-day cache — the part of a mirror that matters to a reader, without owning the bytes.
 2. **Rank crests, role icons and objective icons are self-hosted** under `apps/app/public/game/`. They are
    a small fixed set that Data Dragon does not carry, so they are downloaded once from a pinned Community
-   Dragon version by `apps/app/scripts/generate-game-data.ts`, never from its moving `latest`.
+   Dragon version by `apps/app/scripts/download-game-icons.ts`, never from its moving `latest`.
 3. **They are Riot's files, as published — not redrawn.** Monochrome icons of our own would sit closer to
    DESIGN.md's graphite and paper; the owner chose Riot's.
 4. **The champion list is generated into the repository**
-   (`packages/ui/src/recipes/game-assets/champions.ts`) rather than downloaded at runtime, and the patch
-   is fetched once an hour on the server.
+   (`packages/game-assets/src/champions.generated.ts`) rather than downloaded at runtime, and the patch
+   is fetched once an hour on the server. Where that code lives is [ADR 0006](0006-game-assets-are-one-package.md).
 
 ## Why not a mirror
 
@@ -38,10 +38,10 @@ a group of about thirty.
 
 ## Consequences
 
-- A champion released after `champions.ts` was generated shows a placeholder until the generator is run
-  again.
+- A champion released after the champion list was generated shows a placeholder until
+  `bun generate:game-data` is run again.
 - Image optimisation runs on Vercel and counts against its limits; with patch-addressed URLs cached for a
   month, a group this size stays far inside them.
 - Revisit if Derby wants transforms `next/image` cannot do (op.gg's border crop), or if those limits start
-  to bite. Switching origin is a change to `packages/ui/src/recipes/game-assets/asset-urls.ts`
-  alone.
+  to bite. Switching origin is a change to `packages/game-assets/src/urls.ts` alone, for the app and
+  Derby Sync both.

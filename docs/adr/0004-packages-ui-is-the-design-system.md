@@ -64,7 +64,8 @@ reused had no story and nobody could see what already existed.
 - `next` is a peer dependency of `packages/ui`.
 - A string a recipe renders goes into `packages/ui/src/recipes/messages`; every other string into
   `apps/app/src/locales`. Both need `en` and `pl`, and ADR 0005 says how they are composed.
-- Game-asset code (URL builders, the generated champion list, the patch provider) lives with the recipes
-  that use it. The self-hosted icons stay in `apps/app/public/game/`, which Next serves and Storybook maps
+- Game-asset knowledge — the champion list, URL builders, which patch — is not visual and lives in its
+  own package ([ADR 0006](0006-game-assets-are-one-package.md)); the image recipes and the patch provider
+  stay here. The self-hosted icons stay in `apps/app/public/game/`, which Next serves and Storybook maps
   with `staticDirs`.
 - Revisit the lcu rule if Derby Sync adopts the design system's tokens.

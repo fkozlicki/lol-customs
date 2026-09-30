@@ -14,6 +14,11 @@ Art from League of Legends shown in the app: champion portraits, item and spell 
 rank crests, and role and objective icons. It is Riot's, and the app shows it as Riot publishes it.
 _Avoid_: Sprite, image, icon (alone)
 
+**Patch**:
+A version of League of Legends, such as 16.19. Game assets are shown from the latest patch Riot has
+published. A match records the patch it was played on, which has nothing to do with the ladder's season.
+_Avoid_: Version (alone), build
+
 ### Matches
 
 **Match**:
