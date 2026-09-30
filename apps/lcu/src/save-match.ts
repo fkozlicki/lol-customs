@@ -1,6 +1,6 @@
 import type { LcuMatchDetails } from "./lcu-types.js";
 import { supabase } from "./supabase.js";
-import { transformMatch, type TransformOptions } from "./transform-match.js";
+import { type TransformOptions, transformMatch } from "./transform-match.js";
 
 export type SaveMatchResult = { saved: true } | { saved: false; error: string };
 

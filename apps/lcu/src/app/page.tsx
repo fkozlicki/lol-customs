@@ -1,5 +1,12 @@
 "use client";
 
+import { champion, GENERATED_PATCH } from "@v1/game-assets/champions";
+import { latestPatch } from "@v1/game-assets/patch";
+import {
+  championImageUrl,
+  itemImageUrl,
+  spellImageUrl,
+} from "@v1/game-assets/urls";
 import { Alert, AlertDescription, AlertTitle } from "@v1/ui/alert";
 import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
@@ -14,7 +21,6 @@ import {
 import { Icons } from "@v1/ui/icons";
 import { useCallback, useEffect, useState } from "react";
 import { LolStatus } from "@/app/lol-status";
-import { championIconUrl, itemIconUrl, spellIconUrl } from "@/asset-urls";
 
 type GameForUi = {
   match: {
@@ -82,17 +88,19 @@ interface GameCardProps {
   game: GameForUi;
   isSelected: boolean;
   onToggle: () => void;
-  ddVersion: string;
+  /** The patch game assets are drawn from. */
+  patch: string;
 }
 
 const ITEM_SLOTS = [0, 1, 2, 3, 4, 5, 6] as const;
 
-function GameCard({ game, isSelected, onToggle, ddVersion }: GameCardProps) {
+function GameCard({ game, isSelected, onToggle, patch }: GameCardProps) {
   const { match, isSaved } = game;
   const self = match.participants[0];
   if (!self) return null;
 
   const stats = self.stats;
+  const played = champion(self.championId);
   const kda = `${stats.kills} / ${stats.deaths} / ${stats.assists}`;
   const cs =
     (stats.totalMinionsKilled ?? 0) + (stats.neutralMinionsKilled ?? 0);
@@ -135,11 +143,14 @@ function GameCard({ game, isSelected, onToggle, ddVersion }: GameCardProps) {
             className="size-4 shrink-0 rounded border-amber-500/50 bg-zinc-800 text-amber-500 focus:ring-amber-500/50"
           />
           <div className="relative flex size-10 shrink-0 overflow-hidden rounded-full border border-amber-500/30 bg-zinc-800">
-            <img
-              src={championIconUrl(self.championId)}
-              alt=""
-              className="size-full object-cover"
-            />
+            {/* A champion released since the list was generated has no art until it is regenerated. */}
+            {played ? (
+              <img
+                src={championImageUrl(patch, played.imageFile)}
+                alt={played.name}
+                className="size-full object-cover"
+              />
+            ) : null}
             <span className="absolute bottom-0 right-0 rounded-tl-lg bg-black/80 px-1 text-[10px] font-medium text-white">
               {stats.champLevel}
             </span>
@@ -157,12 +168,12 @@ function GameCard({ game, isSelected, onToggle, ddVersion }: GameCardProps) {
           <span className="text-[11px] text-zinc-500">Custom</span>
           <div className="flex gap-0.5 pt-0.5">
             <img
-              src={spellIconUrl(self.spell1Id, ddVersion)}
+              src={spellImageUrl(patch, self.spell1Id)}
               alt=""
               className="size-4 rounded border border-amber-500/20 object-cover"
             />
             <img
-              src={spellIconUrl(self.spell2Id, ddVersion)}
+              src={spellImageUrl(patch, self.spell2Id)}
               alt=""
               className="size-4 rounded border border-amber-500/20 object-cover"
             />
@@ -182,7 +193,7 @@ function GameCard({ game, isSelected, onToggle, ddVersion }: GameCardProps) {
               >
                 {id ? (
                   <img
-                    src={itemIconUrl(id, ddVersion)}
+                    src={itemImageUrl(patch, id)}
                     alt=""
                     className="size-full object-cover"
                   />
@@ -233,13 +244,11 @@ export default function Home() {
   const [result, setResult] = useState<ResultState>({ type: "idle" });
   const [folderError, setFolderError] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [ddVersion, setDdVersion] = useState("14.6.1");
+  const [patch, setPatch] = useState(GENERATED_PATCH);
 
+  // Never rejects: when Data Dragon can't be reached, it answers with the patch above.
   useEffect(() => {
-    fetch("https://ddragon.leagueoflegends.com/api/versions.json")
-      .then((r) => r.json() as Promise<string[]>)
-      .then((versions) => setDdVersion(versions[0] ?? "14.6.1"))
-      .catch(() => {});
+    latestPatch().then(setPatch);
   }, []);
 
   const refreshConfig = useCallback(() => {
@@ -422,7 +431,7 @@ export default function Home() {
                   onToggle={() =>
                     toggleSelection(game.match.gameId, game.isSaved)
                   }
-                  ddVersion={ddVersion}
+                  patch={patch}
                 />
               </li>
             ))}
