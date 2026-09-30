@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
-import { SectionHeading } from "../page-header";
+import { SectionHeading } from "../section-heading";
 
 interface PlayerProfileLayoutProps {
   header: ReactNode;

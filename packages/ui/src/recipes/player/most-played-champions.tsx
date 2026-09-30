@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { ChampionImage } from "../game-assets/champion-image";
-import { SectionHeading } from "../page-header";
+import { SectionHeading } from "../section-heading";
 import { WinLoss } from "../win-loss";
 import type { ChampionStatView } from "./player-view";
 

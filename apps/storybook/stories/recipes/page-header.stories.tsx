@@ -4,11 +4,9 @@
  */
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
-import {
-  PageHeader,
-  PageHeaderSkeleton,
-  SectionHeading,
-} from "@v1/ui/recipes/page-header";
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageHeaderSkeleton } from "@v1/ui/recipes/page-header-skeleton";
+import { SectionHeading } from "@v1/ui/recipes/section-heading";
 
 const meta = {
   title: "Page header",

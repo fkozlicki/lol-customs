@@ -17,7 +17,7 @@ import {
   ChartTooltipContent,
 } from "../../components/chart";
 import { DURATION } from "../motion";
-import { SectionHeading } from "../page-header";
+import { SectionHeading } from "../section-heading";
 import type { RatingPointView, SeasonMarkerView } from "./player-view";
 
 interface RatingHistoryChartProps {

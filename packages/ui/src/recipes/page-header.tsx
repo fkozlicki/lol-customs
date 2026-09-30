@@ -1,5 +1,3 @@
-import { Skeleton } from "../components/skeleton";
-
 interface PageHeaderProps {
   title: string;
   description?: string;
@@ -8,6 +6,7 @@ interface PageHeaderProps {
   children?: React.ReactNode;
 }
 
+/** A page's title, with the season or section above it and a line about it below. */
 export function PageHeader({
   title,
   description,
@@ -29,34 +28,5 @@ export function PageHeader({
       </div>
       {children}
     </header>
-  );
-}
-
-/** Uppercase section title with a hairline above; the standard block heading below a page header. */
-export function SectionHeading({
-  children,
-  action,
-}: {
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between pb-3">
-      <h2 className="label-caps text-foreground">{children}</h2>
-      {action}
-    </div>
-  );
-}
-
-/** Matches PageHeader while the page loads. */
-export function PageHeaderSkeleton({ eyebrow = false }: { eyebrow?: boolean }) {
-  return (
-    <div className="flex flex-col gap-4 border-b pb-6">
-      <div className="space-y-2">
-        {eyebrow && <Skeleton className="h-4 w-20" />}
-        <Skeleton className="h-9 w-56 sm:h-14 sm:w-80" />
-        <Skeleton className="h-4 w-64" />
-      </div>
-    </div>
   );
 }

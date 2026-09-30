@@ -6,6 +6,8 @@
  * colour in both themes.
  */
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Section } from "./tokens/section";
+import { Swatch } from "./tokens/swatch";
 
 /** The meta names the component; `titlePrefix` in `.storybook/main.ts` names the tier. */
 const meta = {
@@ -14,38 +16,6 @@ const meta = {
 } satisfies Meta;
 
 export default meta;
-
-function Section({
-  title,
-  note,
-  children,
-}: {
-  title: string;
-  note?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-4 border-t pt-6">
-      <div className="space-y-1">
-        <h2 className="label-caps">{title}</h2>
-        {note ? (
-          <p className="max-w-prose text-muted-foreground text-sm">{note}</p>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-/** A swatch names the token, so a reader can copy the class rather than guess the hue. */
-function Swatch({ token, className }: { token: string; className: string }) {
-  return (
-    <div className="space-y-2">
-      <div className={`h-16 w-full border ${className}`} />
-      <p className="num text-xs">{token}</p>
-    </div>
-  );
-}
 
 const surfaces = [
   ["background", "bg-background"],

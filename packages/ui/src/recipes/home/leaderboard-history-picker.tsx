@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { ScrollArea, ScrollBar } from "../../components/scroll-area";
 import { cn } from "../../utils/cn";
+import { HistoryPickerButton } from "./history-picker-button";
 
 interface LeaderboardHistoryPickerProps {
   /** The match counts the standings can be replayed after, in order; live comes last. */
@@ -31,46 +32,24 @@ export default function LeaderboardHistoryPicker({
         <ScrollArea className="min-w-0 flex-1">
           <div className="flex">
             {options.map((gameCount) => (
-              <PickerButton
+              <HistoryPickerButton
                 key={gameCount}
                 active={value === gameCount}
                 onClick={() => onChange(gameCount)}
               >
                 {gameCount}
-              </PickerButton>
+              </HistoryPickerButton>
             ))}
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        <PickerButton active={value == null} onClick={() => onChange(null)}>
+        <HistoryPickerButton
+          active={value == null}
+          onClick={() => onChange(null)}
+        >
           {t("historyLive")}
-        </PickerButton>
+        </HistoryPickerButton>
       </div>
     </div>
-  );
-}
-
-function PickerButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "num h-8 min-w-10 shrink-0 border-r px-2 text-xs uppercase transition-colors last:border-r-0",
-        active
-          ? "bg-foreground text-background"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground",
-      )}
-    >
-      {children}
-    </button>
   );
 }
