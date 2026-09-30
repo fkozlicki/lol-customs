@@ -27,6 +27,9 @@ See [README.md](README.md) for setup.
 - `packages/ui`: Derby's design system (`@v1/ui/*`): shadcn primitives in `src/components`, and the
   recipes built on them in `src/recipes` — Derby's visual components, with their own dictionary.
   See [its README](packages/ui/README.md) and ADR 0004.
+- `packages/game-assets`: what Derby knows about game assets — the generated champion list, every asset
+  URL, which patch to draw from (`latestPatch`). Plain TypeScript, used by the app, the design system and
+  Derby Sync (ADR 0006).
 - `packages/logger`, `tooling/typescript`: logger and shared tsconfig.
 
 ## Commands
@@ -42,7 +45,7 @@ bun typecheck
 bun format
 bun db:reset         # rebuild the local Supabase DB from migrations
 bun generate:types   # regenerate packages/supabase/src/types/db.ts from the local DB
-bun run --cwd apps/app generate:game-data   # refresh the champion list after a champion release
+bun generate:game-data   # refresh the champion list and self-hosted icons after a champion release
 bun run --cwd apps/storybook test:stories   # renders every story in both locales; needs build-storybook first, not run in CI
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```

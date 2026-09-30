@@ -31,8 +31,9 @@ A recipe takes plain props (strings, numbers, hrefs, callbacks) and renders. Wha
   instead of resolving against the wrong `src`.
 
 Biome's `noRestrictedImports` enforces all of that for `src/**`. What a recipe may use: the primitives,
-`next/image` (game art, ADR 0002), `next/link` with the `href` passed in, `motion`, `date-fns`,
-`react-intersection-observer` and `@tiptap/*`.
+`@v1/game-assets` for champion data and asset URLs (ADR 0006), `next/image` (game art, ADR 0002),
+`next/link` with the `href` passed in, `motion`, `date-fns`, `react-intersection-observer` and
+`@tiptap/*`.
 
 ### Strings
 
