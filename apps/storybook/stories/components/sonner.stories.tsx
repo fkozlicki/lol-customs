@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
 import { Toaster, toast } from "@v1/ui/sonner";
-import { expect, screen } from "storybook/test";
+import { expect, screen, waitFor } from "storybook/test";
 
 const meta = {
   title: "Components/Toast",
@@ -20,9 +20,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Error" }));
-    await expect(
-      await screen.findByText("Could not save your reaction."),
-    ).toBeVisible();
+    // The toast slides in; wait until it has, rather than judging it mid-transition.
+    await waitFor(
+      () =>
+        expect(screen.getByText("Could not save your reaction.")).toBeVisible(),
+      { timeout: 3000 },
+    );
   },
   render: (args) => (
     <>

@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { MobileNav } from "@v1/ui/recipes/dashboard/mobile-nav";
 import { expect, screen } from "storybook/test";
+import { chromaticAt } from "../../modes";
 import { wordsFor } from "../../words";
 import { FORUM, PRIMARY, TOOLS } from "./nav.fixtures";
 
 const meta = {
   title: "Dashboard/Mobile nav",
   component: MobileNav,
-  parameters: { layout: "fullscreen" },
+  parameters: { layout: "fullscreen", ...chromaticAt("phone") },
   // The bar only shows below md; the story opens on a phone.
   globals: { viewport: { value: "phone", isRotated: false } },
   args: { tabs: [...PRIMARY, FORUM], more: TOOLS },

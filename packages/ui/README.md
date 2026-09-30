@@ -132,6 +132,8 @@ Storybook and only logs them) and on rendering nothing. So a story is written to
 - **A controlled recipe holds its state in the story**, in a small wrapper keyed by the args, so typing
   works in Storybook and in the tests alike (`useArgs` does not re-render a story under Vitest).
 - **One component per story file**, named in the meta, so each gets its own docs page.
+- **A story that opens on a viewport tells Chromatic too**, with `chromaticAt("phone")` from
+  `stories/modes.ts`: the tests honour `globals.viewport`, but Chromatic snapshots at its own 1200 px.
 - **An accessibility exception is per story**: one rule off in `parameters.a11y.config.rules`, with a
   comment saying why. A reason that recurs lives once in `stories/a11y.ts` (`OPEN_RADIX_MENU`).
 - **Comments are the documentation.** The JSDoc above a component and above each story is its text on
