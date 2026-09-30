@@ -46,6 +46,7 @@
     "./progress": "./src/components/progress.tsx",
     "./recipes/*": "./src/recipes/*.tsx",
     "./recipes/auctions/auction-list-view": "./src/recipes/auctions/auction-list-view.ts",
+    "./recipes/auctions/auction-room-view": "./src/recipes/auctions/auction-room-view.ts",
     "./recipes/auctions/auction-settings": "./src/recipes/auctions/auction-settings.ts",
     "./recipes/dashboard/nav-item": "./src/recipes/dashboard/nav-item.ts",
     "./recipes/draw/draw-view": "./src/recipes/draw/draw-view.ts",
