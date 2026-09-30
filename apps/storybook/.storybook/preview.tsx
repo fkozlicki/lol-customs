@@ -58,6 +58,11 @@ const LOCALE_NAMES: Record<Locale, string> = {
   pl: "Polski",
 };
 
+/** A story index entry as `storySort` receives it; the title is all it reads. */
+interface SortableEntry {
+  title: string;
+}
+
 const preview: Preview = {
   decorators: [
     withGeist,
@@ -85,6 +90,38 @@ const preview: Preview = {
   parameters: {
     layout: "centered",
     controls: { expanded: true },
+    options: {
+      /**
+       * At every level of the sidebar, folders first and then components, each alphabetically. A
+       * component's stories keep the order they are exported in, which is the order they are told.
+       *
+       * Storybook lifts this function out of the file and evaluates it on its own, so it is written
+       * inline, uses nothing from outside itself and carries no annotations; `satisfies` below types it.
+       */
+      storySort: (a, b) => {
+        const left = a.title.trim().split(/\s*\/\s*/);
+        const right = b.title.trim().split(/\s*\/\s*/);
+        const depth = Math.max(left.length, right.length);
+        for (let level = 0; level < depth; level++) {
+          const leftName = left[level];
+          const rightName = right[level];
+          if (leftName === rightName) continue;
+          // A title that ends here puts its stories straight into the folder: after its children.
+          if (leftName === undefined) return 1;
+          if (rightName === undefined) return -1;
+          const leftIsFolder = level < left.length - 1;
+          const rightIsFolder = level < right.length - 1;
+          if (leftIsFolder !== rightIsFolder) return leftIsFolder ? -1 : 1;
+          return leftName.localeCompare(rightName, "en", {
+            numeric: true,
+            sensitivity: "base",
+          });
+        }
+        return 0;
+      },
+    },
+  } satisfies Preview["parameters"] & {
+    options: { storySort: (a: SortableEntry, b: SortableEntry) => number };
   },
 };
 
