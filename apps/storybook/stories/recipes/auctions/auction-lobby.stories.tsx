@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { AuctionLobby } from "@v1/ui/recipes/auctions/auction-lobby";
+import { expect, fn } from "storybook/test";
+import { wordsFor } from "../../words";
 import { lobby } from "./auction-room.fixtures";
-
-const noop = () => {};
 
 const meta = {
   title: "Auctions/Lobby",
@@ -12,14 +12,14 @@ const meta = {
     lobby: lobby(),
     renaming: false,
     busy: { ready: false, seat: false, rename: false, join: false },
-    onToggleReady: noop,
-    onRenameStart: noop,
-    onRenameSave: noop,
-    onRenameCancel: noop,
-    onSeatAction: noop,
-    onJoin: noop,
-    onCopyInvite: noop,
-    onEditPool: noop,
+    onToggleReady: fn(),
+    onRenameStart: fn(),
+    onRenameSave: fn(),
+    onRenameCancel: fn(),
+    onSeatAction: fn(),
+    onJoin: fn(),
+    onCopyInvite: fn(),
+    onEditPool: fn(),
   },
 } satisfies Meta<typeof AuctionLobby>;
 
@@ -37,13 +37,43 @@ const creator = lobby({
 });
 
 /** A visitor sees the open seat and can take it. */
-export const Visitor: Story = {};
+export const Visitor: Story = {
+  play: async ({ args, canvas, globals, userEvent }) => {
+    const t = wordsFor(globals).auctions;
+    await userEvent.click(canvas.getByRole("button", { name: t.actions.join }));
+    await expect(args.onJoin).toHaveBeenCalledOnce();
+  },
+};
 
 /** The creator waits for a second captain, with the room's link to send, and can edit the pool. */
-export const Creator: Story = { args: { lobby: creator } };
+export const Creator: Story = {
+  args: { lobby: creator },
+  play: async ({ args, canvas, globals, userEvent }) => {
+    const t = wordsFor(globals).auctions;
+    await userEvent.click(
+      canvas.getByRole("button", { name: t.lobby.copyLink }),
+    );
+    await expect(args.onCopyInvite).toHaveBeenCalledOnce();
+    await userEvent.click(canvas.getByRole("button", { name: t.lobby.edit }));
+    await expect(args.onEditPool).toHaveBeenCalledOnce();
+    await userEvent.click(
+      canvas.getByRole("button", { name: t.actions.unready }),
+    );
+    await expect(args.onToggleReady).toHaveBeenCalledOnce();
+  },
+};
 
 /** The creator renaming their team. */
-export const Renaming: Story = { args: { lobby: creator, renaming: true } };
+export const Renaming: Story = {
+  args: { lobby: creator, renaming: true },
+  play: async ({ args, canvas, globals, userEvent }) => {
+    const t = wordsFor(globals).auctions.lobby;
+    const field = canvas.getByRole("textbox", { name: t.teamName });
+    await userEvent.clear(field);
+    await userEvent.type(field, "Pierogi Gang{Enter}");
+    await expect(args.onRenameSave).toHaveBeenLastCalledWith("Pierogi Gang");
+  },
+};
 
 /** Team B's captain joined but is not ready yet; they can leave their seat. */
 export const SecondCaptain: Story = {

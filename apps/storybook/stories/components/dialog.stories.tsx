@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@v1/ui/dialog";
+import { expect, screen, waitFor } from "storybook/test";
 
 const meta = {
   title: "Components/Dialog",
@@ -54,8 +55,16 @@ export const Default: Story = {
   ),
 };
 
-/** Closed, so the trigger is what you see — useful for checking it in a layout. */
+/** Closed, so the trigger is what you see; it opens the dialog, and Escape closes it again. */
 export const Closed: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Open" }));
+    await expect(
+      await screen.findByRole("dialog", { name: "Nothing here yet" }),
+    ).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
   render: (args) => (
     <Dialog {...args}>
       <DialogTrigger asChild>

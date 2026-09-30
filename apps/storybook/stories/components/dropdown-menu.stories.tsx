@@ -12,6 +12,7 @@ import {
 } from "@v1/ui/dropdown-menu";
 import { Icons } from "@v1/ui/icons";
 import { expect, screen } from "storybook/test";
+import { OPEN_RADIX_MENU } from "../a11y";
 
 const meta = {
   title: "Components/Dropdown menu",
@@ -28,15 +29,7 @@ type Story = StoryObj<typeof meta>;
  * the app; the test clicks it and checks the menu is there.
  */
 export const Default: Story = {
-  parameters: {
-    a11y: {
-      config: {
-        // An open Radix menu is modal: it hides everything else from assistive technology, trigger
-        // included, and keeps focus inside itself, so the hidden trigger cannot be reached meanwhile.
-        rules: [{ id: "aria-hidden-focus", enabled: false }],
-      },
-    },
-  },
+  parameters: OPEN_RADIX_MENU,
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Account" }));
     await expect(

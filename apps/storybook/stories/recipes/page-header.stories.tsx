@@ -1,12 +1,10 @@
 /**
  * `PageHeader` opens every page, so the stories are the shapes it actually takes: with an eyebrow on a
- * season-scoped page, with an action, and the skeleton that stands in while the page loads.
+ * season-scoped page, and with an action.
  */
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
 import { PageHeader } from "@v1/ui/recipes/page-header";
-import { PageHeaderSkeleton } from "@v1/ui/recipes/page-header-skeleton";
-import { SectionHeading } from "@v1/ui/recipes/section-heading";
 
 const meta = {
   title: "Page header",
@@ -42,20 +40,4 @@ export const LongDescription: Story = {
     description:
       "Forty titles, awarded once a season, each one earned by a single number: the most kills in a match, the longest win streak, the worst KDA anybody has managed to survive.",
   },
-};
-
-export const Skeleton: StoryObj = {
-  render: () => <PageHeaderSkeleton eyebrow />,
-};
-
-/** The block heading below a page header — one implementation, not five. */
-export const Section: StoryObj = {
-  render: () => (
-    <div className="space-y-10">
-      <SectionHeading>Recent matches</SectionHeading>
-      <SectionHeading action={<Button variant="ghost">See all</Button>}>
-        Standings
-      </SectionHeading>
-    </div>
-  ),
 };

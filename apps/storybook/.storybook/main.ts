@@ -15,9 +15,10 @@ const config: StorybookConfig = {
   framework: "@storybook/nextjs-vite",
   stories: [
     {
+      // The tokens, and the pages written in MDX: the introduction and DESIGN.md.
       titlePrefix: "Design system",
       directory: "../stories",
-      files: "tokens.stories.tsx",
+      files: "@(tokens.stories.tsx|*.mdx)",
     },
     {
       titlePrefix: "Design system",
@@ -27,7 +28,7 @@ const config: StorybookConfig = {
     {
       titlePrefix: "Recipes",
       directory: "../stories/recipes",
-      files: "**/*.stories.tsx",
+      files: "**/*.@(mdx|stories.tsx)",
     },
   ],
   addons: [

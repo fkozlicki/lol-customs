@@ -85,13 +85,15 @@ The icon map in `components/icons` names icons after what they depict (`Gavel`, 
 because Derby Sync draws from the same set. `recipes/icons` spreads it and adds the Derby names on top
 (`Leaderboard`, `Auction`), so a recipe or the app imports icons once.
 
-**`empty`, `separator` and `tooltip` are here on purpose and nothing imports them.** They were kept
+**`empty`, `form`, `separator` and `tooltip` are here on purpose and nothing imports them.** They were kept
 on the assumption that the app's hand-rolled versions would be replaced by them; that did not
 happen. `empty` is centred, boxed and dashed, where Derby's empty states are left-aligned inline
 notes, so adopting it would contradict DESIGN.md rule 7 rather than fix a drift. `tooltip` has no
-candidate in the app at all. `separator` has exactly one — the rule in the editor toolbar. They stay
-because a shadcn primitive costs nothing to keep and one `npx shadcn add` to get back wrongly. Don't
-delete them as dead code without reading this line first.
+candidate in the app at all. `separator` has exactly one — the rule in the editor toolbar. `form`
+lost its last users when the sign-in and new-post forms became recipes that take react-hook-form's
+`register` props, which keeps react-hook-form out of the recipes. They stay because a shadcn primitive
+costs nothing to keep and one `npx shadcn add` to get back wrongly. Don't delete them as dead code
+without reading this line first.
 
 ## Exports
 
@@ -125,14 +127,20 @@ Storybook and only logs them) and on rendering nothing. So a story is written to
   `play` function can assert it.
 - **Behaviour gets a `play` function.** Whatever a recipe does on its own — opening, toggling, clamping
   an amount, what Enter or Escape does — is clicked through with `canvas`, `userEvent` and `expect`.
+  Find things by the words a reader sees, from `wordsFor(globals)` (`stories/words.ts`), so the test
+  runs in every locale and checks the words as it goes.
+- **A controlled recipe holds its state in the story**, in a small wrapper keyed by the args, so typing
+  works in Storybook and in the tests alike (`useArgs` does not re-render a story under Vitest).
+- **One component per story file**, named in the meta, so each gets its own docs page.
 - **An accessibility exception is per story**: one rule off in `parameters.a11y.config.rules`, with a
-  comment saying why.
+  comment saying why. A reason that recurs lives once in `stories/a11y.ts` (`OPEN_RADIX_MENU`).
 - **Comments are the documentation.** The JSDoc above a component and above each story is its text on
   the component's docs page (autodocs).
 
 The toolbar switches theme, locale and viewport (390 and 1280 px, the widths DESIGN.md judges a view
 at). Chromatic publishes the Storybook and snapshots every story in both themes, from
-`.github/workflows/chromatic.yml`.
+`.github/workflows/chromatic.yml`. `test:stories:coverage` reports how much of this package the stories
+exercise.
 
 ## Tokens
 

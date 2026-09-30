@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
 import { Toaster, toast } from "@v1/ui/sonner";
+import { expect, screen } from "storybook/test";
 
 const meta = {
   title: "Components/Toast",
@@ -17,6 +18,12 @@ type Story = StoryObj<typeof meta>;
  * a failed reaction, a rejected upload.
  */
 export const Default: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Error" }));
+    await expect(
+      await screen.findByText("Could not save your reaction."),
+    ).toBeVisible();
+  },
   render: (args) => (
     <>
       <Toaster {...args} richColors />

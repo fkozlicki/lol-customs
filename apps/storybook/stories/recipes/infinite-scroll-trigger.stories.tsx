@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-card-skeleton";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
+import { expect, fn, waitFor } from "storybook/test";
 
 const meta = {
   title: "Infinite scroll trigger",
@@ -10,7 +11,7 @@ const meta = {
   args: {
     hasNextPage: true,
     isFetchingNextPage: true,
-    onLoadMore: () => {},
+    onLoadMore: fn(),
     loading: null,
   },
 } satisfies Meta<typeof InfiniteScrollTrigger>;
@@ -44,5 +45,21 @@ export const Posts: Story = {
         <PostCardSkeleton />
       </div>
     ),
+  },
+};
+
+/** In view with another page to fetch: the trigger asks for it, once. */
+export const InView: Story = {
+  args: { isFetchingNextPage: false },
+  play: async ({ args }) => {
+    await waitFor(() => expect(args.onLoadMore).toHaveBeenCalledOnce());
+  },
+};
+
+/** The last page is in: nothing more to ask for. */
+export const AtTheEnd: Story = {
+  args: { hasNextPage: false, isFetchingNextPage: false },
+  play: async ({ args }) => {
+    await expect(args.onLoadMore).not.toHaveBeenCalled();
   },
 };

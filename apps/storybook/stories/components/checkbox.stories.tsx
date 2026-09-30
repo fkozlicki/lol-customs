@@ -1,23 +1,38 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Checkbox } from "@v1/ui/checkbox";
 import { Label } from "@v1/ui/label";
+import { expect, fn } from "storybook/test";
 
 const meta = {
   title: "Components/Checkbox",
   component: Checkbox,
   // Alone, a checkbox needs a name; beside a <Label>, as below, the label names it.
-  args: { "aria-label": "Show the full draw order" },
+  args: { "aria-label": "Show the full draw order", onCheckedChange: fn() },
 } satisfies Meta<typeof Checkbox>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+/** Clicking it checks it, and says so. */
+export const Default: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    const box = canvas.getByRole("checkbox");
+    await userEvent.click(box);
+    await expect(box).toBeChecked();
+    await expect(args.onCheckedChange).toHaveBeenCalledWith(true);
+  },
+};
 
 export const Checked: Story = { args: { defaultChecked: true } };
 
-export const Disabled: Story = { args: { disabled: true } };
+export const Disabled: Story = {
+  args: { disabled: true },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("checkbox"));
+    await expect(args.onCheckedChange).not.toHaveBeenCalled();
+  },
+};
 
 /** A checkbox with a label and a line of description under it. */
 export const WithDescription: Story = {

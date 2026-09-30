@@ -23,3 +23,11 @@
 .docs-story {
 	background-color: var(--background);
 }
+
+/*
+ * Tailwind's preflight strips list markers, and DESIGN.md's rules are cited by number ("rule 6"), so a
+ * numbered list on a docs page gets its numbers back. Lists inside a story's canvas keep the recipe's.
+ */
+#storybook-docs ol:not(.docs-story ol) {
+	list-style-type: decimal;
+}

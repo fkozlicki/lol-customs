@@ -9,8 +9,9 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 const meta = {
   title: "Components/Chart",
+  component: ChartContainer,
   parameters: { layout: "centered" },
-} satisfies Meta;
+} satisfies Meta<typeof ChartContainer>;
 
 export default meta;
 

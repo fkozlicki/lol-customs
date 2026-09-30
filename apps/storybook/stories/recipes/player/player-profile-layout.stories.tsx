@@ -11,6 +11,7 @@ import { PlayerSeasonSummaries } from "@v1/ui/recipes/player/player-season-summa
 import { PlayerStats } from "@v1/ui/recipes/player/player-stats";
 import { PlayerTitles } from "@v1/ui/recipes/player/player-titles";
 import { RatingHistoryChart } from "@v1/ui/recipes/player/rating-history-chart";
+import { fn } from "storybook/test";
 import { QUALIFICATION_MATCHES, STANDINGS } from "../home/standings.fixtures";
 import { MATCH_CARD } from "../matches/match.fixtures";
 import {
@@ -62,7 +63,7 @@ const meta = {
         matches={[MATCH_CARD, { ...MATCH_CARD, id: MATCH_CARD.id + 1 }]}
         hasNextPage={false}
         isFetchingNextPage={false}
-        onLoadMore={() => {}}
+        onLoadMore={fn()}
       />
     ),
   },

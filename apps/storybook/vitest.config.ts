@@ -61,8 +61,10 @@ export default defineConfig({
     ),
     coverage: {
       provider: "v8",
-      // What the stories exercise is the design system, not the stories themselves.
-      include: ["../../packages/ui/src/**/*.{ts,tsx}"],
+      // What the stories exercise is the design system, not the stories themselves; it lives outside
+      // this app, hence allowExternal.
+      allowExternal: true,
+      include: [path.join(dirname, "../../packages/ui/src/**/*.{ts,tsx}")],
       exclude: ["**/*.test.ts", "**/messages/**"],
       reporter: ["text-summary", "html"],
       reportsDirectory: "./coverage",

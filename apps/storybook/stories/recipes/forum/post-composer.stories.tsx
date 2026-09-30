@@ -1,27 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PostComposer } from "@v1/ui/recipes/forum/post-composer";
-import { RichTextFrame } from "@v1/ui/recipes/forum/rich-text-frame";
-
-const noop = () => {};
-
-/** The editor as the app renders it, minus TipTap: its toolbar over an empty surface. */
-const editor = (
-  <RichTextFrame
-    active={{
-      bold: false,
-      italic: false,
-      heading: true,
-      bulletList: false,
-      orderedList: false,
-    }}
-    onToggle={noop}
-    onInsertImage={noop}
-  >
-    <div className="min-h-[200px] px-3 py-2 text-sm text-muted-foreground">
-      Write your post...
-    </div>
-  </RichTextFrame>
-);
+import { expect, fn } from "storybook/test";
+import { wordsFor } from "../../words";
+import { StandInEditor } from "./forum.fixtures";
 
 const meta = {
   title: "Forum/New post",
@@ -29,9 +10,10 @@ const meta = {
   parameters: { layout: "padded" },
   args: {
     titleInput: { name: "title" },
-    editor,
+    editor: <StandInEditor placeholder="Write your post..." />,
     pending: false,
-    onSubmit: (event) => event.preventDefault(),
+    // A real submit would reload the story; the form's own handler does the rest in the app.
+    onSubmit: fn((event) => event.preventDefault()),
     backHref: "/posts",
   },
 } satisfies Meta<typeof PostComposer>;
@@ -40,8 +22,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** A blank post: the title set large, the editor below. */
-export const Blank: Story = {};
+/** A blank post: the title set large, the editor below; publishing sends the form. */
+export const Blank: Story = {
+  play: async ({ args, canvas, globals, userEvent }) => {
+    const t = wordsFor(globals).forum.composer;
+    await userEvent.click(canvas.getByRole("button", { name: t.publish }));
+    await expect(args.onSubmit).toHaveBeenCalledOnce();
+  },
+};
 
 /** Sent without a title. */
 export const MissingTitle: Story = {

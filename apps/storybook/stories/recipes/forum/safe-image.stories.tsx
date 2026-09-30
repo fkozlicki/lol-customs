@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { SafeImage } from "@v1/ui/recipes/forum/safe-image";
+import { expect } from "storybook/test";
+import { wordsFor } from "../../words";
 
 /** An inline SVG, so the story does not depend on a network image. */
 const PICTURE =
@@ -27,4 +29,12 @@ export const Default: Story = {};
  */
 export const Flagged: Story = {
   args: { initialNsfw: true },
+  play: async ({ canvas, globals, userEvent }) => {
+    const t = wordsFor(globals).forum.sensitiveContent;
+    await expect(canvas.queryByRole("img")).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: t.show }));
+    await expect(
+      canvas.getByRole("img", { name: "A screenshot from the match" }),
+    ).toBeVisible();
+  },
 };

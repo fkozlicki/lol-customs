@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { useState } from "react";
+import { expect, fn } from "storybook/test";
 
 const meta = {
   title: "Forum/Reaction buttons",
@@ -11,7 +12,7 @@ const meta = {
     myReaction: null,
     likeLabel: "Like",
     dislikeLabel: "Dislike",
-    onToggle: () => {},
+    onToggle: fn(),
   },
 } satisfies Meta<typeof ReactionButtons>;
 
@@ -19,8 +20,15 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** Nobody has reacted yet. */
-export const Default: Story = {};
+/** Nobody has reacted yet; each button hands back which reaction it is. */
+export const Default: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: /Like/ }));
+    await expect(args.onToggle).toHaveBeenCalledWith("like");
+    await userEvent.click(canvas.getByRole("button", { name: /Dislike/ }));
+    await expect(args.onToggle).toHaveBeenCalledWith("dislike");
+  },
+};
 
 /** The reader's own reaction is filled and takes the foreground colour. */
 export const Liked: Story = {
@@ -54,5 +62,12 @@ export const Interactive: Story = {
         onToggle={(type) => setMine((prev) => (prev === type ? null : type))}
       />
     );
+  },
+  play: async ({ canvas, userEvent }) => {
+    const like = canvas.getByRole("button", { name: /Like/ });
+    await userEvent.click(like);
+    await expect(like).toHaveTextContent("5");
+    await userEvent.click(like);
+    await expect(like).toHaveTextContent("4");
   },
 };

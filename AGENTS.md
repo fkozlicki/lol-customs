@@ -47,6 +47,7 @@ bun db:reset         # rebuild the local Supabase DB from migrations
 bun generate:types   # regenerate packages/supabase/src/types/db.ts from the local DB
 bun generate:game-data   # refresh the champion list and self-hosted icons after a champion release
 bun run --cwd apps/storybook test:stories   # every story as a test: render, play, axe; each locale × theme (Vitest + Chromium)
+bun run --cwd apps/storybook test:stories:coverage   # the same, with how much of packages/ui the stories exercise
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```
 

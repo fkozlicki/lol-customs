@@ -11,11 +11,13 @@ import {
 } from "@v1/ui/form";
 import { Input } from "@v1/ui/input";
 import { useForm } from "react-hook-form";
+import { expect } from "storybook/test";
 
 const meta = {
   title: "Components/Form",
+  component: Form,
   parameters: { layout: "centered" },
-} satisfies Meta;
+} satisfies Meta<typeof Form>;
 
 export default meta;
 
@@ -25,7 +27,11 @@ interface Values {
   nickname: string;
 }
 
-/** The sign-in dialog is the one form in the app; its labels are `label-caps` like every other. */
+/**
+ * How a form field is wired: label, control, description and message, with the ids and aria between
+ * them done for you. The app's two forms are recipes that take react-hook-form's `register` instead
+ * (packages/ui/README.md), so nothing imports this today; its labels are `label-caps` like theirs.
+ */
 function ProfileForm({ error }: { error?: string }) {
   const form = useForm<Values>({ defaultValues: { nickname: "" } });
 
@@ -64,4 +70,13 @@ export const Default: Story = {
 /** Press Save with the field empty to see the message; it is the one place destructive text appears. */
 export const WithValidation: Story = {
   render: () => <ProfileForm error="A nickname is required." />,
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(
+      await canvas.findByText("A nickname is required."),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("textbox", { name: "Nickname" }),
+    ).toHaveAttribute("aria-invalid", "true");
+  },
 };
