@@ -3,9 +3,20 @@ import { Checkbox } from "@v1/ui/checkbox";
 import { Label } from "@v1/ui/label";
 import { expect, fn } from "storybook/test";
 
+const checkedState = {
+  control: "inline-radio" as const,
+  options: [false, true, "indeterminate"],
+};
+
 const meta = {
   title: "Components/Checkbox",
   component: Checkbox,
+  // Radix types these as CheckedState, an alias of `boolean | "indeterminate"` that the panel cannot
+  // read, so it would offer a raw object editor; the three states are spelled out instead.
+  argTypes: {
+    checked: checkedState,
+    defaultChecked: checkedState,
+  },
   // Alone, a checkbox needs a name; beside a <Label>, as below, the label names it.
   args: { "aria-label": "Show the full draw order", onCheckedChange: fn() },
 } satisfies Meta<typeof Checkbox>;
