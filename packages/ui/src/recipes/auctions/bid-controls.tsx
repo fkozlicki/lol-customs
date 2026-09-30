@@ -52,7 +52,7 @@ export function BidControls({
             value={shown}
             onChange={(event) => setAmount(event.target.valueAsNumber)}
             aria-label={t("actions.customBid")}
-            className="num h-11 w-24 text-lg"
+            className="num h-9 w-24 text-lg"
           />
           <Button
             size="lg"
