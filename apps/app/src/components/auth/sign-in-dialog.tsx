@@ -3,46 +3,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@v1/supabase/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@v1/ui/avatar";
-import { Button } from "@v1/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@v1/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@v1/ui/form";
-import { Input } from "@v1/ui/input";
-import { Icons } from "@v1/ui/recipes/icons";
+import { ProfileSetupDialog } from "@v1/ui/recipes/auth/profile-setup-dialog";
 import { toast } from "@v1/ui/sonner";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useTRPC } from "@/trpc/react";
 import { useUser } from "./user-context";
 
-const schema = z.object({
-  nickname: z
-    .string()
-    .min(2, "Nickname must be at least 2 characters")
-    .max(30, "Nickname must be at most 30 characters")
-    .regex(
-      /^[a-zA-Z0-9_\- ]+$/,
-      "Only letters, numbers, spaces, underscores and dashes",
-    ),
-});
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
-type FormValues = z.infer<typeof schema>;
-
+/**
+ * Signing in is setting up a profile: an anonymous session, an optional avatar uploaded to
+ * storage, and a nickname.
+ */
 export function SignInDialog() {
   const { signInDialogOpen, closeSignInDialog, refreshProfile } = useUser();
   const t = useTranslations("dashboard.auth.profile");
@@ -52,12 +27,28 @@ export function SignInDialog() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<FormValues>({
+  const schema = useMemo(
+    () =>
+      z.object({
+        nickname: z
+          .string()
+          .min(2, t("nickname.tooShort"))
+          .max(30, t("nickname.tooLong"))
+          .regex(/^[a-zA-Z0-9_\- ]+$/, t("nickname.invalid")),
+      }),
+    [t],
+  );
+  const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { nickname: "" },
   });
+
+  function reset() {
+    form.reset();
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  }
 
   const setupProfile = useMutation(
     trpc.userProfiles.setup.mutationOptions({
@@ -65,9 +56,7 @@ export function SignInDialog() {
         queryClient.invalidateQueries(trpc.userProfiles.me.queryOptions());
         refreshProfile();
         closeSignInDialog();
-        form.reset();
-        setAvatarFile(null);
-        setAvatarPreview(null);
+        reset();
         toast.success(t("toast.success"));
       },
       onError: (err) => {
@@ -77,10 +66,8 @@ export function SignInDialog() {
     }),
   );
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
+  function pickAvatar(file: File) {
+    if (file.size > MAX_AVATAR_BYTES) {
       toast.error(t("toast.avatarTooLarge"));
       return;
     }
@@ -88,7 +75,7 @@ export function SignInDialog() {
     setAvatarPreview(URL.createObjectURL(file));
   }
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit({ nickname }: z.infer<typeof schema>) {
     setIsSubmitting(true);
     const supabase = createClient();
 
@@ -133,103 +120,26 @@ export function SignInDialog() {
       }
     }
 
-    setupProfile.mutate({ nickname: values.nickname, avatar_url: avatarUrl });
+    setupProfile.mutate({ nickname, avatar_url: avatarUrl });
   }
 
-  const nickname = form.watch("nickname");
-
   return (
-    <Dialog
+    <ProfileSetupDialog
       open={signInDialogOpen}
       onOpenChange={(open) => {
         if (!open) {
           closeSignInDialog();
-          form.reset();
-          setAvatarFile(null);
-          setAvatarPreview(null);
+          reset();
           setIsSubmitting(false);
         }
       }}
-    >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-1.5">
-          <DialogTitle className="text-2xl font-semibold uppercase tracking-[-0.02em]">
-            {t("title")}
-          </DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Avatar picker */}
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="group relative size-16 shrink-0 cursor-pointer border border-dashed border-border transition-colors duration-150 ease-(--ease-derby) hover:border-foreground"
-                aria-label={t("uploadHint")}
-              >
-                <Avatar className="size-full rounded-none">
-                  <AvatarImage
-                    src={avatarPreview ?? undefined}
-                    className="rounded-none"
-                  />
-                  <AvatarFallback className="rounded-none bg-transparent text-xl font-semibold text-muted-foreground transition-colors duration-150 ease-(--ease-derby) group-hover:text-foreground">
-                    {nickname ? (
-                      nickname[0]?.toUpperCase()
-                    ) : (
-                      <Icons.Camera className="size-5" />
-                    )}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="absolute inset-0 flex items-center justify-center bg-foreground/60 text-background opacity-0 transition-opacity duration-150 ease-(--ease-derby) group-hover:opacity-100">
-                  <Icons.Camera className="size-5" />
-                </span>
-              </button>
-              <div className="min-w-0 space-y-1">
-                <p className="label-caps">{t("avatarLabel")}</p>
-                <p className="text-sm text-muted-foreground">
-                  {t("uploadHint")}
-                </p>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="nickname"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="label-caps">
-                    {t("nicknameLabel")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder={t("nicknamePlaceholder")} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              disabled={isSubmitting || setupProfile.isPending}
-            >
-              {isSubmitting || setupProfile.isPending
-                ? t("settingUp")
-                : t("submit")}
-            </Button>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+      avatarPreview={avatarPreview}
+      onPickAvatar={pickAvatar}
+      nickname={form.watch("nickname")}
+      nicknameInput={form.register("nickname")}
+      nicknameError={form.formState.errors.nickname?.message}
+      pending={isSubmitting || setupProfile.isPending}
+      onSubmit={form.handleSubmit(onSubmit)}
+    />
   );
 }

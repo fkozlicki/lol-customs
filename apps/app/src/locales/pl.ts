@@ -5,16 +5,12 @@ export default {
   },
   dashboard: {
     auth: {
-      signIn: "Zaloguj się",
       profile: {
-        title: "Dołącz do Derby",
-        description: "Wybierz nick i opcjonalny awatar, aby zacząć.",
-        avatarLabel: "Awatar",
-        uploadHint: "Kliknij, aby przesłać. Opcjonalne.",
-        nicknameLabel: "Nick",
-        nicknamePlaceholder: "np. Sutokopter",
-        settingUp: "Tworzenie...",
-        submit: "Utwórz profil",
+        nickname: {
+          tooShort: "Nick musi mieć co najmniej 2 znaki.",
+          tooLong: "Nick może mieć najwyżej 30 znaków.",
+          invalid: "Tylko litery, cyfry, spacje, podkreślniki i myślniki.",
+        },
         toast: {
           success: "Witaj! Twój profil został utworzony.",
           avatarTooLarge: "Awatar musi być mniejszy niż 5 MB",
@@ -38,13 +34,9 @@ export default {
       allTime: "Wszystkie sezony",
     },
     pages: {
-      player: {
-        matches: "Mecze",
-      },
       matchHistory: {
         title: "Mecze",
         description: "Wszystkie mecze ladderu, od najnowszych.",
-        noMatchesYet: "Brak meczów.",
       },
       shuffle: {
         title: "Losuj",

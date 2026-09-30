@@ -26,6 +26,7 @@ export default {
     gold: "Gold",
     unranked: "Unranked",
     expand: "Show match details",
+    noMatchesYet: "No matches yet.",
   },
   standings: {
     best: "Best",
@@ -290,6 +291,7 @@ export default {
     killsCount: "{count} kills",
     noRelation: "Not enough matches yet",
     noKillData: "No kills recorded",
+    matches: "Matches",
   },
   footer: {
     riotNotice:
@@ -342,5 +344,15 @@ export default {
       ADC: "ADC",
       SUPPORT: "Support",
     },
+  },
+  profileSetup: {
+    title: "Join Derby",
+    description: "Pick a nickname and an optional avatar to get started.",
+    avatarLabel: "Avatar",
+    uploadHint: "Click to upload. Optional.",
+    nicknameLabel: "Nickname",
+    nicknamePlaceholder: "e.g. Sutokopter",
+    settingUp: "Setting up...",
+    submit: "Create profile",
   },
 } as const;

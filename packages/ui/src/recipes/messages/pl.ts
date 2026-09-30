@@ -23,6 +23,7 @@ export default {
     gold: "Złoto",
     unranked: "Bez rangi",
     expand: "Pokaż szczegóły meczu",
+    noMatchesYet: "Brak meczów.",
   },
   standings: {
     best: "Rekord",
@@ -287,6 +288,7 @@ export default {
     killsCount: "zabójstwa: {count}",
     noRelation: "Za mało meczów",
     noKillData: "Brak zapisanych zabójstw",
+    matches: "Mecze",
   },
   footer: {
     riotNotice:
@@ -339,5 +341,15 @@ export default {
       ADC: "ADC",
       SUPPORT: "Support",
     },
+  },
+  profileSetup: {
+    title: "Dołącz do Derby",
+    description: "Wybierz nick i opcjonalny awatar, aby zacząć.",
+    avatarLabel: "Awatar",
+    uploadHint: "Kliknij, aby przesłać. Opcjonalne.",
+    nicknameLabel: "Nick",
+    nicknamePlaceholder: "np. Sutokopter",
+    settingUp: "Tworzenie...",
+    submit: "Utwórz profil",
   },
 } satisfies Strings<typeof en>;
