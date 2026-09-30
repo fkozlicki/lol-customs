@@ -13,6 +13,9 @@ interface AuctionRulesProps {
   askTeamName: boolean;
 }
 
+/** A cleared number field reads as NaN; it shows as empty, and the form's check refuses it. */
+const shown = (value: number) => (Number.isNaN(value) ? "" : value);
+
 /** The room's rules: team name, budget, bid timer, and whether the draw order is public. */
 export function AuctionRules({
   settings,
@@ -50,7 +53,7 @@ export function AuctionRules({
             type="number"
             min={4}
             max={100}
-            value={settings.budget}
+            value={shown(settings.budget)}
             onChange={(event) => set({ budget: event.target.valueAsNumber })}
             className="num"
           />
@@ -64,7 +67,7 @@ export function AuctionRules({
             type="number"
             min={10}
             max={60}
-            value={settings.bidSeconds}
+            value={shown(settings.bidSeconds)}
             onChange={(event) =>
               set({ bidSeconds: event.target.valueAsNumber })
             }

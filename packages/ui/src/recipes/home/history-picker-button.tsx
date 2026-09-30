@@ -14,6 +14,7 @@ export function HistoryPickerButton({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
         "num h-8 min-w-10 shrink-0 border-r px-2 text-xs uppercase transition-colors last:border-r-0",
