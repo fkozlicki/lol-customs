@@ -4,7 +4,8 @@ import { Progress } from "@v1/ui/progress";
 const meta = {
   title: "Components/Progress",
   component: Progress,
-  args: { value: 60, className: "w-64" },
+  // A bar on its own needs a name; one that only draws a number printed beside it is aria-hidden instead.
+  args: { value: 60, className: "w-64", "aria-label": "Qualification" },
 } satisfies Meta<typeof Progress>;
 
 export default meta;

@@ -63,9 +63,11 @@ A shape built three times is a component. A shape built once is not — extracti
 an abstraction and no reuse.
 
 **Storybook** — `bun dev:storybook`, from `apps/storybook`, where the stories live. Two sections: *Design system* for the
-tokens and the primitives, *Recipes* for Derby's visual components. The toolbar switches theme and
-locale, so rules 3 and 9 are one click away instead of a rebuild. Everything this file describes in
-prose is under *Design system → Tokens*.
+tokens and the primitives, *Recipes* for Derby's visual components. The toolbar switches theme, locale
+and viewport (390 and 1280 px), so rules 3 and 9 and the two widths below are one click away instead of
+a rebuild. Every story is also a test, in each locale and theme, and fails on an accessibility violation
+— contrast included, so rule 6 is checked, not only asked. Everything this file describes in prose is
+under *Design system → Tokens*.
 
 **Page shell** — `<PageShell>`, not the string it renders. `width` picks the measure: `wide`
 (`max-w-6xl`, the default, auctions included), `list` (`max-w-4xl`, the forum list), `reading`

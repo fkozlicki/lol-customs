@@ -5,6 +5,8 @@ import { Label } from "@v1/ui/label";
 const meta = {
   title: "Components/Checkbox",
   component: Checkbox,
+  // Alone, a checkbox needs a name; beside a <Label>, as below, the label names it.
+  args: { "aria-label": "Show the full draw order" },
 } satisfies Meta<typeof Checkbox>;
 
 export default meta;

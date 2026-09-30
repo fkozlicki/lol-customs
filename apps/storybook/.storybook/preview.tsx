@@ -6,6 +6,9 @@
 import { withThemeByClassName } from "@storybook/addon-themes";
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { messages } from "@v1/ui/recipes/messages";
+import { MotionProvider } from "@v1/ui/recipes/motion-provider";
+import isChromatic from "chromatic/isChromatic";
+import { MotionGlobalConfig } from "motion/react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { useEffect } from "react";
@@ -33,6 +36,20 @@ const withGeist: Decorator = (Story) => {
 };
 
 type Locale = keyof typeof messages;
+
+/** Set per Vitest project, so the story tests run in every locale and theme (vitest.config.ts). */
+declare const __STORY_LOCALE__: Locale | undefined;
+declare const __STORY_THEME__: "dark" | "light" | undefined;
+
+// A visual snapshot judges the state a story settles in, like the story tests (vitest.setup.ts).
+if (isChromatic()) MotionGlobalConfig.skipAnimations = true;
+
+/** The app's motion settings, as its layout provides them. */
+const withMotion: Decorator = (Story) => (
+  <MotionProvider>
+    <Story />
+  </MotionProvider>
+);
 
 /**
  * Both locales are a rule, not a preference (DESIGN.md), so the toolbar switches between them. The app's
@@ -63,20 +80,40 @@ interface SortableEntry {
   title: string;
 }
 
+/** DESIGN.md judges a view at these two widths, so the toolbar offers exactly them. */
+const VIEWPORTS = {
+  phone: {
+    name: "Phone · 390",
+    styles: { width: "390px", height: "844px" },
+    type: "mobile",
+  },
+  desktop: {
+    name: "Desktop · 1280",
+    styles: { width: "1280px", height: "800px" },
+    type: "desktop",
+  },
+};
+
 const preview: Preview = {
+  // Every component gets a docs page: its props table and every story, with their comments.
+  tags: ["autodocs"],
   decorators: [
     withGeist,
     withLocale,
+    withMotion,
     withThemeByClassName({
       themes: { dark: "dark", light: "light" },
       defaultTheme: "dark",
       parentSelector: "html",
     }),
   ],
+  initialGlobals: {
+    locale: typeof __STORY_LOCALE__ === "string" ? __STORY_LOCALE__ : "en",
+    theme: typeof __STORY_THEME__ === "string" ? __STORY_THEME__ : "dark",
+  },
   globalTypes: {
     locale: {
       description: "Locale",
-      defaultValue: "en",
       toolbar: {
         icon: "globe",
         items: (Object.keys(messages) as Locale[]).map((value) => ({
@@ -90,6 +127,16 @@ const preview: Preview = {
   parameters: {
     layout: "centered",
     controls: { expanded: true },
+    // An axe violation fails the story's test. A story that must break a rule says why, per story.
+    a11y: { test: "error" },
+    viewport: { options: VIEWPORTS },
+    // Chromatic snapshots every story in both themes, as DESIGN.md judges a view.
+    chromatic: {
+      modes: {
+        dark: { theme: "dark" },
+        light: { theme: "light" },
+      },
+    },
     options: {
       /**
        * At every level of the sidebar, folders first and then components, each alphabetically. A

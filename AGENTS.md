@@ -46,12 +46,13 @@ bun format
 bun db:reset         # rebuild the local Supabase DB from migrations
 bun generate:types   # regenerate packages/supabase/src/types/db.ts from the local DB
 bun generate:game-data   # refresh the champion list and self-hosted icons after a champion release
-bun run --cwd apps/storybook test:stories   # renders every story in both locales; needs build-storybook first, not run in CI
+bun run --cwd apps/storybook test:stories   # every story as a test: render, play, axe; each locale × theme (Vitest + Chromium)
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```
 
-CI runs `bun run lint`, `bun run typecheck` and `bun run test`. Stories are not rendered in CI; run
-`test:stories` locally after touching a story or anything a story renders. `bun lint` also runs the design check in
+CI runs `bun run lint`, `bun run typecheck`, `bun run test` and the story tests; Chromatic publishes the
+Storybook and diffs it visually once `CHROMATIC_PROJECT_TOKEN` is set. The first story test run needs
+`bunx playwright install chromium` in `apps/storybook`. `bun lint` also runs the design check in
 `apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
 [DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain`, `packages/game-assets`, `packages/ui`, `apps/app` and `apps/lcu` — pure
 logic only, no component tests: recipes are covered by their stories, and the mappers that feed them

@@ -30,7 +30,13 @@ const config: StorybookConfig = {
       files: "**/*.stories.tsx",
     },
   ],
-  addons: ["@storybook/addon-docs", "@storybook/addon-themes"],
+  addons: [
+    "@storybook/addon-docs",
+    "@storybook/addon-themes",
+    "@storybook/addon-a11y",
+    "@storybook/addon-vitest",
+    "@chromatic-com/storybook",
+  ],
   // The app's public files — the logo, and the rank crests, role and objective icons self-hosted
   // under game/ (ADR 0002) — served at the same paths, so the URLs recipes are given resolve unchanged.
   staticDirs: ["../../app/public"],

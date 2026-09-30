@@ -1,7 +1,10 @@
 import { Progress } from "../../components/progress";
 import type { ParticipantView } from "./match-view";
 
-/** Damage dealt and taken, as bars scaled against the highest in the match. */
+/**
+ * Damage dealt and taken, as bars scaled against the highest in the match. The number above each bar
+ * is what a screen reader hears; the bar only draws it, so it is hidden from assistive technology.
+ */
 export default function MatchParticipantDamage({
   participant,
 }: {
@@ -14,6 +17,7 @@ export default function MatchParticipantDamage({
           {participant.damageDealt.toLocaleString()}
         </span>
         <Progress
+          aria-hidden
           className="h-1 w-10 rounded-none bg-foreground/10 [&>div]:bg-foreground/80"
           value={participant.damageDealtShare}
         />
@@ -23,6 +27,7 @@ export default function MatchParticipantDamage({
           {participant.damageTaken.toLocaleString()}
         </span>
         <Progress
+          aria-hidden
           className="h-1 w-10 rounded-none bg-foreground/10 [&>div]:bg-muted-foreground/60"
           value={participant.damageTakenShare}
         />

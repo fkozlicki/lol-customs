@@ -15,3 +15,11 @@
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
 }
+
+/*
+ * On a docs page Storybook's own chrome stays light, but each story's canvas takes the active theme's
+ * background, so a dark story does not sit on white.
+ */
+.docs-story {
+	background-color: var(--background);
+}

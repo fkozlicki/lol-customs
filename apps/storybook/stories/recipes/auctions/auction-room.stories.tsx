@@ -7,6 +7,7 @@ import { AuctionRoomNotFound } from "@v1/ui/recipes/auctions/auction-room-not-fo
 import { BidControls } from "@v1/ui/recipes/auctions/bid-controls";
 import { EventFeed } from "@v1/ui/recipes/auctions/event-feed";
 import { FreeAuctionControls } from "@v1/ui/recipes/auctions/free-auction-controls";
+import { fn } from "storybook/test";
 import { EVENTS, FINAL_ROSTERS, ROSTERS, stage } from "./auction-room.fixtures";
 
 const noop = () => {};
@@ -18,33 +19,37 @@ const meta = {
 
 export default meta;
 
-/** The room's status and connection above the two teams; the creator can cancel. */
+/** A live room's header: its status and connection above the two teams, and the creator's cancel. */
 export const Header: StoryObj = {
   render: () => (
-    <div className="space-y-10">
-      <AuctionRoomHeader
-        header={{
-          status: "active",
-          teamA: "Night Owls",
-          teamB: "Pierogi Gang",
-          canCancel: true,
-        }}
-        connection="live"
-        cancelling={false}
-        onCancel={noop}
-      />
-      <AuctionRoomHeader
-        header={{
-          status: "waiting",
-          teamA: "Night Owls",
-          teamB: null,
-          canCancel: false,
-        }}
-        connection="degraded"
-        cancelling={false}
-        onCancel={noop}
-      />
-    </div>
+    <AuctionRoomHeader
+      header={{
+        status: "active",
+        teamA: "Night Owls",
+        teamB: "Pierogi Gang",
+        canCancel: true,
+      }}
+      connection="live"
+      cancelling={false}
+      onCancel={fn()}
+    />
+  ),
+};
+
+/** In the lobby with the second seat open, seen by a visitor while realtime has dropped to polling. */
+export const HeaderInLobby: StoryObj = {
+  render: () => (
+    <AuctionRoomHeader
+      header={{
+        status: "waiting",
+        teamA: "Night Owls",
+        teamB: null,
+        canCancel: false,
+      }}
+      connection="degraded"
+      cancelling={false}
+      onCancel={fn()}
+    />
   ),
 };
 

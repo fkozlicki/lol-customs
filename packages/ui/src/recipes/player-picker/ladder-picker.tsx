@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Input } from "../../components/input";
 import { LadderPlayerRow } from "./ladder-player-row";
 import type { PickablePlayerView } from "./pickable-player-view";
@@ -35,16 +36,25 @@ export function LadderPicker({
   onAdd,
   full,
 }: LadderPickerProps) {
+  const headingId = useId();
+
   return (
     <div>
-      <h2 className="label-caps pb-3 text-foreground">{title}</h2>
+      <h2 id={headingId} className="label-caps pb-3 text-foreground">
+        {title}
+      </h2>
       <Input
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
         placeholder={searchPlaceholder}
         aria-label={searchPlaceholder}
       />
-      <ul className="mt-2 max-h-72 divide-y overflow-y-auto">
+      <ul
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrolling region has to be reachable from the keyboard even when every add button is disabled (WCAG 2.1.1, axe scrollable-region-focusable)
+        tabIndex={0}
+        aria-labelledby={headingId}
+        className="mt-2 max-h-72 divide-y overflow-y-auto"
+      >
         {players.length === 0 ? (
           <li className="py-4 text-sm text-muted-foreground">
             {search.trim() ? noResultsLabel : emptyLabel}

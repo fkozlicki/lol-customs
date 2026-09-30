@@ -1,4 +1,5 @@
 import "./styles.css";
+import { MotionProvider } from "@v1/ui/recipes/motion-provider";
 import { Toaster } from "@v1/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -8,7 +9,6 @@ import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { UserProvider } from "@/components/auth/user-context";
-import { MotionProvider } from "@/components/motion/motion-provider";
 import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {

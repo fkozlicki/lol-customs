@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
 import { Icons } from "@v1/ui/icons";
+import { expect, screen } from "storybook/test";
 
 const meta = {
   title: "Components/Dropdown menu",
@@ -22,10 +23,28 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** The account menu: a label, items, and a radio group for the theme. */
+/**
+ * The account menu: a label, items, and a radio group for the theme. It opens from the trigger, as in
+ * the app; the test clicks it and checks the menu is there.
+ */
 export const Default: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        // An open Radix menu is modal: it hides everything else from assistive technology, trigger
+        // included, and keeps focus inside itself, so the hidden trigger cannot be reached meanwhile.
+        rules: [{ id: "aria-hidden-focus", enabled: false }],
+      },
+    },
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Account" }));
+    await expect(
+      await screen.findByRole("menuitemradio", { name: /System/ }),
+    ).toBeChecked();
+  },
   render: (args) => (
-    <DropdownMenu {...args} defaultOpen>
+    <DropdownMenu {...args}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Account">
           <Icons.User className="size-4" />

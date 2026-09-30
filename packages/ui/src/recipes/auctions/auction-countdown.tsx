@@ -44,7 +44,9 @@ export function AuctionCountdown({
       >
         {seconds.toFixed(1)}
       </div>
+      {/* The seconds above are what is announced; the bar only draws them. */}
       <Progress
+        aria-hidden
         value={percent}
         className={`h-1.5 bg-foreground/15 ${seconds <= 5 ? "[&_[data-slot=progress-indicator]]:bg-loss" : "[&_[data-slot=progress-indicator]]:bg-foreground"}`}
       />
