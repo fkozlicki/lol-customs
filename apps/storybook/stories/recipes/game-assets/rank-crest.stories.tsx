@@ -1,25 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { RankCrest } from "@v1/ui/recipes/game-assets/rank-crest";
-
-const TIERS = [
-  "IRON",
-  "BRONZE",
-  "SILVER",
-  "GOLD",
-  "PLATINUM",
-  "EMERALD",
-  "DIAMOND",
-  "MASTER",
-  "GRANDMASTER",
-  "CHALLENGER",
-  null,
-];
+import { range, TIERS, tierControl } from "../../controls";
 
 const meta = {
   title: "Game assets/Rank crest",
   component: RankCrest,
   args: { tier: "GOLD", width: 32, height: 32 },
-  argTypes: { tier: { control: "select", options: TIERS } },
+  argTypes: {
+    tier: tierControl,
+    width: range(16, 96),
+    height: range(16, 96),
+  },
 } satisfies Meta<typeof RankCrest>;
 
 export default meta;

@@ -3,11 +3,15 @@ import { AuctionBoard } from "@v1/ui/recipes/auctions/auction-board";
 import { BidControls } from "@v1/ui/recipes/auctions/bid-controls";
 import { FreeAuctionControls } from "@v1/ui/recipes/auctions/free-auction-controls";
 import { fn } from "storybook/test";
+import { slots } from "../../controls";
 import { EVENTS, ROSTERS, stage } from "./auction-room.fixtures";
 
 const meta = {
   title: "Auctions/Board",
   component: AuctionBoard,
+  argTypes: {
+    ...slots("controls"),
+  },
   parameters: { layout: "padded" },
   args: {
     rosters: ROSTERS,

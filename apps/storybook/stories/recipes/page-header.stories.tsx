@@ -5,10 +5,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
 import { PageHeader } from "@v1/ui/recipes/page-header";
+import { slots } from "../controls";
 
 const meta = {
   title: "Page header",
   component: PageHeader,
+  argTypes: {
+    ...slots("children"),
+  },
   parameters: { layout: "padded" },
   args: {
     title: "Leaderboard",

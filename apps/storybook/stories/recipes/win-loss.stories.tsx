@@ -1,9 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { WinLoss } from "@v1/ui/recipes/win-loss";
+import { range } from "../controls";
 
 const meta = {
   title: "Win–loss",
   component: WinLoss,
+  argTypes: {
+    wins: range(0, 50),
+    losses: range(0, 50),
+  },
   args: { wins: 12, losses: 3 },
 } satisfies Meta<typeof WinLoss>;
 

@@ -1,11 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { BidControls } from "@v1/ui/recipes/auctions/bid-controls";
 import { expect, fn } from "storybook/test";
+import { range } from "../../controls";
 import { wordsFor } from "../../words";
 
 const meta = {
   title: "Auctions/Bid controls",
   component: BidControls,
+  argTypes: {
+    minimumBid: range(1, 100),
+    budget: range(0, 100),
+  },
   parameters: { layout: "padded" },
   args: {
     minimumBid: 6,

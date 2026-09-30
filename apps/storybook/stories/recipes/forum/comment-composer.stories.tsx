@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { CommentComposer } from "@v1/ui/recipes/forum/comment-composer";
 import { expect, fn } from "storybook/test";
+import { slots } from "../../controls";
 import { wordsFor } from "../../words";
 import { StandInEditor } from "./forum.fixtures";
 
 const meta = {
   title: "Forum/Comment composer",
   component: CommentComposer,
+  argTypes: {
+    ...slots("editor"),
+  },
   parameters: { layout: "padded" },
   args: {
     editor: <StandInEditor placeholder="Write a comment..." />,

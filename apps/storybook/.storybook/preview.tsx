@@ -126,7 +126,8 @@ const preview: Preview = {
   },
   parameters: {
     layout: "centered",
-    controls: { expanded: true },
+    // Required props first, so the panel opens on what a story cannot do without.
+    controls: { expanded: true, sort: "requiredFirst" },
     // An axe violation fails the story's test. A story that must break a rule says why, per story.
     a11y: { test: "error" },
     viewport: { options: VIEWPORTS },

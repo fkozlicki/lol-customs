@@ -2,12 +2,16 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { DownloadAppButton } from "@v1/ui/recipes/dashboard/download-app-button";
 import { MatchList } from "@v1/ui/recipes/matches/match-list";
 import { expect, fn } from "storybook/test";
+import { slots } from "../../controls";
 import { wordsFor } from "../../words";
 import { MATCH_CARD } from "./match.fixtures";
 
 const meta = {
   title: "Matches/Match list",
   component: MatchList,
+  argTypes: {
+    ...slots("emptyAction"),
+  },
   parameters: { layout: "padded" },
   args: {
     matches: [0, 1, 2].map((i) => ({ ...MATCH_CARD, id: MATCH_CARD.id + i })),

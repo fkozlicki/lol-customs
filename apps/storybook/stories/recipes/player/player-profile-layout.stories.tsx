@@ -12,6 +12,7 @@ import { PlayerStats } from "@v1/ui/recipes/player/player-stats";
 import { PlayerTitles } from "@v1/ui/recipes/player/player-titles";
 import { RatingHistoryChart } from "@v1/ui/recipes/player/rating-history-chart";
 import { fn } from "storybook/test";
+import { slots } from "../../controls";
 import { QUALIFICATION_MATCHES, STANDINGS } from "../home/standings.fixtures";
 import { MATCH_CARD } from "../matches/match.fixtures";
 import {
@@ -27,6 +28,9 @@ const header = <PlayerHeader name="Kestrel" tagLine="EUNE" iconId={1295} />;
 const meta = {
   title: "Player/Profile layout",
   component: PlayerProfileLayout,
+  argTypes: {
+    ...slots("header", "overview", "sidebar", "matches"),
+  },
   parameters: { layout: "fullscreen" },
   // The page puts it in a PageShell, which spaces its parts.
   decorators: [

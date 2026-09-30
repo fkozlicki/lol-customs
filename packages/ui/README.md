@@ -122,7 +122,9 @@ Storybook and only logs them) and on rendering nothing. So a story is written to
 
 - **Args, not constants.** The meta names its `component` and the story sets `args`, so Controls can
   change it and its docs page lists the props. A `render` that shows several states side by side is for
-  comparing them, and still passes `args` through where it can.
+  comparing them, and still passes `args` through where it can. `stories/controls.ts` makes the panel
+  useful: `slots()` turns off the control of a prop the app fills with a node, `range()` gives a number
+  a slider, and `tierControl` picks a rank tier from the list.
 - **Callbacks are `fn()`** from `storybook/test`: the Actions panel shows what the recipe called, and a
   `play` function can assert it.
 - **Behaviour gets a `play` function.** Whatever a recipe does on its own — opening, toggling, clamping

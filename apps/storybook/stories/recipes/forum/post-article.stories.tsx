@@ -4,6 +4,7 @@ import { CommentSection } from "@v1/ui/recipes/forum/comment-section";
 import { PostArticle } from "@v1/ui/recipes/forum/post-article";
 import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { fn } from "storybook/test";
+import { slots } from "../../controls";
 import { COMMENTS } from "./forum.fixtures";
 import { POSTS } from "./posts.fixtures";
 
@@ -24,6 +25,9 @@ const reactions = (likes: number, dislikes: number, size?: "sm") => (
 const meta = {
   title: "Forum/Post article",
   component: PostArticle,
+  argTypes: {
+    ...slots("reactions", "comments"),
+  },
   parameters: { layout: "padded" },
   args: {
     post: {

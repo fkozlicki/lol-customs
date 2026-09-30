@@ -1,9 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { RankTag } from "@v1/ui/recipes/rank-tag";
+import { tierControl } from "../controls";
 
 const meta = {
   title: "Rank tag",
   component: RankTag,
+  argTypes: {
+    tier: tierControl,
+  },
   args: { tier: "GOLD", children: "Gold IV" },
 } satisfies Meta<typeof RankTag>;
 

@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PostComposer } from "@v1/ui/recipes/forum/post-composer";
 import { expect, fn } from "storybook/test";
+import { slots } from "../../controls";
 import { wordsFor } from "../../words";
 import { StandInEditor } from "./forum.fixtures";
 
 const meta = {
   title: "Forum/New post",
   component: PostComposer,
+  argTypes: {
+    ...slots("editor", "titleInput"),
+  },
   parameters: { layout: "padded" },
   args: {
     titleInput: { name: "title" },

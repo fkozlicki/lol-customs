@@ -5,6 +5,7 @@ import { CommentSection } from "@v1/ui/recipes/forum/comment-section";
 import { CommentSignInPrompt } from "@v1/ui/recipes/forum/comment-sign-in-prompt";
 import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { expect, fn } from "storybook/test";
+import { range, slots } from "../../controls";
 import { wordsFor } from "../../words";
 import { COMMENTS, StandInEditor } from "./forum.fixtures";
 
@@ -29,6 +30,10 @@ const thread = COMMENTS.map((comment) => (
 const meta = {
   title: "Forum/Comment section",
   component: CommentSection,
+  argTypes: {
+    ...slots("composer", "children"),
+    count: range(0, 50),
+  },
   parameters: { layout: "padded" },
   args: {
     count: COMMENTS.length,

@@ -3,10 +3,14 @@ import { PostCardSkeleton } from "@v1/ui/recipes/forum/post-card-skeleton";
 import { InfiniteScrollTrigger } from "@v1/ui/recipes/infinite-scroll-trigger";
 import MatchCardSkeleton from "@v1/ui/recipes/matches/match-card-skeleton";
 import { expect, fn, waitFor } from "storybook/test";
+import { slots } from "../controls";
 
 const meta = {
   title: "Infinite scroll trigger",
   component: InfiniteScrollTrigger,
+  argTypes: {
+    ...slots("loading"),
+  },
   parameters: { layout: "padded" },
   args: {
     hasNextPage: true,

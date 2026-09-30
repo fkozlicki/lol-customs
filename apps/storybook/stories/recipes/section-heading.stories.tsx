@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Button } from "@v1/ui/button";
 import { SectionHeading } from "@v1/ui/recipes/section-heading";
+import { slots } from "../controls";
 
 const meta = {
   title: "Section heading",
   component: SectionHeading,
+  argTypes: {
+    ...slots("action"),
+  },
   parameters: { layout: "padded" },
   args: { children: "Recent matches" },
 } satisfies Meta<typeof SectionHeading>;

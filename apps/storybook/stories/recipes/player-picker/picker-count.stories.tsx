@@ -1,11 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PickerCount } from "@v1/ui/recipes/player-picker/picker-count";
 import { expect, fn } from "storybook/test";
+import { range } from "../../controls";
 
 /** The player picker's parts take their words from the screen that uses them; these stories use English. */
 const meta = {
   title: "Player picker/Count",
   component: PickerCount,
+  argTypes: {
+    count: range(0, 10),
+    size: range(1, 10),
+  },
   args: { count: 5, size: 8, clearLabel: "Clear", onClear: fn() },
 } satisfies Meta<typeof PickerCount>;
 

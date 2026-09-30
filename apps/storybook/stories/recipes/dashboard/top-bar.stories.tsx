@@ -4,6 +4,7 @@ import { SeasonSelector } from "@v1/ui/recipes/dashboard/season-selector";
 import { TopBar } from "@v1/ui/recipes/dashboard/top-bar";
 import { expect, fn, screen } from "storybook/test";
 import { OPEN_RADIX_MENU } from "../../a11y";
+import { slots } from "../../controls";
 import { chromaticAt } from "../../modes";
 import { wordsFor } from "../../words";
 import { FORUM, PRIMARY, TOOLS } from "./nav.fixtures";
@@ -12,6 +13,9 @@ import { SEASONS } from "./season.fixtures";
 const meta = {
   title: "Dashboard/Top bar",
   component: TopBar,
+  argTypes: {
+    ...slots("actions"),
+  },
   parameters: { layout: "fullscreen", ...chromaticAt("desktop") },
   args: {
     homeHref: "/",

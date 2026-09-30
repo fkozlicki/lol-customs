@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
+import { slots } from "../controls";
 
 const meta = {
   title: "Page shell",
   component: PageShell,
+  argTypes: {
+    ...slots("children"),
+  },
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof PageShell>;
 

@@ -3,11 +3,16 @@ import { DownloadAppButton } from "@v1/ui/recipes/dashboard/download-app-button"
 import LeaderboardHistoryPicker from "@v1/ui/recipes/home/leaderboard-history-picker";
 import { Standings } from "@v1/ui/recipes/home/standings";
 import { fn } from "storybook/test";
+import { range, slots } from "../../controls";
 import { QUALIFICATION_MATCHES, STANDINGS } from "./standings.fixtures";
 
 const meta = {
   title: "Home/Standings",
   component: Standings,
+  argTypes: {
+    ...slots("historyPicker", "emptyAction"),
+    qualificationMatches: range(1, 20),
+  },
   parameters: { layout: "padded" },
   args: {
     seasonTitle: "Season 2",

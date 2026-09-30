@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { AuctionLobby } from "@v1/ui/recipes/auctions/auction-lobby";
 import { expect, fn } from "storybook/test";
+import { slots } from "../../controls";
 import { wordsFor } from "../../words";
 import { lobby } from "./auction-room.fixtures";
 
 const meta = {
   title: "Auctions/Lobby",
   component: AuctionLobby,
+  argTypes: {
+    ...slots("poolEditor"),
+  },
   parameters: { layout: "padded" },
   args: {
     lobby: lobby(),
