@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 /**
  * The foot of every dashboard page. Its one job for now is Riot's attribution notice, which the
@@ -9,8 +9,8 @@ import { getTranslations } from "next-intl/server";
  * prose in Geist Sans. The rule runs the full width of the window, like the top bar's; the text runs
  * the width of the page. The bottom padding clears the fixed mobile navigation.
  */
-export async function SiteFooter() {
-  const t = await getTranslations("dashboard.footer");
+export function SiteFooter() {
+  const t = useTranslations("footer");
 
   return (
     <footer className="border-t">

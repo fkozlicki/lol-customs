@@ -1,5 +1,4 @@
 export default {
-  welcome: "Cześć {name}!",
   locale: {
     en: "Angielski",
     pl: "Polski",
@@ -7,8 +6,6 @@ export default {
   dashboard: {
     auth: {
       signIn: "Zaloguj się",
-      signOut: "Wyloguj się",
-      anonymousUser: "Użytkownik anonimowy",
       profile: {
         title: "Dołącz do Derby",
         description: "Wybierz nick i opcjonalny awatar, aby zacząć.",
@@ -29,39 +26,17 @@ export default {
       },
     },
     sidebar: {
-      appName: "Derby",
       leaderboard: "Ranking",
       matchHistory: "Mecze",
       hallOfFame: "Sławy",
       shuffle: "Losuj",
       auctions: "Aukcje",
       posts: "Forum",
-      tools: "Narzędzia",
-      downloadDesktopApp: "Pobierz Derby Sync",
-    },
-    footer: {
-      riotNotice:
-        "Derby isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
-    },
-    preferences: {
-      menuLabel: "Konto i ustawienia",
-      theme: "Motyw",
-      language: "Język",
-    },
-    theme: {
-      toggleLabel: "Przełącz motyw",
-      system: "System",
-      light: "Jasny",
-      dark: "Ciemny",
-      tooltip: "Motyw: {label}",
     },
     season: {
       label: "Sezon {number}",
       allTime: "Wszystkie sezony",
-      current: "Bieżący",
       showAllTime: "Pokaż wszystkie sezony",
-      summariesTitle: "Sezony",
-      summaryRecord: "{wins}W / {losses}P",
     },
     pages: {
       player: {

@@ -45,6 +45,7 @@
     "./label": "./src/components/label.tsx",
     "./progress": "./src/components/progress.tsx",
     "./recipes/*": "./src/recipes/*.tsx",
+    "./recipes/dashboard/nav-item": "./src/recipes/dashboard/nav-item.ts",
     "./recipes/forum/post-view": "./src/recipes/forum/post-view.ts",
     "./recipes/home/standings-view": "./src/recipes/home/standings-view.ts",
     "./recipes/icons": "./src/recipes/icons.ts",

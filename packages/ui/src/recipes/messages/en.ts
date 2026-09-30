@@ -49,6 +49,8 @@ export default {
   },
   nav: {
     more: "More",
+    appName: "Derby",
+    tools: "Tools",
   },
   download: {
     button: "Download Derby Sync",
@@ -71,6 +73,8 @@ export default {
     label: "Season {number}",
     summariesTitle: "Seasons",
     summaryRecord: "{wins}W / {losses}L",
+    allTime: "All seasons",
+    current: "Current",
   },
   forum: {
     unknownAuthor: "Unknown",
@@ -111,5 +115,22 @@ export default {
     killsCount: "{count} kills",
     noRelation: "Not enough matches yet",
     noKillData: "No kills recorded",
+  },
+  footer: {
+    riotNotice:
+      "Derby isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
+  },
+  account: {
+    menuLabel: "Account and settings",
+    theme: "Theme",
+    language: "Language",
+    anonymousUser: "Anonymous user",
+    signIn: "Sign in",
+    signOut: "Sign out",
+    themes: {
+      system: "System",
+      light: "Light",
+      dark: "Dark",
+    },
   },
 } as const;

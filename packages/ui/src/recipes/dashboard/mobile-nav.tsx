@@ -10,14 +10,9 @@ import {
   SheetTitle,
 } from "../../components/sheet";
 import { cn } from "../../utils/cn";
-import { Icons, type LucideIcon } from "../icons";
-
-export interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  active: boolean;
-}
+import { Icons } from "../icons";
+import type { NavItem } from "./nav-item";
+import { TabLink } from "./tab-link";
 
 interface MobileNavProps {
   /** The tabs on the bar, four of them; a fifth, "More", opens the rest. */
@@ -84,35 +79,5 @@ export function MobileNav({ tabs, more }: MobileNavProps) {
         </SheetContent>
       </Sheet>
     </>
-  );
-}
-
-function TabLink({
-  href,
-  active,
-  label,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "relative flex flex-col items-center justify-center gap-1",
-        active ? "text-foreground" : "text-muted-foreground",
-      )}
-    >
-      {active && (
-        <span className="absolute inset-x-3 top-0 h-0.5 bg-foreground" />
-      )}
-      {children}
-      <span className="max-w-full truncate px-1 font-mono text-[9px] uppercase tracking-[0.08em]">
-        {label}
-      </span>
-    </Link>
   );
 }

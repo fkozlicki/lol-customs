@@ -31,9 +31,9 @@ const config: StorybookConfig = {
     },
   ],
   addons: ["@storybook/addon-docs", "@storybook/addon-themes"],
-  // Rank crests, role and objective icons are self-hosted by the app under public/game/ (ADR 0002);
-  // served at the same path here, so the URLs the recipes build resolve unchanged.
-  staticDirs: [{ from: "../../app/public/game", to: "/game" }],
+  // The app's public files — the logo, and the rank crests, role and objective icons self-hosted
+  // under game/ (ADR 0002) — served at the same paths, so the URLs recipes are given resolve unchanged.
+  staticDirs: ["../../app/public"],
 };
 
 export default config;

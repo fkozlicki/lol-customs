@@ -1,9 +1,9 @@
 import { latestPatch } from "@v1/game-assets/patch";
+import { SiteFooter } from "@v1/ui/recipes/dashboard/site-footer";
 import { GamePatchProvider } from "@v1/ui/recipes/game-assets/game-patch";
 import { Backdrop } from "@/components/backdrop/backdrop";
 import { DownloadAppDialog } from "@/components/dashboard/download-app-dialog";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
-import { SiteFooter } from "@/components/dashboard/site-footer";
 import { TopBar } from "@/components/dashboard/top-bar";
 
 export default async function DashboardLayout({

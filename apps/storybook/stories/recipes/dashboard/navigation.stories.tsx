@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { DownloadAppButton } from "@v1/ui/recipes/dashboard/download-app-button";
 import { DownloadAppDialog } from "@v1/ui/recipes/dashboard/download-app-dialog";
-import { MobileNav, type NavItem } from "@v1/ui/recipes/dashboard/mobile-nav";
-import { Icons } from "@v1/ui/recipes/icons";
+import { MobileNav } from "@v1/ui/recipes/dashboard/mobile-nav";
+import type { NavItem } from "@v1/ui/recipes/dashboard/nav-item";
 import { useState } from "react";
+import { FORUM, PRIMARY, TOOLS } from "./nav.fixtures";
 
 const meta = {
   title: "Dashboard",
@@ -12,22 +13,8 @@ const meta = {
 
 export default meta;
 
-const TABS: NavItem[] = [
-  { href: "/", label: "Leaderboard", icon: Icons.Leaderboard, active: true },
-  { href: "/matches", label: "Matches", icon: Icons.Matches, active: false },
-  {
-    href: "/hof",
-    label: "Hall of Fame",
-    icon: Icons.HallOfFame,
-    active: false,
-  },
-  { href: "/posts", label: "Forum", icon: Icons.MessageSquare, active: false },
-];
-
-const MORE: NavItem[] = [
-  { href: "/shuffle", label: "Shuffle", icon: Icons.Shuffle, active: false },
-  { href: "/auctions", label: "Auctions", icon: Icons.Auction, active: false },
-];
+const TABS: NavItem[] = [...PRIMARY, FORUM];
+const MORE = TOOLS;
 
 /** The bottom bar on a phone. The app marks the tab its pathname falls under. */
 export const MobileNavigation: StoryObj = {
