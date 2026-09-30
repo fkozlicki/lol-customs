@@ -56,9 +56,14 @@ const storiesIn = (
 
 export default defineConfig({
   test: {
-    projects: LOCALES.flatMap((locale) =>
-      THEMES.map((theme) => storiesIn(locale, theme)),
-    ),
+    // Storybook's test widget drives Vitest itself and names the project after .storybook, so it needs
+    // exactly one; it runs English in the dark theme. The scripts set STORY_MATRIX for every pair.
+    projects:
+      process.env.STORY_MATRIX === "1"
+        ? LOCALES.flatMap((locale) =>
+            THEMES.map((theme) => storiesIn(locale, theme)),
+          )
+        : [storiesIn("en", "dark")],
     coverage: {
       provider: "v8",
       // What the stories exercise is the design system, not the stories themselves; it lives outside

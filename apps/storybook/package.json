@@ -5,13 +5,13 @@
   "scripts": {
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "test:stories": "vitest run",
+    "test:stories": "STORY_MATRIX=1 vitest run",
     "clean": "git clean -xdf .turbo node_modules storybook-static coverage",
     "lint": "biome lint",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
-    "test:stories:watch": "vitest",
-    "test:stories:coverage": "vitest run --coverage",
+    "test:stories:watch": "STORY_MATRIX=1 vitest",
+    "test:stories:coverage": "STORY_MATRIX=1 vitest run --coverage",
     "chromatic": "bun run build-storybook --stats-json && chromatic --storybook-build-dir storybook-static --only-changed --exit-zero-on-changes"
   },
   "dependencies": {
