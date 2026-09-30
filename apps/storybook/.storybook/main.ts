@@ -9,7 +9,25 @@
  * `@storybook/nextjs-vite` rather than plain React: game-asset recipes render through `next/image`
  * (ADR 0002), and the preview loads Geist through `next/font`.
  */
+import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/nextjs-vite";
+
+/** The design system the stories render; the props tables are read from its source. */
+const ui = (path: string) =>
+  fileURLToPath(new URL(`../../../packages/ui/${path}`, import.meta.url));
+
+/**
+ * The DOM props worth a control. Everything else a component inherits from React's own types — a
+ * button's hundred event handlers and aria attributes — stays out of the props table.
+ */
+const USEFUL_DOM_PROPS = new Set([
+  "disabled",
+  "placeholder",
+  "type",
+  "required",
+  "readOnly",
+  "href",
+]);
 
 const config: StorybookConfig = {
   framework: "@storybook/nextjs-vite",
@@ -31,6 +49,22 @@ const config: StorybookConfig = {
       files: "**/*.@(mdx|stories.tsx)",
     },
   ],
+  typescript: {
+    // react-docgen, the default, cannot follow `VariantProps<typeof buttonVariants>`, so a primitive's
+    // `variant` and `size` never reached the props table or the Controls panel. This one resolves the
+    // types, turns unions of literals into radio and select controls, and keeps React's DOM props out.
+    reactDocgen: "react-docgen-typescript",
+    reactDocgenTypescriptOptions: {
+      // The components live in packages/ui, outside this app, which the defaults would not read.
+      tsconfigPath: ui("tsconfig.json"),
+      include: [ui("src/**/*.tsx")],
+      shouldExtractLiteralValuesFromEnum: true,
+      shouldRemoveUndefinedFromOptional: true,
+      propFilter: (prop) =>
+        !prop.declarations?.some((d) => d.fileName.includes("@types/react")) ||
+        USEFUL_DOM_PROPS.has(prop.name),
+    },
+  },
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-themes",

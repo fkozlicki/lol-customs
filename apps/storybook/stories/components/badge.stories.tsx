@@ -4,7 +4,7 @@ import { Badge } from "@v1/ui/badge";
 const meta = {
   title: "Components/Badge",
   component: Badge,
-  args: { children: "Season 2" },
+  args: { children: "Season 2", variant: "default" },
 } satisfies Meta<typeof Badge>;
 
 export default meta;

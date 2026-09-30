@@ -5,7 +5,11 @@ import { Icons } from "@v1/ui/icons";
 const meta = {
   title: "Components/Button",
   component: Button,
-  args: { children: "Download Derby Sync" },
+  args: {
+    children: "Download Derby Sync",
+    variant: "default",
+    size: "default",
+  },
 } satisfies Meta<typeof Button>;
 
 export default meta;
