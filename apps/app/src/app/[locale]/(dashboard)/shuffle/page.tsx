@@ -1,9 +1,9 @@
+import { DrawSkeleton } from "@v1/ui/recipes/draw/draw-skeleton";
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
-import { RandomTeamsToolSkeleton } from "@v1/ui/recipes/random-teams/random-teams-tool-skeleton";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import RandomTeamsTool from "@/components/random-teams/random-teams-tool";
+import { DrawTool } from "@/components/draw/draw-tool";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 export default async function ShufflePage() {
@@ -14,8 +14,8 @@ export default async function ShufflePage() {
     <HydrateClient>
       <PageShell>
         <PageHeader title={t("title")} description={t("description")} />
-        <Suspense fallback={<RandomTeamsToolSkeleton />}>
-          <RandomTeamsTool />
+        <Suspense fallback={<DrawSkeleton />}>
+          <DrawTool />
         </Suspense>
       </PageShell>
     </HydrateClient>

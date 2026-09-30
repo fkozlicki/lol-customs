@@ -72,7 +72,8 @@ const ROLE_FILES = {
   SUPPORT: "utility",
 } as const;
 
-type Role = keyof typeof ROLE_FILES;
+/** A role a drawn team fills. */
+export type TeamRole = keyof typeof ROLE_FILES;
 
 export const OBJECTIVES = [
   "baron",
@@ -94,7 +95,7 @@ export function rankCrestUrl(tier: string | null): string {
 
 /** Takes a plain string because roles arrive from stored data; anything unknown is the blank icon. */
 export function positionRoleIconUrl(role: string): string {
-  const file = ROLE_FILES[role as Role] ?? "none";
+  const file = ROLE_FILES[role as TeamRole] ?? "none";
   return `/game/roles/${file}.png`;
 }
 
