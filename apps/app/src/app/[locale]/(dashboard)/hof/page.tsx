@@ -3,8 +3,8 @@ import { HallOfFameSkeleton } from "@v1/ui/recipes/hof/hall-of-fame-skeleton";
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { HallOfFame } from "@/components/hof/hall-of-fame";
+import { QueryBoundary } from "@/components/query-boundary";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
@@ -35,9 +35,9 @@ export default async function HallOfFamePage({
           title={t("title")}
           description={t("description")}
         />
-        <Suspense fallback={<HallOfFameSkeleton />} key={season}>
+        <QueryBoundary fallback={<HallOfFameSkeleton />} key={season}>
           <HallOfFame season={season} />
-        </Suspense>
+        </QueryBoundary>
       </PageShell>
     </HydrateClient>
   );

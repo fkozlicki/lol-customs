@@ -4,7 +4,7 @@ import { PlayerProfileSkeleton } from "@v1/ui/recipes/player/player-profile-skel
 const meta = {
   title: "Player/Profile skeleton",
   component: PlayerProfileSkeleton,
-  parameters: { layout: "fullscreen" },
+  parameters: { layout: "padded" },
 } satisfies Meta<typeof PlayerProfileSkeleton>;
 
 export default meta;

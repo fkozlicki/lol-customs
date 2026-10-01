@@ -2,6 +2,7 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import { parsePlayerSlug } from "@v1/domain/riot-id";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { PlayerProfileLayout } from "@v1/ui/recipes/player/player-profile-layout";
+import { PlayerProfileSkeleton } from "@v1/ui/recipes/player/player-profile-skeleton";
 import { PlayerSeasonEmpty } from "@v1/ui/recipes/player/player-season-empty";
 import { PlayerSeasonOverview } from "@v1/ui/recipes/player/player-season-overview";
 import { notFound } from "next/navigation";
@@ -14,6 +15,7 @@ import { PlayerSeasonSummaries } from "@/components/player/player-season-summari
 import { PlayerStatsCard } from "@/components/player/player-stats-card";
 import { PlayerTitles } from "@/components/player/player-titles";
 import { RatingHistoryChart } from "@/components/player/rating-history-chart";
+import { QueryBoundary } from "@/components/query-boundary";
 import {
   caller,
   getQueryClient,
@@ -83,64 +85,66 @@ export default async function PlayerProfilePage({
   return (
     <HydrateClient>
       <PageShell>
-        <PlayerProfileLayout
-          header={
-            <PlayerProfileHeader
-              puuid={puuid}
-              gameName={gameName}
-              tagLine={tagLine}
-            />
-          }
-          overview={
-            hasSeasonGames ? (
-              <PlayerSeasonOverview
-                label={seasonLabel}
-                titles={<PlayerTitles puuid={puuid} season={season} />}
-                stats={<PlayerStatsCard puuid={puuid} season={season} />}
-                chart={
-                  <RatingHistoryChart
-                    puuid={puuid}
-                    season={season}
-                    seasonStarts={
-                      season === ALL_TIME_SEASON
-                        ? seasons.flatMap((s) =>
-                            s.starts_at
-                              ? [{ number: s.number, startsAt: s.starts_at }]
-                              : [],
-                          )
-                        : []
-                    }
-                  />
-                }
-              />
-            ) : (
-              <PlayerSeasonEmpty
-                seasonNumber={seasonNumber(season, seasons) ?? season}
-                allSeasonsHref={`?${SEASON_PARAM}=${ALL_TIME_PARAM}`}
-              />
-            )
-          }
-          sidebar={
-            <>
-              <PlayerSeasonSummaries
+        <QueryBoundary fallback={<PlayerProfileSkeleton />} key={season}>
+          <PlayerProfileLayout
+            header={
+              <PlayerProfileHeader
                 puuid={puuid}
-                season={season}
-                seasons={seasons}
+                gameName={gameName}
+                tagLine={tagLine}
               />
-              {hasSeasonGames && (
-                <>
-                  <MostPlayedChampions puuid={puuid} season={season} />
-                  <PlayerRelations puuid={puuid} season={season} />
-                </>
-              )}
-            </>
-          }
-          matches={
-            hasSeasonGames ? (
-              <PlayerMatchHistory puuid={puuid} season={season} />
-            ) : null
-          }
-        />
+            }
+            overview={
+              hasSeasonGames ? (
+                <PlayerSeasonOverview
+                  label={seasonLabel}
+                  titles={<PlayerTitles puuid={puuid} season={season} />}
+                  stats={<PlayerStatsCard puuid={puuid} season={season} />}
+                  chart={
+                    <RatingHistoryChart
+                      puuid={puuid}
+                      season={season}
+                      seasonStarts={
+                        season === ALL_TIME_SEASON
+                          ? seasons.flatMap((s) =>
+                              s.starts_at
+                                ? [{ number: s.number, startsAt: s.starts_at }]
+                                : [],
+                            )
+                          : []
+                      }
+                    />
+                  }
+                />
+              ) : (
+                <PlayerSeasonEmpty
+                  seasonNumber={seasonNumber(season, seasons) ?? season}
+                  allSeasonsHref={`?${SEASON_PARAM}=${ALL_TIME_PARAM}`}
+                />
+              )
+            }
+            sidebar={
+              <>
+                <PlayerSeasonSummaries
+                  puuid={puuid}
+                  season={season}
+                  seasons={seasons}
+                />
+                {hasSeasonGames && (
+                  <>
+                    <MostPlayedChampions puuid={puuid} season={season} />
+                    <PlayerRelations puuid={puuid} season={season} />
+                  </>
+                )}
+              </>
+            }
+            matches={
+              hasSeasonGames ? (
+                <PlayerMatchHistory puuid={puuid} season={season} />
+              ) : null
+            }
+          />
+        </QueryBoundary>
       </PageShell>
     </HydrateClient>
   );
