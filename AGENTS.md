@@ -53,10 +53,13 @@ bun run --cwd apps/storybook chromatic   # publish to Chromatic by hand (CHROMAT
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```
 
-CI runs `bun run lint`, `bun run typecheck` and `bun run test` on every pull request. The story tests run on
+CI runs `bun run lint`, `bun run typecheck` and `bun run test` on every pull request, on the Bun that
+`packageManager` names and with a frozen lockfile. The story tests run on
 a pull request only when it touches what stories render, and then only the stories it reaches, in two
 variants; after a merge, main runs every story in all four, one job per variant
-([docs/research/storybook-ci.md](docs/research/storybook-ci.md)). Chromatic publishes the Storybook and diffs
+([docs/research/storybook-ci.md](docs/research/storybook-ci.md)). A ruleset on main takes only a pull
+request whose `check`, `stories` and `Vercel` checks pass on a branch up to date with main; a direct push
+to main is rejected. Chromatic publishes the Storybook and diffs
 it visually once `CHROMATIC_PROJECT_TOKEN` is set. The first story test run needs
 `bunx playwright install chromium` in `apps/storybook`. `bun lint` also runs the design check in
 `apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
