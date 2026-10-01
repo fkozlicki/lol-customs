@@ -70,6 +70,7 @@ export default {
       },
       posts: {
         title: "Forum",
+        newPost: "New post",
         description:
           "Where the group talks about matches, auctions and the season.",
         reactionFailed: "Could not save your reaction.",

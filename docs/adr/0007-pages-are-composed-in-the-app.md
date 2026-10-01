@@ -75,5 +75,7 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   `AuctionRoomHeader` takes `status` and `action` slots (`AuctionLiveBadge`, the app's
   `CancelAuctionButton`), and `AuctionRoomNotFound` is gone. Room actions and the lobby read
   `refresh` from `useAuctionLive`.
+- The forum's `NewPostButton` moved to the app, with the same sign-in-first logic as
+  `CreateAuctionButton`; `PostList` and `PostListEmpty` take it through slots.
 - `player-profile-skeleton` still wraps `PageShell`, and the other pages still suspend in `page.tsx`
   without an error boundary. Each is revisited with its page.

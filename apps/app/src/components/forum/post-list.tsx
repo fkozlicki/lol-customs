@@ -2,16 +2,13 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { PostList as PostListView } from "@v1/ui/recipes/forum/post-list";
-import { useRouter } from "next/navigation";
-import { useUser } from "@/components/auth/user-context";
 import { useTRPC } from "@/trpc/react";
+import { NewPostButton } from "./new-post-button";
 import { toPostCardView } from "./post-view";
 
-/** The forum's posts, ten at a time; writing one asks a signed-out reader to sign in. */
+/** The forum's posts, ten at a time, with the way to write one. */
 export function PostList() {
-  const { profile, openSignInDialog } = useUser();
   const trpc = useTRPC();
-  const router = useRouter();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
@@ -24,9 +21,8 @@ export function PostList() {
   return (
     <PostListView
       posts={data.pages.flatMap((page) => page.items).map(toPostCardView)}
-      onNewPost={() =>
-        profile ? router.push("/posts/new") : openSignInDialog()
-      }
+      newPostAction={<NewPostButton size="sm" />}
+      emptyAction={<NewPostButton />}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
       onLoadMore={fetchNextPage}
