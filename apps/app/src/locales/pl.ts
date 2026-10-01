@@ -95,8 +95,12 @@ export default {
         },
         room: {
           teamB: "Team B",
+          versus: "vs",
         },
         lobby: {
+          starting: "Aukcja startuje za",
+          ready: "Jestem gotowy",
+          unready: "Wycofaj gotowość",
           linkCopied: "Link do pokoju skopiowany.",
           linkCopyFailed: "Nie udało się skopiować linku do pokoju.",
         },

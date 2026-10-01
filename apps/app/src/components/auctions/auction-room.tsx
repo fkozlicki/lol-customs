@@ -1,10 +1,13 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { AuctionBoard } from "@v1/ui/recipes/auctions/auction-board";
-import { AuctionResults } from "@v1/ui/recipes/auctions/auction-results";
+import { AuctionCompletedBanner } from "@v1/ui/recipes/auctions/auction-completed-banner";
 import { AuctionRoomClosed } from "@v1/ui/recipes/auctions/auction-room-closed";
 import { AuctionRoomHeader } from "@v1/ui/recipes/auctions/auction-room-header";
+import { AuctionStage } from "@v1/ui/recipes/auctions/auction-stage";
+import { EventFeed } from "@v1/ui/recipes/auctions/event-feed";
+import { TeamRoster } from "@v1/ui/recipes/auctions/team-roster";
+import { UpcomingOrder } from "@v1/ui/recipes/auctions/upcoming-order";
 import { NotFound } from "@v1/ui/recipes/not-found";
 import { useLocale } from "next-intl";
 import { useTRPC } from "@/trpc/react";
@@ -38,6 +41,8 @@ export function AuctionRoom({ id }: { id: string }) {
 
   const bidding =
     room.permissions.mySide !== null && room.phase !== "sold_pause";
+  const rosters = toTeamRosterViews(room);
+  const upcoming = toUpcomingOrder(room);
 
   return (
     <>
@@ -55,25 +60,39 @@ export function AuctionRoom({ id }: { id: string }) {
         <AuctionLobby room={room} actions={actions} />
       )}
 
+      {/* The stage between the two rosters, the feed beside Team B; on phones the stage comes first. */}
       {room.status === "active" && (
-        <AuctionBoard
-          rosters={toTeamRosterViews(room)}
-          stage={toAuctionStageView(room)}
-          controls={
-            bidding ? (
-              <AuctionRoundControls room={room} actions={actions} />
-            ) : null
-          }
-          upcoming={toUpcomingOrder(room)}
-          events={toAuctionEventViews(room, { locale })}
-        />
+        <div className="grid gap-10 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)_minmax(260px,320px)] lg:gap-12">
+          <div className="order-2 lg:order-1">
+            <TeamRoster roster={rosters.A} />
+          </div>
+          <div className="order-1 space-y-8 lg:order-2">
+            <AuctionStage
+              stage={toAuctionStageView(room)}
+              controls={
+                bidding ? (
+                  <AuctionRoundControls room={room} actions={actions} />
+                ) : null
+              }
+            />
+            {upcoming && <UpcomingOrder players={upcoming} />}
+          </div>
+          <div className="order-3 space-y-10">
+            <TeamRoster roster={rosters.B} />
+            <EventFeed events={toAuctionEventViews(room, { locale })} />
+          </div>
+        </div>
       )}
 
       {room.status === "completed" && (
-        <AuctionResults
-          rosters={toTeamRosterViews(room)}
-          events={toAuctionEventViews(room, { locale })}
-        />
+        <>
+          <AuctionCompletedBanner />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]">
+            <TeamRoster roster={rosters.A} />
+            <TeamRoster roster={rosters.B} />
+            <EventFeed events={toAuctionEventViews(room, { locale })} />
+          </div>
+        </>
       )}
     </>
   );

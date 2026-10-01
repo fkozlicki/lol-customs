@@ -6,7 +6,6 @@ import { PlayerHeader } from "@v1/ui/recipes/player/player-header";
 import { PlayerProfileLayout } from "@v1/ui/recipes/player/player-profile-layout";
 import { PlayerRelations } from "@v1/ui/recipes/player/player-relations";
 import { PlayerSeasonEmpty } from "@v1/ui/recipes/player/player-season-empty";
-import { PlayerSeasonOverview } from "@v1/ui/recipes/player/player-season-overview";
 import { PlayerSeasonSummaries } from "@v1/ui/recipes/player/player-season-summaries";
 import { PlayerStats } from "@v1/ui/recipes/player/player-stats";
 import { PlayerTitles } from "@v1/ui/recipes/player/player-titles";
@@ -42,18 +41,19 @@ const meta = {
   ],
   args: {
     header,
+    // Arranged as the profile page arranges it.
     overview: (
-      <PlayerSeasonOverview
-        label="Season 2"
-        titles={<PlayerTitles titles={TITLES} />}
-        stats={
+      <div className="space-y-10">
+        <div className="space-y-3">
+          <p className="label-caps">Season 2</p>
+          <PlayerTitles titles={TITLES} />
           <PlayerStats
             stats={STANDINGS[0]!}
             qualificationMatches={QUALIFICATION_MATCHES}
           />
-        }
-        chart={<RatingHistoryChart points={RATING_POINTS} />}
-      />
+        </div>
+        <RatingHistoryChart points={RATING_POINTS} />
+      </div>
     ),
     sidebar: (
       <>

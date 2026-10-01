@@ -129,7 +129,6 @@ export default {
       upcoming: "Upcoming draw order",
     },
     lobby: {
-      starting: "Auction starts in",
       openSlot: "Waiting for captain",
       ready: "Ready",
       notReady: "Not ready",
@@ -145,8 +144,6 @@ export default {
     },
     actions: {
       join: "Join as captain",
-      ready: "I'm ready",
-      unready: "Withdraw ready",
       bid: "Bid",
       customBid: "Custom bid amount",
       allIn: "All-in",

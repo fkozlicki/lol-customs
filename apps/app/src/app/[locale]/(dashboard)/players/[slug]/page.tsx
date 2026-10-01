@@ -4,7 +4,6 @@ import { PageShell } from "@v1/ui/recipes/page-shell";
 import { PlayerProfileLayout } from "@v1/ui/recipes/player/player-profile-layout";
 import { PlayerProfileSkeleton } from "@v1/ui/recipes/player/player-profile-skeleton";
 import { PlayerSeasonEmpty } from "@v1/ui/recipes/player/player-season-empty";
-import { PlayerSeasonOverview } from "@v1/ui/recipes/player/player-season-overview";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { MostPlayedChampions } from "@/components/player/most-played-champions";
@@ -96,26 +95,27 @@ export default async function PlayerProfilePage({
             }
             overview={
               hasSeasonGames ? (
-                <PlayerSeasonOverview
-                  label={seasonLabel}
-                  titles={<PlayerTitles puuid={puuid} season={season} />}
-                  stats={<PlayerStatsCard puuid={puuid} season={season} />}
-                  chart={
-                    <RatingHistoryChart
-                      puuid={puuid}
-                      season={season}
-                      seasonStarts={
-                        season === ALL_TIME_SEASON
-                          ? seasons.flatMap((s) =>
-                              s.starts_at
-                                ? [{ number: s.number, startsAt: s.starts_at }]
-                                : [],
-                            )
-                          : []
-                      }
-                    />
-                  }
-                />
+                // The season at a glance: the titles held, the numbers, the rating over time.
+                <div className="space-y-10">
+                  <div className="space-y-3">
+                    <p className="label-caps">{seasonLabel}</p>
+                    <PlayerTitles puuid={puuid} season={season} />
+                    <PlayerStatsCard puuid={puuid} season={season} />
+                  </div>
+                  <RatingHistoryChart
+                    puuid={puuid}
+                    season={season}
+                    seasonStarts={
+                      season === ALL_TIME_SEASON
+                        ? seasons.flatMap((s) =>
+                            s.starts_at
+                              ? [{ number: s.number, startsAt: s.starts_at }]
+                              : [],
+                          )
+                        : []
+                    }
+                  />
+                </div>
               ) : (
                 <PlayerSeasonEmpty
                   seasonNumber={seasonNumber(season, seasons) ?? season}

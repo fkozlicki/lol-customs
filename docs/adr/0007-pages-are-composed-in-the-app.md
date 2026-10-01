@@ -89,5 +89,10 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   is the app's `PlayerPoolPicker`, which takes `usePlayerPicker`'s result and a namespace of words.
   `AuctionRules` and `LobbyChangeNotice` got stories of their own; the words the app now passes moved
   to `dashboard.pages.auctions.picker` and `dashboard.pages.shuffle.picker`.
+- `AuctionBoard`, `AuctionResults`, `AuctionLobby` and `PlayerSeasonOverview` went the same way:
+  `AuctionRoom` arranges the live board and the results, the app's `AuctionLobby` arranges the lobby
+  (its pool editor is `AuctionPoolEditor`), and the profile page lays out the season overview.
+  `AuctionStage`, `UpcomingOrder`, `AuctionCompletedBanner`, `LobbyTeam` and `LobbyPool` got stories of
+  their own. `PlayerProfileLayout` stays a recipe: a layout of slots, not a pass-through of props.
 - Known gap: the home page awaits `fetchQuery(ladderRatedMatchCount)` and the player profile awaits
   `fetchQuery(profileStats)`. Both throw past every boundary to `global-error` when they fail.

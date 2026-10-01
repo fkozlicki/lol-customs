@@ -1,31 +1,25 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { AuctionBoard } from "@v1/ui/recipes/auctions/auction-board";
+import { AuctionStage } from "@v1/ui/recipes/auctions/auction-stage";
 import { BidControls } from "@v1/ui/recipes/auctions/bid-controls";
 import { FreeAuctionControls } from "@v1/ui/recipes/auctions/free-auction-controls";
 import { fn } from "storybook/test";
 import { slots } from "../../controls";
-import { EVENTS, ROSTERS, stage } from "./auction-room.fixtures";
+import { stage } from "./auction-room.fixtures";
 
+/** The middle of a live room: the player on sale, the price, the clock, and a captain's controls. */
 const meta = {
-  title: "Auctions/Board",
-  component: AuctionBoard,
-  argTypes: {
-    ...slots("controls"),
-  },
+  title: "Auctions/Stage",
+  component: AuctionStage,
+  argTypes: { ...slots("controls") },
   parameters: { layout: "padded" },
-  args: {
-    rosters: ROSTERS,
-    stage: stage(),
-    upcoming: ["Bramble", "Quill", "Emberly"],
-    events: EVENTS.slice(5),
-  },
-} satisfies Meta<typeof AuctionBoard>;
+  args: { stage: stage() },
+} satisfies Meta<typeof AuctionStage>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** A round being bid on, seen by a captain: the stage between the rosters, the feed beside Team B. */
+/** A round being bid on, seen by a captain. */
 export const Bidding: Story = {
   args: {
     controls: (
@@ -42,8 +36,8 @@ export const Bidding: Story = {
   },
 };
 
-/** The same round seen by a visitor: no controls, and a room that keeps its draw order hidden. */
-export const Watching: Story = { args: { upcoming: null } };
+/** The same round seen by a visitor: no controls. */
+export const Watching: Story = {};
 
 /** The opponent is out of budget: take the player for $1 or pass them over. */
 export const FreeAuction: Story = {
@@ -52,8 +46,6 @@ export const FreeAuction: Story = {
     controls: (
       <FreeAuctionControls canDecide busy={false} onTake={fn()} onPass={fn()} />
     ),
-    upcoming: null,
-    events: [],
   },
 };
 
@@ -61,16 +53,10 @@ export const FreeAuction: Story = {
 export const Sold: Story = {
   args: {
     stage: stage({ phase: "sold_pause", openedBy: null, countdown: null }),
-    upcoming: null,
-    events: EVENTS.slice(3),
   },
 };
 
 /** Between rounds, before the next player is revealed. */
 export const Preparing: Story = {
-  args: {
-    stage: stage({ player: null, leadingTeam: null, round: null }),
-    upcoming: null,
-    events: [],
-  },
+  args: { stage: stage({ player: null, leadingTeam: null, round: null }) },
 };
