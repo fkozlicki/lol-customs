@@ -2,7 +2,7 @@
 
 import { Button } from "@v1/ui/button";
 import { useTranslations } from "next-intl";
-import { useQueryRetry } from "./query-boundary";
+import { useQueryRetry } from "./query-retry";
 
 /** Tries the failed queries of the `QueryBoundary` around it again; goes into an error recipe's slot. */
 export function QueryRetryButton() {

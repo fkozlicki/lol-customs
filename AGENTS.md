@@ -103,7 +103,9 @@ mirroring its folders; `src/` holds no test code.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
   `useSuspenseQuery` inside a Suspense boundary with a skeleton. Where a block has an error recipe, the
   page wraps it in `QueryBoundary` (skeleton + error), and the recipe's `action` slot gets
-  `<QueryRetryButton />`; `/auctions` is the model (ADR 0007).
+  `<QueryRetryButton />`; without an `errorFallback` the boundary shows `QueryError`. `/auctions` is
+  the model (ADR 0007). A page about one entity awaits `prefetchQuery` and calls `notFound()` when the
+  cached result is null (`posts/[id]`).
 - Season-scoped pages read `?season=` through `getSeasonScope` and pass the season to their queries.
 - Commits follow Conventional Commits with a scope: `feat(app): ...`, `fix(db): ...`,
   `docs: ...`.

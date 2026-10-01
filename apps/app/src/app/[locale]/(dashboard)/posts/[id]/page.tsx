@@ -1,9 +1,14 @@
 import PostDetailsSkeleton from "@v1/ui/recipes/forum/post-details-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { PostDetails } from "@/components/forum/post-details";
-import { caller, HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { QueryBoundary } from "@/components/query-boundary";
+import {
+  getQueryClient,
+  HydrateClient,
+  prefetch,
+  trpc,
+} from "@/trpc/server";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
@@ -11,19 +16,21 @@ interface PostPageProps {
 
 export default async function PostPage({ params }: PostPageProps) {
   const { id } = await params;
+  const queryClient = getQueryClient();
+  const postQuery = trpc.forum.posts.get.queryOptions({ id });
 
-  const post = await caller.forum.posts.get({ id });
-
-  if (!post) notFound();
+  // Awaited so a missing post is a 404; prefetchQuery does not throw, so a failure reaches the boundary.
+  await queryClient.prefetchQuery(postQuery);
+  if (queryClient.getQueryData(postQuery.queryKey) === null) notFound();
 
   prefetch(trpc.forum.comments.list.queryOptions({ postId: id }));
 
   return (
     <HydrateClient>
       <PageShell width="reading" gap="none">
-        <Suspense fallback={<PostDetailsSkeleton />}>
+        <QueryBoundary fallback={<PostDetailsSkeleton />}>
           <PostDetails postId={id} />
-        </Suspense>
+        </QueryBoundary>
       </PageShell>
     </HydrateClient>
   );
