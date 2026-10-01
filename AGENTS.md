@@ -101,9 +101,9 @@ mirroring its folders; `src/` holds no test code.
   beside the one that uses it. A file that grows past a few hundred lines is a sign it holds more than
   one job. shadcn's primitives in `packages/ui/src/components` are the exception and stay as generated.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
-  `useSuspenseQuery` inside a Suspense boundary with a skeleton. A block that has an error recipe owns
-  its boundary: a container wraps its reader in `QueryBoundary` (skeleton + error + retry) and the
-  page just places it; `/auctions` is the model (ADR 0007).
+  `useSuspenseQuery` inside a Suspense boundary with a skeleton. Where a block has an error recipe, the
+  page wraps it in `QueryBoundary` (skeleton + error), and the recipe's `action` slot gets
+  `<QueryRetryButton />`; `/auctions` is the model (ADR 0007).
 - Season-scoped pages read `?season=` through `getSeasonScope` and pass the season to their queries.
 - Commits follow Conventional Commits with a scope: `feat(app): ...`, `fix(db): ...`,
   `docs: ...`.

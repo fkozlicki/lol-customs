@@ -28,10 +28,11 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
    or a mutation, with no look of its own (`CreateAuctionButton`: a `Button` and an icon that opens
    `/auctions/new` or asks a visitor to sign in), is the app's. Anything with a look worth a story is
    still a recipe.
-3. **A block of data is self-contained.** Its container owns a `QueryBoundary` (Suspense with the
-   block's skeleton, plus an error boundary with the block's error recipe and a retry) around a child
-   that reads with `useSuspenseQuery`. The page prefetches the queries and places the block, which
-   takes no props for loading or failure.
+3. **The page places a block's boundary.** It prefetches the queries and wraps the container that
+   reads them with `useSuspenseQuery` in a `QueryBoundary`: Suspense with the block's skeleton, plus an
+   error boundary with the block's error recipe. Retrying is behaviour, so it follows rule 2: the error
+   recipe takes an `action` slot, and the app's `QueryRetryButton` reads the retry from the boundary
+   with `useQueryRetry`.
 4. **Live data comes from a provider on the page.** `AuctionLive` holds the realtime subscription for a
    topic and invalidates the query it keeps current, on each broadcast and on a timer while realtime is
    down. The blocks under it read their query as usual, and the badge reads the connection with
@@ -41,9 +42,10 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
 
 - **The page reads as what it shows.** `auctions/page.tsx` is a prefetch and four blocks. Moving,
   dropping or reusing one is a change to that file, not a new prop threaded through a page recipe.
-- **The boundary sits in the container because the retry is a function.** A server component cannot
-  pass `(retry) => <AuctionListError onRetry={retry} />` to a client boundary, so the block that knows
-  its error recipe holds the boundary.
+- **The retry travels by context because it is a function.** A server page cannot pass
+  `(retry) => <AuctionListError onRetry={retry} />` to a client boundary, but it can pass
+  `<AuctionListError action={<QueryRetryButton />} />`: elements only, with the function created on the
+  client. The container stays a plain reader, and the page shows what loads where.
 - **Freshness is said once.** "This page follows `auction:list`" is one element, not a hook whose
   refetch callback is passed to every piece that changes the data.
 - **Recipes stay plain.** A button that only routes has nothing to show in Storybook that `Button`
@@ -55,7 +57,8 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   `AuctionSummaryList`, and `AuctionListEmpty` takes an `action` slot. The strings the app now renders
   (`dashboard.pages.auctions.title`, `description`, `create`) moved to `apps/app/src/locales`.
 - `apps/app/src/components` holds its first server component (`AuctionsHeader`).
-- `apps/app` depends on `react-error-boundary`, which `QueryBoundary` uses.
+- `apps/app` depends on `react-error-boundary`, which `QueryBoundary` uses. `AuctionListError` takes an
+  `action` slot instead of `onRetry`, and the app's retry label is `dashboard.retry`.
 - The other auction routes (`/auctions/[id]`, `/auctions/new`) still read with `useQuery`. The
   whole-page skeletons (`auction-room-skeleton`, `new-auction-skeleton`, `player-profile-skeleton`)
   still wrap `PageShell`, and pages other than `/auctions` still suspend in `page.tsx` without an error

@@ -1,18 +1,20 @@
 "use client";
 
-import { AuctionListError } from "@v1/ui/recipes/auctions/auction-list-error";
-import { AuctionListSkeleton } from "@v1/ui/recipes/auctions/auction-list-skeleton";
-import { QueryBoundary } from "@/components/query-boundary";
-import { AuctionListContent } from "./auction-list-content";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { AuctionSummaryList } from "@v1/ui/recipes/auctions/auction-summary-list";
+import { useTRPC } from "@/trpc/react";
+import { toAuctionSummaryView } from "./auction-list-view";
+import { CreateAuctionButton } from "./create-auction-button";
 
-/** The list of auctions, with its own skeleton and its own way back when it cannot be read. */
+/** Every lobby and live auction, kept current by the page's `AuctionLive`. */
 export function AuctionList() {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.auctions.listActive.queryOptions());
+
   return (
-    <QueryBoundary
-      fallback={<AuctionListSkeleton />}
-      errorFallback={(retry) => <AuctionListError onRetry={retry} />}
-    >
-      <AuctionListContent />
-    </QueryBoundary>
+    <AuctionSummaryList
+      auctions={data.map(toAuctionSummaryView)}
+      emptyAction={<CreateAuctionButton variant="outline" />}
+    />
   );
 }

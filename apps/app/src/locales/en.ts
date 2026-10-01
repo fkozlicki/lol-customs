@@ -4,6 +4,7 @@ export default {
     pl: "Polish",
   },
   dashboard: {
+    retry: "Try again",
     auth: {
       profile: {
         nickname: {
