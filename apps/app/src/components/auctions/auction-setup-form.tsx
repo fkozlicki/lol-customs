@@ -8,13 +8,18 @@ import {
 import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
 import { riotIdKey } from "@v1/domain/riot-id";
 import type { RosterPlayer } from "@v1/domain/shuffle";
+import { Button } from "@v1/ui/button";
+import { AuctionRules } from "@v1/ui/recipes/auctions/auction-rules";
 import type { AuctionSettings } from "@v1/ui/recipes/auctions/auction-settings";
-import { AuctionSetup } from "@v1/ui/recipes/auctions/auction-setup";
+import { LobbyChangeNotice } from "@v1/ui/recipes/auctions/lobby-change-notice";
+import { Icons } from "@v1/ui/recipes/icons";
+import { PickerCount } from "@v1/ui/recipes/player-picker/picker-count";
 import { toast } from "@v1/ui/sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ComponentProps, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { PlayerPoolPicker } from "@/components/player-picker/player-pool-picker";
 import { usePlayerPicker } from "@/components/player-picker/use-player-picker";
 import { useTRPC } from "@/trpc/react";
 import { canSubmitAuctionSetup } from "./auction-setup";
@@ -30,7 +35,7 @@ interface AuctionSetupFormProps {
   /** Shown beside the save button when the form edits an existing lobby. */
   onCancel?: () => void;
   /** What creating does to a lobby the viewer is already in; `NewAuction` works it out. */
-  notice?: ComponentProps<typeof AuctionSetup>["notice"];
+  notice?: ComponentProps<typeof LobbyChangeNotice> | null;
 }
 
 /** The pool as one comparable string, so an edit only sends players when the pool changed. */
@@ -115,34 +120,50 @@ export function AuctionSetupForm({
     }
   }
 
+  const pending = createAuction.isPending || updateLobby.isPending;
+  const canSubmit =
+    canSubmitAuctionSetup({ mode, poolCount: pool.picked.length, settings }) &&
+    (mode === "edit" || Boolean(profile));
+
   return (
-    <AuctionSetup
-      mode={mode}
-      pool={pool.views.picked}
-      poolSize={AUCTION_POOL_SIZE}
-      candidates={pool.views.candidates}
-      search={pool.search}
-      onSearchChange={pool.setSearch}
-      riotId={pool.riotId}
-      onRiotIdChange={pool.setRiotId}
-      onAdd={pool.add}
-      onAddRiotId={pool.addByRiotId}
-      onRemove={pool.remove}
-      onClear={pool.clear}
-      settings={settings}
-      onSettingsChange={setSettings}
-      notice={notice}
-      canSubmit={
-        canSubmitAuctionSetup({
-          mode,
-          poolCount: pool.picked.length,
-          settings,
-        }) &&
-        (mode === "edit" || Boolean(profile))
-      }
-      pending={createAuction.isPending || updateLobby.isPending}
-      onSubmit={submit}
-      onCancel={onCancel}
-    />
+    <div className="space-y-10">
+      {notice && <LobbyChangeNotice {...notice} />}
+
+      <div className="flex items-center justify-between gap-4">
+        <PickerCount
+          count={pool.picked.length}
+          size={AUCTION_POOL_SIZE}
+          clearLabel={t("creator.clear")}
+          onClear={pool.clear}
+        />
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="ghost" onClick={onCancel}>
+              {t("creator.cancel")}
+            </Button>
+          )}
+          <Button
+            type="button"
+            disabled={!canSubmit || pending}
+            onClick={submit}
+          >
+            {pending && <Icons.Loader className="size-4 animate-spin" />}
+            {pending
+              ? t("creator.saving")
+              : mode === "edit"
+                ? t("creator.save")
+                : t("creator.create")}
+          </Button>
+        </div>
+      </div>
+
+      <PlayerPoolPicker picker={pool} words="dashboard.pages.auctions.picker" />
+
+      <AuctionRules
+        settings={settings}
+        onChange={setSettings}
+        askTeamName={mode === "create"}
+      />
+    </div>
   );
 }

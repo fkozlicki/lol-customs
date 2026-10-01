@@ -23,7 +23,9 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
    `PageHeader` and what sits in it) is decided in `apps/app`: in `page.tsx`, or in a header component
    beside the page's containers when the header holds blocks of its own (`AuctionsHeader`, a server
    component). Where a recipe frames something with behaviour, it takes it as a slot
-   (`AuctionSummaryList`'s `emptyAction`).
+   (`AuctionSummaryList`'s `emptyAction`). The same holds below the page: a recipe that only arranges
+   other recipes and passes their props through is a composition, and compositions are the app's.
+   The test is whether most of its props go straight to its children (`AuctionSetup` had nineteen).
 2. **A component whose point is behaviour lives in the app.** A primitive wired to routing, the session
    or a mutation, with no look of its own (`CreateAuctionButton`: a `Button` and an icon that opens
    `/auctions/new` or asks a visitor to sign in), is the app's. Anything with a look worth a story is
@@ -81,5 +83,11 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   `PlayerProfileSkeleton` lost its shell too, and the profile's `loading.tsx` adds it. The forum list
   prefetched `{ limit: 20 }` while its container read `{ limit: 10 }`, so the prefetch never hit;
   both read ten now.
+- `AuctionSetup`, `DrawBoard` and `DrawToolbar` are gone. `AuctionSetupForm` and `DrawTool` arrange
+  the pieces themselves (`LobbyChangeNotice`, `PickerCount`, `AuctionRules`, `DrawnTeam`, their own
+  buttons), and the pool they share — the picked players beside the ladder and the Riot ID field —
+  is the app's `PlayerPoolPicker`, which takes `usePlayerPicker`'s result and a namespace of words.
+  `AuctionRules` and `LobbyChangeNotice` got stories of their own; the words the app now passes moved
+  to `dashboard.pages.auctions.picker` and `dashboard.pages.shuffle.picker`.
 - Known gap: the home page awaits `fetchQuery(ladderRatedMatchCount)` and the player profile awaits
   `fetchQuery(profileStats)`. Both throw past every boundary to `global-error` when they fail.
