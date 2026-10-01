@@ -13,7 +13,7 @@
     "format": "biome format --write .",
     "generate": "bun run scripts/generate.ts",
     "lint": "biome check .",
-    "test": "bun test",
+    "test": "bun test ./tests",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
