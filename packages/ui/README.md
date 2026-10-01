@@ -115,9 +115,11 @@ numbers are ones a real card shows.
 
 ### Stories are tests
 
-Every story runs as a test, in CI and with `bun run --cwd apps/storybook test:stories`: Vitest renders it
-in Chromium through the same preview, once per locale and theme, runs its `play` function and checks the
-result with axe. It fails on an axe violation, on a `console.error` (React swallows render errors in
+Every story runs as a test: Vitest renders it in Chromium through the same preview, runs its `play`
+function and checks the result with axe. A pull request runs the stories its changes reach, in English
+dark and Polish light (`test:stories`); main runs every story in all four variants after a merge
+(`test:stories:all`). A change to the preview, the tokens, the recipes' dictionaries or the dependencies
+reaches every story. It fails on an axe violation, on a `console.error` (React swallows render errors in
 Storybook and only logs them) and on rendering nothing. So a story is written to be tested:
 
 - **Args, not constants.** The meta names its `component` and the story sets `args`, so Controls can

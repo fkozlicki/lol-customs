@@ -10,6 +10,10 @@ on:
       - 'packages/game-assets/**'
       - 'apps/app/public/**'
       - 'bun.lock'
+# A new push to a branch supersedes the build before it; main keeps every build as a baseline.
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   chromatic:
     runs-on: ubuntu-latest
@@ -43,3 +47,8 @@ jobs:
           exitZeroOnChanges: true
           # The results reach the pull request as Chromatic's own GitHub checks, so the job need not wait.
           exitOnceUploaded: true
+          # What reaches main was reviewed on its pull request; accept it there as the new baseline.
+          autoAcceptChanges: main
+          # The icons and rank crests come from apps/app/public through staticDirs, outside the bundle
+          # TurboSnap traces, so a change there re-snapshots everything.
+          externals: 'apps/app/public/**'

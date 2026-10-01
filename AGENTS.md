@@ -46,14 +46,18 @@ bun format
 bun db:reset         # rebuild the local Supabase DB from migrations
 bun generate:types   # regenerate packages/supabase/src/types/db.ts from the local DB
 bun generate:game-data   # refresh the champion list and self-hosted icons after a champion release
-bun run --cwd apps/storybook test:stories   # every story as a test: render, play, axe; each locale × theme (Vitest + Chromium)
+bun run --cwd apps/storybook test:stories   # the stories your changes reach (vs origin/main), en dark + pl light; render, play, axe
+bun run --cwd apps/storybook test:stories:all   # every story in every locale × theme, as main runs after a merge
 bun run --cwd apps/storybook test:stories:coverage   # the same, with how much of packages/ui the stories exercise
 bun run --cwd apps/storybook chromatic   # publish to Chromatic by hand (CHROMATIC_PROJECT_TOKEN in the environment); CI does it on push
 bun run --cwd apps/api test:db   # pgTAP tests in apps/api/supabase/tests
 ```
 
-CI runs `bun run lint`, `bun run typecheck`, `bun run test` and the story tests; Chromatic publishes the
-Storybook and diffs it visually once `CHROMATIC_PROJECT_TOKEN` is set. The first story test run needs
+CI runs `bun run lint`, `bun run typecheck` and `bun run test` on every pull request. The story tests run on
+a pull request only when it touches what stories render, and then only the stories it reaches, in two
+variants; after a merge, main runs every story in all four, one job per variant
+([docs/research/storybook-ci.md](docs/research/storybook-ci.md)). Chromatic publishes the Storybook and diffs
+it visually once `CHROMATIC_PROJECT_TOKEN` is set. The first story test run needs
 `bunx playwright install chromium` in `apps/storybook`. `bun lint` also runs the design check in
 `apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
 [DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain`, `packages/game-assets`, `packages/ui`, `apps/app` and `apps/lcu` — pure
