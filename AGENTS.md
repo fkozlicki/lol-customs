@@ -19,7 +19,8 @@ See [README.md](README.md) for setup.
   straight into Supabase tables. Distributed as an installer to non-technical users.
 - `apps/api`: the Supabase project: migrations, pgTAP tests, config. Not the tRPC server.
 - `apps/app`: Next.js dashboard (next-intl with `en` and `pl`, tRPC, Supabase auth): pages,
-  containers and mappers. Everything visual comes from `packages/ui`.
+  containers and mappers. Pages are composed here from `packages/ui`'s recipes; a primitive wired to
+  routing or the session (a create button) lives here too, but anything with a look is a recipe (ADR 0007).
 - `apps/storybook`: the one Storybook, with every story in `stories/`. It renders `packages/ui`,
   through its exports, and nothing else.
 - `packages/api`: tRPC routers consumed by `apps/app`.
@@ -100,7 +101,9 @@ mirroring its folders; `src/` holds no test code.
   beside the one that uses it. A file that grows past a few hundred lines is a sign it holds more than
   one job. shadcn's primitives in `packages/ui/src/components` are the exception and stay as generated.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
-  `useSuspenseQuery` inside a Suspense boundary with a skeleton.
+  `useSuspenseQuery` inside a Suspense boundary with a skeleton. Where a block has an error recipe, the
+  page wraps it in `QueryBoundary` (skeleton + error), and the recipe's `action` slot gets
+  `<QueryRetryButton />`; `/auctions` is the model (ADR 0007).
 - Season-scoped pages read `?season=` through `getSeasonScope` and pass the season to their queries.
 - Commits follow Conventional Commits with a scope: `feat(app): ...`, `fix(db): ...`,
   `docs: ...`.

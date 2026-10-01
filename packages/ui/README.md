@@ -1,7 +1,8 @@
 # @v1/ui
 
 Derby's design system: shadcn primitives, the recipes built on them, and the design tokens both depend
-on. `apps/app` uses it; it does not add visual components of its own (ADR 0004).
+on. `apps/app` composes its pages from it; it keeps only components whose point is behaviour, such as a
+button wired to routing (ADR 0004, 0007).
 
 ## What belongs here
 

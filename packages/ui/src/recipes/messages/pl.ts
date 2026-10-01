@@ -63,9 +63,6 @@ export default {
       live: "Synchronizacja live",
       degraded: "Odpytywanie",
     },
-    title: "Aukcje live",
-    description:
-      "Ułóż dwa pięcioosobowe składy w publicznym pokoju z czasem kontrolowanym przez serwer.",
     status: {
       waiting: "Lobby",
       countdown: "Startuje",
@@ -80,7 +77,6 @@ export default {
       sold_pause: "Sprzedany",
     },
     list: {
-      create: "Utwórz aukcję",
       watch: "Wejdź do pokoju",
       onStage: "Na scenie",
       price: "Cena",

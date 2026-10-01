@@ -66,9 +66,6 @@ export default {
       live: "Live sync",
       degraded: "Polling",
     },
-    title: "Live auctions",
-    description:
-      "Build two five-player squads in a public, server-timed bidding room.",
     status: {
       waiting: "Lobby",
       countdown: "Starting",
@@ -83,7 +80,6 @@ export default {
       sold_pause: "Sold",
     },
     list: {
-      create: "Create auction",
       watch: "Enter room",
       onStage: "On the stage",
       price: "Price",

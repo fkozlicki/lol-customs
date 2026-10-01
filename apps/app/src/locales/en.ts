@@ -4,6 +4,7 @@ export default {
     pl: "Polish",
   },
   dashboard: {
+    retry: "Try again",
     auth: {
       profile: {
         nickname: {
@@ -45,6 +46,10 @@ export default {
         toastInvalidRiot: "Use SummonerName#TAG (e.g. Hide on bush#KR1).",
       },
       auctions: {
+        title: "Live auctions",
+        description:
+          "Build two five-player squads in a public, server-timed bidding room.",
+        create: "Create auction",
         creator: {
           eyebrow: "Auction house",
           title: "Create a live auction",
