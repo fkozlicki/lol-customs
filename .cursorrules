@@ -99,7 +99,7 @@ If requirements are unclear, ask for clarification instead of guessing.
 ## Apps Overview
 
 - **apps/api**: Supabase project (migrations, seeds, edge functions). Not the tRPC server.
-- **apps/app**: Next.js dashboard; locale routing, tRPC, auth, dashboard vs public route groups. Pages, containers and mappers; no visual components of its own.
+- **apps/app**: Next.js dashboard; locale routing, tRPC, auth, dashboard vs public route groups. Pages, containers and mappers. Pages are composed here from recipes; a primitive wired to routing or the session lives here too, but anything with a look is a recipe (ADR 0007).
 - **apps/storybook**: the one Storybook; renders `packages/ui` only.
 - **packages/ui**: the design system. Primitives in `src/components`, Derby's visual components (recipes) in `src/recipes` (ADR 0004).
 
@@ -109,7 +109,7 @@ If requirements are unclear, ask for clarification instead of guessing.
 
 - **Routing**: `[locale]` with next-intl (`en`, `pl`), never shown in the URL: `src/proxy.ts` rewrites to it (`src/i18n/routing.ts`). Route groups: `(dashboard)`, `(public)`.
 - **Data in pages**: Prefer **Server Components**. Use `prefetch(trpc.router.procedure.queryOptions())` (and optionally with args), then wrap children in `<HydrateClient>` so client components can use the same data.
-- **Client data**: In client components use `useTRPC()` and `useSuspenseQuery(trpc.router.procedure.queryOptions())`. Keep **Suspense** boundaries with a domain-specific fallback (e.g. `<TableSkeleton />`, `<RoomsListSkeleton />`).
+- **Client data**: In client components use `useTRPC()` and `useSuspenseQuery(trpc.router.procedure.queryOptions())`. Keep **Suspense** boundaries with a domain-specific fallback (e.g. `<TableSkeleton />`, `<RoomsListSkeleton />`). A block with an error recipe owns its boundary: the container wraps its reader in `QueryBoundary` (`@/components/query-boundary`) with the skeleton and `(retry) => <ErrorRecipe onRetry={retry} />`, so the page only places it (`/auctions`, ADR 0007).
 - **Params**: In Next 15+, params are a Promise: `const { id } = await params;`.
 - **Detail/not found**: Use `getQueryClient().fetchQuery(trpc.router.get.queryOptions({ id: +id }))` and call `notFound()` when the entity is missing.
 - **Loading**: Add `loading.tsx` per route when needed; use `Skeleton` from `@v1/ui/skeleton`.
@@ -140,7 +140,7 @@ If requirements are unclear, ask for clarification instead of guessing.
 ## UI & Styling
 
 - **Components**: Use **Shadcn UI** from `@v1/ui/*` (e.g. `@v1/ui/button`, `@v1/ui/sheet`, `@v1/ui/form`, `@v1/ui/table`). Do not duplicate these in the app.
-- **Recipes**: Anything visual that knows Derby goes in `packages/ui/src/recipes` and takes plain props — no tRPC types, `@v1/domain`, `nuqs`, `next/navigation` or `@/`. The app keeps a container (queries, URL state) and a mapper (`toMatchCardView`, …) that formats with `@v1/domain`. A recipe's strings go in `packages/ui/src/recipes/messages/` and are read with next-intl's `useTranslations`, like the app's. See `packages/ui/README.md`.
+- **Recipes**: Anything visual that knows Derby goes in `packages/ui/src/recipes` and takes plain props — no tRPC types, `@v1/domain`, `nuqs`, `next/navigation` or `@/`. The app keeps a container (queries, URL state) and a mapper (`toMatchCardView`, …) that formats with `@v1/domain`. A recipe is a piece, not a page: `PageShell`/`PageHeader` are composed in the app, and what has behaviour goes into a recipe through a slot (ADR 0007). A recipe's strings go in `packages/ui/src/recipes/messages/` and are read with next-intl's `useTranslations`, like the app's. See `packages/ui/README.md`.
 - **Styling**: **Tailwind CSS** only. Use `cn()` from `@v1/ui/cn` for conditional classes.
 - **Icons**: Use `Icons` from `@v1/ui/recipes/icons` — the shared set from `@v1/ui/icons` plus Derby's names (e.g. `Icons.Leaderboard`, `Icons.Auction`).
 - **Theme**: Support light/dark via `next-themes`; use semantic tokens (e.g. `text-muted-foreground`) where available.

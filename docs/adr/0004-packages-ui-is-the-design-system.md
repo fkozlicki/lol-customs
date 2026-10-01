@@ -3,6 +3,7 @@
 - Status: accepted
 - Date: 2026-09-29
 - Supersedes: [0003](0003-compositions-live-in-the-app.md)
+- Amended by: [0007](0007-pages-are-composed-in-the-app.md)
 
 ## Context
 
