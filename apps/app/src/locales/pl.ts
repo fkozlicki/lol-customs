@@ -46,6 +46,10 @@ export default {
         toastInvalidRiot: "Użyj formatu Nick#TAG (np. Hide on bush#EUW).",
       },
       auctions: {
+        title: "Aukcje live",
+        description:
+          "Ułóż dwa pięcioosobowe składy w publicznym pokoju z czasem kontrolowanym przez serwer.",
+        create: "Utwórz aukcję",
         creator: {
           eyebrow: "Dom aukcyjny",
           title: "Utwórz aukcję live",

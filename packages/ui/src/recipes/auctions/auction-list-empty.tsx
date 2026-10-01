@@ -1,18 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { CreateAuctionButton } from "./create-auction-button";
 
-interface AuctionListEmptyProps {
-  onCreate: () => void;
-  createDisabled?: boolean;
-}
-
-/** No lobby and no live auction: invite the visitor to open one. */
-export function AuctionListEmpty({
-  onCreate,
-  createDisabled,
-}: AuctionListEmptyProps) {
+/** No lobby and no live auction: invite the visitor to open one, with the action the app offers. */
+export function AuctionListEmpty({ action }: { action?: React.ReactNode }) {
   const t = useTranslations("auctions.list");
 
   return (
@@ -23,11 +14,7 @@ export function AuctionListEmpty({
       <p className="max-w-md text-sm text-muted-foreground">
         {t("emptyDescription")}
       </p>
-      <CreateAuctionButton
-        variant="outline"
-        onClick={onCreate}
-        disabled={createDisabled}
-      />
+      {action}
     </div>
   );
 }
