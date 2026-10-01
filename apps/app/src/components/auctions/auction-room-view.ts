@@ -42,7 +42,6 @@ export function toAuctionRoomHeaderView(
     status: room.status,
     teamA: captainFor(room, "A")?.teamName ?? null,
     teamB: captainFor(room, "B")?.teamName ?? null,
-    canCancel: room.permissions.canCancel,
   };
 }
 

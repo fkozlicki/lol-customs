@@ -69,6 +69,11 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   live-auction notice and the form; `AuctionSetupForm` only reads the ladder, so the lobby's pool
   editor suspends in a `QueryBoundary`. `NewAuctionSkeleton` became `AuctionSetupSkeleton`, the form
   alone, and `loading.tsx` puts the shell and header skeleton around it.
-- The room (`/auctions/[id]`) still reads with `useQuery`. `auction-room-skeleton` and
-  `player-profile-skeleton` still wrap `PageShell`, and the other pages still suspend in `page.tsx`
+- The room (`/auctions/[id]`) awaits its room and answers a missing one with a 404, and keeps it
+  current through `AuctionLive` with the room's topic. The page places `PageShell`, so
+  `AuctionRoomSkeleton` and `AuctionRoomClosed` lost their own shell and padding.
+  `AuctionRoomHeader` takes `status` and `action` slots (`AuctionLiveBadge`, the app's
+  `CancelAuctionButton`), and `AuctionRoomNotFound` is gone. Room actions and the lobby read
+  `refresh` from `useAuctionLive`.
+- `player-profile-skeleton` still wraps `PageShell`, and the other pages still suspend in `page.tsx`
   without an error boundary. Each is revisited with its page.

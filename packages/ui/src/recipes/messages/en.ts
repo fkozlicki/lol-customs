@@ -139,7 +139,6 @@ export default {
         "You have no budget left. Your opponent takes the player for $1 or passes them to you for free.",
       preparingPlayer: "Preparing the next player...",
       upcoming: "Upcoming draw order",
-      notFound: "This auction room does not exist.",
     },
     lobby: {
       starting: "Auction starts in",
@@ -157,7 +156,6 @@ export default {
       copyLink: "Copy link",
     },
     actions: {
-      retry: "Try again",
       join: "Join as captain",
       ready: "I'm ready",
       unready: "Withdraw ready",
@@ -167,7 +165,6 @@ export default {
       concede: "Concede",
       pass: "Pass",
       takeForOne: "Take for $1",
-      cancel: "Cancel auction",
     },
     feed: {
       title: "Live event feed",

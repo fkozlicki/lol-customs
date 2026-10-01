@@ -1,10 +1,9 @@
 import { Skeleton } from "../../components/skeleton";
-import { PageShell } from "../page-shell";
 
-/** Matches an auction room while it loads: the header, then the two rosters around the stage. */
+/** Matches an auction room while it loads: the header, then the two rosters around the stage. The page puts it in `PageShell`. */
 export function AuctionRoomSkeleton() {
   return (
-    <PageShell>
+    <div className="space-y-10">
       <div className="border-b pb-4">
         <div className="flex items-center gap-4">
           <Skeleton className="h-3 w-16" />
@@ -28,6 +27,6 @@ export function AuctionRoomSkeleton() {
         </div>
         <Skeleton className="order-3 h-80" />
       </div>
-    </PageShell>
+    </div>
   );
 }

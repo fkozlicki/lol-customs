@@ -123,5 +123,4 @@ export interface AuctionRoomHeaderView {
   status: AuctionStatus;
   teamA: string | null;
   teamB: string | null;
-  canCancel: boolean;
 }

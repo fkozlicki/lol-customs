@@ -1,22 +1,25 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Button } from "@v1/ui/button";
 import { AuctionRoomHeader } from "@v1/ui/recipes/auctions/auction-room-header";
-import { expect, fn } from "storybook/test";
+import { ConnectionBadge } from "@v1/ui/recipes/auctions/connection-badge";
+import { expect } from "storybook/test";
+import { slots } from "../../controls";
 import { wordsFor } from "../../words";
 
+/** The app passes its connection badge as `status` and its cancel button as `action`; here, stand-ins. */
 const meta = {
   title: "Auctions/Room header",
   component: AuctionRoomHeader,
+  argTypes: { ...slots("status", "action") },
   parameters: { layout: "padded" },
   args: {
     header: {
       status: "active",
       teamA: "Night Owls",
       teamB: "Pierogi Gang",
-      canCancel: true,
     },
-    connection: "live",
-    cancelling: false,
-    onCancel: fn(),
+    status: <ConnectionBadge state="live" />,
+    action: <Button variant="outline">Cancel auction</Button>,
   },
 } satisfies Meta<typeof AuctionRoomHeader>;
 
@@ -26,12 +29,10 @@ type Story = StoryObj<typeof meta>;
 
 /** A live room: its status and connection above the two teams, and the creator's way to cancel. */
 export const Live: Story = {
-  play: async ({ args, canvas, globals, userEvent }) => {
-    const t = wordsFor(globals).auctions;
-    await userEvent.click(
-      canvas.getByRole("button", { name: t.actions.cancel }),
-    );
-    await expect(args.onCancel).toHaveBeenCalledOnce();
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("button", { name: "Cancel auction" }),
+    ).toBeVisible();
   },
 };
 
@@ -42,9 +43,9 @@ export const InLobby: Story = {
       status: "waiting",
       teamA: "Night Owls",
       teamB: null,
-      canCancel: false,
     },
-    connection: "degraded",
+    status: <ConnectionBadge state="degraded" />,
+    action: undefined,
   },
   play: async ({ canvas, globals }) => {
     const t = wordsFor(globals).auctions;

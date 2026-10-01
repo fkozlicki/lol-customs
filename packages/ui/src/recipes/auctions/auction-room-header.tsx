@@ -1,23 +1,21 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Button } from "../../components/button";
 import type { AuctionRoomHeaderView } from "./auction-room-view";
-import { ConnectionBadge } from "./connection-badge";
 
 interface AuctionRoomHeaderProps {
   header: AuctionRoomHeaderView;
-  connection: "connecting" | "live" | "degraded";
-  cancelling: boolean;
-  onCancel: () => void;
+  /** Beside the room's status: how the page keeps up with it. */
+  status?: React.ReactNode;
+  /** At the end of the header: the creator's way to call the room off. */
+  action?: React.ReactNode;
 }
 
-/** The room's status, how it keeps up, the two teams, and the creator's way to call it off. */
+/** The room's status, how it keeps up, the two teams, and what the viewer may do about the room. */
 export function AuctionRoomHeader({
   header,
-  connection,
-  cancelling,
-  onCancel,
+  status,
+  action,
 }: AuctionRoomHeaderProps) {
   const t = useTranslations("auctions");
 
@@ -28,7 +26,7 @@ export function AuctionRoomHeader({
           <span className="label-caps text-foreground">
             {t(`status.${header.status}`)}
           </span>
-          <ConnectionBadge state={connection} />
+          {status}
         </div>
         <h1 className="mt-2 truncate text-2xl font-semibold uppercase tracking-[-0.03em] sm:text-4xl">
           {header.teamA ?? t("room.teamA")}{" "}
@@ -36,11 +34,7 @@ export function AuctionRoomHeader({
           {header.teamB ?? t("room.teamB")}
         </h1>
       </div>
-      {header.canCancel && (
-        <Button variant="outline" disabled={cancelling} onClick={onCancel}>
-          {t("actions.cancel")}
-        </Button>
-      )}
+      {action}
     </header>
   );
 }

@@ -2,17 +2,18 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@v1/ui/sonner";
-import { useRouter } from "next/navigation";
 import { useTRPC } from "@/trpc/react";
+import { useAuctionLive } from "./auction-live";
 
 /**
- * Everything a viewer can do in a room, as mutations. Each one reads the room again when it lands;
- * a refusal is toasted and the room read again too, since it usually means the room moved on.
+ * Everything a viewer can do in a room, as mutations. Each one reads the room again when it lands,
+ * through the page's `AuctionLive`; a refusal is toasted and the room read again too, since it
+ * usually means the room moved on. Calling the room off is `CancelAuctionButton`'s.
  */
-export function useAuctionRoomActions(roomId: string, refresh: () => void) {
+export function useAuctionRoomActions(roomId: string) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const { refresh } = useAuctionLive();
   const id = { id: roomId };
 
   const failed = (error: { message: string }) => {
@@ -48,18 +49,6 @@ export function useAuctionRoomActions(roomId: string, refresh: () => void) {
   const removeCaptain = useMutation(
     trpc.auctions.removeCaptain.mutationOptions(captainsChanged),
   );
-  const cancel = useMutation(
-    trpc.auctions.cancel.mutationOptions({
-      onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          trpc.auctions.listActive.queryOptions(),
-        );
-        router.push("/auctions");
-      },
-      onError: (error) => toast.error(error.message),
-    }),
-  );
-
   return {
     bid: (amount: number) => bid.mutate({ ...id, amount }),
     concede: () => concede.mutate(id),
@@ -78,7 +67,5 @@ export function useAuctionRoomActions(roomId: string, refresh: () => void) {
     leave: () => leave.mutate(id),
     removeCaptain: () => removeCaptain.mutate(id),
     seatChanging: leave.isPending || removeCaptain.isPending,
-    cancel: () => cancel.mutate(id),
-    cancelling: cancel.isPending,
   };
 }

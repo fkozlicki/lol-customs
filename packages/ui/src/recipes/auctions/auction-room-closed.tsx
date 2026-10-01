@@ -13,7 +13,7 @@ export function AuctionRoomClosed({
   const t = useTranslations("auctions.terminal");
 
   return (
-    <div className="mx-auto max-w-xl p-6">
+    <div className="mx-auto max-w-xl">
       <Card>
         <CardContent className="py-16 text-center">
           <Icons.Auction className="mx-auto mb-4 size-10 text-muted-foreground" />
