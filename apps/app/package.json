@@ -10,7 +10,7 @@
     "format": "biome format --write .",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "bun test src",
+    "test": "bun test ./tests",
     "download-game-icons": "bun run scripts/download-game-icons.ts"
   },
   "dependencies": {
