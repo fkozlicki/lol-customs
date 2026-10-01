@@ -5,7 +5,7 @@
     "moduleResolution": "NodeNext",
     "noEmit": true,
     "jsx": "preserve",
-    "types": ["node"],
+    "types": ["node", "bun"],
     "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] }
   },

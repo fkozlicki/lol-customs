@@ -1,25 +1,35 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@v1/ui/button";
+import { CommentComposer } from "@v1/ui/recipes/forum/comment-composer";
+import { CommentSignInPrompt } from "@v1/ui/recipes/forum/comment-sign-in-prompt";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { useUser } from "@/components/auth/user-context";
-import {
-  RichTextEditor,
-  type RichTextEditorHandle,
-} from "@/components/forum/rich-text-editor";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
+import { RichTextEditor, type RichTextEditorHandle } from "./rich-text-editor";
 
 interface CommentFormProps {
   postId: string;
   onCancel: () => void;
 }
 
+/** TipTap's empty document is a single bare paragraph; anything else has something in it. */
+function hasContent(json: Record<string, unknown>) {
+  const { content } = json as { content?: Record<string, unknown>[] };
+  return (
+    Array.isArray(content) &&
+    content.some(
+      (node) => node.type !== "paragraph" || Object.keys(node).length > 1,
+    )
+  );
+}
+
+/** Writing a comment under a post; a signed-out reader is asked to sign in instead. */
 export function CommentForm({ postId, onCancel }: CommentFormProps) {
   const { profile, openSignInDialog } = useUser();
-  const t = useScopedI18n("dashboard.pages.posts.comments");
+  const t = useTranslations("dashboard.pages.posts.comments");
   const [isEmpty, setIsEmpty] = useState(true);
   const contentRef = useRef<Record<string, unknown>>({});
   const editorRef = useRef<RichTextEditorHandle>(null);
@@ -42,64 +52,27 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
     }),
   );
 
-  function handleEditorChange(json: Record<string, unknown>) {
-    contentRef.current = json;
-    const content = json as { content?: { type: string }[] };
-    const hasContent =
-      Array.isArray(content.content) &&
-      content.content.some(
-        (node) => node.type !== "paragraph" || Object.keys(node).length > 1,
-      );
-    setIsEmpty(!hasContent);
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!profile) {
-      openSignInDialog();
-      return;
-    }
-    if (isEmpty) return;
-    createComment.mutate({ postId, content: contentRef.current });
-  }
-
-  if (!profile) {
-    return (
-      <div className="rounded-md border border-dashed border-border p-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          <button
-            type="button"
-            className="underline underline-offset-2 hover:text-foreground transition-colors"
-            onClick={openSignInDialog}
-          >
-            {t("signIn")}
-          </button>{" "}
-          {t("signInSuffix")}
-        </p>
-      </div>
-    );
-  }
+  if (!profile) return <CommentSignInPrompt onSignIn={openSignInDialog} />;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
-      <RichTextEditor
-        ref={editorRef}
-        onChange={handleEditorChange}
-        placeholder={t("placeholder")}
-        userId={profile.id}
-      />
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={onCancel}>
-          {t("cancel")}
-        </Button>
-        <Button
-          type="submit"
-          size="sm"
-          disabled={isEmpty || createComment.isPending}
-        >
-          {createComment.isPending ? t("posting") : t("post")}
-        </Button>
-      </div>
-    </form>
+    <CommentComposer
+      editor={
+        <RichTextEditor
+          ref={editorRef}
+          onChange={(json) => {
+            contentRef.current = json;
+            setIsEmpty(!hasContent(json));
+          }}
+          placeholder={t("placeholder")}
+          userId={profile.id}
+        />
+      }
+      canSubmit={!isEmpty}
+      pending={createComment.isPending}
+      onSubmit={() =>
+        createComment.mutate({ postId, content: contentRef.current })
+      }
+      onCancel={onCancel}
+    />
   );
 }

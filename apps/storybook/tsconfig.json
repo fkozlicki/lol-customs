@@ -1,0 +1,11 @@
+{
+  "extends": "@v1/typescript/nextjs.json",
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "stories/**/*.ts",
+    "stories/**/*.tsx",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules"]
+}

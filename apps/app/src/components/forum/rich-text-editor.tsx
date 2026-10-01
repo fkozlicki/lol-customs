@@ -3,20 +3,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { type Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { createClient } from "@v1/supabase/client";
-import { Button } from "@v1/ui/button";
-import { cn } from "@v1/ui/cn";
+import type { EditorFormat } from "@v1/ui/recipes/forum/editor-toolbar";
+import { RichTextFrame } from "@v1/ui/recipes/forum/rich-text-frame";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import { Icons } from "@/components/icons";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
 
 export interface RichTextEditorHandle {
   clearContent: () => void;
 }
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 // Extend Image to carry the server-side nsfw flag through TipTap JSON
 const NsfwImage = Image.extend({
@@ -32,20 +33,50 @@ const NsfwImage = Image.extend({
   },
 });
 
+/** Each toolbar format: whether it applies at the cursor, and how to toggle it. */
+const FORMATS: Record<
+  EditorFormat,
+  { isActive: (editor: Editor) => boolean; toggle: (editor: Editor) => void }
+> = {
+  bold: {
+    isActive: (editor) => editor.isActive("bold"),
+    toggle: (editor) => editor.chain().focus().toggleBold().run(),
+  },
+  italic: {
+    isActive: (editor) => editor.isActive("italic"),
+    toggle: (editor) => editor.chain().focus().toggleItalic().run(),
+  },
+  heading: {
+    isActive: (editor) => editor.isActive("heading", { level: 2 }),
+    toggle: (editor) =>
+      editor.chain().focus().toggleHeading({ level: 2 }).run(),
+  },
+  bulletList: {
+    isActive: (editor) => editor.isActive("bulletList"),
+    toggle: (editor) => editor.chain().focus().toggleBulletList().run(),
+  },
+  orderedList: {
+    isActive: (editor) => editor.isActive("orderedList"),
+    toggle: (editor) => editor.chain().focus().toggleOrderedList().run(),
+  },
+};
+
 interface RichTextEditorProps {
   onChange: (json: Record<string, unknown>) => void;
-  placeholder?: string;
+  placeholder: string;
+  /** Images upload under the author's folder. */
   userId: string;
 }
 
+/**
+ * The forum's editor: TipTap with images, which upload to storage and get an NSFW check before
+ * they are inserted.
+ */
 export const RichTextEditor = forwardRef<
   RichTextEditorHandle,
   RichTextEditorProps
->(function RichTextEditor(
-  { onChange, placeholder = "Write something...", userId },
-  ref,
-) {
-  const t = useScopedI18n("dashboard.pages.posts");
+>(function RichTextEditor({ onChange, placeholder, userId }, ref) {
+  const t = useTranslations("dashboard.pages.posts.imageUpload");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
 
@@ -73,32 +104,30 @@ export const RichTextEditor = forwardRef<
     const file = e.target.files?.[0];
     if (!file || !editor) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image must be smaller than 10MB");
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error(t("tooLarge"));
       return;
     }
 
     const supabase = createClient();
     const ext = file.name.split(".").pop() ?? "jpg";
-    const filename = `${Date.now()}.${ext}`;
-    const path = `${userId}/${filename}`;
+    const path = `${userId}/${Date.now()}.${ext}`;
 
     const { error } = await supabase.storage
       .from("forum-images")
       .upload(path, file);
 
     if (error) {
-      toast.error("Failed to upload image");
+      toast.error(t("failed"));
       return;
     }
 
     const { data } = supabase.storage.from("forum-images").getPublicUrl(path);
-    const publicUrl = data.publicUrl;
 
     // Check NSFW server-side; fail closed (treat as nsfw) if the call errors
     let isNsfw = false;
     try {
-      const result = await checkNsfw.mutateAsync({ url: publicUrl });
+      const result = await checkNsfw.mutateAsync({ url: data.publicUrl });
       isNsfw = result.isNsfw;
     } catch {
       isNsfw = true;
@@ -107,7 +136,10 @@ export const RichTextEditor = forwardRef<
     editor
       .chain()
       .focus()
-      .insertContent({ type: "image", attrs: { src: publicUrl, nsfw: isNsfw } })
+      .insertContent({
+        type: "image",
+        attrs: { src: data.publicUrl, nsfw: isNsfw },
+      })
       .run();
 
     // reset input so the same file can be re-selected
@@ -122,89 +154,27 @@ export const RichTextEditor = forwardRef<
 
   if (!editor) return null;
 
-  return (
-    <div className="rounded-md border border-input bg-background">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-2 py-1">
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          active={editor.isActive("bold")}
-          aria-label={t("editor.bold")}
-        >
-          <Icons.Bold className="size-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          active={editor.isActive("italic")}
-          aria-label={t("editor.italic")}
-        >
-          <Icons.Italic className="size-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          active={editor.isActive("heading", { level: 2 })}
-          aria-label={t("editor.heading")}
-        >
-          <Icons.Heading2 className="size-4" />
-        </ToolbarButton>
-        <div className="mx-1 h-4 w-px bg-border" />
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          active={editor.isActive("bulletList")}
-          aria-label={t("editor.bulletList")}
-        >
-          <Icons.List className="size-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          active={editor.isActive("orderedList")}
-          aria-label={t("editor.orderedList")}
-        >
-          <Icons.ListOrdered className="size-4" />
-        </ToolbarButton>
-        <div className="mx-1 h-4 w-px bg-border" />
-        <ToolbarButton
-          onClick={() => fileInputRef.current?.click()}
-          aria-label={t("editor.image")}
-        >
-          <Icons.Image className="size-4" />
-        </ToolbarButton>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleImageUpload}
-        />
-      </div>
+  const active = Object.fromEntries(
+    Object.entries(FORMATS).map(([format, { isActive }]) => [
+      format,
+      isActive(editor),
+    ]),
+  ) as Record<EditorFormat, boolean>;
 
+  return (
+    <RichTextFrame
+      active={active}
+      onToggle={(format) => FORMATS[format].toggle(editor)}
+      onInsertImage={() => fileInputRef.current?.click()}
+    >
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageUpload}
+      />
       <EditorContent editor={editor} />
-    </div>
+    </RichTextFrame>
   );
 });
-
-function ToolbarButton({
-  children,
-  onClick,
-  active,
-  ...props
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  active?: boolean;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      onClick={onClick}
-      className={cn("size-7", active && "bg-accent text-accent-foreground")}
-      {...props}
-    >
-      {children}
-    </Button>
-  );
-}

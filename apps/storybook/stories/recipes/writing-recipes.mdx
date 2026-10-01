@@ -1,0 +1,8 @@
+import { Markdown, Meta } from "@storybook/addon-docs/blocks";
+import readme from "../../../../packages/ui/README.md?raw";
+
+<Meta title="Writing recipes" />
+
+{/* packages/ui/README.md itself, so this page cannot drift from it. Its links point into the repository. */}
+
+<Markdown>{readme}</Markdown>

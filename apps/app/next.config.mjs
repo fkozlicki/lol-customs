@@ -1,5 +1,8 @@
 import "./src/env.mjs";
 import { withSentryConfig } from "@sentry/nextjs";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -33,6 +36,8 @@ const nextConfig = {
   ],
   experimental: {
     instrumentationHook: process.env.NODE_ENV === "production",
+    // `next/root-params` gives the i18n request config its locale; built in from Next 16.3.
+    rootParams: true,
   },
   redirects:
     process.env.NODE_ENV === "production"
@@ -55,7 +60,7 @@ const nextConfig = {
         },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withNextIntl(nextConfig), {
   silent: !process.env.CI,
   telemetry: false,
   widenClientFileUpload: true,

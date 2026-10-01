@@ -1,49 +1,16 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import type { RouterOutputs } from "@v1/api";
-import { useCallback, useState } from "react";
+import { MatchList } from "@v1/ui/recipes/matches/match-list";
+import { useMemo } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
-import { InfiniteScrollTrigger } from "@/components/infinite-scroll-trigger";
-import MatchCardSkeleton from "@/components/matches/match-card-skeleton";
-import { useScopedI18n } from "@/locales/client";
+import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
-import MatchHistoryCard from "./match-history-card";
+import { toMatchCardView } from "./match-view";
 
-export type Match = RouterOutputs["matches"]["list"]["items"][number];
-export type MatchParticipant = Match["match_participants"][number];
-
-export interface RawParticipant {
-  stats: {
-    item0: number;
-    item1: number;
-    item2: number;
-    item3: number;
-    item4: number;
-    item5: number;
-    item6: number;
-    perk0: number;
-    perk1: number;
-    perk2: number;
-    perk3: number;
-    perk4: number;
-    perk5: number;
-    perkPrimaryStyle?: number;
-  };
-  participantId: number;
-  spell1Id: number;
-  spell2Id: number;
-}
-
-export interface RawJson {
-  participants: RawParticipant[];
-}
-
+/** Every ladder match in the season, ten at a time. */
 export function MatchHistoryList({ season }: { season: number }) {
-  const t = useScopedI18n("dashboard.pages.matchHistory");
   const trpc = useTRPC();
-  const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
       trpc.matches.list.infiniteQueryOptions(
@@ -52,43 +19,22 @@ export function MatchHistoryList({ season }: { season: number }) {
       ),
     );
 
-  const matches = data.pages.flatMap((p) => p.items);
-
-  const toggleExpand = useCallback((matchId: number) => {
-    setExpandedMatchId((prev) => (prev === matchId ? null : matchId));
-  }, []);
-
-  if (!matches.length) {
-    return (
-      <div className="flex flex-col items-start gap-4 py-10">
-        <p className="text-sm text-muted-foreground">{t("noMatchesYet")}</p>
-        <DownloadAppButton />
-      </div>
-    );
-  }
+  const seasonParam = useSeasonParam();
+  const matches = useMemo(
+    () =>
+      data.pages
+        .flatMap((p) => p.items)
+        .map((match) => toMatchCardView(match, { season: seasonParam })),
+    [data.pages, seasonParam],
+  );
 
   return (
-    <div className="space-y-2">
-      {matches.map((match) => (
-        <MatchHistoryCard
-          key={match.match_id}
-          match={match}
-          expandedMatchId={expandedMatchId}
-          toggleExpand={toggleExpand}
-        />
-      ))}
-      <InfiniteScrollTrigger
-        hasNextPage={hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
-        onLoadMore={fetchNextPage}
-        loading={
-          <div className="space-y-2">
-            <MatchCardSkeleton />
-            <MatchCardSkeleton />
-            <MatchCardSkeleton />
-          </div>
-        }
-      />
-    </div>
+    <MatchList
+      matches={matches}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      onLoadMore={fetchNextPage}
+      emptyAction={<DownloadAppButton />}
+    />
   );
 }

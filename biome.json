@@ -49,5 +49,130 @@
   },
   "formatter": {
     "indentStyle": "space"
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/ui/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@v1/api": "The design system takes plain props; the app maps tRPC output (ADR 0004).",
+                  "@v1/domain": "The design system takes values already formatted; the app calls @v1/domain (ADR 0004).",
+                  "@v1/supabase": "The design system takes plain props; the app maps database rows (ADR 0004).",
+                  "next/navigation": "Pass the pathname, an href or a callback; routing stays in the app (ADR 0004).",
+                  "nuqs": "Take value and onChange; the query string stays in the app (ADR 0004)."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@v1/api/**",
+                      "@v1/domain/**",
+                      "@v1/supabase/**",
+                      "@trpc/**",
+                      "nuqs/**",
+                      "next-intl/server",
+                      "next-intl/navigation",
+                      "next-intl/routing",
+                      "next-intl/middleware",
+                      "next-intl/plugin",
+                      "@/**"
+                    ],
+                    "message": "packages/ui renders plain props and reads its messages through next-intl's hooks; data, routing and the request config stay in apps/app (ADR 0004, 0005)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/lcu/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@v1/ui/recipes/**"],
+                    "message": "Derby Sync does not load tokens.css and is a static export, so recipes render unstyled or break there; use @v1/ui primitives (ADR 0004)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/storybook/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@v1/api": "Stories render packages/ui from plain values; they have no data layer (ADR 0004).",
+                  "@v1/domain": "Stories pass values already formatted, as the app's mappers would (ADR 0004).",
+                  "@v1/supabase": "Stories render packages/ui from plain values; they have no data layer (ADR 0004).",
+                  "nuqs": "Recipes take value and onChange; a story holds that state with useState (ADR 0004)."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@v1/api/**",
+                      "@v1/domain/**",
+                      "@v1/supabase/**",
+                      "@/**",
+                      "**/packages/**",
+                      "**/app/src/**"
+                    ],
+                    "message": "apps/storybook renders packages/ui through its exports, like any consumer; import @v1/ui/* (ADR 0004)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/game-assets/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@v1/game-assets is plain data and URLs, usable by the app, the design system and Derby Sync alike (ADR 0006).",
+                  "next": "@v1/game-assets is plain data and URLs; Next's caching is the caller's, passed in through latestPatch's init (ADR 0006)."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "react/**",
+                      "react-dom",
+                      "react-dom/**",
+                      "next/**",
+                      "@v1/**",
+                      "@/**"
+                    ],
+                    "message": "@v1/game-assets depends on nothing in the workspace or any framework, so every consumer can use it (ADR 0006)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

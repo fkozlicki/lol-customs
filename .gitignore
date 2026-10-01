@@ -60,3 +60,7 @@ tailwind.css
 
 # Trigger
 .trigger
+# Chromatic CLI logs
+build-storybook.log
+chromatic.log
+chromatic-diagnostics.json

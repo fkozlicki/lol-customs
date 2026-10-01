@@ -1,7 +1,7 @@
-import { createLcuClient } from "./lcu.js";
-import type { LcuMatchDetails } from "./lcu-types.js";
 import { fetchRankForParticipant } from "./fetch-rank.js";
 import { fetchTimeline } from "./fetch-timeline.js";
+import { createLcuClient } from "./lcu.js";
+import type { LcuMatchDetails } from "./lcu-types.js";
 import { saveMatch } from "./save-match.js";
 import { supabase } from "./supabase.js";
 

@@ -1,0 +1,33 @@
+/*
+ * The stylesheet a page in the app gets, minus the app. `source(none)` so the two lines below are the
+ * whole of what is scanned: the design system, and the stories' own layout around it.
+ */
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+@import "@v1/ui/tokens.css";
+@plugin "@tailwindcss/typography";
+
+@source "../../../packages/ui/src";
+@source "../stories";
+
+/* Geist is loaded in preview.tsx under the variable names the app uses. */
+@theme inline {
+	--font-sans: var(--font-geist-sans);
+	--font-mono: var(--font-geist-mono);
+}
+
+/*
+ * On a docs page Storybook's own chrome stays light, but each story's canvas takes the active theme's
+ * background, so a dark story does not sit on white.
+ */
+.docs-story {
+	background-color: var(--background);
+}
+
+/*
+ * Tailwind's preflight strips list markers, and DESIGN.md's rules are cited by number ("rule 6"), so a
+ * numbered list on a docs page gets its numbers back. Lists inside a story's canvas keep the recipe's.
+ */
+#storybook-docs ol:not(.docs-story ol) {
+	list-style-type: decimal;
+}

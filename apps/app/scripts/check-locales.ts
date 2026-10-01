@@ -2,9 +2,10 @@
  * Fails when the two locale files have drifted apart.
  *
  * Every user-facing string goes into both `en.ts` and `pl.ts` (DESIGN.md rule 9). A key added to one
- * and forgotten in the other does not break the build — next-international falls back to the key
- * path, so the UI quietly shows `dashboard.pages.posts.reactionFailed` to whoever is reading in the
- * other language. This catches that at lint time.
+ * and forgotten in the other does not break the build — next-intl logs a missing message and falls
+ * back to the key path, so the UI quietly shows `dashboard.pages.posts.reactionFailed` to whoever is
+ * reading in the other language. This catches that at lint time. (The recipes' messages need no such
+ * script: their `pl.ts` is typed against the shape of `en.ts`.)
  *
  * It compares shapes, not translations: a key must exist in both, and be a string in both or an
  * object in both.

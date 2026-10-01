@@ -1,0 +1,54 @@
+# Publishes the Storybook to Chromatic and runs its visual tests, in both themes (the modes in
+# apps/storybook/.storybook/preview.tsx). Needs the CHROMATIC_PROJECT_TOKEN repository secret; until it
+# is set, the job skips its publish step instead of failing.
+name: Chromatic
+on:
+  push:
+    paths:
+      - 'apps/storybook/**'
+      - 'packages/ui/**'
+      - 'packages/game-assets/**'
+      - 'apps/app/public/**'
+      - 'bun.lock'
+# A new push to a branch supersedes the build before it; main keeps every build as a baseline.
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    env:
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # TurboSnap compares against earlier builds, so it needs the history.
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install
+      # Chromatic's CLI cannot run a bun script (it falls back to yarn), so the Storybook is built here,
+      # with the stats TurboSnap reads, and handed over ready.
+      - name: 📦 Build the Storybook
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        working-directory: apps/storybook
+        run: bun run build-storybook --stats-json
+      - name: 🖼️ Publish to Chromatic
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ env.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: apps/storybook
+          storybookBuildDir: storybook-static
+          # Snapshot only the stories a change can affect; a visual change is reviewed, not a failure.
+          onlyChanged: true
+          exitZeroOnChanges: true
+          # The results reach the pull request as Chromatic's own GitHub checks, so the job need not wait.
+          exitOnceUploaded: true
+          # What reaches main was reviewed on its pull request; accept it there as the new baseline.
+          autoAcceptChanges: main
+          # The icons and rank crests come from apps/app/public through staticDirs, outside the bundle
+          # TurboSnap traces, so a change there re-snapshots everything.
+          externals: 'apps/app/public/**'

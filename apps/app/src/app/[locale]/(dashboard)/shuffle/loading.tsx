@@ -1,12 +1,12 @@
-import { PageHeaderSkeleton } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
-import { RandomTeamsToolSkeleton } from "@/components/random-teams/random-teams-tool";
+import { DrawSkeleton } from "@v1/ui/recipes/draw/draw-skeleton";
+import { PageHeaderSkeleton } from "@v1/ui/recipes/page-header-skeleton";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 
 export default function ShuffleLoading() {
   return (
     <PageShell>
       <PageHeaderSkeleton />
-      <RandomTeamsToolSkeleton />
+      <DrawSkeleton />
     </PageShell>
   );
 }

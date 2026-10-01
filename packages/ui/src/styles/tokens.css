@@ -9,6 +9,14 @@
  * Import after `@import "tailwindcss"`. See DESIGN.md for what the tokens mean.
  */
 
+/*
+ * The theme is a class on <html> — set by next-themes in the app, by the theme toolbar in Storybook —
+ * so `dark:` follows that class rather than the system setting.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+@custom-variant auto (&:where(.auto, .auto *));
+
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -84,7 +92,7 @@
 	--muted-foreground: oklch(0.5 0.01 85);
 	--accent: oklch(0.91 0.01 85);
 	--accent-foreground: oklch(0.22 0.005 85);
-	--destructive: oklch(0.55 0.17 27);
+	--destructive: oklch(0.5 0.17 27);
 	--destructive-foreground: oklch(0.985 0.005 85);
 	--border: oklch(0.87 0.01 85);
 	--input: oklch(0.87 0.01 85);
@@ -92,10 +100,15 @@
 	--radius: 0;
 	--overlay: oklch(0 0 0 / 0.1);
 
-	--win: oklch(0.52 0.16 255);
-	--loss: oklch(0.55 0.2 27);
+	/*
+	 * The inks are text as well as colour, so each keeps 4.5:1 (WCAG AA) on the background, the card,
+	 * its own tinted surface (`bg-win/[0.1]`) and a hovered `bg-muted`, in both themes. The story tests
+	 * check it with axe.
+	 */
+	--win: oklch(0.48 0.16 255);
+	--loss: oklch(0.5 0.2 27);
 	/* `--mvp`/`--ace` are the ink, readable on paper; `*-surface` is the filled badge. */
-	--mvp: oklch(0.6 0.13 72);
+	--mvp: oklch(0.51 0.13 72);
 	--mvp-surface: oklch(0.86 0.13 85);
 	--mvp-foreground: oklch(0.3 0.07 70);
 	--ace: oklch(0.52 0.17 300);
@@ -134,7 +147,7 @@
 	--muted-foreground: oklch(0.66 0.008 85);
 	--accent: oklch(0.25 0.004 85);
 	--accent-foreground: oklch(0.94 0.006 85);
-	--destructive: oklch(0.62 0.16 27);
+	--destructive: oklch(0.68 0.16 27);
 	--destructive-foreground: oklch(0.94 0.006 85);
 	--border: oklch(0.29 0.004 85);
 	--input: oklch(0.29 0.004 85);

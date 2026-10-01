@@ -1,0 +1,32 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introduction" />
+
+# Derby's design system
+
+Everything visual in Derby comes from `packages/ui` (ADR 0004), and this Storybook shows all of it and
+nothing else. It has two sections:
+
+- **Design system** — the tokens, the principles they come from, and the neutral primitives under
+  `@v1/ui/*`: a button, a dialog, a table. Derby Sync uses some of these too.
+- **Recipes** — Derby's own components under `@v1/ui/recipes/*`: a match card, a standings row, an
+  auction lobby. Each takes plain props; the app's containers fetch and map the data.
+
+Every component has a **Docs** page: its props, and every story with the comment that explains it.
+
+## The toolbar
+
+- **Theme** — dark and light. DESIGN.md judges every view in both.
+- **Locale** — English and Polish; every string a recipe renders exists in both.
+- **Viewport** — 390 and 1280 px, the two widths DESIGN.md judges a view at.
+
+## Stories are tests
+
+Every story runs as a test in CI, in each locale and theme: Vitest renders it in Chromium through this
+same preview, runs its `play` function, and checks it with axe. The **Interactions** panel replays a
+story's `play`, the **Accessibility** panel lists what axe finds, and the test widget at the bottom
+of the sidebar runs the lot. A story fails on an accessibility violation, a `console.error`, or an
+empty render. Chromatic publishes every build and diffs it visually, in both themes.
+
+How to write one is in **Recipes › Writing recipes**; the rules behind the look, in
+**Design system › Principles**.

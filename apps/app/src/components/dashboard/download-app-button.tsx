@@ -1,19 +1,10 @@
 "use client";
 
-import { Button } from "@v1/ui/button";
-import { Icons } from "@/components/icons";
-import { useScopedI18n } from "@/locales/client";
+import { DownloadAppButton as DownloadAppButtonView } from "@v1/ui/recipes/dashboard/download-app-button";
 import { useDownloadDialog } from "./use-download-dialog";
 
-/** Derby Sync is how matches reach the ladder; offered wherever matches are missing or listed. */
+/** Opens the download dialog, which lives in the query string so a link can open it too. */
 export function DownloadAppButton() {
-  const t = useScopedI18n("dashboard.sidebar");
   const [, setOpen] = useDownloadDialog();
-
-  return (
-    <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-      <Icons.Download className="size-3.5" />
-      {t("downloadDesktopApp")}
-    </Button>
-  );
+  return <DownloadAppButtonView onClick={() => setOpen(true)} />;
 }

@@ -1,6 +1,6 @@
 # 0003 — Derby's compositions live in the app, not in packages/ui
 
-- Status: accepted
+- Status: superseded by [0004](0004-packages-ui-is-the-design-system.md)
 - Date: 2026-09-24
 
 ## Context

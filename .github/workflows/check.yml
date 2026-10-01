@@ -1,8 +1,12 @@
 name: Check
 on:
+  pull_request:
   push:
-    paths:
-      - '**'
+    branches: [main]
+# A new push to a pull request supersedes the run before it; main keeps every run.
+concurrency:
+  group: check-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -19,3 +23,70 @@ jobs:
         run: bun run typecheck
       - name: 🧪 Run tests
         run: bun run test
+
+  # Whether a change can reach a story. A job skipped by its `if` reports success, so required checks
+  # stay mergeable; a workflow skipped by `paths` would leave them pending.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      stories: ${{ steps.filter.outputs.stories }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            stories:
+              - 'apps/storybook/**'
+              - 'packages/ui/**'
+              - 'packages/game-assets/**'
+              - 'apps/app/public/**'
+              - 'bun.lock'
+              - '.github/workflows/check.yml'
+
+  # On a pull request: only the stories its changes reach (vitest --changed against main), in two
+  # variants, English dark and Polish light, so every locale and every theme is seen once.
+  stories:
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.stories == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # --changed diffs against origin/main, so it needs the history.
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install
+      - name: 🎭 Install Chromium (headless shell)
+        working-directory: apps/storybook
+        run: bunx playwright install --with-deps --only-shell chromium
+      - name: 📚 Run the stories this change reaches
+        working-directory: apps/storybook
+        run: bun run test:stories
+
+  # After a merge: every story in all four variants, one job per variant, side by side.
+  stories-all:
+    needs: changes
+    if: github.event_name == 'push' && needs.changes.outputs.stories == 'true'
+    runs-on: ubuntu-latest
+    name: stories-all (${{ matrix.variant }})
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ['en:dark', 'en:light', 'pl:dark', 'pl:light']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install
+      - name: 🎭 Install Chromium (headless shell)
+        working-directory: apps/storybook
+        run: bunx playwright install --with-deps --only-shell chromium
+      - name: 📚 Run every story
+        working-directory: apps/storybook
+        run: STORY_VARIANTS=full bunx vitest run --project "stories:${{ matrix.variant }}"

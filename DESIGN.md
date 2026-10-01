@@ -1,7 +1,7 @@
 # Derby design
 
-How `apps/app` looks and why. Read this before building a page or a component there; the desktop app
-(`apps/lcu`) is not covered.
+How `apps/app` looks and why. Read this before building a page there, or a recipe in `packages/ui`,
+where every visual component lives; the desktop app (`apps/lcu`) is not covered.
 
 Derby is a scoreboard for a group of friends. The design is **graphite and paper**: an editorial
 black-and-white surface where the only colour is the colour of a result. Nothing is rounded, nothing
@@ -30,8 +30,9 @@ loops, nothing slides. The data is the decoration.
 8. **Animate state changes and arriving data, nothing else.** 150–400 ms, one easing curve
    (`--ease-derby` / `EASE`), no loops, no scroll-triggered effects. `MotionProvider` sets
    `reducedMotion="user"`, so respect it rather than working around it.
-9. **Every user-facing string is in both locales.** `apps/app/src/locales/en.ts` and `pl.ts`. A string
-   typed into JSX is a bug in the Polish UI.
+9. **Every user-facing string is in both locales.** A recipe's in `packages/ui/src/recipes/messages/`,
+   the app's in `apps/app/src/locales/`, each with `en.ts` and `pl.ts`. A string typed into JSX is a
+   bug in the Polish UI.
 10. **Phones get the same content.** Columns collapse, type shrinks, data does not disappear. Anything
     dropped at `sm:` was probably not worth showing on desktop either.
 
@@ -47,7 +48,7 @@ the surface differ in light mode: ink has to be readable on paper, a surface has
 **Utilities** — `label-caps` (uppercase mono label), `num` (tabular mono digits), `ease-(--ease-derby)`.
 
 **Motion** — `EASE`, `DURATION` (`fast` 0.15, `base` 0.25, `slow` 0.4, `count` 0.8) and `STAGGER` from
-`@/utils/motion`. A local `transition` must pass `inherit: true` to keep the shared easing.
+`@v1/ui/recipes/motion`. A local `transition` must pass `inherit: true` to keep the shared easing.
 
 **Components** — `PageShell` is the page container; it takes the measure (`wide`, `list`, `reading`)
 and nothing else, because the padding is the same on every page. `PageHeader` (eyebrow, title,
@@ -55,15 +56,18 @@ description, actions) opens every page; `PageHeaderSkeleton` stands in while it 
 `SectionHeading` is the `label-caps` block heading below it — a heading at entry-title size is a
 different thing and does not borrow the name. `RankTag` is a rank crest with a label beside it;
 `WinLoss` is a win–loss record. `Backdrop` is the halftone behind every dashboard page; the layout
-renders it, a page never does. Shared primitives come from `@v1/ui/*`.
+renders it, a page never does. These are recipes, from `@v1/ui/recipes/*`; the primitives under
+them come from `@v1/ui/*`.
 
 A shape built three times is a component. A shape built once is not — extracting it before then buys
 an abstraction and no reuse.
 
-**Storybook** — `bun dev:storybook`. Two sections: *Design system* for the tokens and the shared
-primitives, *App* for the Derby compositions. The toolbar switches theme and locale, so rules 3 and 9
-are one click away instead of a rebuild. Everything this file describes in prose is under
-*Design system → Tokens*.
+**Storybook** — `bun dev:storybook`, from `apps/storybook`, where the stories live. Two sections: *Design system* for the
+tokens and the primitives, *Recipes* for Derby's visual components. The toolbar switches theme, locale
+and viewport (390 and 1280 px), so rules 3 and 9 and the two widths below are one click away instead of
+a rebuild. Every story is also a test, in each locale and theme, and fails on an accessibility violation
+— contrast included, so rule 6 is checked, not only asked. Everything this file describes in prose is
+under *Design system → Tokens*.
 
 **Page shell** — `<PageShell>`, not the string it renders. `width` picks the measure: `wide`
 (`max-w-6xl`, the default, auctions included), `list` (`max-w-4xl`, the forum list), `reading`
@@ -121,7 +125,7 @@ These break a rule on purpose; extending them needs a reason in the PR.
 ## The check
 
 `apps/app/scripts/check-design.ts` runs as part of `bun lint` (and therefore in CI). It reads every
-`.ts`, `.tsx` and `.css` file under `apps/app/src` and fails on:
+`.ts`, `.tsx` and `.css` file under `apps/app/src` and `packages/ui/src` and fails on:
 
 - a Tailwind palette class (`bg-red-500`, `text-slate-400`, …),
 - a raw `black` or `white` utility,

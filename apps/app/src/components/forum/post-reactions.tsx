@@ -1,95 +1,75 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { ReactionButtons } from "./reaction-buttons";
+import {
+  myReaction,
+  type Reaction,
+  type ReactionType,
+  withReactionToggled,
+} from "./reactions";
 
 interface PostReactionsProps {
   postId: string;
   likes: number;
   dislikes: number;
-  reactions: { type: string; user_id: string }[];
+  reactions: Reaction[];
 }
 
+/** A post's reactions, updated in the post's cache before the server answers. */
 export function PostReactions({
   postId,
-  likes: initialLikes,
-  dislikes: initialDislikes,
+  likes,
+  dislikes,
   reactions,
 }: PostReactionsProps) {
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const { profile, openSignInDialog } = useUser();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const post = trpc.forum.posts.get.queryOptions({ id: postId });
 
-  const myReaction = profile
-    ? (reactions.find((r) => r.user_id === profile.id)?.type ?? null)
-    : null;
-
-  const toggleMutation = useMutation(
+  const toggle = useMutation(
     trpc.forum.reactions.toggle.mutationOptions({
       onMutate: async ({ type }) => {
-        await queryClient.cancelQueries(
-          trpc.forum.posts.get.queryOptions({ id: postId }),
-        );
-        const prev = queryClient.getQueryData(
-          trpc.forum.posts.get.queryOptions({ id: postId }).queryKey,
-        );
-        queryClient.setQueryData(
-          trpc.forum.posts.get.queryOptions({ id: postId }).queryKey,
-          (old: typeof prev) => {
-            if (!old || !profile) return old;
-            const filtered = old.reactions.filter(
-              (r) => r.user_id !== profile.id,
-            );
-            const newReactions =
-              myReaction === type
-                ? filtered
-                : [...filtered, { type, user_id: profile.id }];
-            return {
-              ...old,
-              reactions: newReactions,
-              likes: newReactions.filter((r) => r.type === "like").length,
-              dislikes: newReactions.filter((r) => r.type === "dislike").length,
-            };
-          },
+        await queryClient.cancelQueries(post);
+        const prev = queryClient.getQueryData(post.queryKey);
+        queryClient.setQueryData(post.queryKey, (old: typeof prev) =>
+          old && profile ? withReactionToggled(old, profile.id, type) : old,
         );
         return { prev };
       },
       onError: (_err, _vars, context) => {
         if (context?.prev) {
-          queryClient.setQueryData(
-            trpc.forum.posts.get.queryOptions({ id: postId }).queryKey,
-            context.prev,
-          );
+          queryClient.setQueryData(post.queryKey, context.prev);
         }
         toast.error(t("reactionFailed"));
       },
       onSettled: () => {
-        queryClient.invalidateQueries(
-          trpc.forum.posts.get.queryOptions({ id: postId }),
-        );
+        queryClient.invalidateQueries(post);
+        // The list shows each post's counts too.
         queryClient.invalidateQueries(trpc.forum.posts.list.queryOptions({}));
       },
     }),
   );
 
-  function handleReaction(type: "like" | "dislike") {
+  function handleReaction(type: ReactionType) {
     if (!profile) {
       openSignInDialog();
       return;
     }
-    toggleMutation.mutate({ postId, type });
+    toggle.mutate({ postId, type });
   }
 
   return (
     <ReactionButtons
-      likes={initialLikes}
-      dislikes={initialDislikes}
-      myReaction={myReaction}
+      likes={likes}
+      dislikes={dislikes}
+      myReaction={myReaction(reactions, profile?.id ?? null)}
       onToggle={handleReaction}
       likeLabel={t("like")}
       dislikeLabel={t("dislike")}

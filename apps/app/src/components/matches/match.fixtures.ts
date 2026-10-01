@@ -1,15 +1,17 @@
 /**
- * One real match from the local database, for stories.
+ * One real match from the local database, as `matches.list` returns it: what `toMatchCardView` is
+ * tested against, and what the design system's view-shaped fixture was generated from
+ * (`apps/storybook/stories/recipes/matches/match.fixtures.ts`).
  *
  * The game data is real — champions, items, KDA, damage, ranks, OP scores — because that is what the
- * match components render, and made-up numbers stop looking like a match very quickly. The people are
+ * match recipes render, and made-up numbers stop looking like a match very quickly. The people are
  * not: names, tag lines, puuids and ids are replaced, because this repo is public and the local
  * database can be a copy of production. `raw_json` keeps only the fields `RawParticipant` declares.
  *
  * Typed as `Match`, so a change to the `matches.list` output fails typecheck here rather than
- * quietly leaving the stories behind the API.
+ * quietly leaving the mapper behind the API.
  */
-import type { Match } from "./match-history-list";
+import type { Match } from "./match-view";
 
 export const MATCH = {
   match_id: 1000000001,
@@ -811,43 +813,3 @@ export const MATCH = {
     },
   ],
 } satisfies Match;
-
-/**
- * What the match components derive from a match, computed the way `MatchDetails` and `MatchCard`
- * compute it, so a story of one piece gets the same numbers the whole card would pass it.
- */
-function derive(match: typeof MATCH) {
-  const participants = match.match_participants;
-  const blue = participants.filter((p) => p.team_id === 100);
-  const red = participants.filter((p) => p.team_id === 200);
-  const kills = (side: typeof participants) =>
-    side.reduce((sum, p) => sum + (p.kills ?? 0), 0);
-  const raw = match.raw_json.participants;
-
-  return {
-    participants,
-    blue,
-    red,
-    blueKills: kills(blue),
-    redKills: kills(red),
-    raw,
-    rawFor: (p: (typeof participants)[number]) =>
-      raw.find((r) => r.participantId === p.participant_id),
-    scores: participants
-      .map((p) => p.op_score)
-      .filter((score): score is number => score != null)
-      .sort((a, b) => b - a),
-    highestDamageDealt: Math.max(
-      ...participants.map((p) => p.total_damage_dealt_to_champions ?? 0),
-    ),
-    highestDamageTaken: Math.max(
-      ...participants.map((p) => p.total_damage_taken ?? 0),
-    ),
-    /** The winning side's MVP, for stories told from one player's point of view. */
-    mvp: participants.find((p) => p.is_mvp) ?? participants[0]!,
-    /** The losing side's ACE. */
-    ace: participants.find((p) => p.is_ace) ?? participants[5]!,
-  };
-}
-
-export const MATCH_VIEW = derive(MATCH);

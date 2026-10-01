@@ -1,5 +1,5 @@
-import PostDetailsSkeleton from "@/components/forum/post-details-skeleton";
-import { PageShell } from "@/components/page-shell";
+import PostDetailsSkeleton from "@v1/ui/recipes/forum/post-details-skeleton";
+import { PageShell } from "@v1/ui/recipes/page-shell";
 
 export default function PostLoading() {
   return (

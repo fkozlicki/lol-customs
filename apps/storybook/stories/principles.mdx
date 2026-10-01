@@ -1,0 +1,8 @@
+import { Markdown, Meta } from "@storybook/addon-docs/blocks";
+import design from "../../../DESIGN.md?raw";
+
+<Meta title="Principles" />
+
+{/* DESIGN.md itself, so this page cannot drift from it. Its links point into the repository. */}
+
+<Markdown>{design}</Markdown>

@@ -27,7 +27,7 @@ const badgeVariants = cva(
 
 function Badge({
   className,
-  variant,
+  variant = "default",
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> &

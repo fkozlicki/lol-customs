@@ -1,97 +1,84 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ReactionButtons } from "@v1/ui/recipes/forum/reaction-buttons";
 import { toast } from "@v1/ui/sonner";
+import { useTranslations } from "next-intl";
 import { useUser } from "@/components/auth/user-context";
-import { useScopedI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/react";
-import { ReactionButtons } from "./reaction-buttons";
+import {
+  myReaction,
+  type Reaction,
+  type ReactionType,
+  withReactionToggled,
+} from "./reactions";
 
 interface CommentReactionsProps {
   commentId: string;
   postId: string;
   likes: number;
   dislikes: number;
-  reactions: { type: string; user_id: string }[];
+  reactions: Reaction[];
 }
 
+/** A comment's reactions, updated in the thread's cache before the server answers. */
 export function CommentReactions({
   commentId,
   postId,
-  likes: initialLikes,
-  dislikes: initialDislikes,
+  likes,
+  dislikes,
   reactions,
 }: CommentReactionsProps) {
-  const t = useScopedI18n("dashboard.pages.posts");
+  const t = useTranslations("dashboard.pages.posts");
   const { profile, openSignInDialog } = useUser();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const thread = trpc.forum.comments.list.queryOptions({ postId });
 
-  const myReaction = profile
-    ? (reactions.find((r) => r.user_id === profile.id)?.type ?? null)
-    : null;
-
-  const listQueryOptions = trpc.forum.comments.list.queryOptions({ postId });
-
-  const toggleMutation = useMutation(
+  const toggle = useMutation(
     trpc.forum.commentReactions.toggle.mutationOptions({
       onMutate: async ({ type }) => {
-        await queryClient.cancelQueries(listQueryOptions);
-        const prev = queryClient.getQueryData(listQueryOptions.queryKey);
-        queryClient.setQueryData(
-          listQueryOptions.queryKey,
-          (old: typeof prev) => {
-            if (!old || !profile) return old;
-            return {
-              ...old,
-              items: old.items.map((comment) => {
-                if (comment.id !== commentId) return comment;
-                const filtered = comment.reactions.filter(
-                  (r) => r.user_id !== profile.id,
-                );
-                const newReactions =
-                  myReaction === type
-                    ? filtered
-                    : [...filtered, { type, user_id: profile.id }];
-                return {
-                  ...comment,
-                  reactions: newReactions,
-                  likes: newReactions.filter((r) => r.type === "like").length,
-                  dislikes: newReactions.filter((r) => r.type === "dislike")
-                    .length,
-                };
-              }),
-            };
-          },
-        );
+        await queryClient.cancelQueries(thread);
+        const prev = queryClient.getQueryData(thread.queryKey);
+        queryClient.setQueryData(thread.queryKey, (old: typeof prev) => {
+          if (!old || !profile) return old;
+          return {
+            ...old,
+            items: old.items.map((comment) =>
+              comment.id === commentId
+                ? withReactionToggled(comment, profile.id, type)
+                : comment,
+            ),
+          };
+        });
         return { prev };
       },
       onError: (_err, _vars, context) => {
         if (context?.prev) {
-          queryClient.setQueryData(listQueryOptions.queryKey, context.prev);
+          queryClient.setQueryData(thread.queryKey, context.prev);
         }
         toast.error(t("reactionFailed"));
       },
       onSettled: () => {
-        queryClient.invalidateQueries(listQueryOptions);
+        queryClient.invalidateQueries(thread);
       },
     }),
   );
 
-  function handleReaction(type: "like" | "dislike") {
+  function handleReaction(type: ReactionType) {
     if (!profile) {
       openSignInDialog();
       return;
     }
-    toggleMutation.mutate({ commentId, type });
+    toggle.mutate({ commentId, type });
   }
 
   return (
     <ReactionButtons
       size="sm"
-      likes={initialLikes}
-      dislikes={initialDislikes}
-      myReaction={myReaction}
+      likes={likes}
+      dislikes={dislikes}
+      myReaction={myReaction(reactions, profile?.id ?? null)}
       onToggle={handleReaction}
       likeLabel={t("like")}
       dislikeLabel={t("dislike")}

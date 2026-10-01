@@ -1,10 +1,10 @@
+import { PageHeader } from "@v1/ui/recipes/page-header";
+import { PageShell } from "@v1/ui/recipes/page-shell";
+import { getTranslations } from "next-intl/server";
 import { AuctionSetupForm } from "@/components/auctions/auction-setup-form";
-import { PageHeader } from "@/components/page-header";
-import { PageShell } from "@/components/page-shell";
-import { getScopedI18n } from "@/locales/server";
 
 export default async function NewAuctionPage() {
-  const t = await getScopedI18n("dashboard.pages.auctions");
+  const t = await getTranslations("dashboard.pages.auctions");
 
   return (
     <PageShell>
