@@ -8,6 +8,7 @@ import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { messages } from "@v1/ui/recipes/messages";
 import { MotionProvider } from "@v1/ui/recipes/motion-provider";
 import isChromatic from "chromatic/isChromatic";
+import MockDate from "mockdate";
 import { MotionGlobalConfig } from "motion/react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -41,8 +42,14 @@ type Locale = keyof typeof messages;
 declare const __STORY_LOCALE__: Locale | undefined;
 declare const __STORY_THEME__: "dark" | "light" | undefined;
 
-// A visual snapshot judges the state a story settles in, like the story tests (vitest.setup.ts).
-if (isChromatic()) MotionGlobalConfig.skipAnimations = true;
+if (isChromatic()) {
+  // A visual snapshot judges the state a story settles in, like the story tests (vitest.setup.ts).
+  MotionGlobalConfig.skipAnimations = true;
+  // And it compares pictures, so a story must look the same on every run: a countdown or a "how long
+  // ago" reads the clock, which in Chromatic stands still at one instant near the fixtures' dates. Set
+  // here, before any story module computes a deadline from it.
+  MockDate.set("2026-09-30T20:00:00Z");
+}
 
 /** The app's motion settings, as its layout provides them. */
 const withMotion: Decorator = (Story) => (
