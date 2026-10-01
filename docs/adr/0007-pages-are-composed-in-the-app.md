@@ -27,7 +27,8 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
 2. **A component whose point is behaviour lives in the app.** A primitive wired to routing, the session
    or a mutation, with no look of its own (`CreateAuctionButton`: a `Button` and an icon that opens
    `/auctions/new` or asks a visitor to sign in), is the app's. Anything with a look worth a story is
-   still a recipe.
+   still a recipe. A callback that only navigates is an `href` instead: a recipe may render
+   `next/link` (`LiveAuctionNotice`).
 3. **The page places a block's boundary.** It prefetches the queries and wraps the container that
    reads them with `useSuspenseQuery` in a `QueryBoundary`: Suspense with the block's skeleton, plus an
    error boundary with the block's error recipe. Retrying is behaviour, so it follows rule 2: the error
@@ -64,7 +65,10 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   `action` slot instead of `onRetry`, and the app's retry label is `dashboard.retry`.
 - `posts/[id]` reads its post through the query cache (it used `caller`, so the client read it again)
   and suspends in a `QueryBoundary`.
-- The other auction routes (`/auctions/[id]`, `/auctions/new`) still read with `useQuery`. The
-  whole-page skeletons (`auction-room-skeleton`, `new-auction-skeleton`, `player-profile-skeleton`)
-  still wrap `PageShell`, and the other pages still suspend in `page.tsx` without an error boundary.
-  Each is revisited with its page.
+- `/auctions/new` prefetches the ladder and the active auctions. `NewAuction` decides between the
+  live-auction notice and the form; `AuctionSetupForm` only reads the ladder, so the lobby's pool
+  editor suspends in a `QueryBoundary`. `NewAuctionSkeleton` became `AuctionSetupSkeleton`, the form
+  alone, and `loading.tsx` puts the shell and header skeleton around it.
+- The room (`/auctions/[id]`) still reads with `useQuery`. `auction-room-skeleton` and
+  `player-profile-skeleton` still wrap `PageShell`, and the other pages still suspend in `page.tsx`
+  without an error boundary. Each is revisited with its page.
