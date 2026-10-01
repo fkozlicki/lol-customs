@@ -102,7 +102,7 @@ export default defineConfig({
       // this app, hence allowExternal.
       allowExternal: true,
       include: [path.join(dirname, "../../packages/ui/src/**/*.{ts,tsx}")],
-      exclude: ["**/*.test.ts", "**/messages/**"],
+      exclude: ["**/messages/**"],
       reporter: ["text-summary", "html"],
       reportsDirectory: "./coverage",
     },

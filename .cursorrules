@@ -194,6 +194,9 @@ If requirements are unclear, ask for clarification instead of guessing.
 - Update or add tests when behavior changes.
 - Ensure existing tests continue to pass.
 - Cover edge cases where reasonable.
+- Tests live in the workspace's `tests/`, beside `src/` and mirroring its folders: `src/utils/x.ts` is
+  tested in `tests/utils/x.test.ts`. Nothing test-only goes in `src/`, fixtures included.
+- Import the code under test through `@/` in an app and by a relative path into `../src` in a package.
 
 ---
 
