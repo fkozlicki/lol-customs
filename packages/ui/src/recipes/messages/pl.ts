@@ -137,7 +137,6 @@ export default {
         "Nie masz już budżetu. Przeciwnik weźmie gracza za $1 albo odda go Tobie za darmo.",
       preparingPlayer: "Przygotowywanie kolejnego gracza...",
       upcoming: "Kolejność kolejnych graczy",
-      notFound: "Ten pokój aukcji nie istnieje.",
     },
     lobby: {
       starting: "Aukcja startuje za",
@@ -155,7 +154,6 @@ export default {
       copyLink: "Kopiuj link",
     },
     actions: {
-      retry: "Spróbuj ponownie",
       join: "Dołącz jako kapitan",
       ready: "Jestem gotowy",
       unready: "Wycofaj gotowość",
@@ -165,7 +163,6 @@ export default {
       concede: "Odpuszczam",
       pass: "Oddaj",
       takeForOne: "Weź za $1",
-      cancel: "Anuluj aukcję",
     },
     feed: {
       title: "Wydarzenia live",

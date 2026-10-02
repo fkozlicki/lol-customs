@@ -50,6 +50,7 @@ export default {
         description:
           "Build two five-player squads in a public, server-timed bidding room.",
         create: "Create auction",
+        cancel: "Cancel auction",
         creator: {
           eyebrow: "Auction house",
           title: "Create a live auction",

@@ -4,12 +4,10 @@ import { AuctionRoomSkeleton } from "@v1/ui/recipes/auctions/auction-room-skelet
 const meta = {
   title: "Auctions/Room skeleton",
   component: AuctionRoomSkeleton,
-  parameters: {
-    layout: " the header, the stage between the two rosters.:fullscreen",
-  },
+  parameters: { layout: "padded" },
 } satisfies Meta<typeof AuctionRoomSkeleton>;
 
 export default meta;
 
-/** A room while it loads */
+/** A room while it loads: the header, the stage between the two rosters. */
 export const Loading: StoryObj<typeof meta> = {};

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useUser } from "@/components/auth/user-context";
 import { QueryBoundary } from "@/components/query-boundary";
 import { type AuctionRoomSnapshot, captainFor } from "./auction-contract";
+import { useAuctionLive } from "./auction-live";
 import { toLobbyView } from "./auction-room-view";
 import { AuctionSetupForm } from "./auction-setup-form";
 import type { useAuctionRoomActions } from "./use-auction-room-actions";
@@ -15,12 +16,12 @@ import type { useAuctionRoomActions } from "./use-auction-room-actions";
 interface AuctionLobbyProps {
   room: AuctionRoomSnapshot;
   actions: ReturnType<typeof useAuctionRoomActions>;
-  refresh: () => void;
 }
 
 /** The lobby, wired to the room's actions: readiness, the seats, renaming, and editing the pool. */
-export function AuctionLobby({ room, actions, refresh }: AuctionLobbyProps) {
+export function AuctionLobby({ room, actions }: AuctionLobbyProps) {
   const t = useTranslations("dashboard.pages.auctions");
+  const { refresh } = useAuctionLive();
   const { profile, openSignInDialog } = useUser();
   const [editingPool, setEditingPool] = useState(false);
   const [renaming, setRenaming] = useState(false);

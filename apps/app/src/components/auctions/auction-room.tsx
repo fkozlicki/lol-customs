@@ -1,16 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { AuctionBoard } from "@v1/ui/recipes/auctions/auction-board";
 import { AuctionResults } from "@v1/ui/recipes/auctions/auction-results";
 import { AuctionRoomClosed } from "@v1/ui/recipes/auctions/auction-room-closed";
 import { AuctionRoomHeader } from "@v1/ui/recipes/auctions/auction-room-header";
-import { AuctionRoomNotFound } from "@v1/ui/recipes/auctions/auction-room-not-found";
-import { AuctionRoomSkeleton } from "@v1/ui/recipes/auctions/auction-room-skeleton";
-import { PageShell } from "@v1/ui/recipes/page-shell";
+import { NotFound } from "@v1/ui/recipes/not-found";
 import { useLocale } from "next-intl";
-import { useCallback } from "react";
 import { useTRPC } from "@/trpc/react";
+import { AuctionLiveBadge } from "./auction-live-badge";
 import { AuctionLobby } from "./auction-lobby";
 import {
   toAuctionEventViews,
@@ -20,23 +18,20 @@ import {
   toUpcomingOrder,
 } from "./auction-room-view";
 import { AuctionRoundControls } from "./auction-round-controls";
-import { useAuctionRealtime } from "./use-auction-realtime";
+import { CancelAuctionButton } from "./cancel-auction-button";
 import { useAuctionRoomActions } from "./use-auction-room-actions";
 
-/** An auction room, kept current over realtime: the lobby, the live auction, or its results. */
+/** An auction room, kept current by the page's `AuctionLive`: the lobby, the live auction, or its results. */
 export function AuctionRoom({ id }: { id: string }) {
   const locale = useLocale();
   const trpc = useTRPC();
-  const query = useQuery(trpc.auctions.getRoom.queryOptions({ id }));
-  const refresh = useCallback(() => {
-    void query.refetch();
-  }, [query.refetch]);
-  const connection = useAuctionRealtime(`auction:room:${id}`, refresh);
-  const actions = useAuctionRoomActions(id, refresh);
-  const room = query.data;
+  const { data: room } = useSuspenseQuery(
+    trpc.auctions.getRoom.queryOptions({ id }),
+  );
+  const actions = useAuctionRoomActions(id);
 
-  if (query.isLoading) return <AuctionRoomSkeleton />;
-  if (!room || query.isError) return <AuctionRoomNotFound onRetry={refresh} />;
+  // The page answers a missing room with a 404; this is a room that went away while open.
+  if (!room) return <NotFound homeHref="/" />;
   if (room.status === "cancelled" || room.status === "expired") {
     return <AuctionRoomClosed status={room.status} />;
   }
@@ -45,16 +40,19 @@ export function AuctionRoom({ id }: { id: string }) {
     room.permissions.mySide !== null && room.phase !== "sold_pause";
 
   return (
-    <PageShell>
+    <>
       <AuctionRoomHeader
         header={toAuctionRoomHeaderView(room)}
-        connection={connection}
-        cancelling={actions.cancelling}
-        onCancel={actions.cancel}
+        status={<AuctionLiveBadge />}
+        action={
+          room.permissions.canCancel ? (
+            <CancelAuctionButton roomId={room.id} />
+          ) : null
+        }
       />
 
       {(room.status === "waiting" || room.status === "countdown") && (
-        <AuctionLobby room={room} actions={actions} refresh={refresh} />
+        <AuctionLobby room={room} actions={actions} />
       )}
 
       {room.status === "active" && (
@@ -77,6 +75,6 @@ export function AuctionRoom({ id }: { id: string }) {
           events={toAuctionEventViews(room, { locale })}
         />
       )}
-    </PageShell>
+    </>
   );
 }

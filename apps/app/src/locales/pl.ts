@@ -51,6 +51,7 @@ export default {
         description:
           "Ułóż dwa pięcioosobowe składy w publicznym pokoju z czasem kontrolowanym przez serwer.",
         create: "Utwórz aukcję",
+        cancel: "Anuluj aukcję",
         creator: {
           eyebrow: "Dom aukcyjny",
           title: "Utwórz aukcję live",
