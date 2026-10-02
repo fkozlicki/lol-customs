@@ -71,6 +71,7 @@ export default {
       },
       posts: {
         title: "Forum",
+        newPost: "Nowy post",
         description: "Rozmowy grupy: mecze, aukcje i plany na sezon.",
         reactionFailed: "Nie udało się zapisać reakcji.",
         like: "Polub",

@@ -223,7 +223,6 @@ export default {
       show: "Show image",
     },
     backToPosts: "Back to posts",
-    newPost: "New post",
     postCount: "Posts: {count}",
     noPosts: "No posts yet. Be the first to post!",
     editor: {

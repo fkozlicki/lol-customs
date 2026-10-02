@@ -220,7 +220,6 @@ export default {
       show: "Pokaż obraz",
     },
     backToPosts: "Wróć do postów",
-    newPost: "Nowy post",
     postCount: "Posty: {count}",
     noPosts: "Brak postów. Bądź pierwszy!",
     editor: {
