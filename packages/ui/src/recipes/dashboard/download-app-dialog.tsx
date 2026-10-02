@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/dialog";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 interface DownloadAppDialogProps {
   open: boolean;

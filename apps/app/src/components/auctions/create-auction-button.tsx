@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
-import { Icons } from "@v1/ui/recipes/icons";
+import { Icons } from "@v1/ui/icons";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useUser } from "@/components/auth/user-context";

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Button } from "../../components/button";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 /** Derby Sync is how matches reach the ladder; offered wherever matches are missing or listed. */
 export function DownloadAppButton({ onClick }: { onClick: () => void }) {

@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/dropdown-menu";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 import { PreferenceOption } from "./preference-option";
 import { PreferenceRow } from "./preference-row";
 

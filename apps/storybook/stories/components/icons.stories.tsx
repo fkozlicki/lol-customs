@@ -9,8 +9,8 @@ const meta = {
 export default meta;
 
 /**
- * The shared set. Names say what an icon depicts, not what Derby uses it for, because Derby Sync
- * draws from the same map — `recipes/icons.ts` adds the domain names on top.
+ * Every icon Derby uses, for the app, the recipes and Derby Sync. Most are named after what they
+ * depict; one that stands for a CONTEXT.md term is named after the term (`Leaderboard`, `Auction`).
  */
 export const All: StoryObj = {
   render: () => (

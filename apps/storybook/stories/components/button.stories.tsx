@@ -74,7 +74,7 @@ export const WithIcon: Story = {
         Download
       </Button>
       <Button {...args} size="icon" variant="ghost" aria-label="More">
-        <Icons.Ellipsis className="size-4" />
+        <Icons.More className="size-4" />
       </Button>
     </div>
   ),

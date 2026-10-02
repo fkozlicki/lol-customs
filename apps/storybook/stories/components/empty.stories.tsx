@@ -30,7 +30,7 @@ export const Default: Story = {
     <Empty {...args} className="w-96 border">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Icons.Swords />
+          <Icons.Matches />
         </EmptyMedia>
         <EmptyTitle>No matches yet</EmptyTitle>
         <EmptyDescription>

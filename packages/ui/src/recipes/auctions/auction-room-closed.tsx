@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "../../components/card";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 /** A room that will not resume: the creator cancelled it, or it sat idle until it expired. */
 export function AuctionRoomClosed({

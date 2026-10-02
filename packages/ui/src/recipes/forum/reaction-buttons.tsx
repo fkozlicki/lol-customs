@@ -2,8 +2,8 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "../../components/button";
+import { Icons } from "../../components/icons";
 import { cn } from "../../utils/cn";
-import { Icons } from "../icons";
 
 /**
  * Thumbs up, thumbs down, and the two counts.

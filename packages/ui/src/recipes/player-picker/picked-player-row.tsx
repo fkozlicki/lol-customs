@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 import { RankTag } from "../rank-tag";
 import type { PickablePlayerView } from "./pickable-player-view";
 

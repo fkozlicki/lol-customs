@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "../../components/card";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 /** Above the final rosters, once every player is sold. */
 export function AuctionCompletedBanner() {

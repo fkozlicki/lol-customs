@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 import type { TeamRosterView } from "./auction-room-view";
 import { RosterSlot } from "./roster-slot";
 

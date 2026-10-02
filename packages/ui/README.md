@@ -85,9 +85,10 @@ Run the shadcn CLI from this package — `components.json` here points it at the
 `src/styles/tokens.css`. `apps/app` has no config of its own on purpose: the only thing it would add
 is shadcn's composed blocks, and Derby's recipes are written by hand.
 
-The icon map in `components/icons` names icons after what they depict (`Gavel`, `Crown`, `Swords`),
-because Derby Sync draws from the same set. `recipes/icons` spreads it and adds the Derby names on top
-(`Leaderboard`, `Auction`), so a recipe or the app imports icons once.
+Every icon lives in one map, `components/icons` (`@v1/ui/icons`), so the app, the recipes and Derby
+Sync import it alike. Most icons are named after what they depict (`Download`, `Trophy`); one that
+stands for a CONTEXT.md term is named after the term (`Leaderboard`, `Auction`). The map lists only
+icons something uses.
 
 **`empty`, `form`, `separator` and `tooltip` are here on purpose and nothing imports them.** They were kept
 on the assumption that the app's hand-rolled versions would be replaced by them; that did not

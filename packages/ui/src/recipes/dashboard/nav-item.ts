@@ -1,4 +1,4 @@
-import type { LucideIcon } from "../icons";
+import type { LucideIcon } from "../../components/icons";
 
 /** A destination in Derby's navigation; the app decides where it goes and whether it is current. */
 export interface NavItem {

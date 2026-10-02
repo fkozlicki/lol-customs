@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Icons } from "../../components/icons";
 import { cn } from "../../utils/cn";
-import { Icons } from "../icons";
 import { MatchHighlights } from "./match-highlights";
 import { MatchMetadata } from "./match-metadata";
 import MatchTeam from "./match-team";

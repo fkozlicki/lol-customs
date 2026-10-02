@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/dropdown-menu";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 export interface SeasonOptionView {
   /** What the app puts in `?season=`. */
