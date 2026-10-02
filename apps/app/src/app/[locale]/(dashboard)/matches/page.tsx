@@ -3,9 +3,9 @@ import MatchHistorySkeleton from "@v1/ui/recipes/matches/match-history-skeleton"
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { MatchHistoryList } from "@/components/matches/match-history-list";
+import { QueryBoundary } from "@/components/query-boundary";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
@@ -43,9 +43,9 @@ export default async function MatchHistoryPage({
         >
           <DownloadAppButton />
         </PageHeader>
-        <Suspense fallback={<MatchHistorySkeleton />} key={season}>
+        <QueryBoundary fallback={<MatchHistorySkeleton />} key={season}>
           <MatchHistoryList season={season} />
-        </Suspense>
+        </QueryBoundary>
       </PageShell>
     </HydrateClient>
   );

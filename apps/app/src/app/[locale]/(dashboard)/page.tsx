@@ -2,10 +2,10 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { maxHistoricallyAfterGames } from "@/components/home/leaderboard-after-games";
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
 import { Leaderboard } from "@/components/home/leaderboard-preview";
+import { QueryBoundary } from "@/components/query-boundary";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
 import { getSeasonScope } from "@/utils/season-server";
@@ -52,7 +52,7 @@ export default async function DashboardHomePage({
         {/* TODO: rows should reorder smoothly when the season changes. Keying the boundary remounts
             the standings, so they replay the entry stagger instead; animating a reorder needs the
             previous rows kept (e.g. placeholder data) and `layout` on each row. */}
-        <Suspense
+        <QueryBoundary
           fallback={<LeaderboardSkeleton />}
           key={`${season}:${afterGames ?? "live"}`}
         >
@@ -65,7 +65,7 @@ export default async function DashboardHomePage({
               <LeaderboardHistoryPicker gamesPlayed={gamesPlayed} />
             }
           />
-        </Suspense>
+        </QueryBoundary>
       </PageShell>
     </HydrateClient>
   );

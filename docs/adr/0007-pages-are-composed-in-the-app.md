@@ -77,5 +77,9 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   `refresh` from `useAuctionLive`.
 - The forum's `NewPostButton` moved to the app, with the same sign-in-first logic as
   `CreateAuctionButton`; `PostList` and `PostListEmpty` take it through slots.
-- `player-profile-skeleton` still wraps `PageShell`, and the other pages still suspend in `page.tsx`
-  without an error boundary. Each is revisited with its page.
+- Every page places its blocks in a `QueryBoundary`, and no skeleton wraps `PageShell` any more:
+  `PlayerProfileSkeleton` lost its shell too, and the profile's `loading.tsx` adds it. The forum list
+  prefetched `{ limit: 20 }` while its container read `{ limit: 10 }`, so the prefetch never hit;
+  both read ten now.
+- Known gap: the home page awaits `fetchQuery(ladderRatedMatchCount)` and the player profile awaits
+  `fetchQuery(profileStats)`. Both throw past every boundary to `global-error` when they fail.
