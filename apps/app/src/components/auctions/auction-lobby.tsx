@@ -1,10 +1,12 @@
 "use client";
 
 import { AuctionLobby as AuctionLobbyView } from "@v1/ui/recipes/auctions/auction-lobby";
+import { AuctionSetupSkeleton } from "@v1/ui/recipes/auctions/auction-setup-skeleton";
 import { toast } from "@v1/ui/sonner";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useUser } from "@/components/auth/user-context";
+import { QueryBoundary } from "@/components/query-boundary";
 import { type AuctionRoomSnapshot, captainFor } from "./auction-contract";
 import { toLobbyView } from "./auction-room-view";
 import { AuctionSetupForm } from "./auction-setup-form";
@@ -66,23 +68,25 @@ export function AuctionLobby({ room, actions, refresh }: AuctionLobbyProps) {
       onEditPool={() => setEditingPool(true)}
       poolEditor={
         editingPool ? (
-          <AuctionSetupForm
-            roomId={room.id}
-            initialPlayers={room.players.map((player) => ({
-              gameName: player.gameName,
-              tagLine: player.tagLine,
-              rankTier: player.soloTier,
-              rankDivision: player.soloDivision,
-            }))}
-            initialBudget={room.budget}
-            initialBidSeconds={room.bidSeconds}
-            initialRevealOrder={room.showOrder}
-            onUpdated={() => {
-              setEditingPool(false);
-              refresh();
-            }}
-            onCancel={() => setEditingPool(false)}
-          />
+          <QueryBoundary fallback={<AuctionSetupSkeleton />}>
+            <AuctionSetupForm
+              roomId={room.id}
+              initialPlayers={room.players.map((player) => ({
+                gameName: player.gameName,
+                tagLine: player.tagLine,
+                rankTier: player.soloTier,
+                rankDivision: player.soloDivision,
+              }))}
+              initialBudget={room.budget}
+              initialBidSeconds={room.bidSeconds}
+              initialRevealOrder={room.showOrder}
+              onUpdated={() => {
+                setEditingPool(false);
+                refresh();
+              }}
+              onCancel={() => setEditingPool(false)}
+            />
+          </QueryBoundary>
         ) : undefined
       }
     />
