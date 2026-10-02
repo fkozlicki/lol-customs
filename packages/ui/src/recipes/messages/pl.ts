@@ -127,7 +127,6 @@ export default {
       upcoming: "Kolejność kolejnych graczy",
     },
     lobby: {
-      starting: "Aukcja startuje za",
       openSlot: "Oczekiwanie na kapitana",
       ready: "Gotowy",
       notReady: "Niegotowy",
@@ -143,8 +142,6 @@ export default {
     },
     actions: {
       join: "Dołącz jako kapitan",
-      ready: "Jestem gotowy",
-      unready: "Wycofaj gotowość",
       bid: "Licytuj",
       customBid: "Własna kwota oferty",
       allIn: "All-in",
