@@ -32,7 +32,10 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
    reads them with `useSuspenseQuery` in a `QueryBoundary`: Suspense with the block's skeleton, plus an
    error boundary with the block's error recipe. Retrying is behaviour, so it follows rule 2: the error
    recipe takes an `action` slot, and the app's `QueryRetryButton` reads the retry from the boundary
-   with `useQueryRetry`.
+   with `useQueryRetry`. A block without an error recipe of its own gets the default, `QueryError`.
+   A page about one entity (a post, a room) awaits `prefetchQuery` and calls `notFound()` when the
+   cached result is null; `prefetchQuery` does not throw, so a failure still reaches the boundary.
+   `(dashboard)/not-found.tsx` renders the `NotFound` recipe inside the dashboard's chrome.
 4. **Live data comes from a provider on the page.** `AuctionLive` holds the realtime subscription for a
    topic and invalidates the query it keeps current, on each broadcast and on a timer while realtime is
    down. The blocks under it read their query as usual, and the badge reads the connection with
@@ -59,7 +62,9 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
 - `apps/app/src/components` holds its first server component (`AuctionsHeader`).
 - `apps/app` depends on `react-error-boundary`, which `QueryBoundary` uses. `AuctionListError` takes an
   `action` slot instead of `onRetry`, and the app's retry label is `dashboard.retry`.
+- `posts/[id]` reads its post through the query cache (it used `caller`, so the client read it again)
+  and suspends in a `QueryBoundary`.
 - The other auction routes (`/auctions/[id]`, `/auctions/new`) still read with `useQuery`. The
   whole-page skeletons (`auction-room-skeleton`, `new-auction-skeleton`, `player-profile-skeleton`)
-  still wrap `PageShell`, and pages other than `/auctions` still suspend in `page.tsx` without an error
-  boundary. Each is revisited with its page.
+  still wrap `PageShell`, and the other pages still suspend in `page.tsx` without an error boundary.
+  Each is revisited with its page.

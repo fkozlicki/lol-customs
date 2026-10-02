@@ -348,4 +348,13 @@ export default {
     settingUp: "Tworzenie...",
     submit: "Utwórz profil",
   },
+  loadError: {
+    message: "Nie udało się tego wczytać.",
+  },
+  notFound: {
+    title: "Nic tu nie ma",
+    description:
+      "Strona, do której prowadził link, nie istnieje lub została usunięta.",
+    home: "Wróć do rankingu",
+  },
 } satisfies Strings<typeof en>;

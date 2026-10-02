@@ -351,4 +351,12 @@ export default {
     settingUp: "Setting up...",
     submit: "Create profile",
   },
+  loadError: {
+    message: "This could not be loaded.",
+  },
+  notFound: {
+    title: "Nothing here",
+    description: "The page you followed does not exist, or was removed.",
+    home: "Back to the leaderboard",
+  },
 } as const;

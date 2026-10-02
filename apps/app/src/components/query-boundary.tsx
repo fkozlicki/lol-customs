@@ -1,37 +1,27 @@
 "use client";
 
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
-import { createContext, Suspense, useContext } from "react";
+import { QueryError } from "@v1/ui/recipes/query-error";
+import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-
-const QueryRetryContext = createContext<(() => void) | null>(null);
-
-/** Resets the nearest failed `QueryBoundary` and reads its queries again. */
-export function useQueryRetry() {
-  const retry = useContext(QueryRetryContext);
-  if (!retry) {
-    throw new Error(
-      "useQueryRetry must be used within a QueryBoundary's errorFallback",
-    );
-  }
-  return retry;
-}
+import { QueryRetryContext } from "./query-retry";
+import { QueryRetryButton } from "./query-retry-button";
 
 interface QueryBoundaryProps {
   /** Shown while a query below suspends; a skeleton shaped like what it waits for. */
   fallback: React.ReactNode;
   /**
-   * Shown when a query below fails. An element, so a server page can pass it; whatever retries reads
-   * `useQueryRetry` (`QueryRetryButton`).
+   * Shown when a query below fails; by default `QueryError` with a retry. An element, so a server
+   * page can pass it; whatever retries reads `useQueryRetry` (`QueryRetryButton`).
    */
-  errorFallback: React.ReactNode;
+  errorFallback?: React.ReactNode;
   children: React.ReactNode;
 }
 
 /** The loading and the failure of the suspending queries below it, in one boundary. */
 export function QueryBoundary({
   fallback,
-  errorFallback,
+  errorFallback = <QueryError action={<QueryRetryButton />} />,
   children,
 }: QueryBoundaryProps) {
   return (
