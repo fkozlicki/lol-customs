@@ -7,8 +7,8 @@ import {
   ROSTER_SIZE,
 } from "@v1/domain/shuffle";
 import { Button } from "@v1/ui/button";
+import { Icons } from "@v1/ui/icons";
 import { DrawnTeam } from "@v1/ui/recipes/draw/drawn-team";
-import { Icons } from "@v1/ui/recipes/icons";
 import { PickerCount } from "@v1/ui/recipes/player-picker/picker-count";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

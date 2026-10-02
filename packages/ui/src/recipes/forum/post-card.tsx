@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 import { AuthorLine } from "./author-line";
 import type { PostCardView } from "./post-view";
 

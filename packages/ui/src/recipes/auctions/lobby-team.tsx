@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { Button } from "../../components/button";
+import { Icons } from "../../components/icons";
 import { cn } from "../../utils/cn";
-import { Icons } from "../icons";
 import type { LobbyTeamView } from "./auction-room-view";
 import { TeamNameEditor } from "./team-name-editor";
 

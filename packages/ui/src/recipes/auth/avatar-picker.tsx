@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/avatar";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 interface AvatarPickerProps {
   /** The picked image, as an object URL; null before one is picked. */

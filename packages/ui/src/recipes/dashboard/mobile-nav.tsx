@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Icons } from "../../components/icons";
 import {
   Sheet,
   SheetContent,
@@ -10,7 +11,6 @@ import {
   SheetTitle,
 } from "../../components/sheet";
 import { cn } from "../../utils/cn";
-import { Icons } from "../icons";
 import type { NavItem } from "./nav-item";
 import { TabLink } from "./tab-link";
 

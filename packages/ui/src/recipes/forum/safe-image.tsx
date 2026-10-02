@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "../../components/button";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 
 interface SafeImageProps {
   src: string;

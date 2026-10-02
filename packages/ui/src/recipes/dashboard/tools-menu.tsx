@@ -8,8 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/dropdown-menu";
+import { Icons } from "../../components/icons";
 import { cn } from "../../utils/cn";
-import { Icons } from "../icons";
 import { ActiveMarker } from "./active-marker";
 import type { NavItem } from "./nav-item";
 

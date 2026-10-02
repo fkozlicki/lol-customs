@@ -1,6 +1,7 @@
 /** Derby's destinations as the navigation recipes take them, for stories; the app labels them. */
+
+import { Icons } from "@v1/ui/icons";
 import type { NavItem } from "@v1/ui/recipes/dashboard/nav-item";
-import { Icons } from "@v1/ui/recipes/icons";
 
 export const PRIMARY: NavItem[] = [
   { href: "/", label: "Leaderboard", icon: Icons.Leaderboard, active: true },

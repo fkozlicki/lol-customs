@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Icons } from "../icons";
+import { Icons } from "../../components/icons";
 import { EditorToolbarButton } from "./editor-toolbar-button";
 
 export type EditorFormat =
