@@ -40,7 +40,7 @@ Biome's `noRestrictedImports` enforces all of that for `src/**`. What a recipe m
 
 One component per file, grouped by area (`auctions/`, `forum/`, `player/`, `player-picker/`, …); a
 helper a recipe uses gets its own file beside it, and the view types for an area sit in one
-`*-view.ts`. Three patterns keep a recipe plain when the screen around it is not:
+`*-view.ts`. Four patterns keep a recipe plain when the screen around it is not:
 
 - **Slots.** Where a recipe frames something the app owns — a TipTap editor, a container with its own
   mutations, a form the app validates — it takes it as a `ReactNode` (`editor`, `controls`,
@@ -49,6 +49,9 @@ helper a recipe uses gets its own file beside it, and the view types for an area
 - **Words as props.** A recipe's own words come from its messages. Words that are the app's — nav
   labels, Hall of Fame titles — or that differ per screen come in as props: the player picker is worded
   one way by the draw and another by the auction setup, so it takes its labels.
+- **A piece, not an arrangement.** A recipe that only lays out other recipes and passes their props
+  through is a composition, and the app writes it (ADR 0007): the auction setup and the draw are
+  arranged in `apps/app` from `PickedPlayers`, `LadderPicker`, `AuctionRules` and the rest.
 - **Screen state stays, server state goes.** Which match card is open, the bid a captain is typing, a
   team name being edited: a recipe may hold these. Anything that outlives the screen, lives in the URL
   or reaches the server is the container's.
