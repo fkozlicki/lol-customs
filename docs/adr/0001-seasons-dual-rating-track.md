@@ -2,6 +2,7 @@
 
 - Status: accepted
 - Date: 2026-09-15
+- Amended by: [0008](0008-rating-tracks-follow-the-order-played.md)
 
 ## Context
 
@@ -32,5 +33,7 @@ game played so far becomes Season 1, Season 2 starts fresh, and the app shows on
 - Leaderboard history ("after N games"), Hall of Fame and profile stats work identically for a
   season and for all-time; queries only switch the track.
 - `rating_history` stores two rows per participant per game.
-- Ratings are applied in upload order (pre-existing behaviour). A late Season 1 upload therefore
-  changes the all-time track after Season 2 games that were already applied.
+- ~~Ratings are applied in upload order (pre-existing behaviour). A late Season 1 upload therefore
+  changes the all-time track after Season 2 games that were already applied.~~ Replaced by
+  [ADR 0008](0008-rating-tracks-follow-the-order-played.md): a track follows the order matches were
+  played.

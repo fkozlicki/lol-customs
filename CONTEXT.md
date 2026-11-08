@@ -139,7 +139,8 @@ _Avoid_: Rating, Elo, MMR
 
 **Rating track**:
 An independent Elo progression. Each season has its own track on which everyone starts at 1000; the
-all-time track never resets. Every match advances two tracks: its season's and the all-time one.
+all-time track never resets. Every match advances two tracks: its season's and the all-time one. A
+track counts matches in the order they were played, whichever order they were uploaded in.
 
 **Season standings**:
 The ranking of players on a season's rating track. Standings of an ended season can still change when

@@ -1007,6 +1007,10 @@ export type Database = {
         };
         Returns: string;
       };
+      _rate_match_on_track: {
+        Args: { p_match_id: number; p_track: number };
+        Returns: undefined;
+      };
       apply_rating_update_for_match: {
         Args: { p_match_id: number };
         Returns: undefined;
@@ -1153,6 +1157,7 @@ export type Database = {
           rating_change: number;
         }[];
       };
+      replay_rating_track: { Args: { p_track: number }; Returns: undefined };
       standings_position: {
         Args: { p_puuid: string; p_track: number };
         Returns: number;
