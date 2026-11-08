@@ -68,9 +68,13 @@ For each player, with their team’s expected score \( E \) and their scaled act
 
 So the change is capped at ±24 points per game.
 
+### Order of matches
+
+A rating track counts its matches in the order they were played (`game_creation`, then `match_id`), whatever order they were uploaded in. A match that arrives after a later match of one of its players recounts the whole track, so the ratings of players who were not in that match can move too.
+
 ### Rating change shown on a match
 
-The rating change of a match is \( \text{rating}_{\text{after}} \) minus the rating the player had after their previous match on the same rating track (1000 for their first match there). Snapshots are paired by matches played, not by date, so a late upload is compared with the rating it was actually applied to.
+The rating change of a match is \( \text{rating}_{\text{after}} \) minus the rating the player had after their previous match on the same rating track (1000 for their first match there).
 
 ### Qualification and standings position
 

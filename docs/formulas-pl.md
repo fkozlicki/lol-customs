@@ -68,9 +68,13 @@ Dla każdego gracza, przy wyniku oczekiwanym drużyny \( E \) i jego skalowanym 
 
 Zmiana jest więc ograniczona do ±24 punktów na mecz.
 
+### Kolejność meczów
+
+Tor ratingu liczy mecze w kolejności ich rozegrania (`game_creation`, potem `match_id`), niezależnie od kolejności wgrania. Mecz, który trafi do bazy po późniejszym meczu któregoś ze swoich graczy, przelicza cały tor od nowa, więc może zmienić rating także graczom, którzy w nim nie grali.
+
 ### Zmiana ratingu pokazywana przy meczu
 
-Zmiana ratingu w meczu to \( \text{rating}_{\text{po}} \) minus rating gracza po jego poprzednim meczu na tym samym torze (1000 dla pierwszego meczu na torze). Zrzuty są łączone po liczbie rozegranych meczów, a nie po dacie, więc spóźniony upload porównuje się z ratingiem, do którego faktycznie został doliczony.
+Zmiana ratingu w meczu to \( \text{rating}_{\text{po}} \) minus rating gracza po jego poprzednim meczu na tym samym torze (1000 dla pierwszego meczu na torze).
 
 ### Kwalifikacja i pozycja w rankingu
 
