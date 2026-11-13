@@ -1,6 +1,13 @@
+import "server-only";
+import { formatRank } from "@v1/domain/rank";
+import { riotIdKey } from "@v1/domain/riot-id";
 import { z } from "zod";
 import type { Client } from "../types";
-import { auctionEventPayload, rankSnapshot } from "../types/json";
+import {
+  type AuctionPoolEntry,
+  auctionEventPayload,
+  rankSnapshot,
+} from "../types/json";
 
 /**
  * The JSON the auction functions build. The generator types a `jsonb` return as `Json`, so these
@@ -154,4 +161,50 @@ export async function listActiveAuctions(
   const { data, error } = await client.rpc("auction_list_active");
   if (error) throw error;
   return data.map(({ room }) => auctionListRoom.parse(room));
+}
+
+/** The pool with each player's latest ladder rank; players outside the ladder are unranked. */
+export async function rankPool(
+  client: Client,
+  pool: { gameName: string; tagLine: string }[],
+): Promise<AuctionPoolEntry[]> {
+  const [players, ranks] = await Promise.all([
+    client.from("players").select("puuid, game_name, tag_line"),
+    client.rpc("player_latest_ranks"),
+  ]);
+  if (players.error) throw players.error;
+  if (ranks.error) throw ranks.error;
+
+  const puuidByRiotId = new Map(
+    players.data.flatMap((player) =>
+      player.game_name && player.tag_line
+        ? [
+            [
+              riotIdKey({
+                gameName: player.game_name,
+                tagLine: player.tag_line,
+              }),
+              player.puuid,
+            ] as const,
+          ]
+        : [],
+    ),
+  );
+  const rankByPuuid = new Map(ranks.data.map((rank) => [rank.puuid, rank]));
+
+  return pool.map((player) => {
+    const puuid = puuidByRiotId.get(riotIdKey(player));
+    const rank = puuid ? rankByPuuid.get(puuid) : undefined;
+    const soloTier = rank?.rank_tier ?? null;
+    const soloDivision = rank?.rank_division ?? null;
+    return {
+      gameName: player.gameName,
+      tagLine: player.tagLine,
+      rank: {
+        soloTier,
+        soloDivision,
+        soloRankLabel: formatRank(soloTier, soloDivision) ?? "",
+      },
+    };
+  });
 }

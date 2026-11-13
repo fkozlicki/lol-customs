@@ -1,21 +1,16 @@
+import {
+  getUserProfile,
+  saveUserProfile,
+} from "@v1/supabase/queries/user-profiles";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const userProfilesRouter = createTRPCRouter({
-  me: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.user) return null;
+  me: publicProcedure.query(({ ctx }) =>
+    ctx.user ? getUserProfile(ctx.supabase, ctx.user.id) : null,
+  ),
 
-    const { data, error } = await ctx.supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("id", ctx.user.id)
-      .maybeSingle();
-
-    if (error) throw error;
-
-    return data;
-  }),
-
+  /** A taken nickname is a unique violation, which reaches the client as CONFLICT. */
   setup: protectedProcedure
     .input(
       z.object({
@@ -23,20 +18,11 @@ export const userProfilesRouter = createTRPCRouter({
         avatar_url: z.string().url().nullable().optional(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
-        .from("user_profiles")
-        .upsert({
-          id: ctx.user.id,
-          nickname: input.nickname,
-          avatar_url: input.avatar_url ?? null,
-        })
-        .select()
-        .single();
-
-      // A taken nickname is a unique violation, which reaches the client as CONFLICT.
-      if (error) throw error;
-
-      return data;
-    }),
+    .mutation(({ ctx, input }) =>
+      saveUserProfile(ctx.supabase, {
+        id: ctx.user.id,
+        nickname: input.nickname,
+        avatar_url: input.avatar_url ?? null,
+      }),
+    ),
 });

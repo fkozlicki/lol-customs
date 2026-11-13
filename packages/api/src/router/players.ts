@@ -1,266 +1,67 @@
+import {
+  findPlayerByRiotId,
+  getMostPlayedChampions,
+  getProfileStats,
+  getRatingHistory,
+  getRelations,
+  getSeasonSummaries,
+  getSoloRank,
+  listPlayers,
+} from "@v1/supabase/queries/players";
 import { z } from "zod";
-import { isAllTime, seasonInput } from "../season";
+import { seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
+const puuidInput = z.object({ puuid: z.string().min(1) });
+const onTrackInput = puuidInput.extend({ season: seasonInput });
+
 export const playersRouter = createTRPCRouter({
-  /** Every known player with their last recorded Solo/Duo rank. */
-  all: publicProcedure.query(async ({ ctx }) => {
-    const [players, ranks] = await Promise.all([
-      ctx.supabase
-        .from("players")
-        .select("*")
-        .order("last_seen_at", { ascending: false }),
-      ctx.supabase.rpc("player_latest_ranks"),
-    ]);
-    if (players.error) throw players.error;
-    if (ranks.error) throw ranks.error;
+  all: publicProcedure.query(({ ctx }) => listPlayers(ctx.supabase)),
 
-    const rankByPuuid = new Map(
-      (ranks.data ?? []).map((row) => [row.puuid, row]),
-    );
-    return players.data.map((player) => {
-      const rank = rankByPuuid.get(player.puuid);
-      return {
-        ...player,
-        rank_tier: rank?.rank_tier ?? null,
-        rank_division: rank?.rank_division ?? null,
-      };
-    });
-  }),
-
-  /**
-   * A player's Solo/Duo rank as of their latest match that carried one. Derby Sync records it with
-   * every match, so a profile reads it here instead of calling the Riot API on every page view. It
-   * is the rank at that match, not now: a player who has not played for a month shows a month-old
-   * rank, and there is no LP.
-   */
   soloRank: publicProcedure
-    .input(z.object({ puuid: z.string().min(1) }))
-    .query(async ({ ctx, input }) => {
-      // player_latest_ranks() is a plain SQL function, so Postgres inlines it and applies the
-      // filter inside it rather than ranking every player and discarding all but one.
-      const { data, error } = await ctx.supabase
-        .rpc("player_latest_ranks")
-        .eq("puuid", input.puuid)
-        .maybeSingle();
-      if (error) throw error;
-      return data
-        ? { tier: data.rank_tier, division: data.rank_division }
-        : null;
-    }),
+    .input(puuidInput)
+    .query(({ ctx, input }) => getSoloRank(ctx.supabase, input.puuid)),
 
   getByRiotId: publicProcedure
     .input(
       z.object({ gameName: z.string().min(1), tagLine: z.string().min(1) }),
     )
-    .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
-        .from("players")
-        .select("*")
-        .ilike("game_name", input.gameName)
-        .ilike("tag_line", input.tagLine)
-        .limit(2);
-      if (error) throw error;
-      // `ilike` treats `%` and `_` as wildcards, so a Riot ID can match several players; that is
-      // not a profile. A lookup by normalised Riot ID replaces this (docs/research/api-layer-review.md).
-      return data.length === 1 ? data[0] : null;
-    }),
+    .query(({ ctx, input }) => findPlayerByRiotId(ctx.supabase, input)),
 
   profileStats: publicProcedure
-    .input(z.object({ puuid: z.string().min(1), season: seasonInput }))
-    .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
-        .from("ratings")
-        .select(
-          "*, player:players!inner(puuid, game_name, tag_line, profile_icon, first_seen_at, last_seen_at)",
-        )
-        .eq("puuid", input.puuid)
-        .eq("ladder_season_id", input.season)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) return null;
-
-      const { data: position, error: positionError } = await ctx.supabase.rpc(
-        "standings_position",
-        { p_puuid: input.puuid, p_track: input.season },
-      );
-      if (positionError) throw positionError;
-
-      return { ...data, position: position ?? null };
-    }),
+    .input(onTrackInput)
+    .query(({ ctx, input }) =>
+      getProfileStats(ctx.supabase, input.puuid, input.season),
+    ),
 
   ratingHistory: publicProcedure
-    .input(z.object({ puuid: z.string().min(1), season: seasonInput }))
-    .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
-        .from("rating_history")
-        .select("rating_after, created_at")
-        .eq("puuid", input.puuid)
-        .eq("ladder_season_id", input.season)
-        .order("created_at", { ascending: true })
-        .order("match_id", { ascending: true });
+    .input(onTrackInput)
+    .query(({ ctx, input }) =>
+      getRatingHistory(ctx.supabase, input.puuid, input.season),
+    ),
 
-      if (error) throw error;
-
-      return data;
-    }),
-
-  /** Final standing per season (last rating snapshot in that season), oldest season first. */
   seasonSummaries: publicProcedure
-    .input(z.object({ puuid: z.string().min(1) }))
-    .query(async ({ ctx, input }) => {
-      const { data, error } = await ctx.supabase
-        .from("rating_history")
-        .select("ladder_season_id, rating_after, wins, losses")
-        .eq("puuid", input.puuid)
-        .gt("ladder_season_id", 0)
-        .order("created_at", { ascending: false })
-        .order("match_id", { ascending: false });
+    .input(puuidInput)
+    .query(({ ctx, input }) => getSeasonSummaries(ctx.supabase, input.puuid)),
 
-      if (error) throw error;
-
-      const bySeason = new Map<number, (typeof data)[number]>();
-      for (const row of data) {
-        if (!bySeason.has(row.ladder_season_id)) {
-          bySeason.set(row.ladder_season_id, row);
-        }
-      }
-
-      return [...bySeason.values()]
-        .map((row) => ({
-          seasonId: row.ladder_season_id,
-          rating: row.rating_after,
-          wins: row.wins,
-          losses: row.losses,
-        }))
-        .sort((a, b) => a.seasonId - b.seasonId);
-    }),
-
-  /** Teammates and rivals on a rating track; only qualified players are named. */
   relations: publicProcedure
-    .input(z.object({ puuid: z.string().min(1), season: seasonInput }))
-    .query(async ({ ctx, input }) => {
-      const { data: rows, error } = await ctx.supabase.rpc("player_relations", {
-        p_puuid: input.puuid,
-        p_track: input.season,
-      });
-      if (error) throw error;
-
-      const puuids = [...new Set(rows.map((row) => row.other_puuid))];
-      const { data: players, error: playersError } =
-        puuids.length > 0
-          ? await ctx.supabase
-              .from("players")
-              .select("puuid, game_name, tag_line, profile_icon")
-              .in("puuid", puuids)
-          : { data: [], error: null };
-      if (playersError) throw playersError;
-
-      const playerByPuuid = new Map(players.map((p) => [p.puuid, p]));
-      const relation = (name: string) => {
-        const row = rows.find((r) => r.relation === name);
-        if (!row) return null;
-        return {
-          player: playerByPuuid.get(row.other_puuid) ?? {
-            puuid: row.other_puuid,
-            game_name: null,
-            tag_line: null,
-            profile_icon: null,
-          },
-          matches: row.matches,
-          wins: row.wins,
-          losses: row.losses,
-          kills: row.kills,
-        };
-      };
-
-      const bestRecord = relation("best_head_to_head");
-      const worstRecord = relation("worst_head_to_head");
-
-      return {
-        teammates: {
-          mostMatches: relation("most_matches_with"),
-          mostWins: relation("most_wins_with"),
-          mostLosses: relation("most_losses_with"),
-        },
-        rivals: {
-          bestRecord,
-          // With a single eligible rival, the best and worst record are the same player.
-          worstRecord:
-            worstRecord?.player.puuid === bestRecord?.player.puuid
-              ? null
-              : worstRecord,
-          mostKilled: relation("most_killed"),
-          mostKilledBy: relation("most_killed_by"),
-        },
-      };
-    }),
+    .input(onTrackInput)
+    .query(({ ctx, input }) =>
+      getRelations(ctx.supabase, input.puuid, input.season),
+    ),
 
   mostPlayedChampions: publicProcedure
     .input(
-      z.object({
-        puuid: z.string().min(1),
-        season: seasonInput,
+      onTrackInput.extend({
         limit: z.number().min(1).max(20).default(5),
       }),
     )
-    .query(async ({ ctx, input }) => {
-      let query = ctx.supabase
-        .from("match_participants")
-        .select(
-          "champion_id, kills, deaths, assists, match:matches!inner(match_id, ladder_season_id, teams(team_id, win)), team_id",
-        )
-        .eq("puuid", input.puuid);
-      if (!isAllTime(input.season)) {
-        query = query.eq("match.ladder_season_id", input.season);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-
-      const map = new Map<
-        number,
-        {
-          games: number;
-          wins: number;
-          kills: number;
-          deaths: number;
-          assists: number;
-        }
-      >();
-
-      for (const row of data) {
-        const champId = row.champion_id;
-        if (champId == null) continue;
-
-        const teams = Array.isArray(row.match)
-          ? (
-              row.match[0] as {
-                teams: { team_id: number; win: boolean }[];
-              } | null
-            )?.teams
-          : (row.match as { teams: { team_id: number; win: boolean }[] } | null)
-              ?.teams;
-
-        const won = teams?.find((t) => t.team_id === row.team_id)?.win ?? false;
-
-        const entry = map.get(champId) ?? {
-          games: 0,
-          wins: 0,
-          kills: 0,
-          deaths: 0,
-          assists: 0,
-        };
-        entry.games += 1;
-        if (won) entry.wins += 1;
-        entry.kills += row.kills ?? 0;
-        entry.deaths += row.deaths ?? 0;
-        entry.assists += row.assists ?? 0;
-        map.set(champId, entry);
-      }
-
-      return Array.from(map.entries())
-        .map(([championId, stats]) => ({ championId, ...stats }))
-        .sort((a, b) => b.games - a.games)
-        .slice(0, input.limit);
-    }),
+    .query(({ ctx, input }) =>
+      getMostPlayedChampions(
+        ctx.supabase,
+        input.puuid,
+        input.season,
+        input.limit,
+      ),
+    ),
 });
