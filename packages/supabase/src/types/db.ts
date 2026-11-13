@@ -1060,6 +1060,7 @@ export type Database = {
           win_streak: number;
         }[];
       };
+      forum_content_is_valid: { Args: { p_content: Json }; Returns: boolean };
       hall_of_fame: {
         Args: { p_track: number };
         Returns: {

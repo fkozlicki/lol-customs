@@ -10,8 +10,9 @@ import {
   getAuctionRoom,
   listActiveAuctions,
 } from "@v1/supabase/queries/auctions";
-import type { Client, RankSnapshot } from "@v1/supabase/types";
+import type { AuctionPoolEntry, Client } from "@v1/supabase/types";
 import { z } from "zod";
+import { isDatabaseError, toTRPCError } from "../errors";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 const roomIdSchema = z.object({ id: z.uuid() });
@@ -35,8 +36,17 @@ interface AuctionFunctionError {
   message: string;
 }
 
+/**
+ * An auction function's error. One that names an `AUCTION_*` rule gets its message; anything else
+ * goes through the shared mapper, so the database's own text never reaches the client.
+ */
 function domainError(error: AuctionFunctionError): TRPCError {
   const domainCode = error.message.match(/AUCTION_[A-Z_]+/)?.[0];
+  if (!domainCode) {
+    return isDatabaseError(error)
+      ? toTRPCError(error)
+      : new TRPCError({ code: "INTERNAL_SERVER_ERROR", cause: error });
+  }
   const messages: Record<string, string> = {
     AUCTION_PROFILE_REQUIRED: "Create a profile before joining an auction.",
     AUCTION_ROOM_NOT_FOUND: "Auction not found.",
@@ -55,27 +65,24 @@ function domainError(error: AuctionFunctionError): TRPCError {
       "You lead this round, so there is nothing to concede.",
     AUCTION_TAKE_NOT_ALLOWED: "Taking for $1 is not available right now.",
   };
-  const message = domainCode
-    ? (messages[domainCode] ?? domainCode)
-    : error.message;
-  const normalized = domainCode ?? error.message.toUpperCase();
+  const message = messages[domainCode] ?? domainCode;
 
-  if (normalized.includes("NOT_FOUND")) {
+  if (domainCode.includes("NOT_FOUND")) {
     return new TRPCError({ code: "NOT_FOUND", message });
   }
   if (
-    normalized.includes("FORBIDDEN") ||
-    normalized.includes("NOT_ALLOWED") ||
-    normalized.includes("PERMISSION") ||
-    normalized.includes("PROFILE_REQUIRED")
+    domainCode.includes("FORBIDDEN") ||
+    domainCode.includes("NOT_ALLOWED") ||
+    domainCode.includes("PERMISSION") ||
+    domainCode.includes("PROFILE_REQUIRED")
   ) {
     return new TRPCError({ code: "FORBIDDEN", message });
   }
   if (
-    normalized.includes("ALREADY") ||
-    normalized.includes("TAKEN") ||
-    normalized.includes("STALE") ||
-    normalized.includes("DEADLINE")
+    domainCode.includes("ALREADY") ||
+    domainCode.includes("TAKEN") ||
+    domainCode.includes("STALE") ||
+    domainCode.includes("DEADLINE")
   ) {
     return new TRPCError({ code: "CONFLICT", message });
   }
@@ -201,7 +208,7 @@ function normalizeRoom(raw: AuctionRoomSnapshot) {
 async function poolPayload(
   supabase: Client,
   pool: z.infer<typeof poolSchema>,
-): Promise<{ gameName: string; tagLine: string; rank: RankSnapshot }[]> {
+): Promise<AuctionPoolEntry[]> {
   const [players, ranks] = await Promise.all([
     supabase.from("players").select("puuid, game_name, tag_line"),
     supabase.rpc("player_latest_ranks"),

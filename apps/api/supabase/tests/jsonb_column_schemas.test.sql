@@ -23,7 +23,7 @@ as $$
   from generate_series(1, 8) n;
 $$;
 
-select plan(10);
+select plan(9);
 
 -- Auction ranks ----------------------------------------------------------------------------------
 
@@ -32,11 +32,10 @@ select lives_ok(
       tests.pool('{"soloTier": "GOLD", "soloDivision": "I", "soloRankLabel": "Gold I"}'), 'A', 20, 30, false)$$,
   'a pool with a rank for every player is stored'
 );
-select lives_ok(
-  $$select public.auction_cancel(
-      (select room_id from public.auction_captains where user_id = '30000000-0000-0000-0000-000000000001'),
-      gen_random_uuid())$$,
-  'the first room is cancelled to make way for the next'
+-- Make way for the next room.
+select public.auction_cancel(
+  (select room_id from public.auction_captains where user_id = '30000000-0000-0000-0000-000000000001'),
+  gen_random_uuid()
 );
 select lives_ok(
   $$select public.auction_create_room(gen_random_uuid(),

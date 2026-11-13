@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Client } from "../types";
+import { auctionEventPayload, rankSnapshot } from "../types/json";
 
 /**
  * The JSON the auction functions build. The generator types a `jsonb` return as `Json`, so these
@@ -7,7 +8,7 @@ import type { Client } from "../types";
  * the path of the field, instead of reaching the screen half-formed.
  */
 
-export const auctionStatus = z.enum([
+const auctionStatus = z.enum([
   "waiting",
   "countdown",
   "active",
@@ -15,9 +16,9 @@ export const auctionStatus = z.enum([
   "cancelled",
   "expired",
 ]);
-export const auctionPhase = z.enum(["free_auction", "bidding", "sold_pause"]);
-export const auctionSide = z.enum(["A", "B"]);
-export const auctionEventType = z.enum([
+const auctionPhase = z.enum(["free_auction", "bidding", "sold_pause"]);
+const auctionSide = z.enum(["A", "B"]);
+const auctionEventType = z.enum([
   "created",
   "captain_joined",
   "captain_left",
@@ -83,11 +84,7 @@ export const auctionRoomSnapshot = z.object({
       id: z.guid(),
       gameName: z.string(),
       tagLine: z.string(),
-      rank: z.object({
-        soloTier: z.string().nullable(),
-        soloDivision: z.string().nullable(),
-        soloRankLabel: z.string(),
-      }),
+      rank: rankSnapshot,
       drawPosition: z.int().nullable(),
       revealed: z.boolean(),
       assignedSide: auctionSide.nullable(),
@@ -101,10 +98,7 @@ export const auctionRoomSnapshot = z.object({
       actorSide: auctionSide.nullable(),
       playerId: z.guid().nullable(),
       amount: z.int().nullable(),
-      payload: z.object({
-        reason: z.string().optional(),
-        ready: z.boolean().optional(),
-      }),
+      payload: auctionEventPayload,
       createdAt: z.string(),
     }),
   ),
