@@ -4,8 +4,7 @@ create extension if not exists pgtap with schema extensions;
 create schema if not exists tests;
 
 -- OP scores and ratings are irrelevant here.
-alter table public.match_participants disable trigger trg_compute_op_scores;
-alter table public.match_participants disable trigger trg_update_ratings;
+alter table public.match_participants disable trigger trg_rate_uploaded_matches;
 
 insert into public.players (puuid, game_name, tag_line)
 values ('items-p1', 'ItemsOne', 'EUW'), ('items-p2', 'ItemsTwo', 'EUW'), ('items-p3', 'ItemsThree', 'EUW');
