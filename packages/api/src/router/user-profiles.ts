@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
@@ -35,15 +34,8 @@ export const userProfilesRouter = createTRPCRouter({
         .select()
         .single();
 
-      if (error) {
-        if (error.code === "23505") {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "This nickname is already taken.",
-          });
-        }
-        throw error;
-      }
+      // A taken nickname is a unique violation, which reaches the client as CONFLICT.
+      if (error) throw error;
 
       return data;
     }),

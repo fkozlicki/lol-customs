@@ -105,9 +105,10 @@ export const forumRouter = createTRPCRouter({
           .from("user_profiles")
           .select("id")
           .eq("id", ctx.user.id)
-          .single();
+          .maybeSingle();
+        if (profileError) throw profileError;
 
-        if (profileError || !profile) {
+        if (!profile) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "You must set up a profile before posting.",

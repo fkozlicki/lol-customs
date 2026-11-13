@@ -18,7 +18,6 @@ describe("a database error", () => {
 
   test("becomes the tRPC error its code means", () => {
     expect(toTRPCError(databaseError("23505")).code).toBe("CONFLICT");
-    expect(toTRPCError(databaseError("PGRST116")).code).toBe("NOT_FOUND");
     expect(toTRPCError(databaseError("22P02")).code).toBe("BAD_REQUEST");
     expect(toTRPCError(databaseError("42501")).code).toBe("FORBIDDEN");
   });
@@ -28,7 +27,10 @@ describe("a database error", () => {
     expect(toTRPCError(databaseError("PT409")).code).toBe("CONFLICT");
   });
 
-  test("is a server error when its code means nothing to the client", () => {
+  test("is a server error when its code means nothing to the client, or a duplicate row", () => {
+    expect(toTRPCError(databaseError("PGRST116")).code).toBe(
+      "INTERNAL_SERVER_ERROR",
+    );
     expect(toTRPCError(databaseError("XX000")).code).toBe(
       "INTERNAL_SERVER_ERROR",
     );

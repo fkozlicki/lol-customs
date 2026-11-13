@@ -59,9 +59,11 @@ export const playersRouter = createTRPCRouter({
         .select("*")
         .ilike("game_name", input.gameName)
         .ilike("tag_line", input.tagLine)
-        .maybeSingle();
+        .limit(2);
       if (error) throw error;
-      return data;
+      // `ilike` treats `%` and `_` as wildcards, so a Riot ID can match several players; that is
+      // not a profile. A lookup by normalised Riot ID replaces this (docs/research/api-layer-review.md).
+      return data.length === 1 ? data[0] : null;
     }),
 
   profileStats: publicProcedure

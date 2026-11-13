@@ -19,6 +19,8 @@ export default {
           getUserFailed: "Nie udało się pobrać użytkownika. Spróbuj ponownie.",
           avatarUploadFailed:
             "Przesyłanie awatara nie powiodło się. Możesz ustawić go później.",
+          nicknameTaken: "Ten nick jest już zajęty.",
+          setupFailed: "Nie udało się utworzyć profilu. Spróbuj ponownie.",
         },
       },
     },
@@ -117,6 +119,7 @@ export default {
           titleRequired: "Nadaj postowi tytuł.",
           toast: {
             created: "Post opublikowany!",
+            failed: "Nie udało się opublikować posta. Spróbuj ponownie.",
           },
         },
         imageUpload: {
@@ -125,6 +128,7 @@ export default {
         },
         comments: {
           placeholder: "Napisz komentarz...",
+          failed: "Nie udało się dodać komentarza. Spróbuj ponownie.",
         },
       },
       hallOfFame: {

@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { createClient } from "@v1/supabase/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
-import { isDatabaseError, toTRPCError } from "./errors";
+import { isDatabaseError, SERVER_ERROR_MESSAGE, toTRPCError } from "./errors";
 import { createLoggerPlugin } from "./logger";
 
 /**
@@ -40,7 +40,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
     message:
       error.code === "INTERNAL_SERVER_ERROR" &&
       process.env.NODE_ENV === "production"
-        ? "Something went wrong."
+        ? SERVER_ERROR_MESSAGE
         : shape.message,
     data: {
       ...shape.data,
@@ -55,7 +55,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const createTRPCRouter = t.router;
 
 /** A database error from any procedure becomes a tRPC error with a safe message (see `errors.ts`). */
-const databaseErrors = t.middleware(async ({ next }) => {
+const mapDatabaseErrors = t.middleware(async ({ next }) => {
   const result = await next();
   if (!result.ok && isDatabaseError(result.error.cause)) {
     throw toTRPCError(result.error.cause);
@@ -65,7 +65,7 @@ const databaseErrors = t.middleware(async ({ next }) => {
 
 const baseProcedure = t.procedure
   .concat(createLoggerPlugin().logger)
-  .use(databaseErrors);
+  .use(mapDatabaseErrors);
 
 /** Open to visitors; `ctx.user` is the signed-in user, or null. */
 export const publicProcedure = baseProcedure;

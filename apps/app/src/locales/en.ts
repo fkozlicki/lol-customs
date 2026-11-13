@@ -18,6 +18,8 @@ export default {
           signInFailed: "Failed to sign in. Please try again.",
           getUserFailed: "Failed to get user. Please try again.",
           avatarUploadFailed: "Failed to upload avatar. You can set it later.",
+          nicknameTaken: "This nickname is already taken.",
+          setupFailed: "Could not set up your profile. Please try again.",
         },
       },
     },
@@ -117,6 +119,7 @@ export default {
           titleRequired: "Give your post a title.",
           toast: {
             created: "Post created!",
+            failed: "Could not publish the post. Please try again.",
           },
         },
         imageUpload: {
@@ -125,6 +128,7 @@ export default {
         },
         comments: {
           placeholder: "Write a comment...",
+          failed: "Could not add the comment. Please try again.",
         },
       },
       hallOfFame: {
