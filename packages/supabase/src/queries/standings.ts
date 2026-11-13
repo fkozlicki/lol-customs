@@ -50,8 +50,9 @@ export async function countTrackMatches(client: Client, track: number) {
 /**
  * The standings of one rating track, live or as they stood right after its Nth match.
  *
- * Both come from `leaderboard_at` (`standings_after_match` finds when the Nth match was rated), so the ordering rule lives in SQL only: qualified players first by
- * rating, everyone else by matches played, with a deterministic tie-break.
+ * Both come from `leaderboard_at`, so the ordering rule lives in SQL only: qualified players first by
+ * rating, everyone else by matches played, with a deterministic tie-break. `standings_after_match`
+ * finds when the Nth match was rated.
  */
 export async function getStandings(
   client: Client,

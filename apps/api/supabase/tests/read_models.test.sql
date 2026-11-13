@@ -131,14 +131,14 @@ select results_eq(
 -- Champions ---------------------------------------------------------------------------------------
 
 select results_eq(
-  $$select champion_id, games, wins, kills, deaths, assists from public.player_champions('rm-p1', 1, 5)$$,
+  $$select champion_id, matches, wins, kills, deaths, assists from public.player_champions('rm-p1', 1, 5)$$,
   $$values (30, 2, 1, 2, 2, 4), (20, 1, 0, 1, 1, 2)$$,
-  'a season counts each champion''s games, the wins of its side and the summed KDA, most played first'
+  'a season counts each champion''s matches, the wins of its side and the summed KDA, most played first'
 );
 select results_eq(
-  $$select champion_id, games, wins from public.player_champions('rm-p1', 0, 5)$$,
+  $$select champion_id, matches, wins from public.player_champions('rm-p1', 0, 5)$$,
   $$values (30, 2, 1), (10, 1, 1), (20, 1, 0)$$,
-  'all time counts every season, and a tie on games goes to the champion with more wins'
+  'all time counts every season, and a tie on matches goes to the champion with more wins'
 );
 select results_eq(
   $$select champion_id from public.player_champions('rm-p1', 0, 1)$$,

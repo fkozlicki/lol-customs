@@ -46,20 +46,17 @@ export async function listPosts(
 /** One post with its counts and who reacted how; null if there is no such post. */
 export async function getPost(client: Client, id: string) {
   const { data, error } = await client
-    .from("forum_posts")
+    .from("forum_post_list")
     .select(
-      `id, title, content, created_at, ${AUTHOR}, reactions:forum_reactions(type, user_id), comments:forum_comments(id)`,
+      `id, title, content, created_at, ${AUTHOR}, reactions:forum_reactions(type, user_id), likes, dislikes, comment_count`,
     )
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
 
-  return {
-    ...data,
-    ...countReactions(data.reactions),
-    commentCount: data.comments.length,
-  };
+  const { comment_count, ...post } = data;
+  return { ...post, commentCount: comment_count };
 }
 
 export async function createPost(

@@ -1186,8 +1186,8 @@ export type Database = {
           assists: number;
           champion_id: number;
           deaths: number;
-          games: number;
           kills: number;
+          matches: number;
           wins: number;
         }[];
       };

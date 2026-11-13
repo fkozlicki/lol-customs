@@ -173,6 +173,7 @@ export async function withLatestRanks(
   });
   if (error) throw error;
 
+  // `ordinal` is the player's place in the pool, counted from 1.
   const rankAt = new Map(data.map((rank) => [rank.ordinal, rank]));
   return pool.map((player, index) => {
     const rank = rankAt.get(index + 1);

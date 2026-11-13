@@ -10,7 +10,8 @@
 
 -- Riot ID lookups ---------------------------------------------------------------------------------
 
--- Mirrors `riotIdKey` in @v1/domain/riot-id.
+-- The same key as `riotIdKey` in @v1/domain/riot-id for the spaces and tabs a Riot ID can carry; JS
+-- trims more kinds of Unicode space, which Riot does not allow in a name.
 create function public.riot_id_key(p_game_name text, p_tag_line text)
 returns text
 language sql
@@ -53,7 +54,7 @@ as $$
   order by ids.ordinal;
 $$;
 
--- Names in the profile and Hall of Fame records ----------------------------------------------------
+-- Names in player relations and the Hall of Fame -------------------------------------------------
 
 -- The return type grows, so the functions are dropped and created again.
 drop function public.player_relations(text, integer);
@@ -332,18 +333,18 @@ $$;
 -- Matches, wins and total KDA per champion on one rating track, most played first.
 create function public.player_champions(p_puuid text, p_track integer, p_limit integer default 5)
 returns table (
-  champion_id integer, games integer, wins integer, kills integer, deaths integer, assists integer
+  champion_id integer, matches integer, wins integer, kills integer, deaths integer, assists integer
 )
 language sql
 stable
 as $$
   select
     mp.champion_id,
-    count(*)::integer,
-    count(*) filter (where t.win)::integer,
-    coalesce(sum(mp.kills), 0)::integer,
-    coalesce(sum(mp.deaths), 0)::integer,
-    coalesce(sum(mp.assists), 0)::integer
+    count(*)::integer as matches,
+    count(*) filter (where t.win)::integer as wins,
+    coalesce(sum(mp.kills), 0)::integer as kills,
+    coalesce(sum(mp.deaths), 0)::integer as deaths,
+    coalesce(sum(mp.assists), 0)::integer as assists
   from public.match_participants mp
   join public.matches m on m.match_id = mp.match_id
   left join public.teams t on t.match_id = mp.match_id and t.team_id = mp.team_id
@@ -351,7 +352,7 @@ as $$
     and mp.champion_id is not null
     and (p_track = 0 or m.ladder_season_id = p_track)
   group by mp.champion_id
-  order by 2 desc, 3 desc, 1
+  order by matches desc, wins desc, mp.champion_id
   limit greatest(1, least(coalesce(p_limit, 5), 20));
 $$;
 
@@ -408,3 +409,13 @@ from public.forum_posts p;
 
 revoke all on public.forum_post_list from public, anon, authenticated;
 grant select on public.forum_post_list to anon, authenticated;
+
+-- Grants ---------------------------------------------------------------------------------------------
+
+grant execute on function public.riot_id_key(text, text) to anon, authenticated, service_role;
+grant execute on function public.player_by_riot_id(text, text) to anon, authenticated, service_role;
+grant execute on function public.latest_ranks_by_riot_id(text[], text[]) to anon, authenticated, service_role;
+grant execute on function public.player_relations(text, integer) to anon, authenticated, service_role;
+grant execute on function public.hall_of_fame(integer) to anon, authenticated, service_role;
+grant execute on function public.player_champions(text, integer, integer) to anon, authenticated, service_role;
+grant execute on function public.standings_after_match(integer, integer, integer) to anon, authenticated, service_role;
