@@ -914,7 +914,9 @@ export type Database = {
         };
         Returns: undefined;
       };
+      _auction_ensure_tick: { Args: never; Returns: undefined };
       _auction_fail: { Args: { p_code: string }; Returns: undefined };
+      _auction_lock_tick_schedule: { Args: never; Returns: undefined };
       _auction_release_captain_locked: {
         Args: { p_except_room_id: string; p_user_id: string };
         Returns: undefined;
@@ -1013,6 +1015,7 @@ export type Database = {
         Returns: Json;
       };
       auction_get_room: { Args: { p_room_id: string }; Returns: Json };
+      auction_housekeeping: { Args: never; Returns: number };
       auction_join_captain: {
         Args: { p_request_id: string; p_room_id: string; p_team_name: string };
         Returns: Json;
