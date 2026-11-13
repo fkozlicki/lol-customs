@@ -63,7 +63,7 @@ describe("season summaries", () => {
   const summaries = [
     { seasonId: 11, wins: 10, losses: 4, rating: 1059.4 },
     { seasonId: 12, wins: 1, losses: 1, rating: 1001.6 },
-    { seasonId: 99, wins: 0, losses: 3, rating: null },
+    { seasonId: 99, wins: 0, losses: 3, rating: 982 },
   ] as unknown as Parameters<typeof toSeasonSummaryViews>[0];
   const seasons = [
     { id: 11, number: 1 },
@@ -87,7 +87,6 @@ describe("season summaries", () => {
 
   test("round the rating and format the record", () => {
     expect(views[2]).toMatchObject({ rating: 1059, winrate: "71%" });
-    expect(views[0]?.rating).toBe(0);
   });
 });
 

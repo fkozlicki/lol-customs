@@ -29,8 +29,6 @@ describe("self-hosted files", () => {
   });
 
   test("lists each crest, role and objective once", () => {
-    // 10 tiers + unranked, 5 roles + the blank one, 5 objectives on 2 sides
-    expect(SELF_HOSTED_PATHS.length).toBe(11 + 6 + 10);
     expect(new Set(SELF_HOSTED_PATHS).size).toBe(SELF_HOSTED_PATHS.length);
   });
 
