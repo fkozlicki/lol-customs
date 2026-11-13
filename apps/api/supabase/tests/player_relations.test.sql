@@ -83,7 +83,7 @@ select tests.set_rel_kills(9920000007, 1, 10, 5);   -- 01 kills unqualified 12 f
 -- Season 2: one match, so nobody is qualified on that track yet.
 select tests.seed_rel_match(9920000008, now(), array[1,2,3,4,5, 6,7,8,9,10], true);
 
-select plan(12);
+select plan(13);
 
 -- Teammates ------------------------------------------------------------------------
 
@@ -153,6 +153,13 @@ select is(
   (select count(*)::integer from public.player_relations('rel-p01', 1)),
   7,
   'one row per relation'
+);
+
+select is(
+  (select game_name || '#' || tag_line from public.player_relations('rel-p01', 1)
+   where relation = 'most_matches_with'),
+  'RelTest2#EUW',
+  'a relation names the other player'
 );
 
 select * from finish();

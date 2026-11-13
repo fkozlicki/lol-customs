@@ -298,6 +298,13 @@ export type Database = {
             foreignKeyName: "forum_comments_post_id_fkey";
             columns: ["post_id"];
             isOneToOne: false;
+            referencedRelation: "forum_post_list";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "forum_comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
             referencedRelation: "forum_posts";
             referencedColumns: ["id"];
           },
@@ -352,6 +359,13 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "forum_reactions_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "forum_post_list";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "forum_reactions_post_id_fkey";
             columns: ["post_id"];
@@ -880,7 +894,47 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      forum_post_list: {
+        Row: {
+          author_id: string | null;
+          comment_count: number | null;
+          content: Json | null;
+          created_at: string | null;
+          dislikes: number | null;
+          id: string | null;
+          likes: number | null;
+          title: string | null;
+        };
+        Insert: {
+          author_id?: string | null;
+          comment_count?: never;
+          content?: Json | null;
+          created_at?: string | null;
+          dislikes?: never;
+          id?: string | null;
+          likes?: never;
+          title?: string | null;
+        };
+        Update: {
+          author_id?: string | null;
+          comment_count?: never;
+          content?: Json | null;
+          created_at?: string | null;
+          dislikes?: never;
+          id?: string | null;
+          likes?: never;
+          title?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "user_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
       _apply_rating_update_for_track: {
@@ -1064,7 +1118,10 @@ export type Database = {
       hall_of_fame: {
         Args: { p_track: number };
         Returns: {
+          game_name: string;
+          profile_icon: number;
           puuid: string;
+          tag_line: string;
           title: string;
           value: number;
         }[];
@@ -1074,6 +1131,14 @@ export type Database = {
         Returns: boolean;
       };
       ladder_season_for: { Args: { p_at: string }; Returns: number };
+      latest_ranks_by_riot_id: {
+        Args: { p_game_names: string[]; p_tag_lines: string[] };
+        Returns: {
+          ordinal: number;
+          rank_division: string;
+          rank_tier: string;
+        }[];
+      };
       leaderboard_at: {
         Args: { p_at: string; p_limit?: number; p_track: number };
         Returns: {
@@ -1097,6 +1162,35 @@ export type Database = {
           wins: number;
         }[];
       };
+      player_by_riot_id: {
+        Args: { p_game_name: string; p_tag_line: string };
+        Returns: {
+          first_seen_at: string | null;
+          game_name: string | null;
+          last_seen_at: string | null;
+          platform_id: string | null;
+          profile_icon: number | null;
+          puuid: string;
+          tag_line: string | null;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "players";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      player_champions: {
+        Args: { p_limit?: number; p_puuid: string; p_track: number };
+        Returns: {
+          assists: number;
+          champion_id: number;
+          deaths: number;
+          games: number;
+          kills: number;
+          wins: number;
+        }[];
+      };
       player_latest_ranks: {
         Args: never;
         Returns: {
@@ -1108,11 +1202,14 @@ export type Database = {
       player_relations: {
         Args: { p_puuid: string; p_track: number };
         Returns: {
+          game_name: string;
           kills: number;
           losses: number;
           matches: number;
           other_puuid: string;
+          profile_icon: number;
           relation: string;
+          tag_line: string;
           wins: number;
         }[];
       };
@@ -1125,6 +1222,33 @@ export type Database = {
         }[];
       };
       replay_rating_track: { Args: { p_track: number }; Returns: undefined };
+      riot_id_key: {
+        Args: { p_game_name: string; p_tag_line: string };
+        Returns: string;
+      };
+      standings_after_match: {
+        Args: { p_limit?: number; p_matches: number; p_track: number };
+        Returns: {
+          ace_games: number;
+          avg_assists: number;
+          avg_deaths: number;
+          avg_kills: number;
+          best_streak: number;
+          game_name: string;
+          lose_streak: number;
+          losses: number;
+          mvp_games: number;
+          platform_id: string;
+          profile_icon: number;
+          puuid: string;
+          qualified: boolean;
+          rating: number;
+          tag_line: string;
+          updated_at: string;
+          win_streak: number;
+          wins: number;
+        }[];
+      };
       standings_position: {
         Args: { p_puuid: string; p_track: number };
         Returns: number;

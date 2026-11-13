@@ -18,9 +18,9 @@ export async function listPosts(
   args: { limit: number; cursor?: string },
 ) {
   let query = client
-    .from("forum_posts")
+    .from("forum_post_list")
     .select(
-      `id, title, content, created_at, ${AUTHOR}, reactions:forum_reactions(type), comments:forum_comments(id)`,
+      `id, title, content, created_at, ${AUTHOR}, likes, dislikes, comment_count`,
     )
     .order("created_at", { ascending: false })
     .limit(args.limit + 1);
@@ -30,10 +30,9 @@ export async function listPosts(
   const { data, error } = await query;
   if (error) throw error;
 
-  const items = data.map((post) => ({
+  const items = data.map(({ comment_count, ...post }) => ({
     ...post,
-    ...countReactions(post.reactions),
-    commentCount: post.comments.length,
+    commentCount: comment_count,
   }));
   const hasNextPage = items.length > args.limit;
   const lastItem = hasNextPage ? items[args.limit - 1] : undefined;

@@ -54,21 +54,6 @@ export const POSTS = [
       nickname: "Kestrel",
       avatar_url: null,
     },
-    reactions: [
-      {
-        type: "like",
-      },
-      {
-        type: "dislike",
-      },
-      {
-        type: "like",
-      },
-      {
-        type: "like",
-      },
-    ],
-    comments: [],
     likes: 3,
     dislikes: 1,
     commentCount: 2,

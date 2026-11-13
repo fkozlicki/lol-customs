@@ -28,11 +28,19 @@ type LeaderboardAtRow = {
   qualified: boolean;
 };
 
+/** The name and icon a left join to `players` adds: null for a player not in `players`. */
+type PlayerNameColumns = {
+  game_name: string | null;
+  tag_line: string | null;
+  profile_icon: number | null;
+};
+
 /**
  * The generated schema, corrected where the generator cannot know better:
  * - forum content, which the app writes and reads, gets its shape (`json.ts`);
  * - generated columns computed from non-null columns are never null;
- * - `leaderboard_at` admits the nulls its left join produces;
+ * - the `forum_post_list` view's columns are as non-null as the table's, and its counts too;
+ * - functions returning a table admit the nulls their left joins produce;
  * - `auction_update_lobby` takes null for every setting it leaves as it is.
  *
  * `db.ts` stays exactly as `bun generate:types` writes it. The auction JSON columns are only written
@@ -56,8 +64,47 @@ export type Database = MergeDeep<
         };
         ratings: { Row: { matches_played: number; qualified: boolean } };
       };
+      Views: {
+        forum_post_list: {
+          Row: {
+            id: string;
+            title: string;
+            content: ForumContent;
+            created_at: string;
+            author_id: string;
+            likes: number;
+            dislikes: number;
+            comment_count: number;
+          };
+        };
+      };
       Functions: {
         leaderboard_at: { Returns: LeaderboardAtRow[] };
+        standings_after_match: { Returns: LeaderboardAtRow[] };
+        player_relations: {
+          Returns: ({
+            relation: string;
+            other_puuid: string;
+            matches: number | null;
+            wins: number | null;
+            losses: number | null;
+            kills: number | null;
+          } & PlayerNameColumns)[];
+        };
+        hall_of_fame: {
+          Returns: ({
+            title: string;
+            puuid: string;
+            value: number;
+          } & PlayerNameColumns)[];
+        };
+        latest_ranks_by_riot_id: {
+          Returns: {
+            ordinal: number;
+            rank_tier: string | null;
+            rank_division: string | null;
+          }[];
+        };
         auction_update_lobby: {
           Args: {
             p_team_name: string | null;
