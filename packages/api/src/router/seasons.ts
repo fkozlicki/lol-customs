@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const seasonsRouter = createTRPCRouter({
@@ -9,12 +8,7 @@ export const seasonsRouter = createTRPCRouter({
       .select("id, number, starts_at")
       .order("starts_at", { ascending: true });
 
-    if (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: error.message,
-      });
-    }
+    if (error) throw error;
 
     const now = Date.now();
     const seasons = data.map((s) => {

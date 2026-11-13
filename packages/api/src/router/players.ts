@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
@@ -14,12 +13,7 @@ export const playersRouter = createTRPCRouter({
       ctx.supabase.rpc("player_latest_ranks"),
     ]);
     if (players.error) throw players.error;
-    if (ranks.error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: ranks.error.message,
-      });
-    }
+    if (ranks.error) throw ranks.error;
 
     const rankByPuuid = new Map(
       (ranks.data ?? []).map((row) => [row.puuid, row]),
@@ -49,12 +43,7 @@ export const playersRouter = createTRPCRouter({
         .rpc("player_latest_ranks")
         .eq("puuid", input.puuid)
         .maybeSingle();
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
       return data
         ? { tier: data.rank_tier, division: data.rank_division }
         : null;
@@ -70,11 +59,8 @@ export const playersRouter = createTRPCRouter({
         .select("*")
         .ilike("game_name", input.gameName)
         .ilike("tag_line", input.tagLine)
-        .single();
-      if (error) {
-        if (error.code === "PGRST116") return null;
-        throw error;
-      }
+        .maybeSingle();
+      if (error) throw error;
       return data;
     }),
 
@@ -88,25 +74,15 @@ export const playersRouter = createTRPCRouter({
         )
         .eq("puuid", input.puuid)
         .eq("ladder_season_id", input.season)
-        .single();
-      if (error) {
-        if (error.code === "PGRST116") return null;
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
 
       const { data: position, error: positionError } = await ctx.supabase.rpc(
         "standings_position",
         { p_puuid: input.puuid, p_track: input.season },
       );
-      if (positionError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: positionError.message,
-        });
-      }
+      if (positionError) throw positionError;
 
       return {
         ...data,
@@ -127,12 +103,7 @@ export const playersRouter = createTRPCRouter({
         .order("created_at", { ascending: true })
         .order("match_id", { ascending: true });
 
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       return data;
     }),
@@ -149,12 +120,7 @@ export const playersRouter = createTRPCRouter({
         .order("created_at", { ascending: false })
         .order("match_id", { ascending: false });
 
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const bySeason = new Map<number, (typeof data)[number]>();
       for (const row of data) {
@@ -181,12 +147,7 @@ export const playersRouter = createTRPCRouter({
         p_puuid: input.puuid,
         p_track: input.season,
       });
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const puuids = [...new Set(rows.map((row) => row.other_puuid))];
       const { data: players, error: playersError } =
@@ -196,12 +157,7 @@ export const playersRouter = createTRPCRouter({
               .select("puuid, game_name, tag_line, profile_icon")
               .in("puuid", puuids)
           : { data: [], error: null };
-      if (playersError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: playersError.message,
-        });
-      }
+      if (playersError) throw playersError;
 
       const playerByPuuid = new Map(players.map((p) => [p.puuid, p]));
       const relation = (name: string) => {
@@ -262,12 +218,7 @@ export const playersRouter = createTRPCRouter({
         query = query.eq("match.ladder_season_id", input.season);
       }
       const { data, error } = await query;
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const map = new Map<
         number,

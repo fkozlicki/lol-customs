@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import type { Client } from "@v1/supabase/types";
 import { z } from "zod";
 import { isAllTime, seasonInput } from "../season";
@@ -35,12 +34,7 @@ async function withRatingChanges<
       p_match_ids: matchIds,
       p_track: season,
     });
-    if (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: error.message,
-      });
-    }
+    if (error) throw error;
     for (const row of data ?? []) {
       changes.set(`${row.match_id}:${row.puuid}`, row.rating_change);
     }
@@ -81,12 +75,7 @@ export const matchesRouter = createTRPCRouter({
 
       const { data, error } = await query;
 
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const items = data.map((m) => ({
         ...m,
@@ -141,12 +130,7 @@ export const matchesRouter = createTRPCRouter({
       const { data: participantRows, error: participantError } =
         await participantQuery;
 
-      if (participantError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: participantError.message,
-        });
-      }
+      if (participantError) throw participantError;
 
       const hasNextPage = participantRows.length > input.limit;
       const rows = participantRows.slice(0, input.limit);
@@ -163,12 +147,7 @@ export const matchesRouter = createTRPCRouter({
         .in("match_id", matchIds)
         .order("game_creation", { ascending: false });
 
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const items = data.map((m) => ({
         ...m,

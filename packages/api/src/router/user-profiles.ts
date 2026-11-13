@@ -10,15 +10,9 @@ export const userProfilesRouter = createTRPCRouter({
       .from("user_profiles")
       .select("*")
       .eq("id", ctx.user.id)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: error.message,
-      });
-    }
+    if (error) throw error;
 
     return data;
   }),
@@ -48,10 +42,7 @@ export const userProfilesRouter = createTRPCRouter({
             message: "This nickname is already taken.",
           });
         }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
+        throw error;
       }
 
       return data;
