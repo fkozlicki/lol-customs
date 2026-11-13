@@ -19,6 +19,37 @@ alter table public.rating_history
   add constraint rating_history_match_id_fkey
     foreign key (match_id) references public.matches (match_id) on delete cascade;
 
+-- The cascade locks the removed matches' history rows before the recount below takes its track locks,
+-- while an upload recounting a track holds the track lock and then deletes that history: the two would
+-- deadlock. Removing matches therefore takes every track lock before a row is deleted, in the order an
+-- upload takes them (seasons ascending, all-time last).
+create function public.trg_lock_tracks_before_match_removal()
+returns trigger
+language plpgsql
+as $$
+declare
+  v_track integer;
+begin
+  for v_track in
+    select track
+    from (select id as track from seasons union select 0) tracks
+    order by track = 0, track
+  loop
+    perform pg_advisory_xact_lock(hashtext('rating_track'), v_track);
+  end loop;
+
+  return null;
+end;
+$$;
+
+create trigger trg_lock_tracks_before_match_removal
+  before delete on public.matches
+  for each statement
+  execute function public.trg_lock_tracks_before_match_removal();
+
+revoke all on function public.trg_lock_tracks_before_match_removal() from public, anon, authenticated;
+grant execute on function public.trg_lock_tracks_before_match_removal() to service_role;
+
 create function public.trg_recount_after_match_removal()
 returns trigger
 language plpgsql
@@ -80,6 +111,8 @@ alter table public.ratings
   alter column win_streak set not null,
   alter column lose_streak set not null;
 
+-- `rating_after` has no sensible fill: a missing rating stops the migration rather than inventing one.
+-- A copy of production had none.
 update public.rating_history
 set
   wins = coalesce(wins, 0),

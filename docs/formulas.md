@@ -70,7 +70,7 @@ So the change is capped at ±24 points per game.
 
 ### Order of matches
 
-A rating track counts its matches in the order they were played (`game_creation`, then `match_id`), whatever order they were uploaded in. A match that arrives after a later match of one of its players recounts the whole track, so the ratings of players who were not in that match can move too.
+A rating track counts its matches in the order they were played (`game_creation`, then `match_id`), whatever order they were uploaded in. A match that arrives after a later match of one of its players recounts the whole track, so the ratings of players who were not in that match can move too. Removing a match recounts its tracks the same way, as if it was never played; uploading it again counts it again.
 
 ### Rating change shown on a match
 

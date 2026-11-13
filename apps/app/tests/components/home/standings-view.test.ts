@@ -18,7 +18,7 @@ describe("a standings row", () => {
 
   test("rounds the rating and formats the record with the domain's rules", () => {
     const view = toStandingsRowView(leader!, { season: null });
-    expect(view.rating).toBe(Math.round(leader!.rating ?? 0));
+    expect(view.rating).toBe(Math.round(leader!.rating));
     expect(view.winrate).toBe("71%");
     expect(view.kdaRatio).toMatch(/:1$/);
   });

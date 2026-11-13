@@ -40,3 +40,6 @@ has, so it cannot resume from the middle.
   grows to where that limit is at risk, recount in the background.
 - Tracks are locked per transaction, season first and all-time second, so concurrent uploads cannot
   deadlock or interleave a recount.
+- Removing a match recounts its tracks the same way, as if it was never played, and uploading it
+  again counts it again. A removal takes every track lock before deleting a row, so it cannot
+  deadlock with an upload that is recounting.
