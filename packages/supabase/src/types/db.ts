@@ -368,32 +368,6 @@ export type Database = {
           },
         ];
       };
-      match_kills: {
-        Row: {
-          killer_participant_id: number;
-          match_id: number;
-          victim_participant_id: number;
-        };
-        Insert: {
-          killer_participant_id: number;
-          match_id: number;
-          victim_participant_id: number;
-        };
-        Update: {
-          killer_participant_id?: number;
-          match_id?: number;
-          victim_participant_id?: number;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "match_kills_match_id_fkey";
-            columns: ["match_id"];
-            isOneToOne: false;
-            referencedRelation: "matches";
-            referencedColumns: ["match_id"];
-          },
-        ];
-      };
       match_participants: {
         Row: {
           assists: number | null;
