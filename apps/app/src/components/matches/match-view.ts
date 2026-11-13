@@ -13,33 +13,6 @@ import { withSeason } from "@/utils/season";
 export type Match = RouterOutputs["matches"]["list"]["items"][number];
 export type MatchParticipant = Match["match_participants"][number];
 
-/** The part of Riot's stored match JSON the cards read: spells and items per participant. */
-export interface RawParticipant {
-  stats: {
-    item0: number;
-    item1: number;
-    item2: number;
-    item3: number;
-    item4: number;
-    item5: number;
-    item6: number;
-    perk0: number;
-    perk1: number;
-    perk2: number;
-    perk3: number;
-    perk4: number;
-    perk5: number;
-    perkPrimaryStyle?: number;
-  };
-  participantId: number;
-  spell1Id: number;
-  spell2Id: number;
-}
-
-export interface RawJson {
-  participants: RawParticipant[];
-}
-
 interface Options {
   /** The profile owner, when the card is told from their point of view. */
   puuid?: string;
@@ -62,7 +35,6 @@ export function toMatchCardView(
   { puuid, season }: Options,
 ): MatchCardView {
   const participants = match.match_participants ?? [];
-  const raw = (match.raw_json as unknown as RawJson | null)?.participants ?? [];
   const scores = participants
     .map((p) => p.op_score)
     .filter((score): score is number => score != null);
@@ -80,7 +52,6 @@ export function toMatchCardView(
       .reduce((sum, p) => sum + (p.kills ?? 0), 0);
 
   const toParticipant = (p: MatchParticipant): ParticipantView => {
-    const rawData = raw.find((r) => r.participantId === p.participant_id);
     const kills = p.kills ?? 0;
     const deaths = p.deaths ?? 0;
     const assists = p.assists ?? 0;
@@ -100,20 +71,10 @@ export function toMatchCardView(
       win: p.win === true,
       championId: p.champion_id,
       level: p.champ_level ?? null,
-      spellIds: [rawData?.spell1Id, rawData?.spell2Id].filter(
+      spellIds: [p.spell1_id, p.spell2_id].filter(
         (id): id is number => id != null && id !== 0,
       ),
-      itemIds: rawData
-        ? [
-            rawData.stats.item0,
-            rawData.stats.item1,
-            rawData.stats.item2,
-            rawData.stats.item3,
-            rawData.stats.item4,
-            rawData.stats.item5,
-            rawData.stats.item6,
-          ]
-        : Array.from({ length: 7 }, () => null),
+      itemIds: p.item_ids ?? Array.from({ length: 7 }, () => null),
       rankTier: p.rank_tier,
       rankLabel: formatRank(
         p.rank_tier?.toLowerCase() ?? null,

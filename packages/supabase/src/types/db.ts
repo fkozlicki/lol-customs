@@ -381,6 +381,7 @@ export type Database = {
           inhibitor_kills: number | null;
           is_ace: boolean;
           is_mvp: boolean;
+          item_ids: number[] | null;
           kills: number | null;
           lane: string | null;
           largest_killing_spree: number | null;
@@ -429,6 +430,7 @@ export type Database = {
           inhibitor_kills?: number | null;
           is_ace?: boolean;
           is_mvp?: boolean;
+          item_ids?: number[] | null;
           kills?: number | null;
           lane?: string | null;
           largest_killing_spree?: number | null;
@@ -477,6 +479,7 @@ export type Database = {
           inhibitor_kills?: number | null;
           is_ace?: boolean;
           is_mvp?: boolean;
+          item_ids?: number[] | null;
           kills?: number | null;
           lane?: string | null;
           largest_killing_spree?: number | null;
@@ -982,6 +985,10 @@ export type Database = {
           p_role: string;
         };
         Returns: string;
+      };
+      _participant_item_ids: {
+        Args: { p_match_id: number; p_participant_id: number };
+        Returns: number[];
       };
       _rate_match_on_track: {
         Args: { p_match_id: number; p_track: number };

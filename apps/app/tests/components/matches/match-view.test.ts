@@ -117,15 +117,23 @@ describe("a player's line", () => {
     expect(byKey(unranked.puuid).rankLabel).toBeNull();
   });
 
-  test("reads spells and items from Riot's JSON, skipping empty spell slots", () => {
+  test("reads spells and items from the participant, items in inventory slot order", () => {
     const line = byKey(MATCH.match_participants[0]!.puuid);
     expect(line.spellIds).toEqual([4, 14]);
     expect(line.itemIds).toEqual([1055, 3078, 3047, 6610, 6333, 1036, 3340]);
   });
 
-  test("keeps seven empty item slots when Riot's JSON has no entry", () => {
+  test("keeps seven empty item slots and no spells when the participant has none", () => {
     const bare = toMatchCardView(
-      { ...MATCH, raw_json: { participants: [] } },
+      {
+        ...MATCH,
+        match_participants: MATCH.match_participants.map((p) => ({
+          ...p,
+          item_ids: null,
+          spell1_id: null,
+          spell2_id: 0,
+        })),
+      },
       { season: null },
     );
     expect(bare.blue.participants[0]!.itemIds).toEqual(Array(7).fill(null));
