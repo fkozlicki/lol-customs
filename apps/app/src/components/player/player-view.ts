@@ -82,7 +82,7 @@ export function toSeasonSummaryViews(
     wins: summary.wins,
     losses: summary.losses,
     winrate: formatWinrate(summary.wins, summary.losses),
-    rating: Math.round(summary.rating ?? 0),
+    rating: Math.round(summary.rating),
   }));
 }
 
@@ -109,7 +109,7 @@ export function toChampionStatViews(
 export function toRatingPoints(history: RatingPoint[]): RatingPointView[] {
   return history.map((point, i) => ({
     index: i + 1,
-    rating: point.rating_after ?? 0,
+    rating: point.rating_after,
     label: point.created_at
       ? format(new Date(point.created_at), "MMM d, HH:mm")
       : `Game ${i + 1}`,

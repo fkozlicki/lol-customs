@@ -26,13 +26,14 @@ values
   (9930000002, 'EUN1', '2020-03-02T12:00:00Z', 1800, '{}'::jsonb);
 
 -- Player 1 once lost four in a row but is not on a losing streak now.
-insert into public.rating_history (ladder_season_id, puuid, match_id, rating_after, wins, losses, lose_streak)
+insert into public.rating_history
+  (ladder_season_id, puuid, match_id, rating_after, wins, losses, lose_streak, win_streak, best_streak, mvp_games, ace_games)
 values
-  (91, 'hof-p1', 9930000001, 1000, 2, 4, 4),
-  (91, 'hof-p1', 9930000002, 1100, 6, 2, 0),
-  (91, 'hof-p2', 9930000001, 990, 3, 2, 2),
-  (91, 'hof-p2', 9930000002, 990, 3, 3, 2),
-  (91, 'hof-p3', 9930000001, 900, 1, 5, 1);
+  (91, 'hof-p1', 9930000001, 1000, 2, 4, 4, 0, 2, 0, 0),
+  (91, 'hof-p1', 9930000002, 1100, 6, 2, 0, 4, 4, 3, 0),
+  (91, 'hof-p2', 9930000001, 990, 3, 2, 2, 0, 2, 0, 0),
+  (91, 'hof-p2', 9930000002, 990, 3, 3, 2, 0, 2, 0, 0),
+  (91, 'hof-p3', 9930000001, 900, 1, 5, 1, 0, 1, 0, 0);
 
 -- Jungle titles read roles from matches. Season 91 starts in 2091 so these matches land on track 91; the
 -- rating triggers are off so the aggregates above stay as inserted.
