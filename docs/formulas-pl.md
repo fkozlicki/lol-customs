@@ -86,6 +86,8 @@ Gracz jest **zakwalifikowany** na torze ratingu po **5 meczach** na tym torze (k
 
 OP Score to wynik gry **w skali 0–10** dla każdego uczestnika meczu, przechowywany jako `numeric(5, 3)` — UI pokazuje jedno miejsce po przecinku, a ranking oraz wybór MVP/ACE używają pełnych trzech miejsc.
 
+OP Score meczu liczy się raz, gdy wgrani są wszyscy dziesięciu uczestnicy, i przed naliczeniem ratingu, bo aktualizacja ratingu go odczytuje. Mecz z inną liczbą uczestników nie dostaje ani OP Score, ani ratingu.
+
 Wynik to **ważona suma czterech filarów**, każdy w \([0, 1]\):
 
 - **Walka (C)** — wpływ na teamfighty, obrażenia, udział w zabójstwach, „smart KDA”.

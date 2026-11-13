@@ -86,6 +86,8 @@ A player is **qualified** on a rating track after **5 matches** on that track (e
 
 OP Score is a **0–10** performance score for each participant in a match, stored as `numeric(5, 3)` so the UI can display one decimal while the leaderboard and MVP/ACE ordering use the full three-decimal precision.
 
+A match's OP scores are computed once, when all ten participants have been uploaded, and before the match is rated, because the rating update reads them. A match with any other number of participants gets neither.
+
 The score is a **weighted sum of four pillars**, each mapped to \([0, 1]\):
 
 - **Combat (C)** — teamfight impact, damage, kill participation, smart KDA.

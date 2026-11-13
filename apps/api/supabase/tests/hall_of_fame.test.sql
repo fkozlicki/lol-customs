@@ -36,8 +36,7 @@ values
 
 -- Jungle titles read roles from matches. Season 91 starts in 2091 so these matches land on track 91; the
 -- rating triggers are off so the aggregates above stay as inserted.
-alter table public.match_participants disable trigger trg_update_ratings;
-alter table public.match_participants disable trigger trg_compute_op_scores;
+alter table public.match_participants disable trigger trg_rate_uploaded_matches;
 
 insert into public.seasons (id, number, starts_at) values (91, 91, '2091-01-01T00:00:00Z');
 
