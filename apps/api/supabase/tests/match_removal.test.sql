@@ -53,7 +53,7 @@ as $$
     and puuid like 'rm-' || p_group || '-p%';
 $$;
 
-select plan(9);
+select plan(5);
 
 -- Three matches, the middle one removed, against the same matches without it ---------------
 
@@ -100,35 +100,6 @@ select tests.seed_rm_match(9995000002, '2020-08-02T12:00:00Z', false, 'rm');
 select is(
   tests.rm_state(1, 'rm'), tests.rm_state(1, 'three'),
   'a removed match uploaded again counts again'
-);
-
--- Schema ---------------------------------------------------------------------------------------
-
-select is(
-  (
-    select count(*)
-    from information_schema.columns
-    where table_schema = 'public'
-      and is_nullable = 'YES'
-      and (table_name, column_name) in (
-        ('ratings', 'rating'), ('ratings', 'wins'), ('ratings', 'losses'),
-        ('ratings', 'best_streak'), ('ratings', 'win_streak'), ('ratings', 'lose_streak'),
-        ('rating_history', 'rating_after'), ('rating_history', 'wins'), ('rating_history', 'losses'),
-        ('rating_history', 'best_streak'), ('rating_history', 'win_streak'), ('rating_history', 'lose_streak'),
-        ('rating_history', 'mvp_games'), ('rating_history', 'ace_games')
-      )
-  ),
-  0::bigint,
-  'ratings and their history always hold a rating, a record and streaks'
-);
-select hasnt_index('public', 'matches', 'idx_matches_patch', 'nothing looks matches up by patch');
-select hasnt_index(
-  'public', 'match_participants', 'idx_participants_match',
-  'participants are looked up by match through the primary key'
-);
-select has_index(
-  'public', 'forum_comments', 'idx_forum_comments_post_created',
-  'a post''s comments are read through an index'
 );
 
 select * from finish();

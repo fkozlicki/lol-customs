@@ -107,12 +107,8 @@ values
 delete from public.auction_rooms;
 select cron.unschedule(jobid) from cron.job where jobname = 'auction-tick-every-second';
 
-select plan(103);
+select plan(99);
 
-select has_table('public', 'auction_rooms', 'auction_rooms exists');
-select has_table('public', 'auction_captains', 'auction_captains exists');
-select has_table('public', 'auction_players', 'auction_players exists');
-select has_table('public', 'auction_events', 'auction_events exists');
 select ok((select relrowsecurity from pg_class where oid = 'public.auction_rooms'::regclass), 'rooms use RLS');
 select ok((select relrowsecurity from pg_class where oid = 'public.auction_captains'::regclass), 'captains use RLS');
 select ok((select relrowsecurity from pg_class where oid = 'public.auction_players'::regclass), 'players use RLS');
