@@ -103,7 +103,11 @@ values
   ('10000000-0000-0000-0000-000000000003', 'auction-c'),
   ('10000000-0000-0000-0000-000000000004', 'auction-d');
 
-select plan(93);
+-- Start from no rooms and no tick, whatever the local database holds (rolled back at the end).
+delete from public.auction_rooms;
+select cron.unschedule(jobid) from cron.job where jobname = 'auction-tick-every-second';
+
+select plan(103);
 
 select has_table('public', 'auction_rooms', 'auction_rooms exists');
 select has_table('public', 'auction_captains', 'auction_captains exists');
@@ -124,6 +128,11 @@ select ok(
   'clients cannot award players directly'
 );
 select ok(not has_function_privilege('authenticated', 'public.auction_tick()', 'EXECUTE'), 'clients cannot invoke the global tick');
+select ok(not has_function_privilege('authenticated', 'public.auction_housekeeping()', 'EXECUTE'), 'clients cannot invoke housekeeping');
+select is(
+  (select count(*) from cron.job where jobname = 'auction-tick-every-second'), 0::bigint,
+  'no tick runs while no auction needs it'
+);
 
 -- ---- lobby -----------------------------------------------------------------------------------
 
@@ -210,6 +219,10 @@ select lives_ok(format(
 select is(
   (select status from public.auction_rooms where id = tests.room('hidden')),
   'countdown', 'both ready transitions to countdown'
+);
+select is(
+  (select count(*) from cron.job where jobname = 'auction-tick-every-second'), 1::bigint,
+  'a countdown schedules the per-second tick'
 );
 select tests.login('10000000-0000-0000-0000-000000000001');
 select lives_ok(format(
@@ -563,7 +576,7 @@ select throws_ok(format(
 
 update public.auction_rooms set last_activity_at = clock_timestamp() - interval '31 minutes'
 where id = tests.room('lobby3');
-select public.auction_tick();
+select public.auction_housekeeping();
 select is(
   (select status from public.auction_rooms where id = tests.room('lobby3')),
   'expired', 'an idle lobby expires after 30 minutes'
@@ -592,10 +605,63 @@ select is(
 );
 update public.auction_rooms set terminal_at = clock_timestamp() - interval '25 hours'
 where id = tests.room('cancelled');
-select public.auction_tick();
+select public.auction_housekeeping();
 select is(
   (select count(*) from public.auction_rooms where id = tests.room('cancelled')),
-  0::bigint, 'tick removes terminal rooms after 24 hours'
+  0::bigint, 'housekeeping removes terminal rooms after 24 hours'
+);
+
+-- ---- idle auctions, the tick on demand and the cron log --------------------------------------
+
+update public.auction_rooms set last_activity_at = clock_timestamp() - interval '29 minutes'
+where id = tests.room('lobby2');
+select public.auction_housekeeping();
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby2')),
+  'active', 'an auction active within 30 minutes keeps going'
+);
+update public.auction_rooms set last_activity_at = clock_timestamp() - interval '31 minutes'
+where status = 'active';
+select public.auction_housekeeping();
+select is(
+  (select status from public.auction_rooms where id = tests.room('lobby2')),
+  'expired', 'an auction idle for 30 minutes expires'
+);
+select is(
+  (select count(*) from public.auction_rooms where status in ('countdown', 'active')), 0::bigint,
+  'no auction needs the tick any more'
+);
+select public.auction_tick();
+select is(
+  (select count(*) from cron.job where jobname = 'auction-tick-every-second'), 0::bigint,
+  'the tick unschedules itself once no auction needs it'
+);
+
+-- Put the finished room back into a countdown to stand for an auction that needs the tick.
+update public.auction_rooms
+set status = 'countdown', terminal_at = null, countdown_ends_at = clock_timestamp() + interval '10 seconds'
+where id = tests.room('visible');
+select cron.unschedule(jobid) from cron.job where jobname = 'auction-tick-every-second';
+select public.auction_housekeeping();
+select is(
+  (select count(*) from cron.job where jobname = 'auction-tick-every-second'), 1::bigint,
+  'housekeeping schedules a missing tick while an auction needs it'
+);
+
+insert into cron.job_run_details (jobid, runid, command, status, start_time, end_time)
+select jobid, -1, 'test-old-run', 'succeeded', clock_timestamp() - interval '8 days', clock_timestamp() - interval '8 days'
+from cron.job where jobname = 'auction-housekeeping-every-minute'
+union all
+select jobid, -2, 'test-recent-run', 'succeeded', clock_timestamp() - interval '1 day', clock_timestamp() - interval '1 day'
+from cron.job where jobname = 'auction-housekeeping-every-minute';
+select public.auction_housekeeping();
+select is(
+  (select count(*) from cron.job_run_details where command = 'test-old-run'), 0::bigint,
+  'housekeeping deletes cron runs older than 7 days'
+);
+select is(
+  (select count(*) from cron.job_run_details where command = 'test-recent-run'), 1::bigint,
+  'housekeeping keeps cron runs from the last 7 days'
 );
 
 select * from finish();
