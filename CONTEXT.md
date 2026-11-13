@@ -52,6 +52,11 @@ A player's wins and losses in matches against one rival. It is only compared onc
 least three matches.
 _Avoid_: Matchup, H2H
 
+**Items**:
+The items a player held when the match ended, in their inventory slots, the trinket last. The order they
+were bought in is not recorded.
+_Avoid_: Build, build order
+
 ### Auctions
 
 **Auction**:

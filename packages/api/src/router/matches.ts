@@ -4,6 +4,13 @@ import { z } from "zod";
 import { isAllTime, seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
+/**
+ * What a match card reads: every match column except Riot's match and timeline JSON, which weigh about
+ * 125 kB a match and stay in the database, with the sides and the participants.
+ */
+const MATCH_CARD_SELECT =
+  "match_id, platform_id, game_creation, duration, game_mode, game_type, queue_id, map_id, patch, season_id, end_of_game_result, created_at, ladder_season_id, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))" as const;
+
 /** Adds each participant's rating change on the given track (null when the match is not on it). */
 async function withRatingChanges<
   T extends { match_id: number; match_participants: { puuid: string }[] },
@@ -60,9 +67,7 @@ export const matchesRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       let query = ctx.supabase
         .from("matches")
-        .select(
-          "*, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))",
-        )
+        .select(MATCH_CARD_SELECT)
         .order("game_creation", { ascending: false })
         .limit(input.limit + 1);
 
@@ -154,9 +159,7 @@ export const matchesRouter = createTRPCRouter({
       // Step 2: fetch full match data with all participants
       const { data, error } = await ctx.supabase
         .from("matches")
-        .select(
-          "*, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))",
-        )
+        .select(MATCH_CARD_SELECT)
         .in("match_id", matchIds)
         .order("game_creation", { ascending: false });
 
