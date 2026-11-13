@@ -1,4 +1,5 @@
 import { withStandingsPositions } from "@v1/domain/standings";
+import type { Database } from "@v1/supabase/types";
 import { z } from "zod";
 import { isAllTime, seasonInput } from "../season";
 import {
@@ -9,26 +10,8 @@ import {
 
 const afterGamesSchema = z.number().int().min(1).max(100_000);
 
-type LeaderboardAtRow = {
-  puuid: string;
-  rating: number;
-  wins: number;
-  losses: number;
-  best_streak: number;
-  win_streak: number;
-  lose_streak: number;
-  updated_at: string;
-  avg_kills: number | null;
-  avg_deaths: number | null;
-  avg_assists: number | null;
-  mvp_games: number;
-  ace_games: number;
-  game_name: string | null;
-  tag_line: string | null;
-  profile_icon: number | null;
-  platform_id: string | null;
-  qualified: boolean;
-};
+type LeaderboardAtRow =
+  Database["public"]["Functions"]["leaderboard_at"]["Returns"][number];
 
 function toLeaderboardRow(row: LeaderboardAtRow) {
   return {

@@ -1,7 +1,20 @@
 import { TRPCError } from "@trpc/server";
-import type { Json } from "@v1/supabase/types";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+
+/**
+ * A post's or comment's body as the forum's CHECK constraint accepts it: the editor's document, or an
+ * empty object for a post without a body. The client sends the editor's JSON as it is.
+ */
+const forumContent = z.record(z.string(), z.unknown()).pipe(
+  z.union([
+    z.strictObject({}),
+    z.looseObject({
+      type: z.literal("doc"),
+      content: z.array(z.looseObject({ type: z.string() })),
+    }),
+  ]),
+);
 
 export const forumRouter = createTRPCRouter({
   posts: createTRPCRouter({
@@ -97,7 +110,7 @@ export const forumRouter = createTRPCRouter({
       .input(
         z.object({
           title: z.string().min(1).max(200),
-          content: z.record(z.string(), z.unknown()),
+          content: forumContent,
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -120,7 +133,7 @@ export const forumRouter = createTRPCRouter({
           .insert({
             author_id: ctx.user.id,
             title: input.title,
-            content: input.content as Json,
+            content: input.content,
           })
           .select()
           .single();
@@ -239,7 +252,7 @@ export const forumRouter = createTRPCRouter({
       .input(
         z.object({
           postId: z.string().uuid(),
-          content: z.record(z.string(), z.unknown()),
+          content: forumContent,
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -248,7 +261,7 @@ export const forumRouter = createTRPCRouter({
           .insert({
             post_id: input.postId,
             author_id: ctx.user.id,
-            content: input.content as Json,
+            content: input.content,
           })
           .select(
             `
