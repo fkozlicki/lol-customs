@@ -70,7 +70,7 @@ Zmiana jest więc ograniczona do ±24 punktów na mecz.
 
 ### Kolejność meczów
 
-Tor ratingu liczy mecze w kolejności ich rozegrania (`game_creation`, potem `match_id`), niezależnie od kolejności wgrania. Mecz, który trafi do bazy po późniejszym meczu któregoś ze swoich graczy, przelicza cały tor od nowa, więc może zmienić rating także graczom, którzy w nim nie grali.
+Tor ratingu liczy mecze w kolejności ich rozegrania (`game_creation`, potem `match_id`), niezależnie od kolejności wgrania. Mecz, który trafi do bazy po późniejszym meczu któregoś ze swoich graczy, przelicza cały tor od nowa, więc może zmienić rating także graczom, którzy w nim nie grali. Usunięcie meczu przelicza jego tory w ten sam sposób, jakby nigdy go nie rozegrano; ponowne wgranie znów go liczy.
 
 ### Zmiana ratingu pokazywana przy meczu
 

@@ -149,7 +149,7 @@ track counts matches in the order they were played, whichever order they were up
 
 **Season standings**:
 The ranking of players on a season's rating track. Standings of an ended season can still change when
-one of its matches is uploaded late.
+one of its matches is uploaded late or removed.
 _Avoid_: Season final rating, final standings
 
 **Streak**:

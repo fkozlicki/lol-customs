@@ -167,8 +167,8 @@ export const playersRouter = createTRPCRouter({
         .map((row) => ({
           seasonId: row.ladder_season_id,
           rating: row.rating_after,
-          wins: row.wins ?? 0,
-          losses: row.losses ?? 0,
+          wins: row.wins,
+          losses: row.losses,
         }))
         .sort((a, b) => a.seasonId - b.seasonId);
     }),

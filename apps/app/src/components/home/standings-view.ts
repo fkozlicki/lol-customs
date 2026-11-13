@@ -9,17 +9,17 @@ import { withSeason } from "@/utils/season";
  */
 export interface StandingsSource {
   puuid: string;
-  rating: number | null;
-  wins: number | null;
-  losses: number | null;
+  rating: number;
+  wins: number;
+  losses: number;
   avg_kills: number | null;
   avg_deaths: number | null;
   avg_assists: number | null;
-  mvp_games: number | null;
-  ace_games: number | null;
-  win_streak: number | null;
-  lose_streak: number | null;
-  best_streak: number | null;
+  mvp_games: number;
+  ace_games: number;
+  win_streak: number;
+  lose_streak: number;
+  best_streak: number;
   matches_played: number;
   qualified: boolean;
   position: number | null;
@@ -38,8 +38,8 @@ export function toStandingsRowView(
   row: StandingsSource,
   { season }: { season: string | null },
 ): StandingsRowView {
-  const wins = row.wins ?? 0;
-  const losses = row.losses ?? 0;
+  const wins = row.wins;
+  const losses = row.losses;
 
   return {
     key: row.puuid,
@@ -51,14 +51,14 @@ export function toStandingsRowView(
     iconId: row.player?.profile_icon ?? null,
     position: row.qualified ? (row.position ?? null) : null,
     matchesPlayed: row.matches_played,
-    rating: Math.round(row.rating ?? 0),
+    rating: Math.round(row.rating),
     wins,
     losses,
     winrate: formatWinrate(wins, losses),
     kdaRatio: formatKdaRatio(row.avg_kills, row.avg_deaths, row.avg_assists),
     kda: formatKda(row.avg_kills, row.avg_deaths, row.avg_assists),
-    mvpGames: row.mvp_games ?? 0,
-    aceGames: row.ace_games ?? 0,
+    mvpGames: row.mvp_games,
+    aceGames: row.ace_games,
     winStreak: row.win_streak,
     loseStreak: row.lose_streak,
     bestStreak: row.best_streak,
