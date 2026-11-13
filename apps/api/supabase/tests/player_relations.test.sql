@@ -55,11 +55,29 @@ select tests.seed_rel_match(9920000005, '2020-02-05T12:00:00Z', array[1,2,6,7,8,
 select tests.seed_rel_match(9920000006, '2020-02-06T12:00:00Z', array[1,6,7,8,9, 2,3,4,5,10], true);
 select tests.seed_rel_match(9920000007, '2020-02-07T12:00:00Z', array[1,6,7,8,11, 2,3,4,5,12], false);
 
-insert into public.match_kills (match_id, killer_participant_id, victim_participant_id) values
-  (9920000001, 1, 6), (9920000001, 1, 6),                       -- 01 kills 06 twice
-  (9920000002, 7, 1), (9920000002, 7, 1), (9920000002, 7, 1),   -- 07 kills 01 three times
-  (9920000007, 1, 10), (9920000007, 1, 10), (9920000007, 1, 10),
-  (9920000007, 1, 10), (9920000007, 1, 10);                     -- 01 kills unqualified 12 five times
+-- A timeline whose first frame holds p_count kills of p_victim by p_killer. A second frame holds an
+-- execution of p_killer (killerId 0) and a non-kill event, neither of which counts.
+create function tests.set_rel_kills(p_match_id bigint, p_killer integer, p_victim integer, p_count integer)
+returns void
+language sql
+as $$
+  update public.matches
+  set timeline_json = jsonb_build_object('frames', jsonb_build_array(
+    jsonb_build_object('events', (
+      select jsonb_agg(jsonb_build_object('type', 'CHAMPION_KILL', 'killerId', p_killer, 'victimId', p_victim))
+      from generate_series(1, p_count)
+    )),
+    jsonb_build_object('events', jsonb_build_array(
+      jsonb_build_object('type', 'CHAMPION_KILL', 'killerId', 0, 'victimId', p_killer),
+      jsonb_build_object('type', 'WARD_PLACED', 'creatorId', p_killer)
+    ))
+  ))
+  where match_id = p_match_id;
+$$;
+
+select tests.set_rel_kills(9920000001, 1, 6, 2);    -- 01 kills 06 twice
+select tests.set_rel_kills(9920000002, 7, 1, 3);    -- 07 kills 01 three times
+select tests.set_rel_kills(9920000007, 1, 10, 5);   -- 01 kills unqualified 12 five times
 
 -- Season 2: one match, so nobody is qualified on that track yet.
 select tests.seed_rel_match(9920000008, now(), array[1,2,3,4,5, 6,7,8,9,10], true);
