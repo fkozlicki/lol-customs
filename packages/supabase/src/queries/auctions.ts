@@ -164,7 +164,7 @@ export async function listActiveAuctions(
 }
 
 /** The pool with each player's latest ladder rank; players outside the ladder are unranked. */
-export async function rankPool(
+export async function withLatestRanks(
   client: Client,
   pool: { gameName: string; tagLine: string }[],
 ): Promise<AuctionPoolEntry[]> {

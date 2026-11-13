@@ -15,6 +15,12 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 const puuidInput = z.object({ puuid: z.string().min(1) });
 const onTrackInput = puuidInput.extend({ season: seasonInput });
 
+/** The router's input names the track `season`; the queries call it what it is. */
+const onTrack = (input: { puuid: string; season: number }) => ({
+  puuid: input.puuid,
+  track: input.season,
+});
+
 export const playersRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => listPlayers(ctx.supabase)),
 
@@ -30,15 +36,11 @@ export const playersRouter = createTRPCRouter({
 
   profileStats: publicProcedure
     .input(onTrackInput)
-    .query(({ ctx, input }) =>
-      getProfileStats(ctx.supabase, input.puuid, input.season),
-    ),
+    .query(({ ctx, input }) => getProfileStats(ctx.supabase, onTrack(input))),
 
   ratingHistory: publicProcedure
     .input(onTrackInput)
-    .query(({ ctx, input }) =>
-      getRatingHistory(ctx.supabase, input.puuid, input.season),
-    ),
+    .query(({ ctx, input }) => getRatingHistory(ctx.supabase, onTrack(input))),
 
   seasonSummaries: publicProcedure
     .input(puuidInput)
@@ -46,9 +48,7 @@ export const playersRouter = createTRPCRouter({
 
   relations: publicProcedure
     .input(onTrackInput)
-    .query(({ ctx, input }) =>
-      getRelations(ctx.supabase, input.puuid, input.season),
-    ),
+    .query(({ ctx, input }) => getRelations(ctx.supabase, onTrack(input))),
 
   mostPlayedChampions: publicProcedure
     .input(
@@ -57,11 +57,9 @@ export const playersRouter = createTRPCRouter({
       }),
     )
     .query(({ ctx, input }) =>
-      getMostPlayedChampions(
-        ctx.supabase,
-        input.puuid,
-        input.season,
-        input.limit,
-      ),
+      getMostPlayedChampions(ctx.supabase, {
+        ...onTrack(input),
+        limit: input.limit,
+      }),
     ),
 });

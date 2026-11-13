@@ -8,7 +8,7 @@ import {
   auctionRoomSnapshot,
   getAuctionRoom,
   listActiveAuctions,
-  rankPool,
+  withLatestRanks,
 } from "@v1/supabase/queries/auctions";
 import { hasUserProfile } from "@v1/supabase/queries/user-profiles";
 import type { Client } from "@v1/supabase/types";
@@ -222,7 +222,7 @@ export const auctionsRouter = createTRPCRouter({
       await requireProfile(ctx.supabase, ctx.user.id);
       const { data, error } = await ctx.supabase.rpc("auction_create_room", {
         p_request_id: randomUUID(),
-        p_players: await rankPool(ctx.supabase, input.players),
+        p_players: await withLatestRanks(ctx.supabase, input.players),
         p_team_name: input.teamName,
         p_starting_budget: input.budget,
         p_bid_seconds: input.bidSeconds,
@@ -283,7 +283,7 @@ export const auctionsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const players = input.players
-        ? await rankPool(ctx.supabase, input.players)
+        ? await withLatestRanks(ctx.supabase, input.players)
         : null;
       await runAuctionFunction(
         ctx.supabase.rpc("auction_update_lobby", {

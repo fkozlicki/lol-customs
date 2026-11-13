@@ -44,10 +44,7 @@ export async function countTrackMatches(client: Client, track: number) {
   }
   const { count, error } = await query;
   if (error) throw error;
-
-  const n = count ?? 0;
-  if (!Number.isFinite(n) || n < 0) return 0;
-  return Math.min(n, 100_000);
+  return Math.min(count ?? 0, 100_000);
 }
 
 /**
@@ -118,13 +115,13 @@ export async function getHallOfFame(client: Client, track: number) {
   });
   if (error) throw error;
 
-  const player = await playerRefs(
+  const refFor = await playerRefs(
     client,
     rows.map((row) => row.puuid),
   );
   const titles = new Map<string, { player: PlayerRef; value: number }[]>();
   for (const row of rows) {
-    const entry = { player: player(row.puuid), value: Number(row.value) };
+    const entry = { player: refFor(row.puuid), value: Number(row.value) };
     titles.set(row.title, [...(titles.get(row.title) ?? []), entry]);
   }
   return Object.fromEntries(titles);

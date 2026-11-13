@@ -10,6 +10,9 @@ export type PlayerRef = {
   profile_icon: number | null;
 };
 
+/** One player on one rating track (a season id, or 0 for all time). */
+export type PlayerOnTrack = { puuid: string; track: number };
+
 /** Names for the given players, keyed by puuid. A puuid with no `players` row gets a nameless ref. */
 export async function playerRefs(
   client: Client,
@@ -94,8 +97,7 @@ export async function findPlayerByRiotId(
 /** A player's rating on one track, with their name and standings position; null if never rated. */
 export async function getProfileStats(
   client: Client,
-  puuid: string,
-  track: number,
+  { puuid, track }: PlayerOnTrack,
 ) {
   const { data, error } = await client
     .from("ratings")
@@ -120,8 +122,7 @@ export async function getProfileStats(
 /** A player's rating after each match on one track, oldest first. */
 export async function getRatingHistory(
   client: Client,
-  puuid: string,
-  track: number,
+  { puuid, track }: PlayerOnTrack,
 ) {
   const { data, error } = await client
     .from("rating_history")
@@ -134,7 +135,7 @@ export async function getRatingHistory(
   return data;
 }
 
-/** Final standing per season (last rating snapshot in that season), oldest season first. */
+/** A player's rating and record at the end of each season they played, oldest season first. */
 export async function getSeasonSummaries(client: Client, puuid: string) {
   const { data, error } = await client
     .from("rating_history")
@@ -165,8 +166,7 @@ export async function getSeasonSummaries(client: Client, puuid: string) {
 /** Teammates and rivals on a rating track; only qualified players are named. */
 export async function getRelations(
   client: Client,
-  puuid: string,
-  track: number,
+  { puuid, track }: PlayerOnTrack,
 ) {
   const { data: rows, error } = await client.rpc("player_relations", {
     p_puuid: puuid,
@@ -174,7 +174,7 @@ export async function getRelations(
   });
   if (error) throw error;
 
-  const player = await playerRefs(
+  const refFor = await playerRefs(
     client,
     rows.map((row) => row.other_puuid),
   );
@@ -182,7 +182,7 @@ export async function getRelations(
     const row = rows.find((r) => r.relation === name);
     if (!row) return null;
     return {
-      player: player(row.other_puuid),
+      player: refFor(row.other_puuid),
       matches: row.matches,
       wins: row.wins,
       losses: row.losses,
@@ -215,9 +215,7 @@ export async function getRelations(
 /** A player's champions on one track by games played, with wins and total KDA. */
 export async function getMostPlayedChampions(
   client: Client,
-  puuid: string,
-  track: number,
-  limit: number,
+  { puuid, track, limit }: PlayerOnTrack & { limit: number },
 ) {
   let query = client
     .from("match_participants")
