@@ -1,8 +1,6 @@
 import "server-only";
-import { isAllTime } from "@v1/domain/season";
 import { withStandingsPositions } from "@v1/domain/standings";
 import type { Client, Database } from "../types";
-import { type PlayerRef, playerRef } from "./players";
 
 type LeaderboardAtRow =
   Database["public"]["Functions"]["leaderboard_at"]["Returns"][number];
@@ -34,19 +32,6 @@ function toStandingsRow(row: LeaderboardAtRow) {
   };
 }
 
-/** Matches on a rating track, capped at 100 000; drives the "after N matches" picker. */
-export async function countTrackMatches(client: Client, track: number) {
-  let query = client
-    .from("matches")
-    .select("*", { count: "exact", head: true });
-  if (!isAllTime(track)) {
-    query = query.eq("ladder_season_id", track);
-  }
-  const { count, error } = await query;
-  if (error) throw error;
-  return Math.min(count ?? 0, 100_000);
-}
-
 /**
  * The standings of one rating track, live or as they stood right after its Nth match.
  *
@@ -72,22 +57,4 @@ export async function getStandings(
   if (error) throw error;
 
   return withStandingsPositions(data.map(toStandingsRow));
-}
-
-/** The Hall of Fame of one rating track: each title's holders, with the value that earned it. */
-export async function getHallOfFame(client: Client, track: number) {
-  const { data: rows, error } = await client.rpc("hall_of_fame", {
-    p_track: track,
-  });
-  if (error) throw error;
-
-  const titles = new Map<string, { player: PlayerRef; value: number }[]>();
-  for (const row of rows) {
-    const entry = {
-      player: playerRef(row.puuid, row),
-      value: Number(row.value),
-    };
-    titles.set(row.title, [...(titles.get(row.title) ?? []), entry]);
-  }
-  return Object.fromEntries(titles);
 }

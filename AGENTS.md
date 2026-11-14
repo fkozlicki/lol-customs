@@ -106,12 +106,14 @@ mirroring its folders; `src/` holds no test code.
   the request's client, so RLS runs as the user, imports `server-only`, and throws a database error
   as it is (`if (error) throw error;`) for the API to map. An aggregate or join that would fetch
   whole tables belongs in SQL, as a function or view with a pgTAP test, which the query calls.
-- Database JSON gets its TypeScript type in one of two ways. JSON SQL builds and the app reads back
-  (the auction snapshot) is a Zod schema in its query module, parsed on the way out. A `jsonb` column
-  the app or its functions write gets a JSON Schema check in a migration and its type through
-  `MergeDeep` in `packages/supabase/src/types/index.ts`, as do generated columns and `RETURNS TABLE`
-  columns the generator types wrongly; `db.ts` stays as generated. Riot's JSON keeps the generated
-  `Json` type.
+- Database JSON gets its shape in two places that change together. A `jsonb` column the app or its
+  functions write has a JSON Schema check in a migration and a Zod schema in
+  `packages/supabase/src/types/json.ts`, which is also its TypeScript type. Where the app reads or
+  writes such a column through PostgREST (forum `content`), `MergeDeep` in
+  `packages/supabase/src/types/index.ts` puts that type on the column, as it corrects generated
+  columns and `RETURNS TABLE` columns the generator types wrongly; `db.ts` stays as generated. JSON
+  that SQL builds and returns (the auction snapshot) is a Zod schema in its query module, parsed on
+  the way out. Riot's JSON keeps the generated `Json` type.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
   `useSuspenseQuery` inside a Suspense boundary with a skeleton. Where a block has an error recipe, the
   page wraps it in `QueryBoundary` (skeleton + error), and the recipe's `action` slot gets

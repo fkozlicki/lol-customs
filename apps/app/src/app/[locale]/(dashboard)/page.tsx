@@ -2,7 +2,7 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { maxHistoricallyAfterMatches } from "@/components/home/leaderboard-after-matches";
+import { maxHistoricallyAfterMatches } from "@/components/home/standings-after-matches";
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
 import { Leaderboard } from "@/components/home/leaderboard-preview";
 import { QueryBoundary } from "@/components/query-boundary";
@@ -26,12 +26,12 @@ export default async function DashboardHomePage({
       : t("label", { number: seasonNumber(season, seasons) ?? season });
 
   const queryClient = getQueryClient();
-  const trackMatches = await queryClient.fetchQuery(
+  const matchCount = await queryClient.fetchQuery(
     trpc.matches.count.queryOptions({ season }),
   );
 
   const parsedAfter = Number(after);
-  const maxAfter = maxHistoricallyAfterMatches(trackMatches);
+  const maxAfter = maxHistoricallyAfterMatches(matchCount);
   const afterMatches =
     typeof after === "string" &&
     after !== "" &&
@@ -61,9 +61,7 @@ export default async function DashboardHomePage({
             seasonTitle={seasonTitle}
             limit={50}
             after={afterMatches}
-            historyPicker={
-              <LeaderboardHistoryPicker trackMatches={trackMatches} />
-            }
+            historyPicker={<LeaderboardHistoryPicker matchCount={matchCount} />}
           />
         </QueryBoundary>
       </PageShell>

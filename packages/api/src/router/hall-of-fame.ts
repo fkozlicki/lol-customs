@@ -1,4 +1,4 @@
-import { getHallOfFame } from "@v1/supabase/queries/standings";
+import { getHallOfFame } from "@v1/supabase/queries/hall-of-fame";
 import { z } from "zod";
 import { seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";

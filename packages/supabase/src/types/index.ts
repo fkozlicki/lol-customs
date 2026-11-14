@@ -43,9 +43,9 @@ type PlayerNameColumns = {
  * - functions returning a table admit the nulls their left joins produce;
  * - `auction_update_lobby` takes null for every setting it leaves as it is.
  *
- * `db.ts` stays exactly as `bun generate:types` writes it. The auction JSON columns are only written
- * and read in SQL; the JSON the auction functions return is checked at runtime by
- * `queries/auctions.ts`.
+ * `db.ts` stays exactly as `bun generate:types` writes it. The auction JSON columns are written through
+ * the auction functions and read only through the snapshot they build, whose JSON
+ * `queries/auctions.ts` checks at runtime; they need no override here.
  */
 export type Database = MergeDeep<
   GeneratedDatabase,

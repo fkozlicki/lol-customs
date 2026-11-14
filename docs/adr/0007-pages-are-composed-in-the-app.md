@@ -94,5 +94,5 @@ and `PageHeader` together in `page.tsx` and suspend a container under a skeleton
   (its pool editor is `AuctionPoolEditor`), and the profile page lays out the season overview.
   `AuctionStage`, `UpcomingOrder`, `AuctionCompletedBanner`, `LobbyTeam` and `LobbyPool` got stories of
   their own. `PlayerProfileLayout` stays a recipe: a layout of slots, not a pass-through of props.
-- Known gap: the home page awaits `fetchQuery(ladderRatedMatchCount)` and the player profile awaits
+- Known gap: the home page awaits `fetchQuery(matches.count)` and the player profile awaits
   `fetchQuery(profileStats)`. Both throw past every boundary to `global-error` when they fail.

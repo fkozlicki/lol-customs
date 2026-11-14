@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
-import { maxHistoricallyAfterMatches } from "./leaderboard-after-matches";
+import { maxHistoricallyAfterMatches } from "./standings-after-matches";
 import { toStandingsRowView } from "./standings-view";
 
 interface LeaderboardProps {
@@ -40,14 +40,14 @@ export function Leaderboard({
 }: LeaderboardProps) {
   const trpc = useTRPC();
   const seasonParam = useSeasonParam();
-  const { data: trackMatches = 0 } = useSuspenseQuery(
+  const { data: matchCount = 0 } = useSuspenseQuery(
     trpc.matches.count.queryOptions({ season }),
   );
   const { data: leaderboard } = useSuspenseQuery(
     trpc.standings.get.queryOptions({
       season,
       limit,
-      afterMatches: parseAfterMatches(trackMatches, after),
+      afterMatches: parseAfterMatches(matchCount, after),
     }),
   );
 
