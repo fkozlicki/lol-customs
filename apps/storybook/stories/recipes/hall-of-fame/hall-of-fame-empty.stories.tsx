@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { HallOfFameEmpty } from "@v1/ui/recipes/hof/hall-of-fame-empty";
+import { HallOfFameEmpty } from "@v1/ui/recipes/hall-of-fame/hall-of-fame-empty";
 
 const meta = {
   title: "Hall of Fame/Empty",

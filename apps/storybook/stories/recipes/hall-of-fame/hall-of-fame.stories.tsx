@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { HallOfFame } from "@v1/ui/recipes/hof/hall-of-fame";
-import { HALL_OF_FAME } from "./hof.fixtures";
+import { HallOfFame } from "@v1/ui/recipes/hall-of-fame/hall-of-fame";
+import { HALL_OF_FAME } from "./hall-of-fame.fixtures";
 
 const meta = {
   title: "Hall of Fame/Hall of Fame",

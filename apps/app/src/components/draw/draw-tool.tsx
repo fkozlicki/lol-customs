@@ -1,11 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  buildRandomTeams,
-  type RandomTeamsResult,
-  ROSTER_SIZE,
-} from "@v1/domain/shuffle";
+import { type DrawResult, drawTeams, ROSTER_SIZE } from "@v1/domain/draw";
 import { Button } from "@v1/ui/button";
 import { Icons } from "@v1/ui/icons";
 import { DrawnTeam } from "@v1/ui/recipes/draw/drawn-team";
@@ -22,10 +18,10 @@ import { toDrawnTeamView } from "./draw-view";
  * sides, roles and captains included. The teams show on top; the roster and the ways to fill it below.
  */
 export function DrawTool() {
-  const t = useTranslations("dashboard.pages.shuffle");
+  const t = useTranslations("dashboard.pages.draw");
   const trpc = useTRPC();
   const { data: ladder } = useSuspenseQuery(trpc.players.all.queryOptions());
-  const [teams, setTeams] = useState<RandomTeamsResult | null>(null);
+  const [teams, setTeams] = useState<DrawResult | null>(null);
   const roster = usePlayerPicker({
     ladder,
     size: ROSTER_SIZE,
@@ -54,17 +50,14 @@ export function DrawTool() {
         <Button
           type="button"
           disabled={!roster.full}
-          onClick={() => setTeams(buildRandomTeams(roster.picked))}
+          onClick={() => setTeams(drawTeams(roster.picked))}
         >
-          <Icons.Shuffle className="size-4" />
+          <Icons.Draw className="size-4" />
           {teams ? t("reroll") : t("generate")}
         </Button>
       </div>
 
-      <PlayerPoolPicker
-        picker={roster}
-        words="dashboard.pages.shuffle.picker"
-      />
+      <PlayerPoolPicker picker={roster} words="dashboard.pages.draw.picker" />
     </div>
   );
 }

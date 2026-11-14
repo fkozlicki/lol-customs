@@ -10,7 +10,11 @@ import MatchParticipantWards from "./match-participant-wards";
 import type { ParticipantView } from "./match-view";
 
 /** One scoreboard row, tinted with its side's result. */
-export function TeamRow({ participant }: { participant: ParticipantView }) {
+export function ParticipantRow({
+  participant,
+}: {
+  participant: ParticipantView;
+}) {
   return (
     <TableRow
       className={cn(

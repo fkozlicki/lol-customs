@@ -61,7 +61,7 @@ describe("rank crests", () => {
 });
 
 describe("role icons", () => {
-  test("are served from the app, by the role the shuffle assigns", () => {
+  test("are served from the app, by the role the draw assigns", () => {
     expect(positionRoleIconUrl("TOP")).toBe("/game/roles/top.png");
     expect(positionRoleIconUrl("ADC")).toBe("/game/roles/bottom.png");
     expect(positionRoleIconUrl("SUPPORT")).toBe("/game/roles/utility.png");

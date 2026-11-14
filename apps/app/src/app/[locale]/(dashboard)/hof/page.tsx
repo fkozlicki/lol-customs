@@ -1,9 +1,9 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
-import { HallOfFameSkeleton } from "@v1/ui/recipes/hof/hall-of-fame-skeleton";
+import { HallOfFameSkeleton } from "@v1/ui/recipes/hall-of-fame/hall-of-fame-skeleton";
 import { PageHeader } from "@v1/ui/recipes/page-header";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { HallOfFame } from "@/components/hof/hall-of-fame";
+import { HallOfFame } from "@/components/hall-of-fame/hall-of-fame";
 import { QueryBoundary } from "@/components/query-boundary";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";

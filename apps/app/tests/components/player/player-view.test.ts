@@ -93,7 +93,14 @@ describe("season summaries", () => {
 describe("most played champions", () => {
   test("count losses as the matches not won, and the KDA per match", () => {
     const [view] = toChampionStatViews([
-      { championId: 904, games: 4, wins: 3, kills: 20, deaths: 8, assists: 12 },
+      {
+        championId: 904,
+        matches: 4,
+        wins: 3,
+        kills: 20,
+        deaths: 8,
+        assists: 12,
+      },
     ] as unknown as Parameters<typeof toChampionStatViews>[0]);
     expect(view).toEqual({
       championId: 904,
@@ -114,13 +121,15 @@ describe("rating history", () => {
   ] as unknown as Parameters<typeof toRatingPoints>[0];
 
   test("numbers the points from one, in order", () => {
-    expect(toRatingPoints(history).map((point) => point.index)).toEqual([
-      1, 2, 3,
-    ]);
+    expect(toRatingPoints(history, String).map((point) => point.index)).toEqual(
+      [1, 2, 3],
+    );
   });
 
   test("names a point without a date by its place", () => {
-    expect(toRatingPoints(history)[2]?.label).toBe("Game 3");
+    expect(toRatingPoints(history, (n) => `Match ${n}`)[2]?.label).toBe(
+      "Match 3",
+    );
   });
 
   test("marks where a season began, after the first match only", () => {

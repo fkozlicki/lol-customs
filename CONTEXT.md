@@ -61,8 +61,7 @@ _Avoid_: Build, build order
 
 **Auction**:
 Building two teams by letting two captains buy the players of a pool, each with the same budget. Like a
-draw, an auction produces teams, not a match.
-_Avoid_: Bidding room, live auction
+draw, an auction produces teams, not a match. It happens in a room.
 
 **Captain**:
 The person who leads a team. In a draw, one of the team's five players picked at random; in an auction, a
@@ -71,6 +70,15 @@ signed-in user who buys the other four and is known only by their profile.
 **Lobby**:
 An auction before it starts, while its captains join and get ready. A person captains at most one
 lobby: entering another releases the first, and an idle lobby expires.
+
+**Live auction**:
+An auction after its lobby, while its rounds are played, until the pool is sold or the auction is
+cancelled.
+_Avoid_: Active auction, running auction
+
+**Room**:
+The place one auction happens in, from its lobby to its result, reached by a link anyone can open.
+_Avoid_: Bidding room
 
 **Pool**:
 The eight players an auction sells. Captains are never in the pool.

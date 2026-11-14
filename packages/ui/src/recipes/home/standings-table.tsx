@@ -7,7 +7,7 @@ import StandingsRow from "./standings-row";
 import type { StandingsRowView } from "./standings-view";
 
 interface StandingsTableProps {
-  /** The standings in order: ranked players, then those still qualifying. */
+  /** The standings in order: qualified players, then those still qualifying. */
   rows: StandingsRowView[];
   qualificationMatches: number;
 }

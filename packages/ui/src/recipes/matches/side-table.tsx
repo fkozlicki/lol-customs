@@ -10,10 +10,10 @@ import {
 } from "../../components/table";
 import { cn } from "../../utils/cn";
 import type { SideView } from "./match-view";
-import { TeamRow } from "./team-row";
+import { ParticipantRow } from "./participant-row";
 
 /** One side's scoreboard; the header carries the result in its colour. */
-export default function TeamTable({ team }: { team: SideView }) {
+export default function SideTable({ side }: { side: SideView }) {
   const t = useTranslations("match");
 
   return (
@@ -31,12 +31,12 @@ export default function TeamTable({ team }: { team: SideView }) {
         <TableRow className="hover:bg-transparent">
           <TableHead>
             <span
-              className={cn("label-caps", team.won ? "text-win" : "text-loss")}
+              className={cn("label-caps", side.won ? "text-win" : "text-loss")}
             >
-              {team.won ? t("victory") : t("defeat")}
+              {side.won ? t("victory") : t("defeat")}
             </span>{" "}
             <span className="label-caps">
-              · {team.side === "blue" ? t("sideBlue") : t("sideRed")}
+              · {side.side === "blue" ? t("sideBlue") : t("sideRed")}
             </span>
           </TableHead>
           <TableHead className="label-caps text-center">
@@ -52,8 +52,8 @@ export default function TeamTable({ team }: { team: SideView }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {team.participants.map((p) => (
-          <TeamRow key={p.key} participant={p} />
+        {side.participants.map((p) => (
+          <ParticipantRow key={p.key} participant={p} />
         ))}
       </TableBody>
     </Table>

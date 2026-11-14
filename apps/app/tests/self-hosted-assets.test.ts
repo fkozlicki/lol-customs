@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { TEAM_ROLES } from "@v1/domain/shuffle";
+import { TEAM_ROLES } from "@v1/domain/draw";
 import {
   positionRoleIconUrl,
   rankCrestUrl,

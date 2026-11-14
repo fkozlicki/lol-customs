@@ -6,8 +6,8 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
+import type { RosterPlayer } from "@v1/domain/draw";
 import { riotIdKey } from "@v1/domain/riot-id";
-import type { RosterPlayer } from "@v1/domain/shuffle";
 import { Button } from "@v1/ui/button";
 import { Icons } from "@v1/ui/icons";
 import { AuctionRules } from "@v1/ui/recipes/auctions/auction-rules";

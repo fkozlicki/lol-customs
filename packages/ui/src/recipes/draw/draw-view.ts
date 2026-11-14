@@ -3,7 +3,7 @@ import type { PickablePlayerView } from "../player-picker/pickable-player-view";
 
 /**
  * A draw as its recipes draw it. The app makes these from the ladder's players and
- * `@v1/domain/shuffle`'s result (apps/app/src/components/draw/draw-view.ts).
+ * `@v1/domain/draw`'s result (apps/app/src/components/draw/draw-view.ts).
  */
 
 /** A player on the roster, or on the ladder waiting to be picked. */

@@ -5,7 +5,7 @@ import { Icons } from "../../components/icons";
 import { cn } from "../../utils/cn";
 import { MatchHighlights } from "./match-highlights";
 import { MatchMetadata } from "./match-metadata";
-import MatchTeam from "./match-team";
+import MatchSide from "./match-side";
 import type { MatchCardView } from "./match-view";
 import { PlayerMetadata } from "./player-metadata";
 
@@ -43,8 +43,8 @@ export default function MatchCard({
         )}
 
         <div className="hidden shrink-0 items-center gap-4 lg:flex">
-          <MatchTeam team={match.blue} playerKey={player?.key} />
-          <MatchTeam team={match.red} playerKey={player?.key} />
+          <MatchSide side={match.blue} playerKey={player?.key} />
+          <MatchSide side={match.red} playerKey={player?.key} />
         </div>
       </div>
 

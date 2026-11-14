@@ -51,7 +51,7 @@
     "./recipes/dashboard/nav-item": "./src/recipes/dashboard/nav-item.ts",
     "./recipes/draw/draw-view": "./src/recipes/draw/draw-view.ts",
     "./recipes/forum/post-view": "./src/recipes/forum/post-view.ts",
-    "./recipes/hof/hall-of-fame-view": "./src/recipes/hof/hall-of-fame-view.ts",
+    "./recipes/hall-of-fame/hall-of-fame-view": "./src/recipes/hall-of-fame/hall-of-fame-view.ts",
     "./recipes/home/standings-view": "./src/recipes/home/standings-view.ts",
     "./recipes/matches/match-view": "./src/recipes/matches/match-view.ts",
     "./recipes/messages": "./src/recipes/messages/index.ts",

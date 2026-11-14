@@ -1,7 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { HallOfFame as HallOfFameView } from "@v1/ui/recipes/hof/hall-of-fame";
+import { HallOfFame as HallOfFameView } from "@v1/ui/recipes/hall-of-fame/hall-of-fame";
 import { useLocale, useTranslations } from "next-intl";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";

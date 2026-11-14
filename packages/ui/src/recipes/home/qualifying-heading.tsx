@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-/** The row that splits the ranked players from those still qualifying, and says when they join. */
+/** The row that splits the qualified players from those still qualifying, and says when they join. */
 export function QualifyingHeading({
   qualificationMatches,
 }: {

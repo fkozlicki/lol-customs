@@ -64,3 +64,18 @@ describe("locale", () => {
     expect(rewrite(response)).toBe("https://derby.test/en");
   });
 });
+
+describe("moved pages", () => {
+  test("an old link lands on the page's new path, in its locale", () => {
+    for (const [from, to] of [
+      ["/shuffle", "/draw"],
+      ["/pl/shuffle", "/pl/draw"],
+      ["/duos", "/"],
+      ["/pl/duos", "/pl"],
+    ] as const) {
+      const response = proxy(request(from));
+      expect(response.status).toBe(308);
+      expect(response.headers.get("location")).toBe(`https://derby.test${to}`);
+    }
+  });
+});

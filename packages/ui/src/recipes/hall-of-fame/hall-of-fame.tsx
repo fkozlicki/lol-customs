@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { HallOfFameSection } from "./hall-of-fame-section";
 import type { HallOfFameView } from "./hall-of-fame-view";
-import { HofSection } from "./hof-section";
 import { TitleCollectors } from "./title-collectors";
 
 /** Every title on the track, by section, after who collects the most of them. */
@@ -34,7 +34,7 @@ export function HallOfFame({ hallOfFame }: { hallOfFame: HallOfFameView }) {
       </div>
 
       {sections.map((section) => (
-        <HofSection key={section.id} section={section} />
+        <HallOfFameSection key={section.id} section={section} />
       ))}
     </div>
   );

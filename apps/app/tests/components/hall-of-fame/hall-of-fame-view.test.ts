@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   hasTitleHolders,
   toHallOfFameView,
-} from "@/components/hof/hall-of-fame-view";
+} from "@/components/hall-of-fame/hall-of-fame-view";
 
 type Data = Parameters<typeof toHallOfFameView>[0];
 

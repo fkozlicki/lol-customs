@@ -28,7 +28,7 @@ export default {
       standings: "Ranking",
       matchHistory: "Mecze",
       hallOfFame: "Sławy",
-      shuffle: "Losuj",
+      draw: "Losuj",
       auctions: "Aukcje",
       posts: "Forum",
     },
@@ -37,11 +37,15 @@ export default {
       allTime: "Wszystkie sezony",
     },
     pages: {
+      player: {
+        /** A point on the rating chart whose date is unknown, by its place. */
+        matchNumber: "Mecz {number}",
+      },
       matchHistory: {
         title: "Mecze",
         description: "Wszystkie mecze ladderu, od najnowszych.",
       },
-      shuffle: {
+      draw: {
         title: "Losuj",
         description:
           "Wybierz dziesięciu graczy i losuj drużyny. Strony, role i kapitanowie są losowe.",
@@ -66,7 +70,7 @@ export default {
       auctions: {
         title: "Aukcje live",
         description:
-          "Ułóż dwa pięcioosobowe składy w publicznym pokoju z czasem kontrolowanym przez serwer.",
+          "Dwóch kapitanów kupuje pięcioosobowe drużyny w publicznym pokoju, na czas pilnowany przez serwer.",
         create: "Utwórz aukcję",
         cancel: "Anuluj aukcję",
         creator: {

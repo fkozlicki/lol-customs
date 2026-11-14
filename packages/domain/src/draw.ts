@@ -12,20 +12,20 @@ export interface RosterPlayer {
   rankDivision: string | null;
 }
 
-export interface RandomTeamsTeamPlayer extends RosterPlayer {
+export interface DrawnPlayer extends RosterPlayer {
   role: string;
   isCaptain: boolean;
 }
 
-export interface RandomTeamsTeam {
+export interface DrawnTeam {
   avgRankLabel: string;
   avgRankTier: string | null;
-  players: RandomTeamsTeamPlayer[];
+  players: DrawnPlayer[];
 }
 
-export interface RandomTeamsResult {
-  teamA: RandomTeamsTeam;
-  teamB: RandomTeamsTeam;
+export interface DrawResult {
+  teamA: DrawnTeam;
+  teamB: DrawnTeam;
 }
 
 function shuffleArray<T>(items: readonly T[]): T[] {
@@ -44,7 +44,7 @@ export const ROSTER_SIZE = 10;
 const TEAM_SIZE = ROSTER_SIZE / 2;
 
 /** Plain draw: sides, roles and captains are random, nothing is balanced. */
-export function buildRandomTeams(roster: RosterPlayer[]): RandomTeamsResult {
+export function drawTeams(roster: RosterPlayer[]): DrawResult {
   if (roster.length !== ROSTER_SIZE) {
     throw new Error(
       `A draw needs exactly ${ROSTER_SIZE} players, got ${roster.length}.`,
@@ -53,7 +53,7 @@ export function buildRandomTeams(roster: RosterPlayer[]): RandomTeamsResult {
 
   const shuffled = shuffleArray(roster);
 
-  const buildTeam = (members: RosterPlayer[]): RandomTeamsTeam => {
+  const buildTeam = (members: RosterPlayer[]): DrawnTeam => {
     const roles = shuffleArray(TEAM_ROLES);
     const captainIndex = Math.floor(Math.random() * members.length);
     const players = members

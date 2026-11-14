@@ -199,7 +199,7 @@ export async function getMostPlayedChampions(
 
   return data.map((row) => ({
     championId: row.champion_id,
-    games: row.matches,
+    matches: row.matches,
     wins: row.wins,
     kills: row.kills,
     deaths: row.deaths,

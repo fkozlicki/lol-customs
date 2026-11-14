@@ -178,7 +178,7 @@ export default {
     terminal: {
       completedTitle: "Rosters complete",
       completedDescription:
-        "Final squads, prices, and remaining budgets are shown below.",
+        "Final teams, prices, and remaining budgets are shown below.",
       cancelledTitle: "Auction cancelled",
       cancelledDescription:
         "The creator closed this room. No final rosters are available.",

@@ -63,7 +63,6 @@ export const Icons = {
   Monitor,
   Moon,
   PenSquare,
-  Shuffle,
   Square,
   Sun,
   ThumbsDown,
@@ -78,6 +77,8 @@ export const Icons = {
   /** Hall of Fame. */
   HallOfFame: Crown,
   Auction: Gavel,
+  /** A Draw. */
+  Draw: Shuffle,
   /** The captain of a Team in an auction. */
   Captain: Crown,
   /** Overflow in the mobile navigation. */

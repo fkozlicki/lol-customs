@@ -2,8 +2,8 @@
 
 import { MatchStats } from "./match-stats";
 import type { MatchCardView } from "./match-view";
-import { TeamObjectives } from "./team-objectives";
-import TeamTable from "./team-table";
+import { SideObjectives } from "./side-objectives";
+import SideTable from "./side-table";
 
 /**
  * The scoreboard under an expanded card: both sides, and between them the objectives and the kill
@@ -14,18 +14,18 @@ export default function MatchDetails({ match }: { match: MatchCardView }) {
 
   return (
     <div className="border border-t-0 bg-card">
-      <TeamTable team={blue} />
+      <SideTable side={blue} />
       <div className="flex flex-col gap-4 border-y px-4 py-3 sm:flex-row sm:items-center">
-        <TeamObjectives {...blue.objectives} teamName="blue" />
+        <SideObjectives {...blue.objectives} side="blue" />
         <MatchStats
           blueKills={blue.kills}
           redKills={red.kills}
           blueGold={blue.gold}
           redGold={red.gold}
         />
-        <TeamObjectives {...red.objectives} teamName="red" align="right" />
+        <SideObjectives {...red.objectives} side="red" align="right" />
       </div>
-      <TeamTable team={red} />
+      <SideTable side={red} />
     </div>
   );
 }

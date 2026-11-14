@@ -4,8 +4,8 @@ import { useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn } from "../../utils/cn";
 import { ProfileIcon } from "../game-assets/profile-icon";
+import { HallOfFamePlayerLink } from "./hall-of-fame-player-link";
 import type { TitleView } from "./hall-of-fame-view";
-import { HofPlayerLink } from "./hof-player-link";
 
 interface TitleCellProps {
   title: TitleView;
@@ -52,7 +52,7 @@ export function TitleCell({ title, className }: TitleCellProps) {
               ))}
             </div>
             <span className="min-w-0 truncate text-sm font-medium sm:hidden">
-              <HofPlayerLink player={holder} />
+              <HallOfFamePlayerLink player={holder} />
               {title.holders.length > 1 && (
                 <span className="num text-muted-foreground">
                   {" "}
@@ -64,7 +64,7 @@ export function TitleCell({ title, className }: TitleCellProps) {
               {title.holders.map((player, index) => (
                 <Fragment key={player.key}>
                   {index > 0 && ", "}
-                  <HofPlayerLink player={player} />
+                  <HallOfFamePlayerLink player={player} />
                 </Fragment>
               ))}
             </span>

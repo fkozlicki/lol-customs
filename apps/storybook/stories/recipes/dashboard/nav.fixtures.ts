@@ -15,7 +15,7 @@ export const PRIMARY: NavItem[] = [
 ];
 
 export const TOOLS: NavItem[] = [
-  { href: "/shuffle", label: "Shuffle", icon: Icons.Shuffle, active: false },
+  { href: "/draw", label: "Draw", icon: Icons.Draw, active: false },
   { href: "/auctions", label: "Auctions", icon: Icons.Auction, active: false },
 ];
 

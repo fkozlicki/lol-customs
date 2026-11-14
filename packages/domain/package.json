@@ -8,7 +8,7 @@
     "./rank": "./src/rank.ts",
     "./riot-id": "./src/riot-id.ts",
     "./season": "./src/season.ts",
-    "./shuffle": "./src/shuffle.ts",
+    "./draw": "./src/draw.ts",
     "./standings": "./src/standings.ts",
     "./stats": "./src/stats.ts"
   },

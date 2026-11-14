@@ -11,13 +11,13 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Gain: Story = {};
+export const Raised: Story = {};
 
-export const Loss: Story = {
+export const Lowered: Story = {
   args: { value: -14 },
 };
 
-/** A draw, or a match that moved nothing: muted, not coloured, because nothing happened. */
+/** A match that moved nothing: muted, not coloured, because nothing happened. */
 export const Zero: Story = {
   args: { value: 0 },
 };

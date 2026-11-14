@@ -5,22 +5,22 @@ import { cn } from "../../utils/cn";
 import { ChampionImage } from "../game-assets/champion-image";
 import type { SideView } from "./match-view";
 
-interface MatchTeamProps {
-  team: SideView;
+interface MatchSideProps {
+  side: SideView;
   /** The profile owner, marked within their side. */
   playerKey?: string;
 }
 
-export default function MatchTeam({ team, playerKey }: MatchTeamProps) {
+export default function MatchSide({ side, playerKey }: MatchSideProps) {
   const t = useTranslations("match");
 
   return (
     <div className="flex w-32 flex-col gap-1">
-      <span className={cn("label-caps", team.won && "text-foreground")}>
-        {team.side === "blue" ? t("sideBlue") : t("sideRed")}
+      <span className={cn("label-caps", side.won && "text-foreground")}>
+        {side.side === "blue" ? t("sideBlue") : t("sideRed")}
       </span>
       <div className="flex flex-col gap-0.5">
-        {team.participants.map((p) => (
+        {side.participants.map((p) => (
           <div key={p.key} className="flex min-w-0 items-center gap-1.5">
             <ChampionImage
               championId={p.championId}

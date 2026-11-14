@@ -1,7 +1,7 @@
 "use client";
 
+import type { RosterPlayer } from "@v1/domain/draw";
 import { parseRiotId, riotIdKey } from "@v1/domain/riot-id";
-import type { RosterPlayer } from "@v1/domain/shuffle";
 import { toast } from "@v1/ui/sonner";
 import { useMemo, useState } from "react";
 import {

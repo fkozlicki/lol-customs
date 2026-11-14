@@ -2,41 +2,41 @@ import type { RouterOutputs } from "@v1/api";
 import { playerHref } from "@v1/domain/riot-id";
 import type {
   CollectorView,
+  HallOfFamePlayerView,
   HallOfFameView,
-  HofPlayerView,
   TitleView,
-} from "@v1/ui/recipes/hof/hall-of-fame-view";
+} from "@v1/ui/recipes/hall-of-fame/hall-of-fame-view";
 import { withSeason } from "@/utils/season";
 import {
-  formatHofValue,
-  HOF_SECTIONS,
-  HOF_TITLES,
-  type HofSectionId,
-  type HofStatId,
-  type HofTitle,
-  type HofTitleId,
-} from "./hof-config";
+  formatHallOfFameValue,
+  HALL_OF_FAME_SECTIONS,
+  HALL_OF_FAME_TITLES,
+  type HallOfFameSectionId,
+  type HallOfFameStatId,
+  type HallOfFameTitle,
+  type HallOfFameTitleId,
+} from "./hall-of-fame-config";
 
 type HallOfFameData = RouterOutputs["hallOfFame"]["get"];
-type HofPlayer = HallOfFameData[string][number]["player"];
+type HallOfFamePlayer = HallOfFameData[string][number]["player"];
 
 /** The catalog's words in the reader's language. */
-export interface HofText {
-  section: (id: HofSectionId) => string;
-  title: (id: HofTitleId) => string;
-  stat: (id: HofStatId) => string;
+export interface HallOfFameText {
+  section: (id: HallOfFameSectionId) => string;
+  title: (id: HallOfFameTitleId) => string;
+  stat: (id: HallOfFameStatId) => string;
 }
 
 interface Options {
   locale: string;
   /** The `?season=` value player links carry. */
   season: string | null;
-  text: HofText;
+  text: HallOfFameText;
 }
 
 /** Whether anybody holds any title on this track; early in a season nobody does. */
 export function hasTitleHolders(data: HallOfFameData): boolean {
-  return HOF_TITLES.some((entry) => (data[entry.id]?.length ?? 0) > 0);
+  return HALL_OF_FAME_TITLES.some((entry) => (data[entry.id]?.length ?? 0) > 0);
 }
 
 /**
@@ -48,14 +48,14 @@ export function toHallOfFameView(
   data: HallOfFameData,
   { locale, season, text }: Options,
 ): HallOfFameView {
-  const player = (p: HofPlayer): HofPlayerView => ({
+  const player = (p: HallOfFamePlayer): HallOfFamePlayerView => ({
     key: p.puuid,
     name: p.game_name ?? p.puuid.slice(0, 8),
     href: withSeason(playerHref(p.game_name, p.tag_line), season),
     iconId: p.profile_icon,
   });
 
-  const title = (entry: HofTitle): TitleView => {
+  const title = (entry: HallOfFameTitle): TitleView => {
     const holders = data[entry.id] ?? [];
     const [holder] = holders;
     return {
@@ -64,13 +64,13 @@ export function toHallOfFameView(
       statLabel: text.stat(entry.stat),
       tone: entry.id === "mvp" ? "mvp" : entry.id === "ace" ? "ace" : null,
       holders: holders.map(({ player: p }) => player(p)),
-      value: holder ? formatHofValue(entry, holder.value, locale) : null,
+      value: holder ? formatHallOfFameValue(entry, holder.value, locale) : null,
     };
   };
 
-  const held = (entry: HofTitle) => (data[entry.id]?.length ?? 0) > 0;
+  const held = (entry: HallOfFameTitle) => (data[entry.id]?.length ?? 0) > 0;
 
-  const sections = HOF_SECTIONS.map((section) => ({
+  const sections = HALL_OF_FAME_SECTIONS.map((section) => ({
     id: section.id,
     name: text.section(section.id),
     pairs: section.pairs.map(
@@ -83,9 +83,9 @@ export function toHallOfFameView(
 
   const counts = new Map<
     string,
-    { player: HofPlayer; best: number; worst: number }
+    { player: HallOfFamePlayer; best: number; worst: number }
   >();
-  for (const entry of HOF_TITLES) {
+  for (const entry of HALL_OF_FAME_TITLES) {
     for (const { player: p } of data[entry.id] ?? []) {
       const count = counts.get(p.puuid) ?? { player: p, best: 0, worst: 0 };
       count[entry.kind] += 1;

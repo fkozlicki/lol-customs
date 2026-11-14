@@ -1,10 +1,10 @@
 /**
  * The Hall of Fame as its recipes draw it. The app makes this from `hallOfFame.get` with
- * `toHallOfFameView` (apps/app/src/components/hof/hall-of-fame-view.ts), which knows the title
+ * `toHallOfFameView` (apps/app/src/components/hall-of-fame/hall-of-fame-view.ts), which knows the title
  * catalog: its order, its sections, and every title's name, stat and format.
  */
 
-export interface HofPlayerView {
+export interface HallOfFamePlayerView {
   key: string;
   name: string;
   /** Their profile, with the season carried. */
@@ -21,12 +21,12 @@ export interface TitleView {
   statLabel: string;
   /** MVP and ACE titles take their colour. */
   tone: "mvp" | "ace" | null;
-  holders: HofPlayerView[];
+  holders: HallOfFamePlayerView[];
   /** The record, formatted; null while nobody holds it. */
   value: string | null;
 }
 
-export interface HofSectionView {
+export interface HallOfFameSectionView {
   id: string;
   /** "Fighting". */
   name: string;
@@ -38,7 +38,7 @@ export interface HofSectionView {
 
 /** A player and how many best, or worst, titles they hold. */
 export interface CollectorView {
-  player: HofPlayerView;
+  player: HallOfFamePlayerView;
   titles: number;
 }
 
@@ -47,5 +47,5 @@ export interface HallOfFameView {
   mostBest: CollectorView[];
   mostWorst: CollectorView[];
   /** Sections with something to show, in the catalog's order. */
-  sections: HofSectionView[];
+  sections: HallOfFameSectionView[];
 }

@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { TeamRow } from "@v1/ui/recipes/matches/team-row";
-import TeamTable from "@v1/ui/recipes/matches/team-table";
+import { ParticipantRow } from "@v1/ui/recipes/matches/participant-row";
+import SideTable from "@v1/ui/recipes/matches/side-table";
 import { Table, TableBody } from "@v1/ui/table";
 import { MATCH_CARD, MVP } from "./match.fixtures";
 
 const meta = {
-  title: "Matches/Team table",
-  component: TeamTable,
+  title: "Matches/Side table",
+  component: SideTable,
   parameters: { layout: "padded" },
-  args: { team: MATCH_CARD.blue },
-} satisfies Meta<typeof TeamTable>;
+  args: { side: MATCH_CARD.blue },
+} satisfies Meta<typeof SideTable>;
 
 export default meta;
 
@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
 export const Victory: Story = {};
 
 export const Defeat: Story = {
-  args: { team: MATCH_CARD.red },
+  args: { side: MATCH_CARD.red },
 };
 
 /** One row, where the damage bars are scaled against the highest in the whole match. */
@@ -27,7 +27,7 @@ export const OneRow: Story = {
   render: () => (
     <Table>
       <TableBody>
-        <TeamRow participant={MVP} />
+        <ParticipantRow participant={MVP} />
       </TableBody>
     </Table>
   ),

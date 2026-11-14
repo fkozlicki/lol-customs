@@ -16,8 +16,8 @@ export const Item: Story = {};
 /** An empty slot keeps its square, so a row of six stays aligned. */
 export const EmptySlot: Story = { args: { itemId: 0 } };
 
-/** A build, with an empty slot in it. */
-export const Build: Story = {
+/** A player's items, with an empty slot among them. */
+export const Items: Story = {
   render: (args) => (
     <div className="flex items-center gap-1">
       {[3031, 6672, 3006, 3036, 0, 3363].map((id, i) => (

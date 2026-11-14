@@ -32,7 +32,7 @@ export const Default: Story = {
           <SheetDescription>Everything not in the bottom bar.</SheetDescription>
         </SheetHeader>
         <nav className="grid gap-1 p-4">
-          {["Hall of Fame", "Shuffle", "Auctions", "Forum"].map((item) => (
+          {["Hall of Fame", "Draw", "Auctions", "Forum"].map((item) => (
             <span key={item} className="label-caps py-2 text-foreground">
               {item}
             </span>

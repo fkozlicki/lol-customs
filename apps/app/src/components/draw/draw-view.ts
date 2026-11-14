@@ -1,8 +1,8 @@
-import type { RandomTeamsTeam, TeamRole } from "@v1/domain/shuffle";
+import type { DrawnTeam, TeamRole } from "@v1/domain/draw";
 import type { DrawnTeamView } from "@v1/ui/recipes/draw/draw-view";
 import { toPickablePlayerView } from "@/components/player-picker/picker-view";
 
-export function toDrawnTeamView(team: RandomTeamsTeam): DrawnTeamView {
+export function toDrawnTeamView(team: DrawnTeam): DrawnTeamView {
   return {
     avgRankTier: team.avgRankTier,
     avgRankLabel: team.avgRankLabel,
