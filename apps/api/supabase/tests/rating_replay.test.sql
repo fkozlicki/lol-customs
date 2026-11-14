@@ -73,11 +73,11 @@ select is(
   'a late upload leaves the all-time track as if the matches came in the order played'
 );
 select is(
-  (select wins + losses from public.leaderboard_at(now(), 1, 200) where puuid = 'replay-late-p1'), 2,
+  (select wins + losses from public.standings_at(now(), 1, 200) where puuid = 'replay-late-p1'), 2,
   'the standings count the late match'
 );
 select is(
-  (select rating from public.leaderboard_at(now(), 1, 200) where puuid = 'replay-late-p1'),
+  (select rating from public.standings_at(now(), 1, 200) where puuid = 'replay-late-p1'),
   (select rating from public.ratings where ladder_season_id = 1 and puuid = 'replay-late-p1'),
   'the standings show the current rating'
 );

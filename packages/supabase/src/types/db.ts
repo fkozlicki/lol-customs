@@ -1249,6 +1249,29 @@ export type Database = {
           wins: number;
         }[];
       };
+      standings_at: {
+        Args: { p_at: string; p_limit?: number; p_track: number };
+        Returns: {
+          ace_games: number;
+          avg_assists: number;
+          avg_deaths: number;
+          avg_kills: number;
+          best_streak: number;
+          game_name: string;
+          lose_streak: number;
+          losses: number;
+          mvp_games: number;
+          platform_id: string;
+          profile_icon: number;
+          puuid: string;
+          qualified: boolean;
+          rating: number;
+          tag_line: string;
+          updated_at: string;
+          win_streak: number;
+          wins: number;
+        }[];
+      };
       standings_position: {
         Args: { p_puuid: string; p_track: number };
         Returns: number;

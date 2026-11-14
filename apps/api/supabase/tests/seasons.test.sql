@@ -172,14 +172,14 @@ select is(
 -- Point-in-time leaderboard per track ----------------------------------------------
 
 select is(
-  (select wins || '-' || losses from public.leaderboard_at(now() + interval '1 hour', 2, 200) where puuid = 'season-test-p1'),
+  (select wins || '-' || losses from public.standings_at(now() + interval '1 hour', 2, 200) where puuid = 'season-test-p1'),
   '0-1',
-  'leaderboard_at reads the Season 2 track'
+  'standings_at reads the Season 2 track'
 );
 select is(
-  (select wins from public.leaderboard_at('2020-01-01T23:00:00Z', 1, 200) where puuid = 'season-test-p1'),
+  (select wins from public.standings_at('2020-01-01T23:00:00Z', 1, 200) where puuid = 'season-test-p1'),
   1,
-  'leaderboard_at on Season 1 respects the snapshot time'
+  'standings_at on Season 1 respects the snapshot time'
 );
 
 select * from finish();

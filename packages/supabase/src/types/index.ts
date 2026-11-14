@@ -4,10 +4,10 @@ import type { Database as GeneratedDatabase } from "./db";
 import type { ForumContent } from "./json";
 
 /**
- * A row of `leaderboard_at`. The generator types every column of a `RETURNS TABLE` function as
+ * A row of `standings_at`. The generator types every column of a `RETURNS TABLE` function as
  * non-null, but the player's name, icon and averages come from a left join and can be null.
  */
-type LeaderboardAtRow = {
+type StandingsAtRow = {
   puuid: string;
   rating: number;
   wins: number;
@@ -77,8 +77,8 @@ export type Database = MergeDeep<
         };
       };
       Functions: {
-        leaderboard_at: { Returns: LeaderboardAtRow[] };
-        standings_after_match: { Returns: LeaderboardAtRow[] };
+        standings_at: { Returns: StandingsAtRow[] };
+        standings_after_match: { Returns: StandingsAtRow[] };
         player_relations: {
           Returns: ({
             relation: string;

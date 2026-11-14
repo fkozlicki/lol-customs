@@ -2,10 +2,10 @@ import "server-only";
 import { withStandingsPositions } from "@v1/domain/standings";
 import type { Client, Database } from "../types";
 
-type LeaderboardAtRow =
-  Database["public"]["Functions"]["leaderboard_at"]["Returns"][number];
+type StandingsAtRow =
+  Database["public"]["Functions"]["standings_at"]["Returns"][number];
 
-function toStandingsRow(row: LeaderboardAtRow) {
+function toStandingsRow(row: StandingsAtRow) {
   return {
     puuid: row.puuid,
     rating: row.rating,
@@ -35,7 +35,7 @@ function toStandingsRow(row: LeaderboardAtRow) {
 /**
  * The standings of one rating track, live or as they stood right after its Nth match.
  *
- * Both come from `leaderboard_at`, so the ordering rule lives in SQL only: qualified players first by
+ * Both come from `standings_at`, so the ordering rule lives in SQL only: qualified players first by
  * rating, everyone else by matches played, with a deterministic tie-break. `standings_after_match`
  * finds when the Nth match was rated.
  */
@@ -49,7 +49,7 @@ export async function getStandings(
         p_matches: args.afterMatches,
         p_limit: args.limit,
       })
-    : await client.rpc("leaderboard_at", {
+    : await client.rpc("standings_at", {
         p_at: new Date().toISOString(),
         p_track: args.track,
         p_limit: args.limit,

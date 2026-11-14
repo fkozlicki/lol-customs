@@ -95,31 +95,31 @@ select ok(
 );
 
 select is(
-  (select bool_and(qualified) from public.leaderboard_at('2020-02-01T00:00:00Z', 1, 200)
+  (select bool_and(qualified) from public.standings_at('2020-02-01T00:00:00Z', 1, 200)
    where puuid in ('qual-test-p1', 'qual-test-p3')),
   true,
-  'leaderboard_at marks qualified players'
+  'standings_at marks qualified players'
 );
 select is(
-  (select qualified from public.leaderboard_at('2020-02-01T00:00:00Z', 1, 200)
+  (select qualified from public.standings_at('2020-02-01T00:00:00Z', 1, 200)
    where puuid = 'qual-test-p11'),
   false,
-  'leaderboard_at marks players who are still qualifying'
+  'standings_at marks players who are still qualifying'
 );
 select ok(
   (select max(position) filter (where qualified) < min(position) filter (where not qualified)
-   from public.leaderboard_at('2020-02-01T00:00:00Z', 1, 200) with ordinality as l(
+   from public.standings_at('2020-02-01T00:00:00Z', 1, 200) with ordinality as l(
      puuid, rating, wins, losses, best_streak, win_streak, lose_streak, updated_at,
      avg_kills, avg_deaths, avg_assists, mvp_games, ace_games, game_name, tag_line,
      profile_icon, platform_id, qualified, position
    )),
-  'leaderboard_at lists every qualified player before anyone still qualifying'
+  'standings_at lists every qualified player before anyone still qualifying'
 );
 select is(
-  (select qualified from public.leaderboard_at('2020-01-04T23:00:00Z', 1, 200)
+  (select qualified from public.standings_at('2020-01-04T23:00:00Z', 1, 200)
    where puuid = 'qual-test-p1'),
   false,
-  'leaderboard_at judges qualification at the snapshot time'
+  'standings_at judges qualification at the snapshot time'
 );
 
 -- Standings position ----------------------------------------------------------------
