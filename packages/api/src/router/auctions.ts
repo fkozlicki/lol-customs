@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
-import { formatRank } from "@v1/domain/rank";
 import { parseRiotId, riotIdKey } from "@v1/domain/riot-id";
 import {
   type AuctionListRoom,
@@ -9,8 +8,10 @@ import {
   auctionRoomSnapshot,
   getAuctionRoom,
   listActiveAuctions,
+  withLatestRanks,
 } from "@v1/supabase/queries/auctions";
-import type { AuctionPoolEntry, Client } from "@v1/supabase/types";
+import { hasUserProfile } from "@v1/supabase/queries/user-profiles";
+import type { Client } from "@v1/supabase/types";
 import { z } from "zod";
 import { isDatabaseError, toTRPCError } from "../errors";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -98,14 +99,7 @@ async function runAuctionFunction(
 }
 
 async function requireProfile(supabase: Client, userId: string) {
-  const { data, error } = await supabase
-    .from("user_profiles")
-    .select("id")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (!data) {
+  if (!(await hasUserProfile(supabase, userId))) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Create a profile before joining an auction.",
@@ -204,52 +198,6 @@ function normalizeRoom(raw: AuctionRoomSnapshot) {
   };
 }
 
-/** The pool with each player's latest ladder rank; players outside the ladder are unranked. */
-async function poolPayload(
-  supabase: Client,
-  pool: z.infer<typeof poolSchema>,
-): Promise<AuctionPoolEntry[]> {
-  const [players, ranks] = await Promise.all([
-    supabase.from("players").select("puuid, game_name, tag_line"),
-    supabase.rpc("player_latest_ranks"),
-  ]);
-  if (players.error) throw players.error;
-  if (ranks.error) throw ranks.error;
-
-  const puuidByRiotId = new Map(
-    players.data.flatMap((player) =>
-      player.game_name && player.tag_line
-        ? [
-            [
-              riotIdKey({
-                gameName: player.game_name,
-                tagLine: player.tag_line,
-              }),
-              player.puuid,
-            ] as const,
-          ]
-        : [],
-    ),
-  );
-  const rankByPuuid = new Map(ranks.data.map((rank) => [rank.puuid, rank]));
-
-  return pool.map((player) => {
-    const puuid = puuidByRiotId.get(riotIdKey(player));
-    const rank = puuid ? rankByPuuid.get(puuid) : undefined;
-    const soloTier = rank?.rank_tier ?? null;
-    const soloDivision = rank?.rank_division ?? null;
-    return {
-      gameName: player.gameName,
-      tagLine: player.tagLine,
-      rank: {
-        soloTier,
-        soloDivision,
-        soloRankLabel: formatRank(soloTier, soloDivision) ?? "",
-      },
-    };
-  });
-}
-
 export const auctionsRouter = createTRPCRouter({
   listActive: publicProcedure.query(async ({ ctx }) =>
     (await listActiveAuctions(ctx.supabase)).map(normalizeListItem),
@@ -274,7 +222,7 @@ export const auctionsRouter = createTRPCRouter({
       await requireProfile(ctx.supabase, ctx.user.id);
       const { data, error } = await ctx.supabase.rpc("auction_create_room", {
         p_request_id: randomUUID(),
-        p_players: await poolPayload(ctx.supabase, input.players),
+        p_players: await withLatestRanks(ctx.supabase, input.players),
         p_team_name: input.teamName,
         p_starting_budget: input.budget,
         p_bid_seconds: input.bidSeconds,
@@ -335,7 +283,7 @@ export const auctionsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const players = input.players
-        ? await poolPayload(ctx.supabase, input.players)
+        ? await withLatestRanks(ctx.supabase, input.players)
         : null;
       await runAuctionFunction(
         ctx.supabase.rpc("auction_update_lobby", {

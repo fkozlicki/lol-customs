@@ -1,53 +1,7 @@
-import type { Client } from "@v1/supabase/types";
+import { listMatches, listPlayerMatches } from "@v1/supabase/queries/matches";
 import { z } from "zod";
-import { isAllTime, seasonInput } from "../season";
+import { seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-
-/**
- * What a match card reads: every match column except Riot's match and timeline JSON, which weigh about
- * 125 kB a match and stay in the database, with the sides and the participants.
- */
-const MATCH_CARD_SELECT =
-  "match_id, platform_id, game_creation, duration, game_mode, game_type, queue_id, map_id, patch, season_id, end_of_game_result, created_at, ladder_season_id, teams(*), match_participants(*, players(game_name, tag_line, profile_icon))" as const;
-
-/** Adds each participant's rating change on the given track (null when the match is not on it). */
-async function withRatingChanges<
-  T extends { match_id: number; match_participants: { puuid: string }[] },
->(
-  supabase: Client,
-  matches: T[],
-  season: number,
-): Promise<
-  Array<
-    Omit<T, "match_participants"> & {
-      match_participants: Array<
-        T["match_participants"][number] & { rating_change: number | null }
-      >;
-    }
-  >
-> {
-  const matchIds = matches.map((m) => m.match_id);
-  const changes = new Map<string, number>();
-
-  if (matchIds.length > 0) {
-    const { data, error } = await supabase.rpc("rating_changes", {
-      p_match_ids: matchIds,
-      p_track: season,
-    });
-    if (error) throw error;
-    for (const row of data ?? []) {
-      changes.set(`${row.match_id}:${row.puuid}`, row.rating_change);
-    }
-  }
-
-  return matches.map((m) => ({
-    ...m,
-    match_participants: m.match_participants.map((p) => ({
-      ...p,
-      rating_change: changes.get(`${m.match_id}:${p.puuid}`) ?? null,
-    })),
-  }));
-}
 
 export const matchesRouter = createTRPCRouter({
   list: publicProcedure
@@ -58,45 +12,13 @@ export const matchesRouter = createTRPCRouter({
         limit: z.number().min(1).max(100).default(10),
       }),
     )
-    .query(async ({ ctx, input }) => {
-      let query = ctx.supabase
-        .from("matches")
-        .select(MATCH_CARD_SELECT)
-        .order("game_creation", { ascending: false })
-        .limit(input.limit + 1);
-
-      if (!isAllTime(input.season)) {
-        query = query.eq("ladder_season_id", input.season);
-      }
-
-      if (input.cursor) {
-        query = query.lt("game_creation", input.cursor);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const items = data.map((m) => ({
-        ...m,
-        match_participants: m.match_participants.sort(
-          (a, b) => (a.participant_id ?? 0) - (b.participant_id ?? 0),
-        ),
-      }));
-
-      const hasNextPage = items.length > input.limit;
-      const lastItem = hasNextPage ? items[input.limit - 1] : undefined;
-      const nextCursor = lastItem?.game_creation ?? null;
-
-      return {
-        items: await withRatingChanges(
-          ctx.supabase,
-          items.slice(0, input.limit),
-          input.season,
-        ),
-        nextCursor,
-      };
-    }),
+    .query(({ ctx, input }) =>
+      listMatches(ctx.supabase, {
+        track: input.season,
+        limit: input.limit,
+        cursor: input.cursor,
+      }),
+    ),
 
   listByPuuid: publicProcedure
     .input(
@@ -107,60 +29,12 @@ export const matchesRouter = createTRPCRouter({
         limit: z.number().min(1).max(100).default(10),
       }),
     )
-    .query(async ({ ctx, input }) => {
-      // Step 1: get match IDs for the player, paginated by match_id (monotonically increasing)
-      let participantQuery = ctx.supabase
-        .from("match_participants")
-        .select("match_id, match:matches!inner(ladder_season_id)")
-        .eq("puuid", input.puuid)
-        .order("match_id", { ascending: false })
-        .limit(input.limit + 1);
-
-      if (!isAllTime(input.season)) {
-        participantQuery = participantQuery.eq(
-          "match.ladder_season_id",
-          input.season,
-        );
-      }
-
-      if (input.cursor != null) {
-        participantQuery = participantQuery.lt("match_id", input.cursor);
-      }
-
-      const { data: participantRows, error: participantError } =
-        await participantQuery;
-
-      if (participantError) throw participantError;
-
-      const hasNextPage = participantRows.length > input.limit;
-      const rows = participantRows.slice(0, input.limit);
-      const matchIds = rows.map((r) => r.match_id);
-
-      if (matchIds.length === 0) {
-        return { items: [], nextCursor: null };
-      }
-
-      // Step 2: fetch full match data with all participants
-      const { data, error } = await ctx.supabase
-        .from("matches")
-        .select(MATCH_CARD_SELECT)
-        .in("match_id", matchIds)
-        .order("game_creation", { ascending: false });
-
-      if (error) throw error;
-
-      const items = data.map((m) => ({
-        ...m,
-        match_participants: m.match_participants.sort(
-          (a, b) => (a.participant_id ?? 0) - (b.participant_id ?? 0),
-        ),
-      }));
-
-      const lastMatchId = hasNextPage ? rows[rows.length - 1]?.match_id : null;
-
-      return {
-        items: await withRatingChanges(ctx.supabase, items, input.season),
-        nextCursor: lastMatchId ?? null,
-      };
-    }),
+    .query(({ ctx, input }) =>
+      listPlayerMatches(ctx.supabase, {
+        puuid: input.puuid,
+        track: input.season,
+        limit: input.limit,
+        cursor: input.cursor,
+      }),
+    ),
 });

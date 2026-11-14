@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
+    "@v1/domain": "workspace:*",
     "@v1/logger": "workspace:*",
     "react": "catalog:react",
     "server-only": "^0.0.1",
@@ -35,6 +36,6 @@
     "./client": "./src/clients/client.ts",
     "./middleware": "./src/clients/middleware.ts",
     "./types": "./src/types/index.ts",
-    "./queries/auctions": "./src/queries/auctions.ts"
+    "./queries/*": "./src/queries/*.ts"
   }
 }
