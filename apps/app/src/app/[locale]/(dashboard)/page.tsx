@@ -2,9 +2,9 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { maxHistoricallyAfterMatches } from "@/components/home/standings-after-matches";
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
 import { Leaderboard } from "@/components/home/leaderboard-preview";
+import { replayPoint } from "@/components/home/standings-after-matches";
 import { QueryBoundary } from "@/components/query-boundary";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
@@ -30,17 +30,7 @@ export default async function DashboardHomePage({
     trpc.matches.count.queryOptions({ season }),
   );
 
-  const parsedAfter = Number(after);
-  const maxAfter = maxHistoricallyAfterMatches(matchCount);
-  const afterMatches =
-    typeof after === "string" &&
-    after !== "" &&
-    Number.isInteger(parsedAfter) &&
-    parsedAfter >= 1 &&
-    maxAfter > 0 &&
-    parsedAfter <= maxAfter
-      ? parsedAfter
-      : undefined;
+  const afterMatches = replayPoint(after, matchCount);
 
   void prefetch(
     trpc.standings.get.queryOptions({ season, limit: 50, afterMatches }),

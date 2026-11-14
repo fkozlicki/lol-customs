@@ -7,27 +7,15 @@ import { useMemo } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
-import { maxHistoricallyAfterMatches } from "./standings-after-matches";
 import { toStandingsRowView } from "./standings-view";
 
 interface LeaderboardProps {
   season: number;
   seasonTitle: string;
   limit?: number;
-  /** Replay the standings as they stood after this many matches. */
+  /** Replay the standings as they stood after this many matches (`replayPoint`); undefined is live. */
   after?: number;
   historyPicker?: React.ReactNode;
-}
-
-/** A requested replay point, clamped to the matches played; anything else means live. */
-function parseAfterMatches(
-  totalMatches: number,
-  value: number | undefined,
-): number | undefined {
-  if (value == null) return undefined;
-  const maxAfter = maxHistoricallyAfterMatches(totalMatches);
-  if (!Number.isInteger(value) || value < 1 || maxAfter < 1) return undefined;
-  return Math.min(value, maxAfter);
 }
 
 /** The season's standings, live or replayed, as the home page shows them. */
@@ -40,14 +28,11 @@ export function Leaderboard({
 }: LeaderboardProps) {
   const trpc = useTRPC();
   const seasonParam = useSeasonParam();
-  const { data: matchCount = 0 } = useSuspenseQuery(
-    trpc.matches.count.queryOptions({ season }),
-  );
   const { data: leaderboard } = useSuspenseQuery(
     trpc.standings.get.queryOptions({
       season,
       limit,
-      afterMatches: parseAfterMatches(matchCount, after),
+      afterMatches: after,
     }),
   );
 
