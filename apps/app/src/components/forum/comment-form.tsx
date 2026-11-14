@@ -46,8 +46,8 @@ export function CommentForm({ postId, onCancel }: CommentFormProps) {
         contentRef.current = {};
         setIsEmpty(true);
       },
-      onError: (err) => {
-        toast.error(err.message);
+      onError: () => {
+        toast.error(t("failed"));
       },
     }),
   );

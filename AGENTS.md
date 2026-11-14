@@ -64,7 +64,7 @@ to main is rejected. Chromatic publishes the Storybook and diffs
 it visually once `CHROMATIC_PROJECT_TOKEN` is set. The first story test run needs
 `bunx playwright install chromium` in `apps/storybook`. `bun lint` also runs the design check in
 `apps/app/scripts/check-design.ts`, which fails on colours written outside the tokens (see
-[DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain`, `packages/game-assets`, `packages/ui`, `apps/app` and `apps/lcu` — pure
+[DESIGN.md](DESIGN.md)). `bun run test` runs the `bun:test` suites in `packages/domain`, `packages/game-assets`, `packages/ui`, `packages/api`, `apps/app` and `apps/lcu` — pure
 logic only, no component tests: recipes are covered by their stories, and the mappers that feed them
 by tests in the app. Each workspace keeps its tests and their fixtures in `tests/`, beside `src/` and
 mirroring its folders; `src/` holds no test code.

@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { withStandingsPositions } from "@v1/domain/standings";
 import { z } from "zod";
 import { isAllTime, seasonInput } from "../season";
@@ -77,12 +76,7 @@ async function snapshotAfterMatch(
     .order("match_id", { ascending: true })
     .range(offset, offset);
 
-  if (matchError) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: matchError.message,
-    });
-  }
+  if (matchError) throw matchError;
 
   const targetMatchId = matchRows?.[0]?.match_id;
   if (targetMatchId == null) return null;
@@ -96,12 +90,7 @@ async function snapshotAfterMatch(
     .limit(1)
     .maybeSingle();
 
-  if (error) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: error.message,
-    });
-  }
+  if (error) throw error;
 
   return data?.created_at ? new Date(data.created_at).toISOString() : null;
 }
@@ -129,12 +118,7 @@ export const riftRankRouter = createTRPCRouter({
       }
       const { count, error } = await query;
 
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const n = count ?? 0;
       if (!Number.isFinite(n) || n < 0) {
@@ -173,12 +157,7 @@ export const riftRankRouter = createTRPCRouter({
         p_limit: limit,
       });
 
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       return withStandingsPositions((data ?? []).map(toLeaderboardRow));
     }),
@@ -189,12 +168,7 @@ export const riftRankRouter = createTRPCRouter({
       const { data: rows, error } = await ctx.supabase.rpc("hall_of_fame", {
         p_track: input.season,
       });
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
+      if (error) throw error;
 
       const puuids = [...new Set(rows.map((row) => row.puuid))];
       const { data: players, error: playersError } =
@@ -204,12 +178,7 @@ export const riftRankRouter = createTRPCRouter({
               .select("puuid, game_name, tag_line, profile_icon")
               .in("puuid", puuids)
           : { data: [], error: null };
-      if (playersError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: playersError.message,
-        });
-      }
+      if (playersError) throw playersError;
 
       const playerByPuuid = new Map(players.map((p) => [p.puuid, p]));
       const titles = new Map<string, HallOfFameEntry[]>();

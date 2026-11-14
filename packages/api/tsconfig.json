@@ -1,5 +1,8 @@
 {
   "extends": "@v1/typescript/base.json",
-  "include": ["src"],
+  "compilerOptions": {
+    "types": ["bun"]
+  },
+  "include": ["src", "tests"],
   "exclude": ["node_modules"]
 }

@@ -48,8 +48,8 @@ export function NewPostForm() {
         toast.success(t("toast.created"));
         router.push(`/posts/${post.id}`);
       },
-      onError: (err) => {
-        toast.error(err.message);
+      onError: () => {
+        toast.error(t("toast.failed"));
       },
     }),
   );

@@ -37,12 +37,7 @@ export const forumRouter = createTRPCRouter({
 
         const { data, error } = await query;
 
-        if (error) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
-          });
-        }
+        if (error) throw error;
 
         const items = data.map((post) => {
           const reactions = Array.isArray(post.reactions) ? post.reactions : [];
@@ -83,15 +78,10 @@ export const forumRouter = createTRPCRouter({
           `,
           )
           .eq("id", input.id)
-          .single();
+          .maybeSingle();
 
-        if (error) {
-          if (error.code === "PGRST116") return null;
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
-          });
-        }
+        if (error) throw error;
+        if (!data) return null;
 
         const reactions = Array.isArray(data.reactions) ? data.reactions : [];
         return {
@@ -115,9 +105,10 @@ export const forumRouter = createTRPCRouter({
           .from("user_profiles")
           .select("id")
           .eq("id", ctx.user.id)
-          .single();
+          .maybeSingle();
+        if (profileError) throw profileError;
 
-        if (profileError || !profile) {
+        if (!profile) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "You must set up a profile before posting.",
@@ -134,12 +125,7 @@ export const forumRouter = createTRPCRouter({
           .select()
           .single();
 
-        if (error) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
-          });
-        }
+        if (error) throw error;
 
         return data;
       }),
@@ -154,38 +140,42 @@ export const forumRouter = createTRPCRouter({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { data: existing } = await ctx.supabase
+        const { data: existing, error: existingError } = await ctx.supabase
           .from("forum_reactions")
           .select("type")
           .eq("post_id", input.postId)
           .eq("user_id", ctx.user.id)
-          .single();
+          .maybeSingle();
+        if (existingError) throw existingError;
 
         if (existing) {
           if (existing.type === input.type) {
             // same reaction — remove it
-            await ctx.supabase
+            const { error } = await ctx.supabase
               .from("forum_reactions")
               .delete()
               .eq("post_id", input.postId)
               .eq("user_id", ctx.user.id);
+            if (error) throw error;
             return { action: "removed" as const };
           }
           // different reaction — update it
-          await ctx.supabase
+          const { error } = await ctx.supabase
             .from("forum_reactions")
             .update({ type: input.type })
             .eq("post_id", input.postId)
             .eq("user_id", ctx.user.id);
+          if (error) throw error;
           return { action: "updated" as const };
         }
 
         // no existing reaction — insert
-        await ctx.supabase.from("forum_reactions").insert({
+        const { error } = await ctx.supabase.from("forum_reactions").insert({
           post_id: input.postId,
           user_id: ctx.user.id,
           type: input.type,
         });
+        if (error) throw error;
         return { action: "added" as const };
       }),
   }),
@@ -221,12 +211,7 @@ export const forumRouter = createTRPCRouter({
 
         const { data, error } = await query;
 
-        if (error) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
-          });
-        }
+        if (error) throw error;
 
         const items = data.map((comment) => {
           const reactions = Array.isArray(comment.reactions)
@@ -275,12 +260,7 @@ export const forumRouter = createTRPCRouter({
           )
           .single();
 
-        if (error) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message,
-          });
-        }
+        if (error) throw error;
 
         return data;
       }),
@@ -339,35 +319,42 @@ export const forumRouter = createTRPCRouter({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { data: existing } = await ctx.supabase
+        const { data: existing, error: existingError } = await ctx.supabase
           .from("forum_comment_reactions")
           .select("type")
           .eq("comment_id", input.commentId)
           .eq("user_id", ctx.user.id)
-          .single();
+          .maybeSingle();
+        if (existingError) throw existingError;
 
         if (existing) {
           if (existing.type === input.type) {
-            await ctx.supabase
+            const { error } = await ctx.supabase
               .from("forum_comment_reactions")
               .delete()
               .eq("comment_id", input.commentId)
               .eq("user_id", ctx.user.id);
+            if (error) throw error;
             return { action: "removed" as const };
           }
-          await ctx.supabase
+          const { error } = await ctx.supabase
             .from("forum_comment_reactions")
             .update({ type: input.type })
             .eq("comment_id", input.commentId)
             .eq("user_id", ctx.user.id);
+          if (error) throw error;
           return { action: "updated" as const };
         }
 
-        await ctx.supabase.from("forum_comment_reactions").insert({
-          comment_id: input.commentId,
-          user_id: ctx.user.id,
-          type: input.type,
-        });
+        const { error } = await ctx.supabase
+          .from("forum_comment_reactions")
+          .insert({
+            comment_id: input.commentId,
+            user_id: ctx.user.id,
+            type: input.type,
+          });
+
+        if (error) throw error;
         return { action: "added" as const };
       }),
   }),

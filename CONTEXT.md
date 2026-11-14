@@ -147,9 +147,13 @@ An independent Elo progression. Each season has its own track on which everyone 
 all-time track never resets. Every match advances two tracks: its season's and the all-time one. A
 track counts matches in the order they were played, whichever order they were uploaded in.
 
+**Standings**:
+The ranking of players on one rating track: a season's or the all-time one.
+_Avoid_: Leaderboard, ranking table
+
 **Season standings**:
-The ranking of players on a season's rating track. Standings of an ended season can still change when
-one of its matches is uploaded late or removed.
+The standings on a season's rating track. Standings of an ended season can still change when one of its
+matches is uploaded late or removed.
 _Avoid_: Season final rating, final standings
 
 **Streak**:

@@ -60,7 +60,11 @@ export function SignInDialog() {
         toast.success(t("toast.success"));
       },
       onError: (err) => {
-        toast.error(err.message);
+        toast.error(
+          err.data?.code === "CONFLICT"
+            ? t("toast.nicknameTaken")
+            : t("toast.setupFailed"),
+        );
         setIsSubmitting(false);
       },
     }),
