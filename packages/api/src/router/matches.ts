@@ -1,9 +1,15 @@
 import { listMatches, listPlayerMatches } from "@v1/supabase/queries/matches";
+import { countTrackMatches } from "@v1/supabase/queries/standings";
 import { z } from "zod";
 import { seasonInput } from "../season";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const matchesRouter = createTRPCRouter({
+  /** Matches on the track, capped at 100 000; drives the "after N matches" picker. */
+  count: publicProcedure
+    .input(z.object({ season: seasonInput }))
+    .query(({ ctx, input }) => countTrackMatches(ctx.supabase, input.season)),
+
   list: publicProcedure
     .input(
       z.object({

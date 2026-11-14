@@ -1,5 +1,5 @@
 /**
- * The Hall of Fame as its recipes draw it. The app makes this from `riftRank.hallOfFame` with
+ * The Hall of Fame as its recipes draw it. The app makes this from `hallOfFame.get` with
  * `toHallOfFameView` (apps/app/src/components/hof/hall-of-fame-view.ts), which knows the title
  * catalog: its order, its sections, and every title's name, stat and format.
  */

@@ -2,7 +2,7 @@ import { ALL_TIME_SEASON } from "@v1/api/season";
 import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { maxHistoricallyAfterGames } from "@/components/home/leaderboard-after-games";
+import { maxHistoricallyAfterMatches } from "@/components/home/leaderboard-after-matches";
 import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
 import { Leaderboard } from "@/components/home/leaderboard-preview";
 import { QueryBoundary } from "@/components/query-boundary";
@@ -26,24 +26,24 @@ export default async function DashboardHomePage({
       : t("label", { number: seasonNumber(season, seasons) ?? season });
 
   const queryClient = getQueryClient();
-  const gamesPlayed = await queryClient.fetchQuery(
-    trpc.riftRank.ladderRatedMatchCount.queryOptions({ season }),
+  const trackMatches = await queryClient.fetchQuery(
+    trpc.matches.count.queryOptions({ season }),
   );
 
-  const parsedAfterGames = Number(after);
-  const maxAfter = maxHistoricallyAfterGames(gamesPlayed);
-  const afterGames =
+  const parsedAfter = Number(after);
+  const maxAfter = maxHistoricallyAfterMatches(trackMatches);
+  const afterMatches =
     typeof after === "string" &&
     after !== "" &&
-    Number.isInteger(parsedAfterGames) &&
-    parsedAfterGames >= 1 &&
+    Number.isInteger(parsedAfter) &&
+    parsedAfter >= 1 &&
     maxAfter > 0 &&
-    parsedAfterGames <= maxAfter
-      ? parsedAfterGames
+    parsedAfter <= maxAfter
+      ? parsedAfter
       : undefined;
 
   void prefetch(
-    trpc.riftRank.leaderboard.queryOptions({ season, limit: 50, afterGames }),
+    trpc.standings.get.queryOptions({ season, limit: 50, afterMatches }),
   );
 
   return (
@@ -54,15 +54,15 @@ export default async function DashboardHomePage({
             previous rows kept (e.g. placeholder data) and `layout` on each row. */}
         <QueryBoundary
           fallback={<LeaderboardSkeleton />}
-          key={`${season}:${afterGames ?? "live"}`}
+          key={`${season}:${afterMatches ?? "live"}`}
         >
           <Leaderboard
             season={season}
             seasonTitle={seasonTitle}
             limit={50}
-            after={afterGames}
+            after={afterMatches}
             historyPicker={
-              <LeaderboardHistoryPicker gamesPlayed={gamesPlayed} />
+              <LeaderboardHistoryPicker trackMatches={trackMatches} />
             }
           />
         </QueryBoundary>

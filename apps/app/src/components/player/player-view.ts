@@ -23,7 +23,7 @@ type Relation = Relations["teammates"]["mostMatches"];
 type SeasonSummary = RouterOutputs["players"]["seasonSummaries"][number];
 type ChampionStat = RouterOutputs["players"]["mostPlayedChampions"][number];
 type RatingPoint = RouterOutputs["players"]["ratingHistory"][number];
-type HallOfFame = RouterOutputs["riftRank"]["hallOfFame"];
+type HallOfFame = RouterOutputs["hallOfFame"]["get"];
 
 /** The `?season=` value links carry, as `useSeasonParam` reads it. */
 interface SeasonLink {

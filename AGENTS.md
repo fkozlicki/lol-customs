@@ -23,8 +23,10 @@ See [README.md](README.md) for setup.
   routing or the session (a create button) lives here too, but anything with a look is a recipe (ADR 0007).
 - `apps/storybook`: the one Storybook, with every story in `stories/`. It renders `packages/ui`,
   through its exports, and nothing else.
-- `packages/api`: tRPC routers consumed by `apps/app`.
-- `packages/supabase`: Supabase clients and generated DB types.
+- `packages/api`: tRPC routers consumed by `apps/app`: input schema, a call to a query, return. It
+  also holds the request context and the one database-error mapper (`src/errors.ts`).
+- `packages/supabase`: Supabase clients, generated DB types with their corrections
+  (`src/types/index.ts`), and the queries (`src/queries/<area>.ts`).
 - `packages/ui`: Derby's design system (`@v1/ui/*`): shadcn primitives in `src/components`, and the
   recipes built on them in `src/recipes` — Derby's visual components, with their own dictionary.
   See [its README](packages/ui/README.md) and ADR 0004.
@@ -100,6 +102,16 @@ mirroring its folders; `src/` holds no test code.
 - One component per file, in the app, the recipes and Derby Sync alike; a helper component gets a file
   beside the one that uses it. A file that grows past a few hundred lines is a sign it holds more than
   one job. shadcn's primitives in `packages/ui/src/components` are the exception and stay as generated.
+- A query lives in `packages/supabase/src/queries/<area>.ts` as `(client, args) => DTO`: it takes
+  the request's client, so RLS runs as the user, imports `server-only`, and throws a database error
+  as it is (`if (error) throw error;`) for the API to map. An aggregate or join that would fetch
+  whole tables belongs in SQL, as a function or view with a pgTAP test, which the query calls.
+- Database JSON gets its TypeScript type in one of two ways. JSON SQL builds and the app reads back
+  (the auction snapshot) is a Zod schema in its query module, parsed on the way out. A `jsonb` column
+  the app or its functions write gets a JSON Schema check in a migration and its type through
+  `MergeDeep` in `packages/supabase/src/types/index.ts`, as do generated columns and `RETURNS TABLE`
+  columns the generator types wrongly; `db.ts` stays as generated. Riot's JSON keeps the generated
+  `Json` type.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use
   `useSuspenseQuery` inside a Suspense boundary with a skeleton. Where a block has an error recipe, the
   page wraps it in `QueryBoundary` (skeleton + error), and the recipe's `action` slot gets

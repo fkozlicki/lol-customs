@@ -64,7 +64,7 @@ export default async function PlayerProfilePage({
   if (hasSeasonGames) {
     prefetch(trpc.players.ratingHistory.queryOptions({ puuid, season }));
     prefetch(trpc.players.relations.queryOptions({ puuid, season }));
-    prefetch(trpc.riftRank.hallOfFame.queryOptions({ season }));
+    prefetch(trpc.hallOfFame.get.queryOptions({ season }));
     prefetch(
       trpc.players.mostPlayedChampions.queryOptions({
         puuid,

@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { DownloadAppButton } from "@/components/dashboard/download-app-button";
 import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
-import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
+import { maxHistoricallyAfterMatches } from "./leaderboard-after-matches";
 import { toStandingsRowView } from "./standings-view";
 
 interface LeaderboardProps {
@@ -20,12 +20,12 @@ interface LeaderboardProps {
 }
 
 /** A requested replay point, clamped to the matches played; anything else means live. */
-function parseAfterGames(
+function parseAfterMatches(
   totalMatches: number,
   value: number | undefined,
 ): number | undefined {
   if (value == null) return undefined;
-  const maxAfter = maxHistoricallyAfterGames(totalMatches);
+  const maxAfter = maxHistoricallyAfterMatches(totalMatches);
   if (!Number.isInteger(value) || value < 1 || maxAfter < 1) return undefined;
   return Math.min(value, maxAfter);
 }
@@ -40,14 +40,14 @@ export function Leaderboard({
 }: LeaderboardProps) {
   const trpc = useTRPC();
   const seasonParam = useSeasonParam();
-  const { data: gamesPlayed = 0 } = useSuspenseQuery(
-    trpc.riftRank.ladderRatedMatchCount.queryOptions({ season }),
+  const { data: trackMatches = 0 } = useSuspenseQuery(
+    trpc.matches.count.queryOptions({ season }),
   );
   const { data: leaderboard } = useSuspenseQuery(
-    trpc.riftRank.leaderboard.queryOptions({
+    trpc.standings.get.queryOptions({
       season,
       limit,
-      afterGames: parseAfterGames(gamesPlayed, after),
+      afterMatches: parseAfterMatches(trackMatches, after),
     }),
   );
 
