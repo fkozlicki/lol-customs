@@ -110,8 +110,9 @@ mirroring its folders; `src/` holds no test code.
   functions write has a JSON Schema check in a migration and a Zod schema in
   `packages/supabase/src/types/json.ts`, which is also its TypeScript type. Where the app reads or
   writes such a column through PostgREST (forum `content`), `MergeDeep` in
-  `packages/supabase/src/types/index.ts` puts that type on the column, as it corrects generated
-  columns and `RETURNS TABLE` columns the generator types wrongly; `db.ts` stays as generated. JSON
+  `packages/supabase/src/types/index.ts` puts that type on the column, as it corrects the
+  nullability of `RETURNS TABLE` and view columns, which the generator cannot know; `db.ts` stays as
+  generated. A generated column whose expression cannot be null is declared `NOT NULL` instead. JSON
   that SQL builds and returns (the auction snapshot) is a Zod schema in its query module, parsed on
   the way out. Riot's JSON keeps the generated `Json` type.
 - Pages prefetch tRPC queries on the server and hydrate with `<HydrateClient>`. Client components use

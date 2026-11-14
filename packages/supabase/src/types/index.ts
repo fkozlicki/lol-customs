@@ -38,7 +38,6 @@ type PlayerNameColumns = {
 /**
  * The generated schema, corrected where the generator cannot know better:
  * - forum content, which the app writes and reads, gets its shape (`json.ts`);
- * - generated columns computed from non-null columns are never null;
  * - the `forum_post_list` view's columns are as non-null as the table's, and its counts too;
  * - functions returning a table admit the nulls their left joins produce;
  * - `auction_update_lobby` takes null for every setting it leaves as it is.
@@ -62,7 +61,6 @@ export type Database = MergeDeep<
           Insert: { content: ForumContent };
           Update: { content?: ForumContent };
         };
-        ratings: { Row: { matches_played: number; qualified: boolean } };
       };
       Views: {
         forum_post_list: {

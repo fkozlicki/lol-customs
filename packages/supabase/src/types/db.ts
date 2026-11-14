@@ -728,10 +728,10 @@ export type Database = {
           ladder_season_id: number;
           lose_streak: number;
           losses: number;
-          matches_played: number | null;
+          matches_played: number;
           mvp_games: number;
           puuid: string;
-          qualified: boolean | null;
+          qualified: boolean;
           rating: number;
           updated_at: string | null;
           win_streak: number;
@@ -756,10 +756,10 @@ export type Database = {
           ladder_season_id: number;
           lose_streak?: number;
           losses?: number;
-          matches_played?: number | null;
+          matches_played?: number;
           mvp_games?: number;
           puuid: string;
-          qualified?: boolean | null;
+          qualified?: boolean;
           rating?: number;
           updated_at?: string | null;
           win_streak?: number;
@@ -784,10 +784,10 @@ export type Database = {
           ladder_season_id?: number;
           lose_streak?: number;
           losses?: number;
-          matches_played?: number | null;
+          matches_played?: number;
           mvp_games?: number;
           puuid?: string;
-          qualified?: boolean | null;
+          qualified?: boolean;
           rating?: number;
           updated_at?: string | null;
           win_streak?: number;
