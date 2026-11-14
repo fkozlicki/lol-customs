@@ -1,9 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "@v1/ui/sonner";
 import { useTRPC } from "@/trpc/react";
 import { useAuctionLive } from "./auction-live";
+import { useAuctionErrorToast } from "./use-auction-error-toast";
 
 /**
  * Everything a viewer can do in a room, as mutations. Each one reads the room again when it lands,
@@ -16,8 +16,9 @@ export function useAuctionRoomActions(roomId: string) {
   const { refresh } = useAuctionLive();
   const id = { id: roomId };
 
-  const failed = (error: { message: string }) => {
-    toast.error(error.message);
+  const toastError = useAuctionErrorToast();
+  const failed = (error: Parameters<typeof toastError>[0]) => {
+    toastError(error);
     refresh();
   };
   const settled = { onSuccess: refresh, onError: failed };

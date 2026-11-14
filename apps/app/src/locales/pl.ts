@@ -106,6 +106,45 @@ export default {
           linkCopied: "Link do pokoju skopiowany.",
           linkCopyFailed: "Nie udało się skopiować linku do pokoju.",
         },
+        errors: {
+          unknown: "Coś poszło nie tak. Spróbuj ponownie.",
+          AUCTION_PROFILE_REQUIRED: "Utwórz profil, zanim dołączysz do aukcji.",
+          AUCTION_REQUEST_ID_REQUIRED: "Coś poszło nie tak. Spróbuj ponownie.",
+          AUCTION_IDEMPOTENCY_KEY_REUSED: "Ta akcja została już wysłana.",
+          AUCTION_ROOM_NOT_FOUND: "Nie znaleziono aukcji.",
+          AUCTION_ROOM_NOT_WAITING: "Lobby jest już zamknięte.",
+          AUCTION_ROOM_STARTED: "Aukcja już się zaczęła.",
+          AUCTION_ROOM_TERMINAL: "Ta aukcja się zakończyła.",
+          AUCTION_PERMISSION_DENIED: "Nie możesz tego zrobić w tej aukcji.",
+          AUCTION_ALREADY_CAPTAIN:
+            "Jesteś kapitanem w trwającej aukcji. Najpierw ją dokończ albo anuluj.",
+          AUCTION_CAPTAIN_SLOT_TAKEN:
+            "Miejsce drugiego kapitana jest już zajęte.",
+          AUCTION_CAPTAIN_SLOT_EMPTY: "Nie ma drugiego kapitana do usunięcia.",
+          AUCTION_NEEDS_TWO_CAPTAINS: "Aukcja potrzebuje dwóch kapitanów.",
+          AUCTION_PLAYERS_INVALID:
+            "Pula potrzebuje ośmiu graczy, każdego z Riot ID.",
+          AUCTION_PLAYERS_NOT_UNIQUE:
+            "Każdy Riot ID może być w puli tylko raz.",
+          AUCTION_BUDGET_INVALID: "Budżet musi wynosić od 4 do 100.",
+          AUCTION_BID_SECONDS_INVALID:
+            "Czas na licytację musi wynosić od 10 do 60 sekund.",
+          AUCTION_TEAM_NAME_INVALID:
+            "Nazwa drużyny musi mieć od 1 do 100 znaków.",
+          AUCTION_BIDDING_CLOSED: "Licytacja nie jest teraz otwarta.",
+          AUCTION_DEADLINE_PASSED: "Czas na licytację minął.",
+          AUCTION_BID_TOO_LOW: "Oferta jest za niska.",
+          AUCTION_BUDGET_EXCEEDED:
+            "Ta oferta przekracza Twój pozostały budżet.",
+          AUCTION_LEADER_CANNOT_BID: "Już prowadzisz w tej rundzie.",
+          AUCTION_CONCEDE_NOT_ALLOWED: "Nie ma teraz czego odpuścić.",
+          AUCTION_LEADER_CANNOT_CONCEDE:
+            "Prowadzisz w tej rundzie, więc nie masz czego odpuścić.",
+          AUCTION_PASS_NOT_ALLOWED:
+            "Oddać gracza przeciwnikowi można tylko w wolnej aukcji.",
+          AUCTION_TAKE_NOT_ALLOWED:
+            "Wzięcie gracza za $1 nie jest teraz dostępne.",
+        },
       },
       posts: {
         title: "Forum",

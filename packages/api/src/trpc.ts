@@ -2,7 +2,12 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { createClient } from "@v1/supabase/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
-import { isDatabaseError, SERVER_ERROR_MESSAGE, toTRPCError } from "./errors";
+import {
+  auctionRuleOf,
+  isDatabaseError,
+  SERVER_ERROR_MESSAGE,
+  toTRPCError,
+} from "./errors";
 import { createLoggerPlugin } from "./logger";
 
 /**
@@ -49,6 +54,8 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
         error.code === "BAD_REQUEST" && error.cause instanceof ZodError
           ? z.flattenError(error.cause as ZodError<Record<string, unknown>>)
           : null,
+      // The auction rule an action broke, for the app to word in the viewer's language.
+      auctionRule: auctionRuleOf(error.cause),
     },
   }),
 });

@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { formatRank } from "@v1/domain/rank";
 import { z } from "zod";
 import type { Client } from "../types";
@@ -108,12 +109,10 @@ export const auctionRoomSnapshot = z.object({
       createdAt: z.string(),
     }),
   ),
+  // Facts about the viewer; what they may do follows from them (`auctionPermissions`).
   permissions: z.object({
     side: auctionSide.nullable(),
     isCreator: viewerFlag,
-    canJoin: viewerFlag,
-    canEditLobby: viewerFlag,
-    canCancel: viewerFlag,
   }),
 });
 
@@ -189,4 +188,121 @@ export async function withLatestRanks(
       },
     };
   });
+}
+
+/**
+ * The auction actions. Each runs one auction function under a fresh request id; a refusal is thrown
+ * as the database error, whose message is the `AUCTION_*` rule it broke.
+ */
+
+type Pool = { gameName: string; tagLine: string }[];
+
+/** Opens a room with the viewer as captain A, and returns its id. */
+export async function createAuction(
+  client: Client,
+  room: {
+    players: Pool;
+    teamName: string;
+    budget: number;
+    bidSeconds: number;
+    showOrder: boolean;
+  },
+) {
+  const { data, error } = await client.rpc("auction_create_room", {
+    p_request_id: randomUUID(),
+    p_players: await withLatestRanks(client, room.players),
+    p_team_name: room.teamName,
+    p_starting_budget: room.budget,
+    p_bid_seconds: room.bidSeconds,
+    p_order_visible: room.showOrder,
+  });
+  if (error) throw error;
+  return auctionRoomSnapshot.parse(data).id;
+}
+
+/** Changes the lobby's settings; a setting left undefined stays as it is. */
+export async function updateAuctionLobby(
+  client: Client,
+  roomId: string,
+  lobby: {
+    teamName?: string;
+    budget?: number;
+    bidSeconds?: number;
+    showOrder?: boolean;
+    players?: Pool;
+  },
+) {
+  const { error } = await client.rpc("auction_update_lobby", {
+    p_room_id: roomId,
+    p_request_id: randomUUID(),
+    p_team_name: lobby.teamName ?? null,
+    p_starting_budget: lobby.budget ?? null,
+    p_bid_seconds: lobby.bidSeconds ?? null,
+    p_order_visible: lobby.showOrder ?? null,
+    p_players: lobby.players
+      ? await withLatestRanks(client, lobby.players)
+      : null,
+  });
+  if (error) throw error;
+}
+
+export async function joinAuction(
+  client: Client,
+  roomId: string,
+  teamName: string,
+) {
+  const { error } = await client.rpc("auction_join_captain", {
+    p_room_id: roomId,
+    p_request_id: randomUUID(),
+    p_team_name: teamName,
+  });
+  if (error) throw error;
+}
+
+export async function setAuctionReady(
+  client: Client,
+  roomId: string,
+  ready: boolean,
+) {
+  const { error } = await client.rpc("auction_set_ready", {
+    p_room_id: roomId,
+    p_request_id: randomUUID(),
+    p_ready: ready,
+  });
+  if (error) throw error;
+}
+
+export async function bidInAuction(
+  client: Client,
+  roomId: string,
+  amount: number,
+) {
+  const { error } = await client.rpc("auction_bid", {
+    p_room_id: roomId,
+    p_request_id: randomUUID(),
+    p_amount: amount,
+  });
+  if (error) throw error;
+}
+
+/** The actions that take nothing but the room. */
+const ROOM_ACTIONS = {
+  leave: "auction_leave_captain",
+  removeCaptain: "auction_remove_captain",
+  concede: "auction_concede",
+  pass: "auction_pass",
+  take: "auction_take",
+  cancel: "auction_cancel",
+} as const;
+
+export async function runAuctionAction(
+  client: Client,
+  roomId: string,
+  action: keyof typeof ROOM_ACTIONS,
+) {
+  const { error } = await client.rpc(ROOM_ACTIONS[action], {
+    p_room_id: roomId,
+    p_request_id: randomUUID(),
+  });
+  if (error) throw error;
 }
