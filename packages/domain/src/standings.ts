@@ -14,7 +14,7 @@ export interface StandingsRow {
 /**
  * Assigns a position to every row.
  *
- * Expects the rows already ordered the way `leaderboard_at` returns them: qualified players first,
+ * Expects the rows already ordered the way `standings_at` returns them: qualified players first,
  * by rating descending. Positions are relative to the rows given, which is the whole standings only
  * while the list starts at the top.
  */

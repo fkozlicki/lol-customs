@@ -1,5 +1,5 @@
 /**
- * Two rows of one season's standings, as `riftRank.leaderboard` returns them: the leader and a player
+ * Two rows of one season's standings, as `standings.get` returns them: the leader and a player
  * still qualifying. What `toStandingsRowView` is tested against.
  *
  * Real data from the local database with the people replaced: names, tag lines, puuids, user ids.
@@ -59,4 +59,4 @@ export const STANDINGS = [
     },
     position: null,
   },
-] satisfies RouterOutputs["riftRank"]["leaderboard"];
+] satisfies RouterOutputs["standings"]["get"];

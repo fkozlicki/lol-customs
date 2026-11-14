@@ -19,7 +19,7 @@ export function PlayerTitles({ puuid, season }: PlayerTitlesProps) {
   const trpc = useTRPC();
   const seasonParam = useSeasonParam();
   const { data } = useSuspenseQuery(
-    trpc.riftRank.hallOfFame.queryOptions({ season }),
+    trpc.hallOfFame.get.queryOptions({ season }),
   );
 
   const titles = toHeldTitles(data, puuid, {

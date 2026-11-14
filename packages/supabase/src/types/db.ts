@@ -728,10 +728,10 @@ export type Database = {
           ladder_season_id: number;
           lose_streak: number;
           losses: number;
-          matches_played: number | null;
+          matches_played: number;
           mvp_games: number;
           puuid: string;
-          qualified: boolean | null;
+          qualified: boolean;
           rating: number;
           updated_at: string | null;
           win_streak: number;
@@ -756,10 +756,10 @@ export type Database = {
           ladder_season_id: number;
           lose_streak?: number;
           losses?: number;
-          matches_played?: number | null;
+          matches_played?: number;
           mvp_games?: number;
           puuid: string;
-          qualified?: boolean | null;
+          qualified?: boolean;
           rating?: number;
           updated_at?: string | null;
           win_streak?: number;
@@ -784,10 +784,10 @@ export type Database = {
           ladder_season_id?: number;
           lose_streak?: number;
           losses?: number;
-          matches_played?: number | null;
+          matches_played?: number;
           mvp_games?: number;
           puuid?: string;
-          qualified?: boolean | null;
+          qualified?: boolean;
           rating?: number;
           updated_at?: string | null;
           win_streak?: number;
@@ -1228,6 +1228,29 @@ export type Database = {
       };
       standings_after_match: {
         Args: { p_limit?: number; p_matches: number; p_track: number };
+        Returns: {
+          ace_games: number;
+          avg_assists: number;
+          avg_deaths: number;
+          avg_kills: number;
+          best_streak: number;
+          game_name: string;
+          lose_streak: number;
+          losses: number;
+          mvp_games: number;
+          platform_id: string;
+          profile_icon: number;
+          puuid: string;
+          qualified: boolean;
+          rating: number;
+          tag_line: string;
+          updated_at: string;
+          win_streak: number;
+          wins: number;
+        }[];
+      };
+      standings_at: {
+        Args: { p_at: string; p_limit?: number; p_track: number };
         Returns: {
           ace_games: number;
           avg_assists: number;

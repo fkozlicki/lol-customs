@@ -17,7 +17,7 @@ import {
   type HofTitleId,
 } from "./hof-config";
 
-type HallOfFameData = RouterOutputs["riftRank"]["hallOfFame"];
+type HallOfFameData = RouterOutputs["hallOfFame"]["get"];
 type HofPlayer = HallOfFameData[string][number]["player"];
 
 /** The catalog's words in the reader's language. */
@@ -40,7 +40,7 @@ export function hasTitleHolders(data: HallOfFameData): boolean {
 }
 
 /**
- * `riftRank.hallOfFame` laid out by the catalog: each title named and formatted with its holders, the
+ * `hallOfFame.get` laid out by the catalog: each title named and formatted with its holders, the
  * unpaired titles nobody holds left out (and a section with nothing left, dropped), and the players who
  * collect the most best and worst titles.
  */

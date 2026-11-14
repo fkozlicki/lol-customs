@@ -4,7 +4,7 @@ import { Icons } from "@v1/ui/icons";
 import type { NavItem } from "@v1/ui/recipes/dashboard/nav-item";
 
 export const PRIMARY: NavItem[] = [
-  { href: "/", label: "Leaderboard", icon: Icons.Leaderboard, active: true },
+  { href: "/", label: "Standings", icon: Icons.Standings, active: true },
   { href: "/matches", label: "Matches", icon: Icons.Matches, active: false },
   {
     href: "/hof",

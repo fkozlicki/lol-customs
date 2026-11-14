@@ -4,7 +4,7 @@ import type { StandingsRowView } from "@v1/ui/recipes/home/standings-view";
 import { withSeason } from "@/utils/season";
 
 /**
- * What the mapper reads from a rating row. `riftRank.leaderboard` rows and `players.profileStats`
+ * What the mapper reads from a rating row. `standings.get` rows and `players.profileStats`
  * both have it.
  */
 export interface StandingsSource {
@@ -31,7 +31,7 @@ export interface StandingsSource {
 }
 
 /**
- * A `riftRank.leaderboard` row as the standings recipes take it: formatted with the domain's rules,
+ * A `standings.get` row as the standings recipes take it: formatted with the domain's rules,
  * linked with the season in view, and positioned only once the player has qualified.
  */
 export function toStandingsRowView(

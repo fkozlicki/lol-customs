@@ -15,7 +15,7 @@ export function HallOfFame({ season }: { season: number }) {
   const seasonParam = useSeasonParam();
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
-    trpc.riftRank.hallOfFame.queryOptions({ season }),
+    trpc.hallOfFame.get.queryOptions({ season }),
   );
 
   if (!hasTitleHolders(data)) return <HallOfFameEmptyState season={season} />;

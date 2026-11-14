@@ -72,7 +72,7 @@ export const Icons = {
   User,
   X,
   /** Season standings. */
-  Leaderboard: Trophy,
+  Standings: Trophy,
   /** A Match. */
   Matches: Swords,
   /** Hall of Fame. */

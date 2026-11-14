@@ -4,8 +4,8 @@ import { Icons } from "@v1/ui/icons";
 export const PRIMARY_PATHS = [
   {
     path: "/",
-    label: "sidebar.leaderboard",
-    Icon: Icons.Leaderboard,
+    label: "sidebar.standings",
+    Icon: Icons.Standings,
     seasonScoped: true,
   },
   {

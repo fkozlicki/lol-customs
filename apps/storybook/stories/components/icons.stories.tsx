@@ -10,7 +10,7 @@ export default meta;
 
 /**
  * Every icon Derby uses, for the app, the recipes and Derby Sync. Most are named after what they
- * depict; one that stands for a CONTEXT.md term is named after the term (`Leaderboard`, `Auction`).
+ * depict; one that stands for a CONTEXT.md term is named after the term (`Standings`, `Auction`).
  */
 export const All: StoryObj = {
   render: () => (

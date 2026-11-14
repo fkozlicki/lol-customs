@@ -4,10 +4,10 @@ import type { Database as GeneratedDatabase } from "./db";
 import type { ForumContent } from "./json";
 
 /**
- * A row of `leaderboard_at`. The generator types every column of a `RETURNS TABLE` function as
+ * A row of `standings_at`. The generator types every column of a `RETURNS TABLE` function as
  * non-null, but the player's name, icon and averages come from a left join and can be null.
  */
-type LeaderboardAtRow = {
+type StandingsAtRow = {
   puuid: string;
   rating: number;
   wins: number;
@@ -38,14 +38,13 @@ type PlayerNameColumns = {
 /**
  * The generated schema, corrected where the generator cannot know better:
  * - forum content, which the app writes and reads, gets its shape (`json.ts`);
- * - generated columns computed from non-null columns are never null;
  * - the `forum_post_list` view's columns are as non-null as the table's, and its counts too;
  * - functions returning a table admit the nulls their left joins produce;
  * - `auction_update_lobby` takes null for every setting it leaves as it is.
  *
- * `db.ts` stays exactly as `bun generate:types` writes it. The auction JSON columns are only written
- * and read in SQL; the JSON the auction functions return is checked at runtime by
- * `queries/auctions.ts`.
+ * `db.ts` stays exactly as `bun generate:types` writes it. The auction JSON columns are written through
+ * the auction functions and read only through the snapshot they build, whose JSON
+ * `queries/auctions.ts` checks at runtime; they need no override here.
  */
 export type Database = MergeDeep<
   GeneratedDatabase,
@@ -62,7 +61,6 @@ export type Database = MergeDeep<
           Insert: { content: ForumContent };
           Update: { content?: ForumContent };
         };
-        ratings: { Row: { matches_played: number; qualified: boolean } };
       };
       Views: {
         forum_post_list: {
@@ -79,8 +77,8 @@ export type Database = MergeDeep<
         };
       };
       Functions: {
-        leaderboard_at: { Returns: LeaderboardAtRow[] };
-        standings_after_match: { Returns: LeaderboardAtRow[] };
+        standings_at: { Returns: StandingsAtRow[] };
+        standings_after_match: { Returns: StandingsAtRow[] };
         player_relations: {
           Returns: ({
             relation: string;

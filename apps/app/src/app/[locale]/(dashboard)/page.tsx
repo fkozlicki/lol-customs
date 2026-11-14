@@ -1,10 +1,10 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
-import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
+import StandingsSkeleton from "@v1/ui/recipes/home/standings-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import { maxHistoricallyAfterGames } from "@/components/home/leaderboard-after-games";
-import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
-import { Leaderboard } from "@/components/home/leaderboard-preview";
+import { replayPoint } from "@/components/home/standings-after-matches";
+import StandingsHistoryPicker from "@/components/home/standings-history-picker";
+import { TrackStandings } from "@/components/home/track-standings";
 import { QueryBoundary } from "@/components/query-boundary";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
@@ -26,24 +26,14 @@ export default async function DashboardHomePage({
       : t("label", { number: seasonNumber(season, seasons) ?? season });
 
   const queryClient = getQueryClient();
-  const gamesPlayed = await queryClient.fetchQuery(
-    trpc.riftRank.ladderRatedMatchCount.queryOptions({ season }),
+  const matchCount = await queryClient.fetchQuery(
+    trpc.matches.count.queryOptions({ season }),
   );
 
-  const parsedAfterGames = Number(after);
-  const maxAfter = maxHistoricallyAfterGames(gamesPlayed);
-  const afterGames =
-    typeof after === "string" &&
-    after !== "" &&
-    Number.isInteger(parsedAfterGames) &&
-    parsedAfterGames >= 1 &&
-    maxAfter > 0 &&
-    parsedAfterGames <= maxAfter
-      ? parsedAfterGames
-      : undefined;
+  const afterMatches = replayPoint(after, matchCount);
 
   void prefetch(
-    trpc.riftRank.leaderboard.queryOptions({ season, limit: 50, afterGames }),
+    trpc.standings.get.queryOptions({ season, limit: 50, afterMatches }),
   );
 
   return (
@@ -53,17 +43,15 @@ export default async function DashboardHomePage({
             the standings, so they replay the entry stagger instead; animating a reorder needs the
             previous rows kept (e.g. placeholder data) and `layout` on each row. */}
         <QueryBoundary
-          fallback={<LeaderboardSkeleton />}
-          key={`${season}:${afterGames ?? "live"}`}
+          fallback={<StandingsSkeleton />}
+          key={`${season}:${afterMatches ?? "live"}`}
         >
-          <Leaderboard
+          <TrackStandings
             season={season}
             seasonTitle={seasonTitle}
             limit={50}
-            after={afterGames}
-            historyPicker={
-              <LeaderboardHistoryPicker gamesPlayed={gamesPlayed} />
-            }
+            after={afterMatches}
+            historyPicker={<StandingsHistoryPicker matchCount={matchCount} />}
           />
         </QueryBoundary>
       </PageShell>

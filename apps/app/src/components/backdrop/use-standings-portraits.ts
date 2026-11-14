@@ -34,7 +34,7 @@ export function useStandingsPortraits({
   const season = seasons ? resolveSeason(raw, seasons) : undefined;
 
   const { data: standings, isFetched } = useQuery({
-    ...trpc.riftRank.leaderboard.queryOptions({
+    ...trpc.standings.get.queryOptions({
       season: season ?? 0,
       limit: STANDINGS,
     }),

@@ -15,7 +15,7 @@ const meta = {
   },
   parameters: { layout: "padded" },
   args: {
-    title: "Leaderboard",
+    title: "Standings",
     description: "Every player with at least five matches this season.",
   },
 } satisfies Meta<typeof PageHeader>;

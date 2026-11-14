@@ -11,7 +11,7 @@ import CurrentStreak from "./current-streak";
 import { QualifyingProgress } from "./qualifying-progress";
 import type { StandingsRowView } from "./standings-view";
 
-interface LeaderboardRowProps {
+interface StandingsRowProps {
   row: StandingsRowView;
   /** Position in the table, for the stagger as rows enter. */
   index: number;
@@ -20,11 +20,11 @@ interface LeaderboardRowProps {
 }
 
 /** A row of the standings table: position, player, rating and the season's numbers. */
-export default function LeaderboardRow({
+export default function StandingsRow({
   row,
   index,
   qualificationMatches,
-}: LeaderboardRowProps) {
+}: StandingsRowProps) {
   const t = useTranslations("standings");
   const { position, name, wins, losses } = row;
   const isQualifying = position == null;

@@ -1,6 +1,6 @@
 # Dokumentacja formuł
 
-## Formuła rankingu (leaderboard)
+## Formuła rankingu
 
 Ranking używa **jednego ratingu** na gracza. Po każdej meczu 5v5 rating każdego uczestnika jest aktualizowany w stylu Elo z uwzględnieniem wyniku meczu i gry (**zero-sum** względem 10 graczy w tym meczu — brak długoterminowej inflacji).
 

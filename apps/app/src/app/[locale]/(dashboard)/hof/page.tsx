@@ -19,7 +19,7 @@ export default async function HallOfFamePage({
   const t = await getTranslations("dashboard.pages.hallOfFame");
   const tSeason = await getTranslations("dashboard.season");
   const { season, seasons } = await getSeasonScope((await searchParams).season);
-  prefetch(trpc.riftRank.hallOfFame.queryOptions({ season }));
+  prefetch(trpc.hallOfFame.get.queryOptions({ season }));
 
   return (
     <HydrateClient>

@@ -1,6 +1,6 @@
 /**
  * One player's line in the standings, as the standings recipes draw it. The app makes one from a
- * `riftRank.leaderboard` row with `toStandingsRowView`
+ * `standings.get` row with `toStandingsRowView`
  * (apps/app/src/components/home/standings-view.ts); stories make one by hand.
  */
 export interface StandingsRowView {

@@ -1,28 +1,28 @@
 "use client";
 
-import LeaderboardHistoryPicker from "@v1/ui/recipes/home/leaderboard-history-picker";
+import StandingsHistoryPicker from "@v1/ui/recipes/home/standings-history-picker";
 import { parseAsInteger, useQueryState } from "nuqs";
-import { maxHistoricallyAfterGames } from "./leaderboard-after-games";
+import { maxHistoricallyAfterMatches } from "./standings-after-matches";
 
-interface LeaderboardHistoryProps {
+interface StandingsHistoryProps {
   /** Total ladder matches (rows in `matches`). Numbers are 1 … (n−1), then **live**. */
-  gamesPlayed: number;
+  matchCount: number;
   className?: string;
 }
 
 /** The history picker, kept in `?after=` so a replayed standings view has a URL. */
-export default function LeaderboardHistory({
-  gamesPlayed,
+export default function StandingsHistory({
+  matchCount,
   className,
-}: LeaderboardHistoryProps) {
+}: StandingsHistoryProps) {
   const [after, setAfter] = useQueryState(
     "after",
     parseAsInteger.withOptions({ shallow: false }),
   );
-  const numericMax = maxHistoricallyAfterGames(gamesPlayed);
+  const numericMax = maxHistoricallyAfterMatches(matchCount);
 
   return (
-    <LeaderboardHistoryPicker
+    <StandingsHistoryPicker
       options={Array.from({ length: numericMax }, (_, index) => index + 1)}
       value={after}
       onChange={setAfter}

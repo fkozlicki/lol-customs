@@ -144,3 +144,16 @@ export async function listPlayerMatches(
     nextCursor: lastMatchId ?? null,
   };
 }
+
+/** Matches on a rating track, capped at 100 000; drives the "after N matches" picker. */
+export async function countMatches(client: Client, track: number) {
+  let query = client
+    .from("matches")
+    .select("*", { count: "exact", head: true });
+  if (!isAllTime(track)) {
+    query = query.eq("ladder_season_id", track);
+  }
+  const { count, error } = await query;
+  if (error) throw error;
+  return Math.min(count ?? 0, 100_000);
+}

@@ -35,7 +35,7 @@ export default {
       "The podium fills up once players reach {count} matches.",
     historyLabel: "After match",
     historyLive: "Live",
-    title: "Leaderboard",
+    title: "Standings",
     tablePlayer: "Player",
     tableRating: "Rating",
     tableWr: "WR",
@@ -326,6 +326,6 @@ export default {
   notFound: {
     title: "Nothing here",
     description: "The page you followed does not exist, or was removed.",
-    home: "Back to the leaderboard",
+    home: "Back to the standings",
   },
 } as const;
