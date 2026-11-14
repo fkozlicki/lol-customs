@@ -105,6 +105,43 @@ export default {
           linkCopied: "Room link copied.",
           linkCopyFailed: "Could not copy the room link.",
         },
+        errors: {
+          unknown: "Something went wrong. Try again.",
+          AUCTION_PROFILE_REQUIRED:
+            "Create a profile before joining an auction.",
+          AUCTION_REQUEST_ID_REQUIRED: "Something went wrong. Try again.",
+          AUCTION_IDEMPOTENCY_KEY_REUSED: "That action was already sent.",
+          AUCTION_ROOM_NOT_FOUND: "Auction not found.",
+          AUCTION_ROOM_NOT_WAITING: "The lobby has closed.",
+          AUCTION_ROOM_STARTED: "The auction has already started.",
+          AUCTION_ROOM_TERMINAL: "This auction is over.",
+          AUCTION_PERMISSION_DENIED: "You cannot do that in this auction.",
+          AUCTION_ALREADY_CAPTAIN:
+            "You are a captain in a live auction. Finish or cancel it first.",
+          AUCTION_CAPTAIN_SLOT_TAKEN:
+            "The second captain seat is already taken.",
+          AUCTION_CAPTAIN_SLOT_EMPTY: "There is no second captain to remove.",
+          AUCTION_NEEDS_TWO_CAPTAINS: "The auction needs two captains.",
+          AUCTION_PLAYERS_INVALID:
+            "The pool needs eight players, each with a Riot ID.",
+          AUCTION_PLAYERS_NOT_UNIQUE: "Each Riot ID can be in the pool once.",
+          AUCTION_BUDGET_INVALID: "The budget must be between 4 and 100.",
+          AUCTION_BID_SECONDS_INVALID:
+            "The bid timer must be between 10 and 60 seconds.",
+          AUCTION_TEAM_NAME_INVALID:
+            "The team name must be 1 to 100 characters.",
+          AUCTION_BIDDING_CLOSED: "Bidding is not open right now.",
+          AUCTION_DEADLINE_PASSED: "The bidding deadline has passed.",
+          AUCTION_BID_TOO_LOW: "The bid is too low.",
+          AUCTION_BUDGET_EXCEEDED: "This bid exceeds your remaining budget.",
+          AUCTION_LEADER_CANNOT_BID: "You already lead this round.",
+          AUCTION_CONCEDE_NOT_ALLOWED: "There is nothing to concede right now.",
+          AUCTION_LEADER_CANNOT_CONCEDE:
+            "You lead this round, so there is nothing to concede.",
+          AUCTION_PASS_NOT_ALLOWED:
+            "A pass is only possible in a free auction.",
+          AUCTION_TAKE_NOT_ALLOWED: "Taking for $1 is not available right now.",
+        },
       },
       posts: {
         title: "Forum",

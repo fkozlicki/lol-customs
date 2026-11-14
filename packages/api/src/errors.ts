@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { type AuctionRule, isAuctionRule } from "@v1/domain/auction";
 
 type TRPCErrorCode = ConstructorParameters<typeof TRPCError>[0]["code"];
 
@@ -49,6 +50,45 @@ const BY_HTTP_STATUS: Record<string, TRPCErrorCode> = {
   "429": "TOO_MANY_REQUESTS",
 };
 
+/** How each auction rule a function refused an action by reaches the client. */
+const BY_AUCTION_RULE: Record<AuctionRule, TRPCErrorCode> = {
+  AUCTION_ROOM_NOT_FOUND: "NOT_FOUND",
+  AUCTION_PROFILE_REQUIRED: "FORBIDDEN",
+  AUCTION_PERMISSION_DENIED: "FORBIDDEN",
+  AUCTION_PASS_NOT_ALLOWED: "FORBIDDEN",
+  AUCTION_CONCEDE_NOT_ALLOWED: "FORBIDDEN",
+  AUCTION_TAKE_NOT_ALLOWED: "FORBIDDEN",
+  AUCTION_ALREADY_CAPTAIN: "CONFLICT",
+  AUCTION_CAPTAIN_SLOT_TAKEN: "CONFLICT",
+  AUCTION_DEADLINE_PASSED: "CONFLICT",
+  AUCTION_REQUEST_ID_REQUIRED: "BAD_REQUEST",
+  AUCTION_IDEMPOTENCY_KEY_REUSED: "BAD_REQUEST",
+  AUCTION_ROOM_NOT_WAITING: "BAD_REQUEST",
+  AUCTION_ROOM_STARTED: "BAD_REQUEST",
+  AUCTION_ROOM_TERMINAL: "BAD_REQUEST",
+  AUCTION_CAPTAIN_SLOT_EMPTY: "BAD_REQUEST",
+  AUCTION_NEEDS_TWO_CAPTAINS: "BAD_REQUEST",
+  AUCTION_PLAYERS_INVALID: "BAD_REQUEST",
+  AUCTION_PLAYERS_NOT_UNIQUE: "BAD_REQUEST",
+  AUCTION_BUDGET_INVALID: "BAD_REQUEST",
+  AUCTION_BID_SECONDS_INVALID: "BAD_REQUEST",
+  AUCTION_TEAM_NAME_INVALID: "BAD_REQUEST",
+  AUCTION_BIDDING_CLOSED: "BAD_REQUEST",
+  AUCTION_BID_TOO_LOW: "BAD_REQUEST",
+  AUCTION_BUDGET_EXCEEDED: "BAD_REQUEST",
+  AUCTION_LEADER_CANNOT_BID: "BAD_REQUEST",
+  AUCTION_LEADER_CANNOT_CONCEDE: "BAD_REQUEST",
+};
+
+/** The auction rule a database error refused an action by, or null for any other error. */
+export function auctionRuleOf(error: unknown): AuctionRule | null {
+  return isDatabaseError(error) &&
+    error.code === "P0001" &&
+    isAuctionRule(error.message)
+    ? error.message
+    : null;
+}
+
 /**
  * What the client is told. Written for developers and logs: the app shows its own translated text,
  * picked by the error's code.
@@ -70,6 +110,12 @@ export const SERVER_ERROR_MESSAGE = "Something went wrong.";
  * constraints, so it stays in `cause` for the server's logs and never reaches the client.
  */
 export function toTRPCError(error: DatabaseError): TRPCError {
+  const rule = auctionRuleOf(error);
+  if (rule) {
+    // The rule reaches the app as `data.auctionRule` (`trpc.ts`), which words it from its dictionary.
+    const code = BY_AUCTION_RULE[rule];
+    return new TRPCError({ code, message: MESSAGES[code], cause: error });
+  }
   const status = /^PT(\d{3})$/.exec(error.code)?.[1];
   const code =
     (status ? BY_HTTP_STATUS[status] : BY_SQLSTATE[error.code]) ??

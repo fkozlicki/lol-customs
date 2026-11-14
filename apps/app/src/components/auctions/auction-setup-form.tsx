@@ -23,6 +23,7 @@ import { PlayerPoolPicker } from "@/components/player-picker/player-pool-picker"
 import { usePlayerPicker } from "@/components/player-picker/use-player-picker";
 import { useTRPC } from "@/trpc/react";
 import { canSubmitAuctionSetup } from "./auction-setup";
+import { useAuctionErrorToast } from "./use-auction-error-toast";
 
 interface AuctionSetupFormProps {
   /** The lobby being edited; without one, the form creates a room. */
@@ -78,6 +79,7 @@ export function AuctionSetupForm({
     invalidRiotIdMessage: t("creator.invalidRiotId"),
   });
 
+  const toastError = useAuctionErrorToast();
   const createAuction = useMutation(
     trpc.auctions.create.mutationOptions({
       onSuccess: (room) => {
@@ -86,7 +88,7 @@ export function AuctionSetupForm({
         );
         router.push(`/auctions/${room.id}`);
       },
-      onError: (error) => toast.error(error.message),
+      onError: toastError,
     }),
   );
   const updateLobby = useMutation(
@@ -95,7 +97,7 @@ export function AuctionSetupForm({
         toast.success(t("creator.updated"));
         onUpdated?.();
       },
-      onError: (error) => toast.error(error.message),
+      onError: toastError,
     }),
   );
 

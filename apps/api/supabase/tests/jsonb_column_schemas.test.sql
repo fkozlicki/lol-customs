@@ -23,7 +23,7 @@ as $$
   from generate_series(1, 8) n;
 $$;
 
-select plan(9);
+select plan(11);
 
 -- Auction ranks ----------------------------------------------------------------------------------
 
@@ -47,6 +47,19 @@ select throws_ok(
       tests.pool('{"soloTier": "GOLD"}'), 'A', 20, 30, false)$$,
   '23514', null,
   'a rank without its division and label is refused'
+);
+select throws_ok(
+  $$select public.auction_create_room(gen_random_uuid(), tests.pool(null), 'A', 20, 30, false)$$,
+  'P0001', 'AUCTION_PLAYERS_INVALID',
+  'a pool player without a rank is an invalid pool'
+);
+select throws_ok(
+  $$select public.auction_update_lobby(
+      (select c.room_id from public.auction_captains c join public.auction_rooms r on r.id = c.room_id
+       where c.user_id = '30000000-0000-0000-0000-000000000001' and r.status = 'waiting'),
+      gen_random_uuid(), null, null, null, tests.pool(null), null)$$,
+  'P0001', 'AUCTION_PLAYERS_INVALID',
+  'a lobby cannot swap in a pool player without a rank'
 );
 
 -- Auction event payloads -------------------------------------------------------------------------

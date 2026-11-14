@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isDatabaseError, toTRPCError } from "../src/errors";
+import { auctionRuleOf, isDatabaseError, toTRPCError } from "../src/errors";
 
 const databaseError = (code: string) => ({
   code,
@@ -43,5 +43,32 @@ describe("a database error", () => {
       expect(error.message).not.toContain("nickname");
       expect(error.cause).toMatchObject({ code });
     }
+  });
+});
+
+describe("an auction rule an auction function refused an action by", () => {
+  const refusal = (message: string) => ({
+    code: "P0001",
+    message,
+    details: null,
+    hint: null,
+  });
+
+  test("reaches the client as the rule, with the status the rule means", () => {
+    const error = toTRPCError(refusal("AUCTION_BID_TOO_LOW"));
+    expect(error.code).toBe("BAD_REQUEST");
+    expect(error.message).toBe("Invalid request.");
+    expect(toTRPCError(refusal("AUCTION_ROOM_NOT_FOUND")).code).toBe(
+      "NOT_FOUND",
+    );
+    expect(auctionRuleOf(refusal("AUCTION_DEADLINE_PASSED"))).toBe(
+      "AUCTION_DEADLINE_PASSED",
+    );
+  });
+
+  test("is only a rule the list knows; any other raised text stays hidden", () => {
+    const error = toTRPCError(refusal('relation "secret" is locked'));
+    expect(auctionRuleOf(refusal('relation "secret" is locked'))).toBeNull();
+    expect(error.message).not.toContain("secret");
   });
 });

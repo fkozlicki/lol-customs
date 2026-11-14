@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { AUCTION_RULES } from "@v1/domain/auction";
 import { messages as recipes } from "@v1/ui/recipes/messages";
 import { createTranslator } from "next-intl";
 import { compose, MESSAGES } from "@/i18n/messages";
@@ -49,4 +50,14 @@ describe("the composed dictionary", () => {
     const clash = compose({ match: { a: "A" } }, { match: { b: "B" } });
     expect(Object.keys(clash)).toEqual(["match"]);
   });
+});
+
+describe("the auction errors", () => {
+  for (const locale of ["en", "pl"] as const) {
+    test(`word every auction rule (${locale})`, () => {
+      const errors: Record<string, string> =
+        app[locale].dashboard.pages.auctions.errors;
+      expect(AUCTION_RULES.filter((rule) => !errors[rule])).toEqual([]);
+    });
+  }
 });
