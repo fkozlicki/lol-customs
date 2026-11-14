@@ -2,7 +2,7 @@ import "server-only";
 import { isAllTime } from "@v1/domain/season";
 import { withStandingsPositions } from "@v1/domain/standings";
 import type { Client, Database } from "../types";
-import { type PlayerRef, playerRefs } from "./players";
+import { type PlayerRef, playerRef } from "./players";
 
 type LeaderboardAtRow =
   Database["public"]["Functions"]["leaderboard_at"]["Returns"][number];
@@ -48,61 +48,27 @@ export async function countTrackMatches(client: Client, track: number) {
 }
 
 /**
- * When the Nth match of the track was applied, so the standings can be replayed as they stood then.
- * Null when that match, or a rating snapshot for it, does not exist.
- */
-async function snapshotAfterMatch(
-  client: Client,
-  track: number,
-  afterMatches: number,
-): Promise<string | null> {
-  const offset = afterMatches - 1;
-  let matchQuery = client.from("matches").select("match_id");
-  if (!isAllTime(track)) {
-    matchQuery = matchQuery.eq("ladder_season_id", track);
-  }
-  const { data: matchRows, error: matchError } = await matchQuery
-    .order("game_creation", { ascending: true })
-    .order("match_id", { ascending: true })
-    .range(offset, offset);
-  if (matchError) throw matchError;
-
-  const targetMatchId = matchRows[0]?.match_id;
-  if (targetMatchId == null) return null;
-
-  const { data, error } = await client
-    .from("rating_history")
-    .select("created_at")
-    .eq("match_id", targetMatchId)
-    .eq("ladder_season_id", track)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw error;
-
-  return data?.created_at ? new Date(data.created_at).toISOString() : null;
-}
-
-/**
  * The standings of one rating track, live or as they stood right after its Nth match.
  *
  * Both come from `leaderboard_at`, so the ordering rule lives in SQL only: qualified players first by
- * rating, everyone else by matches played, with a deterministic tie-break.
+ * rating, everyone else by matches played, with a deterministic tie-break. `standings_after_match`
+ * finds when the Nth match was rated.
  */
 export async function getStandings(
   client: Client,
   args: { track: number; limit: number; afterMatches?: number },
 ) {
-  const at = args.afterMatches
-    ? await snapshotAfterMatch(client, args.track, args.afterMatches)
-    : new Date().toISOString();
-  if (!at) return [];
-
-  const { data, error } = await client.rpc("leaderboard_at", {
-    p_at: at,
-    p_track: args.track,
-    p_limit: args.limit,
-  });
+  const { data, error } = args.afterMatches
+    ? await client.rpc("standings_after_match", {
+        p_track: args.track,
+        p_matches: args.afterMatches,
+        p_limit: args.limit,
+      })
+    : await client.rpc("leaderboard_at", {
+        p_at: new Date().toISOString(),
+        p_track: args.track,
+        p_limit: args.limit,
+      });
   if (error) throw error;
 
   return withStandingsPositions(data.map(toStandingsRow));
@@ -115,13 +81,12 @@ export async function getHallOfFame(client: Client, track: number) {
   });
   if (error) throw error;
 
-  const refFor = await playerRefs(
-    client,
-    rows.map((row) => row.puuid),
-  );
   const titles = new Map<string, { player: PlayerRef; value: number }[]>();
   for (const row of rows) {
-    const entry = { player: refFor(row.puuid), value: Number(row.value) };
+    const entry = {
+      player: playerRef(row.puuid, row),
+      value: Number(row.value),
+    };
     titles.set(row.title, [...(titles.get(row.title) ?? []), entry]);
   }
   return Object.fromEntries(titles);

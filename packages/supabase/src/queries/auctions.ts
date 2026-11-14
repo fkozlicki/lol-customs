@@ -1,6 +1,5 @@
 import "server-only";
 import { formatRank } from "@v1/domain/rank";
-import { riotIdKey } from "@v1/domain/riot-id";
 import { z } from "zod";
 import type { Client } from "../types";
 import {
@@ -168,33 +167,16 @@ export async function withLatestRanks(
   client: Client,
   pool: { gameName: string; tagLine: string }[],
 ): Promise<AuctionPoolEntry[]> {
-  const [players, ranks] = await Promise.all([
-    client.from("players").select("puuid, game_name, tag_line"),
-    client.rpc("player_latest_ranks"),
-  ]);
-  if (players.error) throw players.error;
-  if (ranks.error) throw ranks.error;
+  const { data, error } = await client.rpc("latest_ranks_by_riot_id", {
+    p_game_names: pool.map((player) => player.gameName),
+    p_tag_lines: pool.map((player) => player.tagLine),
+  });
+  if (error) throw error;
 
-  const puuidByRiotId = new Map(
-    players.data.flatMap((player) =>
-      player.game_name && player.tag_line
-        ? [
-            [
-              riotIdKey({
-                gameName: player.game_name,
-                tagLine: player.tag_line,
-              }),
-              player.puuid,
-            ] as const,
-          ]
-        : [],
-    ),
-  );
-  const rankByPuuid = new Map(ranks.data.map((rank) => [rank.puuid, rank]));
-
-  return pool.map((player) => {
-    const puuid = puuidByRiotId.get(riotIdKey(player));
-    const rank = puuid ? rankByPuuid.get(puuid) : undefined;
+  // `ordinal` is the player's place in the pool, counted from 1.
+  const rankAt = new Map(data.map((rank) => [rank.ordinal, rank]));
+  return pool.map((player, index) => {
+    const rank = rankAt.get(index + 1);
     const soloTier = rank?.rank_tier ?? null;
     const soloDivision = rank?.rank_division ?? null;
     return {

@@ -104,7 +104,7 @@ as $$
   where title = p_title;
 $$;
 
-select plan(18);
+select plan(19);
 
 select is(
   tests.hof(91, 'most_kills'),
@@ -196,6 +196,12 @@ select ok(
     where title in ('big_spender', 'hoarder', 'cold', 'veteran_of_defeat', 'bottom_of_ladder', 'tank')
   ),
   'retired titles are gone'
+);
+
+select is(
+  (select string_agg(game_name, ',' order by puuid) from public.hall_of_fame(91) where title = 'most_kills'),
+  'HofTest1,HofTest2',
+  'a title names its holders'
 );
 
 select * from finish();

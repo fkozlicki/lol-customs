@@ -1,5 +1,5 @@
 import "server-only";
-import { isAllTime } from "@v1/domain/season";
+import { ALL_TIME_SEASON } from "@v1/domain/season";
 import type { Client } from "../types";
 
 /** A player as other players' records name them; the name is null for a player not in `players`. */
@@ -13,29 +13,17 @@ export type PlayerRef = {
 /** One player on one rating track (a season id, or 0 for all time). */
 export type PlayerOnTrack = { puuid: string; track: number };
 
-/** Names for the given players, keyed by puuid. A puuid with no `players` row gets a nameless ref. */
-export async function playerRefs(
-  client: Client,
-  puuids: string[],
-): Promise<(puuid: string) => PlayerRef> {
-  const unique = [...new Set(puuids)];
-  const { data, error } =
-    unique.length > 0
-      ? await client
-          .from("players")
-          .select("puuid, game_name, tag_line, profile_icon")
-          .in("puuid", unique)
-      : { data: [], error: null };
-  if (error) throw error;
-
-  const byPuuid = new Map(data.map((player) => [player.puuid, player]));
-  return (puuid) =>
-    byPuuid.get(puuid) ?? {
-      puuid,
-      game_name: null,
-      tag_line: null,
-      profile_icon: null,
-    };
+/** The other player of a record, from the name columns a read model returns beside their puuid. */
+export function playerRef(
+  puuid: string,
+  row: Omit<PlayerRef, "puuid">,
+): PlayerRef {
+  return {
+    puuid,
+    game_name: row.game_name,
+    tag_line: row.tag_line,
+    profile_icon: row.profile_icon,
+  };
 }
 
 /** Every known player with their last recorded Solo/Duo rank, most recently seen first. */
@@ -78,20 +66,19 @@ export async function getSoloRank(client: Client, puuid: string) {
   return data ? { tier: data.rank_tier, division: data.rank_division } : null;
 }
 
+/** The player who carries this Riot ID now, matched without case or surrounding spaces. */
 export async function findPlayerByRiotId(
   client: Client,
   riotId: { gameName: string; tagLine: string },
 ) {
   const { data, error } = await client
-    .from("players")
-    .select("*")
-    .ilike("game_name", riotId.gameName)
-    .ilike("tag_line", riotId.tagLine)
-    .limit(2);
+    .rpc("player_by_riot_id", {
+      p_game_name: riotId.gameName,
+      p_tag_line: riotId.tagLine,
+    })
+    .maybeSingle();
   if (error) throw error;
-  // `ilike` treats `%` and `_` as wildcards, so a Riot ID can match several players; that is not a
-  // profile. A lookup by normalised Riot ID replaces this (docs/research/api-layer-review.md).
-  return data.length === 1 ? data[0] : null;
+  return data;
 }
 
 /** A player's rating on one track, with their name and standings position; null if never rated. */
@@ -138,29 +125,19 @@ export async function getRatingHistory(
 /** A player's rating and record at the end of each season they played, oldest season first. */
 export async function getSeasonSummaries(client: Client, puuid: string) {
   const { data, error } = await client
-    .from("rating_history")
-    .select("ladder_season_id, rating_after, wins, losses")
+    .from("ratings")
+    .select("ladder_season_id, rating, wins, losses")
     .eq("puuid", puuid)
-    .gt("ladder_season_id", 0)
-    .order("created_at", { ascending: false })
-    .order("match_id", { ascending: false });
+    .neq("ladder_season_id", ALL_TIME_SEASON)
+    .order("ladder_season_id", { ascending: true });
   if (error) throw error;
 
-  const bySeason = new Map<number, (typeof data)[number]>();
-  for (const row of data) {
-    if (!bySeason.has(row.ladder_season_id)) {
-      bySeason.set(row.ladder_season_id, row);
-    }
-  }
-
-  return [...bySeason.values()]
-    .map((row) => ({
-      seasonId: row.ladder_season_id,
-      rating: row.rating_after,
-      wins: row.wins,
-      losses: row.losses,
-    }))
-    .sort((a, b) => a.seasonId - b.seasonId);
+  return data.map((row) => ({
+    seasonId: row.ladder_season_id,
+    rating: row.rating,
+    wins: row.wins,
+    losses: row.losses,
+  }));
 }
 
 /** Teammates and rivals on a rating track; only qualified players are named. */
@@ -174,15 +151,11 @@ export async function getRelations(
   });
   if (error) throw error;
 
-  const refFor = await playerRefs(
-    client,
-    rows.map((row) => row.other_puuid),
-  );
   const relation = (name: string) => {
     const row = rows.find((r) => r.relation === name);
     if (!row) return null;
     return {
-      player: refFor(row.other_puuid),
+      player: playerRef(row.other_puuid, row),
       matches: row.matches,
       wins: row.wins,
       losses: row.losses,
@@ -217,50 +190,19 @@ export async function getMostPlayedChampions(
   client: Client,
   { puuid, track, limit }: PlayerOnTrack & { limit: number },
 ) {
-  let query = client
-    .from("match_participants")
-    .select(
-      "champion_id, kills, deaths, assists, team_id, match:matches!inner(ladder_season_id, teams(team_id, win))",
-    )
-    .eq("puuid", puuid);
-  if (!isAllTime(track)) {
-    query = query.eq("match.ladder_season_id", track);
-  }
-  const { data, error } = await query;
+  const { data, error } = await client.rpc("player_champions", {
+    p_puuid: puuid,
+    p_track: track,
+    p_limit: limit,
+  });
   if (error) throw error;
 
-  const byChampion = new Map<
-    number,
-    {
-      games: number;
-      wins: number;
-      kills: number;
-      deaths: number;
-      assists: number;
-    }
-  >();
-  for (const row of data) {
-    if (row.champion_id == null) continue;
-    const won =
-      row.match.teams.find((team) => team.team_id === row.team_id)?.win ??
-      false;
-    const entry = byChampion.get(row.champion_id) ?? {
-      games: 0,
-      wins: 0,
-      kills: 0,
-      deaths: 0,
-      assists: 0,
-    };
-    entry.games += 1;
-    if (won) entry.wins += 1;
-    entry.kills += row.kills ?? 0;
-    entry.deaths += row.deaths ?? 0;
-    entry.assists += row.assists ?? 0;
-    byChampion.set(row.champion_id, entry);
-  }
-
-  return Array.from(byChampion.entries())
-    .map(([championId, stats]) => ({ championId, ...stats }))
-    .sort((a, b) => b.games - a.games)
-    .slice(0, limit);
+  return data.map((row) => ({
+    championId: row.champion_id,
+    games: row.matches,
+    wins: row.wins,
+    kills: row.kills,
+    deaths: row.deaths,
+    assists: row.assists,
+  }));
 }
