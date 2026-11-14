@@ -1,7 +1,10 @@
 import { TRPCError } from "@trpc/server";
-import type { Json } from "@v1/supabase/types";
+import { forumContent } from "@v1/supabase/types";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+
+/** A post's or comment's body: the client sends the editor's JSON as it is, checked here. */
+const forumContentInput = z.record(z.string(), z.unknown()).pipe(forumContent);
 
 export const forumRouter = createTRPCRouter({
   posts: createTRPCRouter({
@@ -62,7 +65,7 @@ export const forumRouter = createTRPCRouter({
       }),
 
     get: publicProcedure
-      .input(z.object({ id: z.string().uuid() }))
+      .input(z.object({ id: z.uuid() }))
       .query(async ({ ctx, input }) => {
         const { data, error } = await ctx.supabase
           .from("forum_posts")
@@ -97,7 +100,7 @@ export const forumRouter = createTRPCRouter({
       .input(
         z.object({
           title: z.string().min(1).max(200),
-          content: z.record(z.string(), z.unknown()),
+          content: forumContentInput,
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -120,7 +123,7 @@ export const forumRouter = createTRPCRouter({
           .insert({
             author_id: ctx.user.id,
             title: input.title,
-            content: input.content as Json,
+            content: input.content,
           })
           .select()
           .single();
@@ -135,7 +138,7 @@ export const forumRouter = createTRPCRouter({
     toggle: protectedProcedure
       .input(
         z.object({
-          postId: z.string().uuid(),
+          postId: z.uuid(),
           type: z.enum(["like", "dislike"]),
         }),
       )
@@ -184,7 +187,7 @@ export const forumRouter = createTRPCRouter({
     list: publicProcedure
       .input(
         z.object({
-          postId: z.string().uuid(),
+          postId: z.uuid(),
           limit: z.number().min(1).max(100).default(50),
           cursor: z.string().optional(),
         }),
@@ -238,8 +241,8 @@ export const forumRouter = createTRPCRouter({
     create: protectedProcedure
       .input(
         z.object({
-          postId: z.string().uuid(),
-          content: z.record(z.string(), z.unknown()),
+          postId: z.uuid(),
+          content: forumContentInput,
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -248,7 +251,7 @@ export const forumRouter = createTRPCRouter({
           .insert({
             post_id: input.postId,
             author_id: ctx.user.id,
-            content: input.content as Json,
+            content: input.content,
           })
           .select(
             `
@@ -314,7 +317,7 @@ export const forumRouter = createTRPCRouter({
     toggle: protectedProcedure
       .input(
         z.object({
-          commentId: z.string().uuid(),
+          commentId: z.uuid(),
           type: z.enum(["like", "dislike"]),
         }),
       )

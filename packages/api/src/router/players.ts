@@ -86,12 +86,7 @@ export const playersRouter = createTRPCRouter({
       );
       if (positionError) throw positionError;
 
-      return {
-        ...data,
-        matches_played: data.matches_played ?? 0,
-        qualified: data.qualified ?? false,
-        position: position ?? null,
-      };
+      return { ...data, position: position ?? null };
     }),
 
   ratingHistory: publicProcedure

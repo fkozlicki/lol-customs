@@ -44,8 +44,9 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
         : shape.message,
     data: {
       ...shape.data,
+      // Only an invalid input explains itself; a failed check of the database's JSON stays in the logs.
       zodError:
-        error.cause instanceof ZodError
+        error.code === "BAD_REQUEST" && error.cause instanceof ZodError
           ? z.flattenError(error.cause as ZodError<Record<string, unknown>>)
           : null,
     },

@@ -13,7 +13,9 @@
     "@v1/logger": "workspace:*",
     "react": "catalog:react",
     "server-only": "^0.0.1",
-    "supabase": "catalog:"
+    "supabase": "catalog:",
+    "type-fest": "^4.41.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.45.3",
@@ -32,6 +34,7 @@
     "./server": "./src/clients/server.ts",
     "./client": "./src/clients/client.ts",
     "./middleware": "./src/clients/middleware.ts",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types/index.ts",
+    "./queries/auctions": "./src/queries/auctions.ts"
   }
 }

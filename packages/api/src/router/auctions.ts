@@ -2,20 +2,20 @@ import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { AUCTION_POOL_SIZE } from "@v1/domain/auction";
 import { formatRank } from "@v1/domain/rank";
-import { riotIdKey } from "@v1/domain/riot-id";
-import type { Json } from "@v1/supabase/types";
+import { parseRiotId, riotIdKey } from "@v1/domain/riot-id";
+import {
+  type AuctionListRoom,
+  type AuctionRoomSnapshot,
+  auctionRoomSnapshot,
+  getAuctionRoom,
+  listActiveAuctions,
+} from "@v1/supabase/queries/auctions";
+import type { AuctionPoolEntry, Client } from "@v1/supabase/types";
 import { z } from "zod";
-import type {
-  AuctionEventType,
-  AuctionListItem,
-  AuctionPhase,
-  AuctionRoomView,
-  AuctionSide,
-  AuctionStatus,
-} from "../auction-contract";
+import { isDatabaseError, toTRPCError } from "../errors";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
-const roomIdSchema = z.object({ id: z.string().uuid() });
+const roomIdSchema = z.object({ id: z.uuid() });
 
 const poolPlayerSchema = z.object({
   gameName: z.string().trim().min(1).max(100),
@@ -32,28 +32,21 @@ const poolSchema = z
 
 const teamNameSchema = z.string().trim().min(1).max(100);
 
-interface RpcError {
-  code?: string;
+interface AuctionFunctionError {
   message: string;
 }
 
-type RpcCaller = (
-  name: string,
-  args?: Record<string, unknown>,
-) => PromiseLike<{ data: unknown; error: RpcError | null }>;
-
-async function callRpc<T>(
-  supabase: { rpc: unknown },
-  name: string,
-  args?: Record<string, unknown>,
-): Promise<T> {
-  const { data, error } = await (supabase.rpc as RpcCaller)(name, args);
-  if (error) throw domainError(error);
-  return data as T;
-}
-
-function domainError(error: RpcError): TRPCError {
+/**
+ * An auction function's error. One that names an `AUCTION_*` rule gets its message; anything else
+ * goes through the shared mapper, so the database's own text never reaches the client.
+ */
+function domainError(error: AuctionFunctionError): TRPCError {
   const domainCode = error.message.match(/AUCTION_[A-Z_]+/)?.[0];
+  if (!domainCode) {
+    return isDatabaseError(error)
+      ? toTRPCError(error)
+      : new TRPCError({ code: "INTERNAL_SERVER_ERROR", cause: error });
+  }
   const messages: Record<string, string> = {
     AUCTION_PROFILE_REQUIRED: "Create a profile before joining an auction.",
     AUCTION_ROOM_NOT_FOUND: "Auction not found.",
@@ -72,58 +65,47 @@ function domainError(error: RpcError): TRPCError {
       "You lead this round, so there is nothing to concede.",
     AUCTION_TAKE_NOT_ALLOWED: "Taking for $1 is not available right now.",
   };
-  const message = domainCode
-    ? (messages[domainCode] ?? domainCode)
-    : error.message;
-  const normalized = domainCode ?? error.message.toUpperCase();
+  const message = messages[domainCode] ?? domainCode;
 
-  if (normalized.includes("NOT_FOUND")) {
+  if (domainCode.includes("NOT_FOUND")) {
     return new TRPCError({ code: "NOT_FOUND", message });
   }
   if (
-    normalized.includes("FORBIDDEN") ||
-    normalized.includes("NOT_ALLOWED") ||
-    normalized.includes("PERMISSION") ||
-    normalized.includes("PROFILE_REQUIRED")
+    domainCode.includes("FORBIDDEN") ||
+    domainCode.includes("NOT_ALLOWED") ||
+    domainCode.includes("PERMISSION") ||
+    domainCode.includes("PROFILE_REQUIRED")
   ) {
     return new TRPCError({ code: "FORBIDDEN", message });
   }
   if (
-    normalized.includes("ALREADY") ||
-    normalized.includes("TAKEN") ||
-    normalized.includes("STALE") ||
-    normalized.includes("DEADLINE")
+    domainCode.includes("ALREADY") ||
+    domainCode.includes("TAKEN") ||
+    domainCode.includes("STALE") ||
+    domainCode.includes("DEADLINE")
   ) {
     return new TRPCError({ code: "CONFLICT", message });
   }
   return new TRPCError({ code: "BAD_REQUEST", message });
 }
 
-interface ProfileClient {
-  from: (table: "user_profiles") => {
-    select: (columns: "id") => {
-      eq: (
-        column: "id",
-        value: string,
-      ) => {
-        maybeSingle: () => PromiseLike<{
-          data: { id: string } | null;
-          error: RpcError | null;
-        }>;
-      };
-    };
-  };
+/** Runs an auction function for its effect; its domain errors become tRPC errors. */
+async function runAuctionFunction(
+  call: PromiseLike<{ error: AuctionFunctionError | null }>,
+): Promise<void> {
+  const { error } = await call;
+  if (error) throw domainError(error);
 }
 
-async function requireProfile(userId: string, client: unknown) {
-  const supabase = client as ProfileClient;
+async function requireProfile(supabase: Client, userId: string) {
   const { data, error } = await supabase
     .from("user_profiles")
     .select("id")
     .eq("id", userId)
     .maybeSingle();
 
-  if (error || !data) {
+  if (error) throw error;
+  if (!data) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Create a profile before joining an auction.",
@@ -131,101 +113,7 @@ async function requireProfile(userId: string, client: unknown) {
   }
 }
 
-interface RawCaptain {
-  side: AuctionSide;
-  teamName: string;
-  profileNickname: string;
-  ready: boolean;
-  budgetRemaining: number;
-  isCurrentUser: boolean;
-}
-
-interface RawPlayer {
-  id: string;
-  gameName: string;
-  tagLine: string;
-  rank: {
-    soloTier?: string | null;
-    soloDivision?: string | null;
-    soloRankLabel?: string;
-  };
-  drawPosition: number | null;
-  revealed: boolean;
-  assignedSide: AuctionSide | null;
-  purchasePrice: number | null;
-}
-
-interface RawEvent {
-  id: number;
-  type: AuctionEventType;
-  actorSide: AuctionSide | null;
-  playerId: string | null;
-  amount: number | null;
-  payload: Record<string, unknown>;
-  createdAt: string;
-}
-
-interface RawRoom {
-  id: string;
-  status: AuctionStatus;
-  phase: AuctionPhase | null;
-  settings: {
-    startingBudget: number;
-    bidSeconds: number;
-    orderVisible: boolean;
-  };
-  currentPlayerId: string | null;
-  currentBid: number;
-  leadingSide: AuctionSide | null;
-  roundNumber: number;
-  countdownEndsAt: string | null;
-  bidDeadline: string | null;
-  phaseDeadline: string | null;
-  stateVersion: number;
-  serverTime: string;
-  createdAt: string;
-  updatedAt: string;
-  captains: RawCaptain[];
-  players: RawPlayer[];
-  events: RawEvent[];
-  permissions: {
-    side: AuctionSide | null;
-    isCreator: boolean;
-    canJoin: boolean;
-    canEditLobby: boolean;
-    canCancel: boolean;
-  };
-}
-
-interface RawListItem {
-  id: string;
-  status: "waiting" | "countdown" | "active";
-  isMine: boolean;
-  mySide: AuctionSide | null;
-  phase: AuctionPhase | null;
-  teamA: string;
-  teamB: string;
-  captainA: string;
-  captainB: string | null;
-  currentPlayer: string | null;
-  currentBid: number;
-  countdownEndsAt: string | null;
-  bidDeadline: string | null;
-  phaseDeadline: string | null;
-  updatedAt: string;
-}
-
-function splitRiotId(value: string): { gameName: string; tagLine: string } {
-  const separator = value.lastIndexOf("#");
-  return separator > 0
-    ? {
-        gameName: value.slice(0, separator),
-        tagLine: value.slice(separator + 1),
-      }
-    : { gameName: value, tagLine: "" };
-}
-
-function normalizeListItem(raw: RawListItem): AuctionListItem {
+function normalizeListItem(raw: AuctionListRoom) {
   return {
     id: raw.id,
     status: raw.status,
@@ -234,7 +122,12 @@ function normalizeListItem(raw: RawListItem): AuctionListItem {
     phase: raw.phase,
     teamA: { teamName: raw.teamA, captain: raw.captainA },
     teamB: { teamName: raw.teamB, captain: raw.captainB },
-    currentPlayer: raw.currentPlayer ? splitRiotId(raw.currentPlayer) : null,
+    currentPlayer: raw.currentPlayer
+      ? (parseRiotId(raw.currentPlayer) ?? {
+          gameName: raw.currentPlayer,
+          tagLine: "",
+        })
+      : null,
     currentBid: raw.currentBid || null,
     countdownEndsAt: raw.countdownEndsAt,
     phaseEndsAt: raw.phase === "bidding" ? raw.bidDeadline : raw.phaseDeadline,
@@ -242,7 +135,7 @@ function normalizeListItem(raw: RawListItem): AuctionListItem {
   };
 }
 
-function normalizeRoom(raw: RawRoom): AuctionRoomView {
+function normalizeRoom(raw: AuctionRoomSnapshot) {
   const mySide = raw.permissions.side;
   const hasCaptainB = raw.captains.some((captain) => captain.side === "B");
   const myBudget =
@@ -250,6 +143,7 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
     null;
   const active = raw.status === "active" && mySide !== null;
   const leading = raw.leadingSide === mySide;
+  const inLobby = raw.status === "waiting" || raw.status === "countdown";
   return {
     id: raw.id,
     status: raw.status,
@@ -272,16 +166,16 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
       id: player.id,
       gameName: player.gameName,
       tagLine: player.tagLine,
-      soloTier: player.rank.soloTier ?? null,
-      soloDivision: player.rank.soloDivision ?? null,
-      soloRankLabel: player.rank.soloRankLabel ?? "",
+      soloTier: player.rank.soloTier,
+      soloDivision: player.rank.soloDivision,
+      soloRankLabel: player.rank.soloRankLabel,
       teamSide: player.assignedSide,
       purchasePrice: player.purchasePrice,
       revealed: player.revealed,
       drawPosition: player.drawPosition,
     })),
     events: raw.events.map((event) => ({
-      id: Number(event.id),
+      id: event.id,
       type: event.type,
       side: event.actorSide,
       playerId: event.playerId,
@@ -293,16 +187,10 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
       isCreator: raw.permissions.isCreator,
       mySide,
       canJoin: raw.permissions.canJoin && mySide === null,
-      canLeave: mySide === "B" && ["waiting", "countdown"].includes(raw.status),
-      canRemoveCaptain:
-        raw.permissions.isCreator &&
-        hasCaptainB &&
-        ["waiting", "countdown"].includes(raw.status),
+      canLeave: mySide === "B" && inLobby,
+      canRemoveCaptain: raw.permissions.isCreator && hasCaptainB && inLobby,
       canEditLobby: raw.permissions.canEditLobby,
-      canReady:
-        mySide !== null &&
-        hasCaptainB &&
-        ["waiting", "countdown"].includes(raw.status),
+      canReady: mySide !== null && hasCaptainB && inLobby,
       canBid:
         active &&
         raw.phase === "bidding" &&
@@ -316,42 +204,20 @@ function normalizeRoom(raw: RawRoom): AuctionRoomView {
   };
 }
 
-interface PoolClient {
-  from: (table: "players") => {
-    select: (columns: "puuid, game_name, tag_line") => PromiseLike<{
-      data:
-        | { puuid: string; game_name: string | null; tag_line: string | null }[]
-        | null;
-      error: RpcError | null;
-    }>;
-  };
-  rpc: (name: "player_latest_ranks") => PromiseLike<{
-    data:
-      | {
-          puuid: string;
-          rank_tier: string | null;
-          rank_division: string | null;
-        }[]
-      | null;
-    error: RpcError | null;
-  }>;
-}
-
 /** The pool with each player's latest ladder rank; players outside the ladder are unranked. */
 async function poolPayload(
-  client: unknown,
+  supabase: Client,
   pool: z.infer<typeof poolSchema>,
-): Promise<Json> {
-  const supabase = client as PoolClient;
+): Promise<AuctionPoolEntry[]> {
   const [players, ranks] = await Promise.all([
     supabase.from("players").select("puuid, game_name, tag_line"),
     supabase.rpc("player_latest_ranks"),
   ]);
-  if (players.error) throw domainError(players.error);
-  if (ranks.error) throw domainError(ranks.error);
+  if (players.error) throw players.error;
+  if (ranks.error) throw ranks.error;
 
   const puuidByRiotId = new Map(
-    (players.data ?? []).flatMap((player) =>
+    players.data.flatMap((player) =>
       player.game_name && player.tag_line
         ? [
             [
@@ -365,9 +231,7 @@ async function poolPayload(
         : [],
     ),
   );
-  const rankByPuuid = new Map(
-    (ranks.data ?? []).map((rank) => [rank.puuid, rank]),
-  );
+  const rankByPuuid = new Map(ranks.data.map((rank) => [rank.puuid, rank]));
 
   return pool.map((player) => {
     const puuid = puuidByRiotId.get(riotIdKey(player));
@@ -383,26 +247,16 @@ async function poolPayload(
         soloRankLabel: formatRank(soloTier, soloDivision) ?? "",
       },
     };
-  }) as Json;
+  });
 }
 
 export const auctionsRouter = createTRPCRouter({
-  listActive: publicProcedure.query(async ({ ctx }) => {
-    const data = await callRpc<{ room: RawListItem }[]>(
-      ctx.supabase,
-      "auction_list_active",
-    );
-    return (data ?? []).map(({ room }) => normalizeListItem(room));
-  }),
+  listActive: publicProcedure.query(async ({ ctx }) =>
+    (await listActiveAuctions(ctx.supabase)).map(normalizeListItem),
+  ),
 
   getRoom: publicProcedure.input(roomIdSchema).query(async ({ ctx, input }) => {
-    const room = await callRpc<RawRoom | null>(
-      ctx.supabase,
-      "auction_get_room",
-      {
-        p_room_id: input.id,
-      },
-    );
+    const room = await getAuctionRoom(ctx.supabase, input.id);
     return room ? normalizeRoom(room) : null;
   }),
 
@@ -411,62 +265,61 @@ export const auctionsRouter = createTRPCRouter({
       z.object({
         players: poolSchema,
         teamName: teamNameSchema.default("Team A"),
-        budget: z.number().int().min(4).max(100).default(20),
-        bidSeconds: z.number().int().min(10).max(60).default(30),
+        budget: z.int().min(4).max(100).default(20),
+        bidSeconds: z.int().min(10).max(60).default(30),
         showOrder: z.boolean().default(false),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await requireProfile(ctx.user.id, ctx.supabase);
-      const result = await callRpc<RawRoom>(
-        ctx.supabase,
-        "auction_create_room",
-        {
-          p_request_id: randomUUID(),
-          p_players: await poolPayload(ctx.supabase, input.players),
-          p_team_name: input.teamName,
-          p_starting_budget: input.budget,
-          p_bid_seconds: input.bidSeconds,
-          p_order_visible: input.showOrder,
-        },
-      );
-      const room = normalizeRoom(result);
-      return { id: room.id, roomId: room.id };
+      await requireProfile(ctx.supabase, ctx.user.id);
+      const { data, error } = await ctx.supabase.rpc("auction_create_room", {
+        p_request_id: randomUUID(),
+        p_players: await poolPayload(ctx.supabase, input.players),
+        p_team_name: input.teamName,
+        p_starting_budget: input.budget,
+        p_bid_seconds: input.bidSeconds,
+        p_order_visible: input.showOrder,
+      });
+      if (error) throw domainError(error);
+      const { id } = auctionRoomSnapshot.parse(data);
+      return { id, roomId: id };
     }),
 
   joinCaptain: protectedProcedure
-    .input(
-      roomIdSchema.extend({
-        teamName: teamNameSchema.default("Team B"),
-      }),
-    )
+    .input(roomIdSchema.extend({ teamName: teamNameSchema.default("Team B") }))
     .mutation(async ({ ctx, input }) => {
-      await requireProfile(ctx.user.id, ctx.supabase);
-      await callRpc(ctx.supabase, "auction_join_captain", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-        p_team_name: input.teamName,
-      });
+      await requireProfile(ctx.supabase, ctx.user.id);
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_join_captain", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+          p_team_name: input.teamName,
+        }),
+      );
       return { ok: true };
     }),
 
   leaveCaptain: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_leave_captain", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_leave_captain", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+        }),
+      );
       return { ok: true };
     }),
 
   removeCaptain: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_remove_captain", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_remove_captain", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+        }),
+      );
       return { ok: true };
     }),
 
@@ -474,8 +327,8 @@ export const auctionsRouter = createTRPCRouter({
     .input(
       roomIdSchema.extend({
         teamName: teamNameSchema.optional(),
-        budget: z.number().int().min(4).max(100).optional(),
-        bidSeconds: z.number().int().min(10).max(60).optional(),
+        budget: z.int().min(4).max(100).optional(),
+        bidSeconds: z.int().min(10).max(60).optional(),
         showOrder: z.boolean().optional(),
         players: poolSchema.optional(),
       }),
@@ -484,77 +337,91 @@ export const auctionsRouter = createTRPCRouter({
       const players = input.players
         ? await poolPayload(ctx.supabase, input.players)
         : null;
-      await callRpc(ctx.supabase, "auction_update_lobby", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-        p_team_name: input.teamName ?? null,
-        p_starting_budget: input.budget ?? null,
-        p_bid_seconds: input.bidSeconds ?? null,
-        p_order_visible: input.showOrder ?? null,
-        p_players: players,
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_update_lobby", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+          p_team_name: input.teamName ?? null,
+          p_starting_budget: input.budget ?? null,
+          p_bid_seconds: input.bidSeconds ?? null,
+          p_order_visible: input.showOrder ?? null,
+          p_players: players,
+        }),
+      );
       return { ok: true };
     }),
 
   setReady: protectedProcedure
     .input(roomIdSchema.extend({ ready: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_set_ready", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-        p_ready: input.ready,
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_set_ready", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+          p_ready: input.ready,
+        }),
+      );
       return { ok: true };
     }),
 
   bid: protectedProcedure
-    .input(roomIdSchema.extend({ amount: z.number().int().positive() }))
+    .input(roomIdSchema.extend({ amount: z.int().positive() }))
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_bid", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-        p_amount: input.amount,
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_bid", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+          p_amount: input.amount,
+        }),
+      );
       return { ok: true };
     }),
 
   concede: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_concede", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_concede", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+        }),
+      );
       return { ok: true };
     }),
 
   pass: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_pass", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_pass", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+        }),
+      );
       return { ok: true };
     }),
 
   take: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_take", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_take", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+        }),
+      );
       return { ok: true };
     }),
 
   cancel: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await callRpc(ctx.supabase, "auction_cancel", {
-        p_room_id: input.id,
-        p_request_id: randomUUID(),
-      });
+      await runAuctionFunction(
+        ctx.supabase.rpc("auction_cancel", {
+          p_room_id: input.id,
+          p_request_id: randomUUID(),
+        }),
+      );
       return { ok: true };
     }),
 });
