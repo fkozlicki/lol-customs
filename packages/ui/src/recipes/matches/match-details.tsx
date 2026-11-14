@@ -14,7 +14,7 @@ export default function MatchDetails({ match }: { match: MatchCardView }) {
 
   return (
     <div className="border border-t-0 bg-card">
-      <SideTable side={blue} />
+      <SideTable view={blue} />
       <div className="flex flex-col gap-4 border-y px-4 py-3 sm:flex-row sm:items-center">
         <SideObjectives {...blue.objectives} side="blue" />
         <MatchStats
@@ -25,7 +25,7 @@ export default function MatchDetails({ match }: { match: MatchCardView }) {
         />
         <SideObjectives {...red.objectives} side="red" align="right" />
       </div>
-      <SideTable side={red} />
+      <SideTable view={red} />
     </div>
   );
 }

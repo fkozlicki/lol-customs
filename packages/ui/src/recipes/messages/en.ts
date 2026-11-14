@@ -95,7 +95,7 @@ export default {
       pool: "Player pool",
       rules: "Room rules",
       liveAuction:
-        "You are a captain in a live auction. Finish or cancel it before creating another.",
+        "You are a captain in another auction. Finish or cancel it before creating one.",
       goToAuction: "Go to your auction",
       replacesLobby:
         "Creating a new auction cancels your lobby {teamA} vs {teamB}.",
@@ -168,7 +168,7 @@ export default {
       countdownCancelled: "The countdown was cancelled.",
       started: "The auction is live.",
       revealed: "{player} entered the auction.",
-      completed: "Both rosters are complete.",
+      completed: "Both teams are complete.",
       cancelled: "The creator cancelled the auction.",
       ready: "{team} is ready.",
       unready: "{team} withdrew ready.",
@@ -176,22 +176,22 @@ export default {
       created: "The auction room was created.",
     },
     terminal: {
-      completedTitle: "Rosters complete",
+      completedTitle: "Teams complete",
       completedDescription:
         "Final teams, prices, and remaining budgets are shown below.",
       cancelledTitle: "Auction cancelled",
       cancelledDescription:
-        "The creator closed this room. No final rosters are available.",
+        "The creator closed this room. No final teams are available.",
       expiredTitle: "Auction expired",
       expiredDescription:
         "This inactive room expired and can no longer be resumed.",
     },
     errors: {
-      load: "The live auctions could not be loaded.",
+      load: "The auctions could not be loaded.",
     },
   },
   season: {
-    emptyPlayerTitle: "No games in Season {number}",
+    emptyPlayerTitle: "No matches in Season {number}",
     emptyPlayerDescription: "This player has not played in this season yet.",
     showAllTime: "Show all seasons",
     label: "Season {number}",

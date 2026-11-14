@@ -43,8 +43,8 @@ export default function MatchCard({
         )}
 
         <div className="hidden shrink-0 items-center gap-4 lg:flex">
-          <MatchSide side={match.blue} playerKey={player?.key} />
-          <MatchSide side={match.red} playerKey={player?.key} />
+          <MatchSide view={match.blue} playerKey={player?.key} />
+          <MatchSide view={match.red} playerKey={player?.key} />
         </div>
       </div>
 

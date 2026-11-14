@@ -74,10 +74,11 @@ lobby: entering another releases the first, and an idle lobby expires.
 **Live auction**:
 An auction after its lobby, while its rounds are played, until the pool is sold or the auction is
 cancelled.
-_Avoid_: Active auction, running auction
+_Avoid_: Running auction
 
 **Room**:
-The place one auction happens in, from its lobby to its result, reached by a link anyone can open.
+The page of one auction, which anyone with its link can open: it shows the lobby, then the live auction,
+then the teams it produced.
 _Avoid_: Bidding room
 
 **Pool**:

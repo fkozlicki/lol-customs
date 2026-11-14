@@ -79,3 +79,10 @@ describe("moved pages", () => {
     }
   });
 });
+
+test("a moved page keeps the query string", () => {
+  const response = proxy(request("/shuffle?season=2"));
+  expect(response.headers.get("location")).toBe(
+    "https://derby.test/draw?season=2",
+  );
+});

@@ -166,7 +166,7 @@ export default {
       countdownCancelled: "Odliczanie zostało anulowane.",
       started: "Aukcja wystartowała.",
       revealed: "{player} trafia na aukcję.",
-      completed: "Oba składy są kompletne.",
+      completed: "Obie drużyny są kompletne.",
       cancelled: "Twórca anulował aukcję.",
       ready: "{team} jest gotowy.",
       unready: "{team} wycofuje gotowość.",
@@ -174,21 +174,21 @@ export default {
       created: "Pokój aukcji został utworzony.",
     },
     terminal: {
-      completedTitle: "Składy gotowe",
+      completedTitle: "Drużyny gotowe",
       completedDescription:
-        "Końcowe składy, ceny i pozostałe budżety są widoczne poniżej.",
+        "Końcowe drużyny, ceny i pozostałe budżety są widoczne poniżej.",
       cancelledTitle: "Aukcja anulowana",
       cancelledDescription:
-        "Twórca zamknął ten pokój. Końcowe składy nie są dostępne.",
+        "Twórca zamknął ten pokój. Końcowe drużyny nie są dostępne.",
       expiredTitle: "Aukcja wygasła",
       expiredDescription: "Ten nieaktywny pokój wygasł i nie można go wznowić.",
     },
     errors: {
-      load: "Nie udało się pobrać aukcji live.",
+      load: "Nie udało się pobrać aukcji.",
     },
   },
   season: {
-    emptyPlayerTitle: "Brak gier w Sezonie {number}",
+    emptyPlayerTitle: "Brak meczów w Sezonie {number}",
     emptyPlayerDescription: "Ten gracz nie zagrał jeszcze w tym sezonie.",
     showAllTime: "Pokaż wszystkie sezony",
     label: "Sezon {number}",

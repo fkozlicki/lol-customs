@@ -68,14 +68,14 @@ export default {
         },
       },
       auctions: {
-        title: "Aukcje live",
+        title: "Aukcje",
         description:
           "Dwóch kapitanów kupuje pięcioosobowe drużyny w publicznym pokoju, na czas pilnowany przez serwer.",
         create: "Utwórz aukcję",
         cancel: "Anuluj aukcję",
         creator: {
           eyebrow: "Dom aukcyjny",
-          title: "Utwórz aukcję live",
+          title: "Utwórz aukcję",
           description:
             "Wybierz ośmiu graczy, których kupią kapitanowie. Ty jesteś kapitanem Team A; drugi kapitan dołącza z linku do pokoju.",
           duplicate: "To Riot ID jest już w puli.",

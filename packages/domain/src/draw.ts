@@ -4,7 +4,7 @@ import { averageSoloRankMeta } from "./rank";
 export const TEAM_ROLES = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"] as const;
 export type TeamRole = (typeof TEAM_ROLES)[number];
 
-/** A player on the shuffle roster; the rank is the last one recorded in a ladder match. */
+/** A player on the draw's roster; the rank is the last one recorded in a ladder match. */
 export interface RosterPlayer {
   gameName: string;
   tagLine: string;
@@ -17,15 +17,15 @@ export interface DrawnPlayer extends RosterPlayer {
   isCaptain: boolean;
 }
 
-export interface DrawnTeam {
+export interface Team {
   avgRankLabel: string;
   avgRankTier: string | null;
   players: DrawnPlayer[];
 }
 
 export interface DrawResult {
-  teamA: DrawnTeam;
-  teamB: DrawnTeam;
+  teamA: Team;
+  teamB: Team;
 }
 
 function shuffleArray<T>(items: readonly T[]): T[] {
@@ -53,7 +53,7 @@ export function drawTeams(roster: RosterPlayer[]): DrawResult {
 
   const shuffled = shuffleArray(roster);
 
-  const buildTeam = (members: RosterPlayer[]): DrawnTeam => {
+  const buildTeam = (members: RosterPlayer[]): Team => {
     const roles = shuffleArray(TEAM_ROLES);
     const captainIndex = Math.floor(Math.random() * members.length);
     const players = members

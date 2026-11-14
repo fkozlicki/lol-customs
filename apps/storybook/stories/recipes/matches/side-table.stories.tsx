@@ -8,7 +8,7 @@ const meta = {
   title: "Matches/Side table",
   component: SideTable,
   parameters: { layout: "padded" },
-  args: { side: MATCH_CARD.blue },
+  args: { view: MATCH_CARD.blue },
 } satisfies Meta<typeof SideTable>;
 
 export default meta;
@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
 export const Victory: Story = {};
 
 export const Defeat: Story = {
-  args: { side: MATCH_CARD.red },
+  args: { view: MATCH_CARD.red },
 };
 
 /** One row, where the damage bars are scaled against the highest in the whole match. */

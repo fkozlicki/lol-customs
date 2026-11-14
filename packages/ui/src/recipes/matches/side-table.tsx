@@ -13,7 +13,7 @@ import type { SideView } from "./match-view";
 import { ParticipantRow } from "./participant-row";
 
 /** One side's scoreboard; the header carries the result in its colour. */
-export default function SideTable({ side }: { side: SideView }) {
+export default function SideTable({ view }: { view: SideView }) {
   const t = useTranslations("match");
 
   return (
@@ -31,12 +31,12 @@ export default function SideTable({ side }: { side: SideView }) {
         <TableRow className="hover:bg-transparent">
           <TableHead>
             <span
-              className={cn("label-caps", side.won ? "text-win" : "text-loss")}
+              className={cn("label-caps", view.won ? "text-win" : "text-loss")}
             >
-              {side.won ? t("victory") : t("defeat")}
+              {view.won ? t("victory") : t("defeat")}
             </span>{" "}
             <span className="label-caps">
-              · {side.side === "blue" ? t("sideBlue") : t("sideRed")}
+              · {view.side === "blue" ? t("sideBlue") : t("sideRed")}
             </span>
           </TableHead>
           <TableHead className="label-caps text-center">
@@ -52,7 +52,7 @@ export default function SideTable({ side }: { side: SideView }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {side.participants.map((p) => (
+        {view.participants.map((p) => (
           <ParticipantRow key={p.key} participant={p} />
         ))}
       </TableBody>

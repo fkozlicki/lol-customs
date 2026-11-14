@@ -5,7 +5,7 @@ import { MATCH_CARD, MVP } from "./match.fixtures";
 const meta = {
   title: "Matches/Match side",
   component: MatchSide,
-  args: { side: MATCH_CARD.blue },
+  args: { view: MATCH_CARD.blue },
 } satisfies Meta<typeof MatchSide>;
 
 export default meta;
@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 export const Blue: Story = {};
 
 export const Red: Story = {
-  args: { side: MATCH_CARD.red },
+  args: { view: MATCH_CARD.red },
 };
 
 /** On a profile, the profile owner is marked within their side. */

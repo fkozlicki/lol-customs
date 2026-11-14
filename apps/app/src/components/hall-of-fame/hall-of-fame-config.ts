@@ -111,14 +111,14 @@ function worst(
   return { id, stat, kind: "worst", decimals, percent };
 }
 
-export interface HallOfFameSection {
+export interface HallOfFameSectionConfig {
   id: HallOfFameSectionId;
   pairs: HallOfFamePair[];
   /** Titles without a counterpart on the same stat, shown full width after the pairs. */
   singles?: HallOfFameTitle[];
 }
 
-export const HALL_OF_FAME_SECTIONS: HallOfFameSection[] = [
+export const HALL_OF_FAME_SECTIONS: HallOfFameSectionConfig[] = [
   {
     id: "headline",
     pairs: [

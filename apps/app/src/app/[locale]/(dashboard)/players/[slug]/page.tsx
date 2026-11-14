@@ -51,7 +51,7 @@ export default async function PlayerProfilePage({
   const seasonStats = await getQueryClient().fetchQuery(
     trpc.players.profileStats.queryOptions({ puuid, season }),
   );
-  const hasSeasonGames = seasonStats != null;
+  const hasSeasonMatches = seasonStats != null;
   const seasonLabel =
     season === ALL_TIME_SEASON
       ? tSeason("allTime")
@@ -61,7 +61,7 @@ export default async function PlayerProfilePage({
     trpc.players.profileStats.queryOptions({ puuid, season: ALL_TIME_SEASON }),
   );
   prefetch(trpc.players.seasonSummaries.queryOptions({ puuid }));
-  if (hasSeasonGames) {
+  if (hasSeasonMatches) {
     prefetch(trpc.players.ratingHistory.queryOptions({ puuid, season }));
     prefetch(trpc.players.relations.queryOptions({ puuid, season }));
     prefetch(trpc.hallOfFame.get.queryOptions({ season }));
@@ -94,7 +94,7 @@ export default async function PlayerProfilePage({
               />
             }
             overview={
-              hasSeasonGames ? (
+              hasSeasonMatches ? (
                 // The season at a glance: the titles held, the numbers, the rating over time.
                 <div className="space-y-10">
                   <div className="space-y-3">
@@ -130,7 +130,7 @@ export default async function PlayerProfilePage({
                   season={season}
                   seasons={seasons}
                 />
-                {hasSeasonGames && (
+                {hasSeasonMatches && (
                   <>
                     <MostPlayedChampions puuid={puuid} season={season} />
                     <PlayerRelations puuid={puuid} season={season} />
@@ -139,7 +139,7 @@ export default async function PlayerProfilePage({
               </>
             }
             matches={
-              hasSeasonGames ? (
+              hasSeasonMatches ? (
                 <PlayerMatchHistory puuid={puuid} season={season} />
               ) : null
             }

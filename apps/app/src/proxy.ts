@@ -13,7 +13,7 @@ const handleI18nRouting = createMiddleware(routing);
 const LOCALE_PREFIX = new RegExp(`^/(${SUPPORTED_LOCALES.join("|")})(?=/|$)`);
 
 export function proxy(request: NextRequest) {
-  const removed = redirectRemovedPage(request);
+  const removed = redirectMovedPage(request);
   if (removed) return removed;
 
   const redirect = restoreRememberedSeason(request);
@@ -29,7 +29,7 @@ const MOVED_PAGES: Record<string, string> = {
   "/shuffle": "/draw",
 };
 
-function redirectRemovedPage(request: NextRequest) {
+function redirectMovedPage(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const locale = LOCALE_PREFIX.exec(pathname)?.[0] ?? "";
   const target = MOVED_PAGES[pathname.slice(locale.length) || "/"];
