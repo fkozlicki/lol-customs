@@ -57,7 +57,7 @@ describe("an auction rule an auction function refused an action by", () => {
   test("reaches the client as the rule, with the status the rule means", () => {
     const error = toTRPCError(refusal("AUCTION_BID_TOO_LOW"));
     expect(error.code).toBe("BAD_REQUEST");
-    expect(error.message).toBe("AUCTION_BID_TOO_LOW");
+    expect(error.message).toBe("Invalid request.");
     expect(toTRPCError(refusal("AUCTION_ROOM_NOT_FOUND")).code).toBe(
       "NOT_FOUND",
     );

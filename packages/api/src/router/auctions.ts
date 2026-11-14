@@ -149,7 +149,7 @@ export const auctionsRouter = createTRPCRouter({
   leaveCaptain: protectedProcedure
     .input(roomIdSchema)
     .mutation(async ({ ctx, input }) => {
-      await runAuctionAction(ctx.supabase, input.id, "leave");
+      await runAuctionAction(ctx.supabase, input.id, "leaveCaptain");
       return { ok: true };
     }),
 

@@ -1,17 +1,13 @@
 "use client";
 
-import type { AuctionRule } from "@v1/domain/auction";
+import type { TRPCClientErrorLike } from "@trpc/client";
+import type { AppRouter } from "@v1/api";
 import { toast } from "@v1/ui/sonner";
 import { useTranslations } from "next-intl";
 
-/** A failed auction action as tRPC hands it over: the API names the auction rule it broke, if any. */
-interface AuctionActionError {
-  data?: { auctionRule?: AuctionRule | null } | null;
-}
-
-/** Toasts a refused auction action in the viewer's language. */
+/** Toasts a refused auction action in the viewer's language, by the auction rule the API names. */
 export function useAuctionErrorToast() {
   const t = useTranslations("dashboard.pages.auctions.errors");
-  return (error: AuctionActionError) =>
+  return (error: TRPCClientErrorLike<AppRouter>) =>
     toast.error(t(error.data?.auctionRule ?? "unknown"));
 }

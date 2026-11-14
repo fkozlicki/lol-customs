@@ -1,6 +1,12 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
+import {
+  AUCTION_PHASES,
+  AUCTION_SIDES,
+  AUCTION_STATUSES,
+} from "@v1/domain/auction";
 import { formatRank } from "@v1/domain/rank";
+import type { RiotId } from "@v1/domain/riot-id";
 import { z } from "zod";
 import type { Client } from "../types";
 import {
@@ -15,16 +21,9 @@ import {
  * the path of the field, instead of reaching the screen half-formed.
  */
 
-const auctionStatus = z.enum([
-  "waiting",
-  "countdown",
-  "active",
-  "completed",
-  "cancelled",
-  "expired",
-]);
-const auctionPhase = z.enum(["free_auction", "bidding", "sold_pause"]);
-const auctionSide = z.enum(["A", "B"]);
+const auctionStatus = z.enum(AUCTION_STATUSES);
+const auctionPhase = z.enum(AUCTION_PHASES);
+const auctionSide = z.enum(AUCTION_SIDES);
 const auctionEventType = z.enum([
   "created",
   "captain_joined",
@@ -164,7 +163,7 @@ export async function listActiveAuctions(
 /** The pool with each player's latest ladder rank; players outside the ladder are unranked. */
 export async function withLatestRanks(
   client: Client,
-  pool: { gameName: string; tagLine: string }[],
+  pool: RiotId[],
 ): Promise<AuctionPoolEntry[]> {
   const { data, error } = await client.rpc("latest_ranks_by_riot_id", {
     p_game_names: pool.map((player) => player.gameName),
@@ -190,18 +189,14 @@ export async function withLatestRanks(
   });
 }
 
-/**
- * The auction actions. Each runs one auction function under a fresh request id; a refusal is thrown
- * as the database error, whose message is the `AUCTION_*` rule it broke.
- */
-
-type Pool = { gameName: string; tagLine: string }[];
+// The auction actions. Each runs one auction function under a fresh request id; a refusal is thrown
+// as the database error, whose message is the `AUCTION_*` rule it broke.
 
 /** Opens a room with the viewer as captain A, and returns its id. */
 export async function createAuction(
   client: Client,
   room: {
-    players: Pool;
+    players: RiotId[];
     teamName: string;
     budget: number;
     bidSeconds: number;
@@ -229,7 +224,7 @@ export async function updateAuctionLobby(
     budget?: number;
     bidSeconds?: number;
     showOrder?: boolean;
-    players?: Pool;
+    players?: RiotId[];
   },
 ) {
   const { error } = await client.rpc("auction_update_lobby", {
@@ -287,7 +282,7 @@ export async function bidInAuction(
 
 /** The actions that take nothing but the room. */
 const ROOM_ACTIONS = {
-  leave: "auction_leave_captain",
+  leaveCaptain: "auction_leave_captain",
   removeCaptain: "auction_remove_captain",
   concede: "auction_concede",
   pass: "auction_pass",

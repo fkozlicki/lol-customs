@@ -112,12 +112,9 @@ export const SERVER_ERROR_MESSAGE = "Something went wrong.";
 export function toTRPCError(error: DatabaseError): TRPCError {
   const rule = auctionRuleOf(error);
   if (rule) {
-    // The rule names no internals, and the app words it from its dictionary.
-    return new TRPCError({
-      code: BY_AUCTION_RULE[rule],
-      message: rule,
-      cause: error,
-    });
+    // The rule reaches the app as `data.auctionRule` (`trpc.ts`), which words it from its dictionary.
+    const code = BY_AUCTION_RULE[rule];
+    return new TRPCError({ code, message: MESSAGES[code], cause: error });
   }
   const status = /^PT(\d{3})$/.exec(error.code)?.[1];
   const code =

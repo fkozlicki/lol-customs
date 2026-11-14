@@ -128,11 +128,11 @@ export default {
             "Każdy Riot ID może być w puli tylko raz.",
           AUCTION_BUDGET_INVALID: "Budżet musi wynosić od 4 do 100.",
           AUCTION_BID_SECONDS_INVALID:
-            "Czas na licytację musi wynosić od 10 do 60 sekund.",
+            "Czas oferty musi wynosić od 10 do 60 sekund.",
           AUCTION_TEAM_NAME_INVALID:
             "Nazwa drużyny musi mieć od 1 do 100 znaków.",
           AUCTION_BIDDING_CLOSED: "Licytacja nie jest teraz otwarta.",
-          AUCTION_DEADLINE_PASSED: "Czas na licytację minął.",
+          AUCTION_DEADLINE_PASSED: "Czas na ofertę minął.",
           AUCTION_BID_TOO_LOW: "Oferta jest za niska.",
           AUCTION_BUDGET_EXCEEDED:
             "Ta oferta przekracza Twój pozostały budżet.",

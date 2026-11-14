@@ -40,15 +40,24 @@ export function isAuctionRule(value: unknown): value is AuctionRule {
   return AUCTION_RULES.includes(value as AuctionRule);
 }
 
-export type AuctionStatus =
-  | "waiting"
-  | "countdown"
-  | "active"
-  | "completed"
-  | "cancelled"
-  | "expired";
-export type AuctionPhase = "free_auction" | "bidding" | "sold_pause";
-export type AuctionSide = "A" | "B";
+export const AUCTION_STATUSES = [
+  "waiting",
+  "countdown",
+  "active",
+  "completed",
+  "cancelled",
+  "expired",
+] as const;
+export const AUCTION_PHASES = [
+  "free_auction",
+  "bidding",
+  "sold_pause",
+] as const;
+export const AUCTION_SIDES = ["A", "B"] as const;
+
+export type AuctionStatus = (typeof AUCTION_STATUSES)[number];
+export type AuctionPhase = (typeof AUCTION_PHASES)[number];
+export type AuctionSide = (typeof AUCTION_SIDES)[number];
 
 /** What a room's snapshot says about the room and the viewer, as far as permissions need it. */
 export interface AuctionRoomFacts {

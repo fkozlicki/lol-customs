@@ -127,7 +127,7 @@ export default {
           AUCTION_PLAYERS_NOT_UNIQUE: "Each Riot ID can be in the pool once.",
           AUCTION_BUDGET_INVALID: "The budget must be between 4 and 100.",
           AUCTION_BID_SECONDS_INVALID:
-            "The bid time must be between 10 and 60 seconds.",
+            "The bid timer must be between 10 and 60 seconds.",
           AUCTION_TEAM_NAME_INVALID:
             "The team name must be 1 to 100 characters.",
           AUCTION_BIDDING_CLOSED: "Bidding is not open right now.",
