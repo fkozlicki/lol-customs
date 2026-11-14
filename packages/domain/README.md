@@ -1,6 +1,6 @@
 # @v1/domain
 
-Pure Derby logic: rank maths, Riot IDs, season resolution, the shuffle draw, stat formatting.
+Pure Derby logic: rank maths, Riot IDs, season resolution, the draw, stat formatting.
 
 It is a leaf on purpose. No Supabase, no tRPC, no React, no Next — so `apps/app`, `packages/api` and
 `apps/lcu` can all import it, and so Derby Sync's renderer bundle stays free of the server stack.

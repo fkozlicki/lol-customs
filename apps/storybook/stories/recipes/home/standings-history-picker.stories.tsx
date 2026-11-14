@@ -47,7 +47,7 @@ export const Live: Story = {
   },
 };
 
-/** Viewing the standings as they were after five games. */
-export const AfterFiveGames: Story = {
+/** Viewing the standings as they were after five matches. */
+export const AfterFiveMatches: Story = {
   args: { value: 5 },
 };

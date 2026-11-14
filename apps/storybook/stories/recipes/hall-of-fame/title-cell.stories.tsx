@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { TitleCell } from "@v1/ui/recipes/hof/title-cell";
-import { MVP, TIED, UNHELD } from "./hof.fixtures";
+import { TitleCell } from "@v1/ui/recipes/hall-of-fame/title-cell";
+import { MVP, TIED, UNHELD } from "./hall-of-fame.fixtures";
 
 const meta = {
   title: "Hall of Fame/Title cell",

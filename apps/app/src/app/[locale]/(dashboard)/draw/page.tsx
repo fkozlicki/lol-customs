@@ -6,8 +6,8 @@ import { DrawTool } from "@/components/draw/draw-tool";
 import { QueryBoundary } from "@/components/query-boundary";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
-export default async function ShufflePage() {
-  const t = await getTranslations("dashboard.pages.shuffle");
+export default async function DrawPage() {
+  const t = await getTranslations("dashboard.pages.draw");
   prefetch(trpc.players.all.queryOptions());
 
   return (

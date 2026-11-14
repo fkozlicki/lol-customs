@@ -27,7 +27,7 @@ export default {
       standings: "Standings",
       matchHistory: "Matches",
       hallOfFame: "Hall of Fame",
-      shuffle: "Shuffle",
+      draw: "Draw",
       auctions: "Auctions",
       posts: "Forum",
     },
@@ -36,19 +36,23 @@ export default {
       allTime: "All seasons",
     },
     pages: {
+      player: {
+        /** A point on the rating chart whose date is unknown, by its place. */
+        matchNumber: "Match {number}",
+      },
       matchHistory: {
         title: "Matches",
-        description: "Every custom game on the ladder, newest first.",
+        description: "Every match on the ladder, newest first.",
       },
-      shuffle: {
-        title: "Shuffle",
+      draw: {
+        title: "Draw",
         description:
           "Pick ten players and draw the teams. Sides, roles and captains are random.",
         toastDuplicate: "That player is already on the roster.",
         toastInvalidRiot: "Use SummonerName#TAG (e.g. Hide on bush#KR1).",
         clearRoster: "Clear",
-        generate: "Roll teams",
-        reroll: "Roll again",
+        generate: "Draw teams",
+        reroll: "Draw again",
         picker: {
           title: "Roster",
           hint: "Add ten players from the list or by Riot ID.",
@@ -63,14 +67,14 @@ export default {
         },
       },
       auctions: {
-        title: "Live auctions",
+        title: "Auctions",
         description:
-          "Build two five-player squads in a public, server-timed bidding room.",
+          "Two captains buy five-player teams in a public room, against a timer the server keeps.",
         create: "Create auction",
         cancel: "Cancel auction",
         creator: {
           eyebrow: "Auction house",
-          title: "Create a live auction",
+          title: "Create an auction",
           description:
             "Pick the eight players the two captains will buy. You captain Team A; the other captain joins from the room link.",
           duplicate: "That Riot ID is already in the pool.",
@@ -117,7 +121,7 @@ export default {
           AUCTION_ROOM_TERMINAL: "This auction is over.",
           AUCTION_PERMISSION_DENIED: "You cannot do that in this auction.",
           AUCTION_ALREADY_CAPTAIN:
-            "You are a captain in a live auction. Finish or cancel it first.",
+            "You are a captain in another auction. Finish or cancel it first.",
           AUCTION_CAPTAIN_SLOT_TAKEN:
             "The second captain seat is already taken.",
           AUCTION_CAPTAIN_SLOT_EMPTY: "There is no second captain to remove.",

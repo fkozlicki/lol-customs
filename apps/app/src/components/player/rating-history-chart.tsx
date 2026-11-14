@@ -2,6 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { RatingHistoryChart as RatingHistoryChartView } from "@v1/ui/recipes/player/rating-history-chart";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "@/trpc/react";
 import { toRatingPoints, toSeasonMarkers } from "./player-view";
 
@@ -18,13 +19,16 @@ export function RatingHistoryChart({
   seasonStarts = [],
 }: RatingHistoryChartProps) {
   const trpc = useTRPC();
+  const t = useTranslations("dashboard.pages.player");
   const { data: history } = useSuspenseQuery(
     trpc.players.ratingHistory.queryOptions({ puuid, season }),
   );
 
   return (
     <RatingHistoryChartView
-      points={toRatingPoints(history ?? [])}
+      points={toRatingPoints(history ?? [], (number) =>
+        t("matchNumber", { number }),
+      )}
       seasonMarkers={toSeasonMarkers(history ?? [], seasonStarts)}
     />
   );

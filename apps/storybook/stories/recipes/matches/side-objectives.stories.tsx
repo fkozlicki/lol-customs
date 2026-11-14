@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { TeamObjectives } from "@v1/ui/recipes/matches/team-objectives";
+import { SideObjectives } from "@v1/ui/recipes/matches/side-objectives";
 
 const blue = {
   baronKills: 0,
@@ -17,10 +17,10 @@ const red = {
 };
 
 const meta = {
-  title: "Matches/Team objectives",
-  component: TeamObjectives,
-  args: { ...blue, teamName: "blue" },
-} satisfies Meta<typeof TeamObjectives>;
+  title: "Matches/Side objectives",
+  component: SideObjectives,
+  args: { ...blue, side: "blue" },
+} satisfies Meta<typeof SideObjectives>;
 
 export default meta;
 
@@ -30,14 +30,14 @@ export const Blue: Story = {};
 
 /** The red side mirrors: right-aligned so the two sides face each other across the match. */
 export const Red: Story = {
-  args: { ...red, teamName: "red", align: "right" },
+  args: { ...red, side: "red", align: "right" },
 };
 
 export const Facing: Story = {
   render: () => (
     <div className="flex w-[36rem] justify-between">
-      <TeamObjectives {...blue} teamName="blue" />
-      <TeamObjectives {...red} teamName="red" align="right" />
+      <SideObjectives {...blue} side="blue" />
+      <SideObjectives {...red} side="red" align="right" />
     </div>
   ),
 };

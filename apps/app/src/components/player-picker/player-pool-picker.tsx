@@ -10,7 +10,7 @@ import type { usePlayerPicker } from "./use-player-picker";
 interface PlayerPoolPickerProps {
   picker: ReturnType<typeof usePlayerPicker>;
   /** Where its words live: each screen names the pool its own way, under the same keys. */
-  words: "dashboard.pages.auctions.picker" | "dashboard.pages.shuffle.picker";
+  words: "dashboard.pages.auctions.picker" | "dashboard.pages.draw.picker";
 }
 
 /**

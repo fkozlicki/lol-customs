@@ -185,7 +185,7 @@ export async function getRelations(
   };
 }
 
-/** A player's champions on one track by games played, with wins and total KDA. */
+/** A player's champions on one track by matches played, with wins and total KDA. */
 export async function getMostPlayedChampions(
   client: Client,
   { puuid, track, limit }: PlayerOnTrack & { limit: number },
@@ -199,7 +199,7 @@ export async function getMostPlayedChampions(
 
   return data.map((row) => ({
     championId: row.champion_id,
-    games: row.matches,
+    matches: row.matches,
     wins: row.wins,
     kills: row.kills,
     deaths: row.deaths,

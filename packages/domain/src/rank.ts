@@ -104,15 +104,3 @@ export function averageSoloRankMeta(
     : `${tier.toLowerCase()} ${division}`;
   return { label, tier };
 }
-
-/** The same average, for rows that carry the database's column names. */
-export function averageGameRank(
-  participants: { rank_tier: string | null; rank_division: string | null }[],
-): string {
-  return averageSoloRankMeta(
-    participants.map((p) => ({
-      tier: p.rank_tier,
-      division: p.rank_division,
-    })),
-  ).label;
-}

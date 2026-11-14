@@ -4,7 +4,7 @@ An Elo ladder for a group's League of Legends custom games.
 
 Players install a small desktop app that reads custom games from their League client and uploads them.
 Each match is rated and gets per-player OP scores. The web app then shows standings, match history,
-Hall of Fame and rivalries, per season and across all seasons. It also has a team shuffler, live
+Hall of Fame and rivalries, per season and across all seasons. It also has a team draw, live
 auctions for picking teams, and a forum.
 
 Domain terms are defined in [CONTEXT.md](CONTEXT.md), decisions are recorded in [docs/adr/](docs/adr/),

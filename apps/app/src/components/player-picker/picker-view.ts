@@ -1,7 +1,7 @@
 import type { RouterOutputs } from "@v1/api";
+import type { RosterPlayer } from "@v1/domain/draw";
 import { formatRank } from "@v1/domain/rank";
 import { type RiotId, riotIdKey } from "@v1/domain/riot-id";
-import type { RosterPlayer } from "@v1/domain/shuffle";
 import type { PickablePlayerView } from "@v1/ui/recipes/player-picker/pickable-player-view";
 
 export type LadderPlayer = RouterOutputs["players"]["all"][number];

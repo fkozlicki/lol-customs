@@ -12,7 +12,7 @@ const meta = {
 export default meta;
 
 /**
- * Ranked players by position, then the ones still qualifying below a divider that says when they
+ * Qualified players by position, then the ones still qualifying below a divider that says when they
  * join. Narrow the canvas to watch the secondary columns drop.
  */
 export const Default: StoryObj<typeof meta> = {};

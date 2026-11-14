@@ -1,5 +1,5 @@
 /** Hall of Fame layout. Ids match `hall_of_fame` titles; names and stat labels come from locales. */
-export type HofTitleId =
+export type HallOfFameTitleId =
   | "mvp"
   | "never_mvp"
   | "ace"
@@ -42,7 +42,7 @@ export type HofTitleId =
   | "tower_hugger";
 
 /** What a title's value measures; shown under the number. */
-export type HofStatId =
+export type HallOfFameStatId =
   | "mvpMatches"
   | "matchesWithoutMvp"
   | "aceMatches"
@@ -69,23 +69,23 @@ export type HofStatId =
   | "healing"
   | "turrets";
 
-export type HofKind = "best" | "worst";
+export type HallOfFameKind = "best" | "worst";
 
-export interface HofTitle {
-  id: HofTitleId;
-  stat: HofStatId;
-  kind: HofKind;
+export interface HallOfFameTitle {
+  id: HallOfFameTitleId;
+  stat: HallOfFameStatId;
+  kind: HallOfFameKind;
   decimals: 0 | 1 | 2;
   percent?: boolean;
 }
 
 /** The best and worst title on the same stat. */
-export interface HofPair {
-  best: HofTitle;
-  worst: HofTitle;
+export interface HallOfFamePair {
+  best: HallOfFameTitle;
+  worst: HallOfFameTitle;
 }
 
-export type HofSectionId =
+export type HallOfFameSectionId =
   | "headline"
   | "form"
   | "fighting"
@@ -94,31 +94,31 @@ export type HofSectionId =
   | "map";
 
 function best(
-  id: HofTitleId,
-  stat: HofStatId,
+  id: HallOfFameTitleId,
+  stat: HallOfFameStatId,
   decimals: 0 | 1 | 2,
   percent = false,
-): HofTitle {
+): HallOfFameTitle {
   return { id, stat, kind: "best", decimals, percent };
 }
 
 function worst(
-  id: HofTitleId,
-  stat: HofStatId,
+  id: HallOfFameTitleId,
+  stat: HallOfFameStatId,
   decimals: 0 | 1 | 2,
   percent = false,
-): HofTitle {
+): HallOfFameTitle {
   return { id, stat, kind: "worst", decimals, percent };
 }
 
-export interface HofSection {
-  id: HofSectionId;
-  pairs: HofPair[];
+export interface HallOfFameSectionConfig {
+  id: HallOfFameSectionId;
+  pairs: HallOfFamePair[];
   /** Titles without a counterpart on the same stat, shown full width after the pairs. */
-  singles?: HofTitle[];
+  singles?: HallOfFameTitle[];
 }
 
-export const HOF_SECTIONS: HofSection[] = [
+export const HALL_OF_FAME_SECTIONS: HallOfFameSectionConfig[] = [
   {
     id: "headline",
     pairs: [
@@ -228,13 +228,14 @@ export const HOF_SECTIONS: HofSection[] = [
   },
 ];
 
-export const HOF_TITLES: HofTitle[] = HOF_SECTIONS.flatMap((section) => [
-  ...section.pairs.flatMap((pair) => [pair.best, pair.worst]),
-  ...(section.singles ?? []),
-]);
+export const HALL_OF_FAME_TITLES: HallOfFameTitle[] =
+  HALL_OF_FAME_SECTIONS.flatMap((section) => [
+    ...section.pairs.flatMap((pair) => [pair.best, pair.worst]),
+    ...(section.singles ?? []),
+  ]);
 
-export function formatHofValue(
-  entry: HofTitle,
+export function formatHallOfFameValue(
+  entry: HallOfFameTitle,
   value: number,
   locale: string,
 ): string {

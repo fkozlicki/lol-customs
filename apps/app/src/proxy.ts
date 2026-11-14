@@ -13,7 +13,7 @@ const handleI18nRouting = createMiddleware(routing);
 const LOCALE_PREFIX = new RegExp(`^/(${SUPPORTED_LOCALES.join("|")})(?=/|$)`);
 
 export function proxy(request: NextRequest) {
-  const removed = redirectRemovedPage(request);
+  const removed = redirectMovedPage(request);
   if (removed) return removed;
 
   const redirect = restoreRememberedSeason(request);
@@ -21,13 +21,22 @@ export function proxy(request: NextRequest) {
   return handleI18nRouting(request);
 }
 
-/** The Rivalry page moved into player profiles. */
-function redirectRemovedPage(request: NextRequest) {
-  const pathname = request.nextUrl.pathname.replace(LOCALE_PREFIX, "") || "/";
-  if (pathname !== "/duos") return null;
+/** Pages that moved, by their old path: old links and bookmarks land on the new one. */
+const MOVED_PAGES: Record<string, string> = {
+  // The Rivalry page moved into player profiles.
+  "/duos": "/",
+  // The draw was called the shuffle.
+  "/shuffle": "/draw",
+};
+
+function redirectMovedPage(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const locale = LOCALE_PREFIX.exec(pathname)?.[0] ?? "";
+  const target = MOVED_PAGES[pathname.slice(locale.length) || "/"];
+  if (target === undefined) return null;
 
   const url = request.nextUrl.clone();
-  url.pathname = "/";
+  url.pathname = target === "/" ? locale || "/" : locale + target;
   return NextResponse.redirect(url, 308);
 }
 

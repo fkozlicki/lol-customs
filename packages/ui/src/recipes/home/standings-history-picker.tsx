@@ -31,13 +31,13 @@ export default function StandingsHistoryPicker({
       <div className="flex min-w-0 flex-1 items-stretch border">
         <ScrollArea className="min-w-0 flex-1">
           <div className="flex">
-            {options.map((gameCount) => (
+            {options.map((matchCount) => (
               <HistoryPickerButton
-                key={gameCount}
-                active={value === gameCount}
-                onClick={() => onChange(gameCount)}
+                key={matchCount}
+                active={value === matchCount}
+                onClick={() => onChange(matchCount)}
               >
-                {gameCount}
+                {matchCount}
               </HistoryPickerButton>
             ))}
           </div>

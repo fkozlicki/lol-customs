@@ -3,12 +3,15 @@
  * names are invented, the titles and values the kind the catalog produces.
  */
 import type {
+  HallOfFamePlayerView,
   HallOfFameView,
-  HofPlayerView,
   TitleView,
-} from "@v1/ui/recipes/hof/hall-of-fame-view";
+} from "@v1/ui/recipes/hall-of-fame/hall-of-fame-view";
 
-const player = (name: string, iconId: number | null = 1295): HofPlayerView => ({
+const player = (
+  name: string,
+  iconId: number | null = 1295,
+): HallOfFamePlayerView => ({
   key: name,
   name,
   href: `/players/${encodeURIComponent(name)}-EUNE`,
@@ -24,7 +27,7 @@ const title = (
   id: string,
   name: string,
   statLabel: string,
-  holders: HofPlayerView[],
+  holders: HallOfFamePlayerView[],
   value: string | null,
   tone: TitleView["tone"] = null,
 ): TitleView => ({ id, title: name, statLabel, tone, holders, value });

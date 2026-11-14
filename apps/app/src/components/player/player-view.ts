@@ -12,10 +12,10 @@ import type {
 } from "@v1/ui/recipes/player/player-view";
 import { format } from "date-fns";
 import {
-  formatHofValue,
-  HOF_TITLES,
-  type HofTitleId,
-} from "@/components/hof/hof-config";
+  formatHallOfFameValue,
+  HALL_OF_FAME_TITLES,
+  type HallOfFameTitleId,
+} from "@/components/hall-of-fame/hall-of-fame-config";
 import { SEASON_PARAM, type SeasonOption, withSeason } from "@/utils/season";
 
 type Relations = RouterOutputs["players"]["relations"];
@@ -90,29 +90,33 @@ export function toChampionStatViews(
   champions: ChampionStat[],
 ): ChampionStatView[] {
   return champions.map((champion) => {
-    const losses = champion.games - champion.wins;
+    const losses = champion.matches - champion.wins;
     return {
       championId: champion.championId,
-      matches: champion.games,
+      matches: champion.matches,
       wins: champion.wins,
       losses,
       kda: formatKda(
-        champion.kills / champion.games,
-        champion.deaths / champion.games,
-        champion.assists / champion.games,
+        champion.kills / champion.matches,
+        champion.deaths / champion.matches,
+        champion.assists / champion.matches,
       ),
       winrate: formatWinrate(champion.wins, losses),
     };
   });
 }
 
-export function toRatingPoints(history: RatingPoint[]): RatingPointView[] {
+/** The rating after each match; a point without a date is named by its place (`matchNumber`). */
+export function toRatingPoints(
+  history: RatingPoint[],
+  matchNumber: (number: number) => string,
+): RatingPointView[] {
   return history.map((point, i) => ({
     index: i + 1,
     rating: point.rating_after,
     label: point.created_at
       ? format(new Date(point.created_at), "MMM d, HH:mm")
-      : `Game ${i + 1}`,
+      : matchNumber(i + 1),
   }));
 }
 
@@ -146,10 +150,10 @@ export function toHeldTitles(
   }: {
     locale: string;
     href: string;
-    text: (id: HofTitleId) => { title: string; description: string };
+    text: (id: HallOfFameTitleId) => { title: string; description: string };
   },
 ): HeldTitleView[] {
-  return HOF_TITLES.flatMap((entry) => {
+  return HALL_OF_FAME_TITLES.flatMap((entry) => {
     const holder = hallOfFame[entry.id]?.find(
       ({ player }) => player.puuid === puuid,
     );
@@ -158,7 +162,7 @@ export function toHeldTitles(
       {
         id: entry.id,
         ...text(entry.id),
-        value: formatHofValue(entry, holder.value, locale),
+        value: formatHallOfFameValue(entry, holder.value, locale),
         href,
         kind: entry.kind,
         tone: entry.id === "mvp" ? "mvp" : entry.id === "ace" ? "ace" : null,

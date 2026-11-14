@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { HallOfFameSkeleton } from "@v1/ui/recipes/hof/hall-of-fame-skeleton";
+import { HallOfFameSkeleton } from "@v1/ui/recipes/hall-of-fame/hall-of-fame-skeleton";
 
 const meta = {
   title: "Hall of Fame/Skeleton",

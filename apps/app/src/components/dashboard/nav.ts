@@ -25,9 +25,9 @@ export const PRIMARY_PATHS = [
 /** Pre-game tools, grouped under one menu. */
 export const TOOL_PATHS = [
   {
-    path: "/shuffle",
-    label: "sidebar.shuffle",
-    Icon: Icons.Shuffle,
+    path: "/draw",
+    label: "sidebar.draw",
+    Icon: Icons.Draw,
     seasonScoped: false,
   },
   {

@@ -5,7 +5,7 @@ import { RankCrest } from "./game-assets/rank-crest";
 /**
  * A Solo/Duo rank crest with its label beside it.
  *
- * Built four times across matches, profiles and the shuffle, with three crest sizes and two gaps that
+ * Built four times across matches, profiles and the draw, with three crest sizes and two gaps that
  * did not line up. The label is the caller's — sometimes it is the rank, sometimes the rank with a
  * prefix ("Avg solo") or a suffix (LP) — so the component owns the crest, the alignment and the type,
  * and nothing else.

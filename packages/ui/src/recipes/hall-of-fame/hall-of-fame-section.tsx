@@ -1,11 +1,15 @@
-import type { HofSectionView } from "./hall-of-fame-view";
+import type { HallOfFameSectionView } from "./hall-of-fame-view";
 import { SectionTitle } from "./section-title";
 import { SingleTitles } from "./single-titles";
 import { TitleGrid } from "./title-grid";
 import { TitlePairs } from "./title-pairs";
 
 /** One section of the Hall of Fame, anchored so the section links on phones can jump to it. */
-export function HofSection({ section }: { section: HofSectionView }) {
+export function HallOfFameSection({
+  section,
+}: {
+  section: HallOfFameSectionView;
+}) {
   return (
     <section id={`hof-${section.id}`} className="scroll-mt-20">
       <SectionTitle>{section.name}</SectionTitle>

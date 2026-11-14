@@ -11,7 +11,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** Used where a list has to stay inside a fixed height, like the roster in the shuffle. */
+/** Used where a list has to stay inside a fixed height, like the roster in the draw. */
 export const Default: Story = {
   parameters: {
     a11y: {

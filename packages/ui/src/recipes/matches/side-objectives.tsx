@@ -6,13 +6,13 @@ import {
 import Image from "next/image";
 import { cn } from "../../utils/cn";
 
-interface TeamObjectivesProps {
+interface SideObjectivesProps {
   baronKills: number;
   dragonKills: number;
   heraldKills: number;
   inhibitorKills: number;
   towerKills: number;
-  teamName: Side;
+  side: Side;
   align?: "left" | "right";
 }
 
@@ -22,15 +22,15 @@ const ROWS: readonly (readonly Objective[])[] = [
   ["inhibitor", "tower"],
 ];
 
-export function TeamObjectives({
+export function SideObjectives({
   baronKills,
   dragonKills,
   heraldKills,
   inhibitorKills,
   towerKills,
-  teamName,
+  side,
   align = "left",
-}: TeamObjectivesProps) {
+}: SideObjectivesProps) {
   const counts: Record<Objective, number> = {
     baron: baronKills,
     dragon: dragonKills,
@@ -49,7 +49,7 @@ export function TeamObjectives({
           {row.map((objective) => (
             <div key={objective} className="flex items-center gap-1.5 text-xs">
               <Image
-                src={objectiveIconUrl(objective, teamName)}
+                src={objectiveIconUrl(objective, side)}
                 alt=""
                 width={16}
                 height={16}

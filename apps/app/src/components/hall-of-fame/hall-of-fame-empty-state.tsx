@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ALL_TIME_SEASON, QUALIFICATION_MATCHES } from "@v1/api/season";
-import { HallOfFameEmpty } from "@v1/ui/recipes/hof/hall-of-fame-empty";
+import { HallOfFameEmpty } from "@v1/ui/recipes/hall-of-fame/hall-of-fame-empty";
 import { useTRPC } from "@/trpc/react";
 import { ALL_TIME_PARAM, SEASON_PARAM } from "@/utils/season";
 
