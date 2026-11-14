@@ -16,8 +16,7 @@ export const metadata: Metadata = {
     default: "Derby",
     template: "%s | Derby",
   },
-  description:
-    "Custom game leaderboard and match history for League of Legends.",
+  description: "Custom game standings and match history for League of Legends.",
 };
 
 export const viewport = {

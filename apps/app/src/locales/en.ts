@@ -24,7 +24,7 @@ export default {
       },
     },
     sidebar: {
-      leaderboard: "Leaderboard",
+      standings: "Standings",
       matchHistory: "Matches",
       hallOfFame: "Hall of Fame",
       shuffle: "Shuffle",

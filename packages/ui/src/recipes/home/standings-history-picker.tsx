@@ -5,7 +5,7 @@ import { ScrollArea, ScrollBar } from "../../components/scroll-area";
 import { cn } from "../../utils/cn";
 import { HistoryPickerButton } from "./history-picker-button";
 
-interface LeaderboardHistoryPickerProps {
+interface StandingsHistoryPickerProps {
   /** The match counts the standings can be replayed after, in order; live comes last. */
   options: number[];
   /** The chosen count; null is live. */
@@ -15,12 +15,12 @@ interface LeaderboardHistoryPickerProps {
 }
 
 /** Replays the standings as they stood after N matches, or shows them live. */
-export default function LeaderboardHistoryPicker({
+export default function StandingsHistoryPicker({
   options,
   value,
   onChange,
   className,
-}: LeaderboardHistoryPickerProps) {
+}: StandingsHistoryPickerProps) {
   const t = useTranslations("standings");
 
   if (options.length === 0) return null;

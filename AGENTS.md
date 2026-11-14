@@ -1,7 +1,7 @@
 # Derby
 
 An Elo ladder for a group's League of Legends custom games. A desktop app uploads matches from the League
-client, Supabase rates them, and a Next.js app shows leaderboards, match history, Hall of Fame and more.
+client, Supabase rates them, and a Next.js app shows standings, match history, Hall of Fame and more.
 See [README.md](README.md) for setup.
 
 ## Read first

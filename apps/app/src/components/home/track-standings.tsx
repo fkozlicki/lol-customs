@@ -9,7 +9,7 @@ import { useSeasonParam } from "@/components/dashboard/use-season-param";
 import { useTRPC } from "@/trpc/react";
 import { toStandingsRowView } from "./standings-view";
 
-interface LeaderboardProps {
+interface TrackStandingsProps {
   season: number;
   seasonTitle: string;
   limit?: number;
@@ -19,16 +19,16 @@ interface LeaderboardProps {
 }
 
 /** The season's standings, live or replayed, as the home page shows them. */
-export function Leaderboard({
+export function TrackStandings({
   season,
   seasonTitle,
   limit = 50,
   after,
   historyPicker,
-}: LeaderboardProps) {
+}: TrackStandingsProps) {
   const trpc = useTRPC();
   const seasonParam = useSeasonParam();
-  const { data: leaderboard } = useSuspenseQuery(
+  const { data: standings } = useSuspenseQuery(
     trpc.standings.get.queryOptions({
       season,
       limit,
@@ -38,10 +38,8 @@ export function Leaderboard({
 
   const rows = useMemo(
     () =>
-      leaderboard.map((row) =>
-        toStandingsRowView(row, { season: seasonParam }),
-      ),
-    [leaderboard, seasonParam],
+      standings.map((row) => toStandingsRowView(row, { season: seasonParam })),
+    [standings, seasonParam],
   );
 
   return (

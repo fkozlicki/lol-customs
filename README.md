@@ -3,7 +3,7 @@
 An Elo ladder for a group's League of Legends custom games.
 
 Players install a small desktop app that reads custom games from their League client and uploads them.
-Each match is rated and gets per-player OP scores. The web app then shows leaderboards, match history,
+Each match is rated and gets per-player OP scores. The web app then shows standings, match history,
 Hall of Fame and rivalries, per season and across all seasons. It also has a team shuffler, live
 auctions for picking teams, and a forum.
 
@@ -15,7 +15,7 @@ and the rating and OP score formulas are in [docs/formulas.md](docs/formulas.md)
 
 ```
 League client ──► apps/lcu (Electron) ──► Supabase (apps/api) ◄── packages/api (tRPC) ◄── apps/app (Next.js)
-                  filters custom games     stores matches,        queries per season       leaderboard, matches,
+                  filters custom games     stores matches,        queries per season       standings, matches,
                   and uploads them         rates them in SQL                               Hall of Fame, auctions
 ```
 

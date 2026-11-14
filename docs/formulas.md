@@ -1,8 +1,8 @@
 # Formula documentation
 
-## Leaderboard rating formula
+## Rating formula
 
-The leaderboard uses a **single rating** per player. After each 5v5 match, every participant’s rating is updated using a performance-blended Elo-style update that is **zero-sum** over the 10 players in that match (no long-term inflation).
+The standings use a **single rating** per player. After each 5v5 match, every participant’s rating is updated using a performance-blended Elo-style update that is **zero-sum** over the 10 players in that match (no long-term inflation).
 
 ### Constants
 
@@ -84,7 +84,7 @@ A player is **qualified** on a rating track after **5 matches** on that track (e
 
 ## OP Score formula
 
-OP Score is a **0–10** performance score for each participant in a match, stored as `numeric(5, 3)` so the UI can display one decimal while the leaderboard and MVP/ACE ordering use the full three-decimal precision.
+OP Score is a **0–10** performance score for each participant in a match, stored as `numeric(5, 3)` so the UI can display one decimal while the standings and MVP/ACE ordering use the full three-decimal precision.
 
 A match's OP scores are computed once, when all ten participants have been uploaded, and before the match is rated, because the rating update reads them. A match with any other number of participants gets neither.
 
@@ -187,7 +187,7 @@ Effective bucket `_op_effective_role_bucket` (SQL):
 \text{OP Score} = \operatorname{round}\!\left(10 \cdot \left(w_C\,C + w_E\,E + w_U\,U + w_T\,T\right),\ 3\right),
 \]
 
-stored as `numeric(5, 3)`. The UI rounds to one decimal for display; the leaderboard / MVP logic uses the stored value.
+stored as `numeric(5, 3)`. The UI rounds to one decimal for display; the standings / MVP logic uses the stored value.
 
 ### Fallback (no timeline frames or duration below cadence)
 

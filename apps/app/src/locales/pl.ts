@@ -25,7 +25,7 @@ export default {
       },
     },
     sidebar: {
-      leaderboard: "Ranking",
+      standings: "Ranking",
       matchHistory: "Mecze",
       hallOfFame: "Sławy",
       shuffle: "Losuj",

@@ -36,6 +36,6 @@ and `badge.tsx` do. There is no `recipes/` folder.
 - Anything promoted into `packages/ui` has to be neutral and use only tokens Derby Sync defines;
   `packages/ui/README.md` says how to check.
 - The shared icon map names icons after what they depict (`Trophy`, `Gavel`); the dashboard's
-  `icons.ts` adds the domain names on top (`Leaderboard`, `Auction`).
+  `icons.ts` adds the domain names on top (`Standings`, `Auction`).
 - Revisit if Derby Sync adopts the design system. Then two apps want the same compositions, and the
   package is the right home.

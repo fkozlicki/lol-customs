@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import LeaderboardRow from "@v1/ui/recipes/home/leaderboard-row";
+import StandingsRow from "@v1/ui/recipes/home/standings-row";
 import { QUALIFICATION_MATCHES, STANDINGS } from "./standings.fixtures";
 
 const meta = {
-  title: "Home/Leaderboard row",
-  component: LeaderboardRow,
+  title: "Home/Standings row",
+  component: StandingsRow,
   parameters: { layout: "padded" },
   args: {
     row: STANDINGS[0]!,
@@ -20,7 +20,7 @@ const meta = {
       </table>
     ),
   ],
-} satisfies Meta<typeof LeaderboardRow>;
+} satisfies Meta<typeof StandingsRow>;
 
 export default meta;
 
@@ -46,7 +46,7 @@ export const Standings: Story = {
   render: (args) => (
     <>
       {STANDINGS.map((row, index) => (
-        <LeaderboardRow
+        <StandingsRow
           key={row.key}
           row={row}
           index={index}

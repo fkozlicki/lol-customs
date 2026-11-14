@@ -1,6 +1,6 @@
 import { Skeleton } from "../../components/skeleton";
 
-export default function LeaderboardSkeleton() {
+export default function StandingsSkeleton() {
   return (
     <div className="space-y-12 sm:space-y-16">
       <div className="space-y-8 sm:space-y-12">

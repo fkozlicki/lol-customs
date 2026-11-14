@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { DownloadAppButton } from "@v1/ui/recipes/dashboard/download-app-button";
-import LeaderboardHistoryPicker from "@v1/ui/recipes/home/leaderboard-history-picker";
 import { Standings } from "@v1/ui/recipes/home/standings";
+import StandingsHistoryPicker from "@v1/ui/recipes/home/standings-history-picker";
 import { fn } from "storybook/test";
 import { range, slots } from "../../controls";
 import { QUALIFICATION_MATCHES, STANDINGS } from "./standings.fixtures";
@@ -19,7 +19,7 @@ const meta = {
     rows: STANDINGS,
     qualificationMatches: QUALIFICATION_MATCHES,
     historyPicker: (
-      <LeaderboardHistoryPicker
+      <StandingsHistoryPicker
         options={Array.from({ length: 13 }, (_, i) => i + 1)}
         value={null}
         onChange={fn()}

@@ -1,10 +1,10 @@
 import { ALL_TIME_SEASON } from "@v1/api/season";
-import LeaderboardSkeleton from "@v1/ui/recipes/home/leaderboard-skeleton";
+import StandingsSkeleton from "@v1/ui/recipes/home/standings-skeleton";
 import { PageShell } from "@v1/ui/recipes/page-shell";
 import { getTranslations } from "next-intl/server";
-import LeaderboardHistoryPicker from "@/components/home/leaderboard-history-picker";
-import { Leaderboard } from "@/components/home/leaderboard-preview";
 import { replayPoint } from "@/components/home/standings-after-matches";
+import StandingsHistoryPicker from "@/components/home/standings-history-picker";
+import { TrackStandings } from "@/components/home/track-standings";
 import { QueryBoundary } from "@/components/query-boundary";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { seasonNumber } from "@/utils/season";
@@ -43,15 +43,15 @@ export default async function DashboardHomePage({
             the standings, so they replay the entry stagger instead; animating a reorder needs the
             previous rows kept (e.g. placeholder data) and `layout` on each row. */}
         <QueryBoundary
-          fallback={<LeaderboardSkeleton />}
+          fallback={<StandingsSkeleton />}
           key={`${season}:${afterMatches ?? "live"}`}
         >
-          <Leaderboard
+          <TrackStandings
             season={season}
             seasonTitle={seasonTitle}
             limit={50}
             after={afterMatches}
-            historyPicker={<LeaderboardHistoryPicker matchCount={matchCount} />}
+            historyPicker={<StandingsHistoryPicker matchCount={matchCount} />}
           />
         </QueryBoundary>
       </PageShell>

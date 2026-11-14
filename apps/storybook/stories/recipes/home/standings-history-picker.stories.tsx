@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import LeaderboardHistoryPicker from "@v1/ui/recipes/home/leaderboard-history-picker";
+import StandingsHistoryPicker from "@v1/ui/recipes/home/standings-history-picker";
 import { useState } from "react";
 import { expect, fn } from "storybook/test";
 import { wordsFor } from "../../words";
@@ -8,13 +8,13 @@ import { wordsFor } from "../../words";
 const OPTIONS = Array.from({ length: 13 }, (_, index) => index + 1);
 
 const meta = {
-  title: "Home/Leaderboard history picker",
-  component: LeaderboardHistoryPicker,
+  title: "Home/Standings history picker",
+  component: StandingsHistoryPicker,
   args: { options: OPTIONS, value: null, onChange: fn() },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
     return (
-      <LeaderboardHistoryPicker
+      <StandingsHistoryPicker
         {...args}
         value={value}
         onChange={(next) => {
@@ -24,7 +24,7 @@ const meta = {
       />
     );
   },
-} satisfies Meta<typeof LeaderboardHistoryPicker>;
+} satisfies Meta<typeof StandingsHistoryPicker>;
 
 export default meta;
 

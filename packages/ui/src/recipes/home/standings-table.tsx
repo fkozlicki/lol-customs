@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import LeaderboardRow from "./leaderboard-row";
 import { QualifyingHeading } from "./qualifying-heading";
 import { StandingsColumnHeading as Th } from "./standings-column-heading";
+import StandingsRow from "./standings-row";
 import type { StandingsRowView } from "./standings-view";
 
 interface StandingsTableProps {
@@ -43,7 +43,7 @@ export function StandingsTable({
         </thead>
         <tbody>
           {ranked.map((row, index) => (
-            <LeaderboardRow
+            <StandingsRow
               key={row.key}
               row={row}
               index={index}
@@ -54,7 +54,7 @@ export function StandingsTable({
             <QualifyingHeading qualificationMatches={qualificationMatches} />
           )}
           {qualifying.map((row, index) => (
-            <LeaderboardRow
+            <StandingsRow
               key={row.key}
               row={row}
               index={ranked.length + index}
